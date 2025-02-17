@@ -326,6 +326,9 @@
     <ClCompile Include="scene\ClearScene.cpp">
       <Filter>ソースファイル\scene</Filter>
     </ClCompile>
+    <ClCompile Include="scene\GameOverScene.cpp">
+      <Filter>ソースファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
@@ -558,6 +561,7 @@
     <ClInclude Include="scene\ClearScene.h">
       <Filter>ソースファイル\scene</Filter>
     </ClInclude>
+    <ClInclude Include="scene\GameOverScene.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\shaders\Particle\Particle.PS.hlsl">

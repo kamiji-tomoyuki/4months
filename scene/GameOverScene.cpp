@@ -1,16 +1,23 @@
-#include "GameScene.h"
-#include <LightGroup.h>
+#include "GameOverScene.h"
+#include "ImGuiManager.h"
 #include"SceneManager.h"
-#include <line/DrawLine3D.h>
+#include"SrvManager.h"
 
-void GameScene::Finalize()
+#ifdef _DEBUG
+#include<imgui.h>
+#endif // _DEBUG
+#include <LightGroup.h>
+#include"line/DrawLine3D.h"
+
+
+/// 終了
+void GameOverScene::Finalize()
 {
-
 }
 
-void GameScene::Initialize()
+/// 初期化
+void GameOverScene::Initialize()
 {
-
 	audio_ = Audio::GetInstance();
 	objCommon_ = Object3dCommon::GetInstance();
 	spCommon_ = SpriteCommon::GetInstance();
@@ -21,7 +28,8 @@ void GameScene::Initialize()
 	debugCamera_->Initialize(&vp_);
 }
 
-void GameScene::Update()
+/// 更新
+void GameOverScene::Update()
 {
 #ifdef _DEBUG
 	// デバッグ
@@ -33,9 +41,11 @@ void GameScene::Update()
 
 	// シーン切り替え
 	ChangeScene();
+
 }
 
-void GameScene::Draw()
+/// 描画
+void GameOverScene::Draw()
 {
 	/// -------描画処理開始-------
 
@@ -71,7 +81,8 @@ void GameScene::Draw()
 	/// -------描画処理終了-------
 }
 
-void GameScene::DrawForOffScreen()
+/// オフスクリーン上に描画
+void GameOverScene::DrawForOffScreen()
 {
 	/// -------描画処理開始-------
 
@@ -104,15 +115,15 @@ void GameScene::DrawForOffScreen()
 	/// -------描画処理終了-------
 }
 
-void GameScene::Debug()
+void GameOverScene::Debug()
 {
-	ImGui::Begin("GameScene:Debug");
+	ImGui::Begin("GameOverScene:Debug");
 	debugCamera_->imgui();
 	LightGroup::GetInstance()->imgui();
 	ImGui::End();
 }
 
-void GameScene::CameraUpdate()
+void GameOverScene::CameraUpdate()
 {
 	if (debugCamera_->GetActive()) {
 		debugCamera_->Update();
@@ -122,12 +133,9 @@ void GameScene::CameraUpdate()
 	}
 }
 
-void GameScene::ChangeScene()
+void GameOverScene::ChangeScene()
 {
-	if (input_->TriggerKey(DIK_SPACE) && !input_->PushKey(DIK_LCONTROL)) {
-		sceneManager_->NextSceneReservation("CLEAR");
-	}
-	else if (input_->TriggerKey(DIK_SPACE) && input_->PushKey(DIK_LCONTROL)) {
-		sceneManager_->NextSceneReservation("GameOver");
+	if (input_->TriggerKey(DIK_SPACE)) {
+		sceneManager_->NextSceneReservation("TITLE");
 	}
 }
