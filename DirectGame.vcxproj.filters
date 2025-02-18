@@ -236,9 +236,6 @@
     <ClCompile Include="engine\utility\edit\Liner.cpp">
       <Filter>ソースファイル\myEngine\utility\edit</Filter>
     </ClCompile>
-    <ClCompile Include="math\Quaternion.cpp">
-      <Filter>ソースファイル\math</Filter>
-    </ClCompile>
     <ClCompile Include="engine\3d\transform\ObjColor.cpp">
       <Filter>ソースファイル\myEngine\3d\transform</Filter>
     </ClCompile>
@@ -322,6 +319,27 @@
     </ClCompile>
     <ClCompile Include="engine\3d\model\animation\ModelAnimation.cpp">
       <Filter>ソースファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Player\Player.cpp">
+      <Filter>ソースファイル\application\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Player\LockOn.cpp">
+      <Filter>ソースファイル\application\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Player\FollowCamera.cpp">
+      <Filter>ソースファイル\application\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Player\PlayerArm.cpp">
+      <Filter>ソースファイル\application\Player\Weapon</Filter>
+    </ClCompile>
+    <ClCompile Include="TimeManager.cpp">
+      <Filter>ソースファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Skydome.cpp">
+      <Filter>ソースファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="math\Quaternion.cpp">
+      <Filter>ソースファイル\math</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -523,9 +541,6 @@
     <ClInclude Include="engine\3d\light\LightGroup.h">
       <Filter>ソースファイル\myEngine\light</Filter>
     </ClInclude>
-    <ClInclude Include="math\Quaternion.h">
-      <Filter>ソースファイル\math</Filter>
-    </ClInclude>
     <ClInclude Include="engine\3d\line\DrawLine3D.h">
       <Filter>ソースファイル\myEngine\3d\line</Filter>
     </ClInclude>
@@ -552,6 +567,24 @@
     </ClInclude>
     <ClInclude Include="engine\utility\graphics\AnimationManager.h" />
     <ClInclude Include="engine\3d\model\animation\ModelAnimation.h" />
+    <ClInclude Include="application\CollisionTypeIdDef.h" />
+    <ClInclude Include="application\Player\Player.h">
+      <Filter>ソースファイル\application\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="application\Player\LockOn.h">
+      <Filter>ソースファイル\application\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="application\Player\FollowCamera.h">
+      <Filter>ソースファイル\application\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="application\Player\PlayerArm.h">
+      <Filter>ソースファイル\application\Player\Weapon</Filter>
+    </ClInclude>
+    <ClInclude Include="TimeManager.h" />
+    <ClInclude Include="Skydome.h" />
+    <ClInclude Include="math\Quaternion.h">
+      <Filter>ソースファイル\math</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\shaders\Particle\Particle.PS.hlsl">

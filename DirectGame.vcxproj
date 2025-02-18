@@ -65,7 +65,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)engine\2d;$(ProjectDir)engine\3d;$(ProjectDir)engine\3d\light;$(ProjectDir)engine\3d\particle;$(ProjectDir)engine\3d\model;$(ProjectDir)engine\3d\transform;$(ProjectDir)engine\3d\camera;$(ProjectDir)engine\base;$(ProjectDir)engine\input;$(ProjectDir)engine\utility;$(ProjectDir)engine\utility\graphics;$(ProjectDir)engine\utility\debug;$(ProjectDir)engine\utility\string;$(ProjectDir)scene;$(ProjectDir)engine\core;$(ProjectDir)engine\utility\edit;$(ProjectDir)engine\utility\collider;$(ProjectDir)engine\utility\scene;$(ProjectDir)particle;$(ProjectDir)math;$(ProjectDir)externals\assimp\include;$(ProjectDir)engine\Frame;$(ProjectDir)engine\Audio;$(ProjectDir)externals\imgui;$(ProjectDir)externals\DirectXTex</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)application\;$(ProjectDir)application\Base;$(ProjectDir)application\Player;$(ProjectDir)engine\2d;$(ProjectDir)engine\3d;$(ProjectDir)engine\3d\light;$(ProjectDir)engine\3d\particle;$(ProjectDir)engine\3d\model;$(ProjectDir)engine\3d\transform;$(ProjectDir)engine\3d\camera;$(ProjectDir)engine\base;$(ProjectDir)engine\input;$(ProjectDir)engine\utility;$(ProjectDir)engine\utility\graphics;$(ProjectDir)engine\utility\debug;$(ProjectDir)engine\utility\string;$(ProjectDir)scene;$(ProjectDir)engine\core;$(ProjectDir)engine\utility\edit;$(ProjectDir)engine\utility\collider;$(ProjectDir)engine\utility\scene;$(ProjectDir)particle;$(ProjectDir)math;$(ProjectDir)externals\assimp\include;$(ProjectDir)engine\Frame;$(ProjectDir)engine\Audio;$(ProjectDir)externals\imgui;$(ProjectDir)externals\DirectXTex</AdditionalIncludeDirectories>
       <Optimization>Custom</Optimization>
     </ClCompile>
     <Link>
@@ -92,7 +92,7 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
       <AdditionalOptions>/utf-8</AdditionalOptions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)engine\2d;$(ProjectDir)engine\3d;$(ProjectDir)engine\3d\light;$(ProjectDir)engine\3d\particle;$(ProjectDir)engine\3d\model;$(ProjectDir)engine\3d\transform;$(ProjectDir)engine\3d\camera;$(ProjectDir)engine\base;$(ProjectDir)engine\input;$(ProjectDir)engine\utility;$(ProjectDir)engine\utility\graphics;$(ProjectDir)engine\utility\debug;$(ProjectDir)engine\utility\string;$(ProjectDir)scene;$(ProjectDir)engine\core;$(ProjectDir)engine\utility\edit;$(ProjectDir)engine\utility\collider;$(ProjectDir)engine\utility\scene;$(ProjectDir)particle;$(ProjectDir)math;$(ProjectDir)externals\assimp\include;$(ProjectDir)engine\Frame;$(ProjectDir)engine\Audio;$(ProjectDir)externals\imgui;$(ProjectDir)externals\DirectXTex</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)application\;$(ProjectDir)application\Base;$(ProjectDir)application\Player;$(ProjectDir)engine\2d;$(ProjectDir)engine\3d;$(ProjectDir)engine\3d\light;$(ProjectDir)engine\3d\particle;$(ProjectDir)engine\3d\model;$(ProjectDir)engine\3d\transform;$(ProjectDir)engine\3d\camera;$(ProjectDir)engine\base;$(ProjectDir)engine\input;$(ProjectDir)engine\utility;$(ProjectDir)engine\utility\graphics;$(ProjectDir)engine\utility\debug;$(ProjectDir)engine\utility\string;$(ProjectDir)scene;$(ProjectDir)engine\core;$(ProjectDir)engine\utility\edit;$(ProjectDir)engine\utility\collider;$(ProjectDir)engine\utility\scene;$(ProjectDir)particle;$(ProjectDir)math;$(ProjectDir)externals\assimp\include;$(ProjectDir)engine\Frame;$(ProjectDir)engine\Audio;$(ProjectDir)externals\imgui;$(ProjectDir)externals\DirectXTex</AdditionalIncludeDirectories>
       <Optimization>Custom</Optimization>
     </ClCompile>
     <Link>
@@ -109,11 +109,16 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="application\Player\FollowCamera.cpp" />
+    <ClCompile Include="application\Player\LockOn.cpp" />
+    <ClCompile Include="application\Player\Player.cpp" />
+    <ClCompile Include="application\Player\PlayerArm.cpp" />
     <ClCompile Include="engine\3d\model\animation\ModelAnimation.cpp" />
     <ClCompile Include="engine\utility\graphics\AnimationManager.cpp" />
     <ClCompile Include="engine\3d\model\animation\Bone.cpp" />
     <ClCompile Include="engine\3d\model\animation\Animator.cpp" />
     <ClCompile Include="application\Base\BaseObject.cpp" />
+    <ClCompile Include="math\Quaternion.cpp" />
     <ClCompile Include="math\random.cpp" />
     <ClCompile Include="engine\3d\camera\DebugCamera.cpp" />
     <ClCompile Include="engine\3d\light\LightGroup.cpp" />
@@ -127,7 +132,6 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\3d\particle\ParticleManager.cpp" />
     <ClCompile Include="engine\utility\debug\GlobalVariables.cpp" />
     <ClCompile Include="engine\utility\edit\LevelData.cpp" />
-    <ClCompile Include="math\Quaternion.cpp" />
     <ClCompile Include="engine\3d\transform\ObjColor.cpp" />
     <ClCompile Include="engine\utility\edit\Liner.cpp" />
     <ClCompile Include="engine\3d\particle\ParticleEmitter.cpp" />
@@ -172,6 +176,8 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="scene\GameScene.cpp" />
     <ClCompile Include="scene\TitleScene.cpp" />
     <ClCompile Include="engine\3d\model\animation\Skin.cpp" />
+    <ClCompile Include="Skydome.cpp" />
+    <ClCompile Include="TimeManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
@@ -197,11 +203,17 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="application\CollisionTypeIdDef.h" />
+    <ClInclude Include="application\Player\FollowCamera.h" />
+    <ClInclude Include="application\Player\LockOn.h" />
+    <ClInclude Include="application\Player\Player.h" />
+    <ClInclude Include="application\Player\PlayerArm.h" />
     <ClInclude Include="engine\3d\model\animation\ModelAnimation.h" />
     <ClInclude Include="engine\utility\graphics\AnimationManager.h" />
     <ClInclude Include="engine\3d\model\animation\Bone.h" />
     <ClInclude Include="engine\3d\model\animation\Animator.h" />
     <ClInclude Include="application\Base\BaseObject.h" />
+    <ClInclude Include="math\Quaternion.h" />
     <ClInclude Include="math\random.h" />
     <ClInclude Include="engine\3d\camera\DebugCamera.h" />
     <ClInclude Include="engine\3d\light\LightGroup.h" />
@@ -216,7 +228,6 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\3d\particle\ParticleManager.h" />
     <ClInclude Include="engine\utility\debug\GlobalVariables.h" />
     <ClInclude Include="engine\utility\edit\LevelData.h" />
-    <ClInclude Include="math\Quaternion.h" />
     <ClInclude Include="engine\3d\transform\ObjColor.h" />
     <ClInclude Include="engine\utility\edit\Liner.h" />
     <ClInclude Include="engine\3d\particle\ParticleEmitter.h" />
@@ -267,6 +278,8 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="scene\GameScene.h" />
     <ClInclude Include="scene\TitleScene.h" />
     <ClInclude Include="engine\3d\model\animation\Skin.h" />
+    <ClInclude Include="Skydome.h" />
+    <ClInclude Include="TimeManager.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\shaders\OffScreen\BoxFilter.PS.hlsl">

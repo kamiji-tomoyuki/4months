@@ -1,20 +1,16 @@
 #include "ParticleEmitter.h"
-#include "line/DrawLine3D.h"
+#include"line/DrawLine3D.h"
 
+// コンストラクタ
 ParticleEmitter::ParticleEmitter() {}
 
 void ParticleEmitter::Initialize(const std::string& name, const std::string& fileName)
 {
-	// --- 引数で受け取りメンバ変数に記録 ---
 	name_ = name;
-
 	transform_.Initialize();
-
-	manager_ = std::make_unique<ParticleManager>();
-	manager_->Initialize(SrvManager::GetInstance());
-	manager_->CreateParticleGroup(name_, fileName);
-	
-	// --- 各ステータスにデフォルト値を設定 ---
+	Manager_ = std::make_unique<ParticleManager>();
+	Manager_->Initialize(SrvManager::GetInstance());
+	Manager_->CreateParticleGroup(name_, fileName);
 	emitFrequency_ = 0.1f;
 	velocityMin_ = { -1.0f, -1.0f, -1.0f };
 	velocityMax_ = { 1.0f, 1.0f, 1.0f };
@@ -32,94 +28,104 @@ void ParticleEmitter::Initialize(const std::string& name, const std::string& fil
 	alphaMax_ = 1.0f;
 	AddItem();
 	isBillBoard = false;
-	isActive_ = true;
+	isActive_ = false;
 	isAcceMultiply = false;
 	allScaleMin = { 1.0f,1.0f,1.0f };
 	allScaleMax = { 1.0f,1.0f,1.0f };
-
 	ApplyGlobalVariables();
 }
 
+// Update関数
 void ParticleEmitter::Update(const ViewProjection& vp_) {
-	SetValue();
+	SetEmitValue();
+	// 経過時間を進める
 	elapsedTime_ += deltaTime;
 
+	// 発生頻度に基づいてパーティクルを発生させる
 	while (elapsedTime_ >= emitFrequency_) {
-		Emit();
-		elapsedTime_ -= emitFrequency_;
+		Emit();  // パーティクルを発生させる
+		elapsedTime_ -= emitFrequency_;  // 過剰に進んだ時間を考慮
 	}
-
-	manager_->Update(vp_);
+	Manager_->Update(vp_);
 	transform_.UpdateMatrix();
 }
 
 void ParticleEmitter::UpdateOnce(const ViewProjection& vp_)
 {
-	SetValue();
-	if (!isActive_) {
-		Emit();
-		isActive_ = true;
+	SetEmitValue();
+	if (isActive_) {
+		Emit();  // パーティクルを発生させる
+		isActive_ = false;
 	}
-	manager_->Update(vp_);
+	Manager_->Update(vp_);
 	transform_.UpdateMatrix();
 }
 
 void ParticleEmitter::Draw()
 {
-	manager_->SetRandomRotate(isRandomRotate);
-	manager_->SetAcceMultipy(isAcceMultiply);
-	manager_->SetBillBorad(isBillBoard);
-	manager_->SetRandomSize(isRandomScale);
-	manager_->SetAllRandomSize(isAllRamdomScale);
-	manager_->SetSinMove(isSinMove);
-	manager_->Draw();
+	Manager_->SetRandomRotate(isRandomRotate);
+	Manager_->SetAcceMultipy(isAcceMultiply);
+	Manager_->SetBillBorad(isBillBoard);
+	Manager_->SetRandomSize(isRandomScale);
+	Manager_->SetAllRandomSize(isAllRamdomScale);
+	Manager_->SetSinMove(isSinMove);
+	Manager_->Draw();
 }
 
 void ParticleEmitter::DrawEmitter()
 {
+	// isVisibleがtrueのときだけ描画
 	if (!isVisible) return;
 
+	// 立方体のローカル座標での基本頂点（スケーリング済み）
 	std::array<Vector3, 8> localVertices = {
-		Vector3{-1.0f, -1.0f, -1.0f}, // 左下前
-		Vector3{ 1.0f, -1.0f, -1.0f}, // 右下前
-		Vector3{-1.0f,  1.0f, -1.0f}, // 左上前
-		Vector3{ 1.0f,  1.0f, -1.0f}, // 右上前
+		Vector3{-1.0f, -1.0f, -1.0f}, // 左下手前
+		Vector3{ 1.0f, -1.0f, -1.0f}, // 右下手前
+		Vector3{-1.0f,  1.0f, -1.0f}, // 左上手前
+		Vector3{ 1.0f,  1.0f, -1.0f}, // 右上手前
 		Vector3{-1.0f, -1.0f,  1.0f}, // 左下奥
 		Vector3{ 1.0f, -1.0f,  1.0f}, // 右下奥
 		Vector3{-1.0f,  1.0f,  1.0f}, // 左上奥
 		Vector3{ 1.0f,  1.0f,  1.0f}  // 右上奥
 	};
 
+	// ワールド変換結果を格納する配列
 	std::array<Vector3, 8> worldVertices;
 
+	// ワールド行列の計算
 	Matrix4x4 worldMatrix = MakeAffineMatrix(transform_.scale_, transform_.rotation_, transform_.translation_);
 
+	// 頂点のワールド変換
 	for (size_t i = 0; i < localVertices.size(); i++) {
 		worldVertices[i] = Transformation(localVertices[i], worldMatrix);
 	}
 
+	// エッジリスト（線の接続順）
 	constexpr std::array<std::pair<int, int>, 12> edges = {
 		std::make_pair(0, 1), std::make_pair(1, 3), std::make_pair(3, 2), std::make_pair(2, 0), // 前面
 		std::make_pair(4, 5), std::make_pair(5, 7), std::make_pair(7, 6), std::make_pair(6, 4), // 背面
 		std::make_pair(0, 4), std::make_pair(1, 5), std::make_pair(2, 6), std::make_pair(3, 7)  // 側面
 	};
 
+	// エッジ描画
 	for (const auto& edge : edges) {
 		DrawLine3D::GetInstance()->SetPoints(worldVertices[edge.first], worldVertices[edge.second]);
 	}
 }
 
 
+// Emit関数
 void ParticleEmitter::Emit() {
-		manager_->Emit(
+	// ParticleManagerのEmit関数を呼び出す
+	Manager_->Emit(
 		name_,
 		transform_.translation_,
 		count_,
-		transform_.scale_,
-		velocityMin_,     
-		velocityMax_,     
-		lifeTimeMin_,     
-		lifeTimeMax_,     
+		transform_.scale_,          // スケールを引数として渡す
+		velocityMin_,               // 最小速度を引数として渡す
+		velocityMax_,               // 最大速度を引数として渡す
+		lifeTimeMin_,               // 最小ライフタイムを引数として渡す
+		lifeTimeMax_,               // 最大ライフタイムを引数として渡す
 		startScale_,
 		endScale_,
 		startAcce_,
@@ -174,8 +180,9 @@ void ParticleEmitter::ApplyGlobalVariables()
 	isSinMove = globalVariables->GetBoolValue(groupName, "isSinMove");
 }
 
-void ParticleEmitter::SetValue()
+void ParticleEmitter::SetEmitValue()
 {
+
 	globalVariables->SetValue(groupName, "emitFrequency", emitFrequency_);
 	globalVariables->SetValue(groupName, "count", count_);
 	globalVariables->SetValue(groupName, "Emit translation", transform_.translation_);
@@ -247,14 +254,17 @@ void ParticleEmitter::AddItem()
 	globalVariables->AddItem(groupName, "isSinMove", isSinMove);
 }
 
+// ImGuiで値を動かす関数
 void ParticleEmitter::imgui() {
 #ifdef _DEBUG
 	ImGui::Begin(name_.c_str());
 
+	// 基本データセクション
 	if (ImGui::CollapsingHeader("エミッターデータ")) {
+		// トランスフォームデータをフレーム内に配置
 		ImGui::Text("Transformデータ:");
 		ImGui::Separator();
-		ImGui::Columns(2, "TransformColumns", false);
+		ImGui::Columns(2, "TransformColumns", false); // 2列レイアウト
 		ImGui::Text("位置"); ImGui::NextColumn();
 		ImGui::DragFloat3("##位置", &transform_.translation_.x, 0.1f);
 		ImGui::NextColumn();
@@ -265,7 +275,9 @@ void ParticleEmitter::imgui() {
 		radiansToDegrees(transform_.rotation_.z)
 		};
 
+		// ドラッグUIを使用し、度数法で値を操作
 		if (ImGui::DragFloat3("##回転 (度)", rotationDegrees, 0.1f, -360.0f, 360.0f)) {
+			// 操作後、度数法からラジアンに戻して保存
 			transform_.rotation_.x = degreesToRadians(rotationDegrees[0]);
 			transform_.rotation_.y = degreesToRadians(rotationDegrees[1]);
 			transform_.rotation_.z = degreesToRadians(rotationDegrees[2]);
@@ -274,13 +286,16 @@ void ParticleEmitter::imgui() {
 		ImGui::NextColumn();
 		ImGui::Text("大きさ"); ImGui::NextColumn();
 		ImGui::DragFloat3("##大きさ", &transform_.scale_.x, 0.1f, 0.0f);
-		ImGui::Columns(1);
+		ImGui::Columns(1); // 列終了
 		ImGui::Separator();
 
+		// 可視性フラグ
 		ImGui::Checkbox("表示", &isVisible);
 	}
 
+	// パーティクルデータセクション
 	if (ImGui::CollapsingHeader("パーティクルデータ")) {
+		// LifeTimeを折りたたみ可能にする
 		if (ImGui::TreeNode("寿命")) {
 			ImGui::Text("寿命設定:");
 			ImGui::Separator();
@@ -293,6 +308,7 @@ void ParticleEmitter::imgui() {
 
 		ImGui::Separator();
 
+		// 速度と加速度
 		if (ImGui::TreeNode("速度、加速度")) {
 			ImGui::Text("速度:");
 			ImGui::DragFloat3("最大値", &velocityMax_.x, 0.1f);
@@ -312,6 +328,7 @@ void ParticleEmitter::imgui() {
 
 		ImGui::Separator();
 
+		// サイズ
 		if (ImGui::TreeNode("大きさ")) {
 			ImGui::Text("大きさ:");
 			if (isAllRamdomScale) {
@@ -347,6 +364,7 @@ void ParticleEmitter::imgui() {
 
 		ImGui::Separator();
 
+		// 回転
 		if (ImGui::TreeNode("回転")) {
 			if (!isRandomRotate) {
 				float startRotationDegrees[3] = {
@@ -386,6 +404,7 @@ void ParticleEmitter::imgui() {
 
 		ImGui::Separator();
 
+		// Alphaを折りたたみ可能にする
 		if (ImGui::TreeNode("透明度")) {
 			ImGui::Text("透明度の設定:");
 			ImGui::DragFloat("最大値", &alphaMax_, 0.1f, 0.0f, 1.0f);
@@ -396,12 +415,14 @@ void ParticleEmitter::imgui() {
 		}
 	}
 
+	// エミット設定セクション
 	if (ImGui::CollapsingHeader("パーティクルの数、間隔")) {
 		ImGui::DragFloat("間隔", &emitFrequency_, 0.1f, 0.1f, 100.0f);
 		ImGui::InputInt("数", &count_, 1, 100);
 		count_ = std::clamp(count_, 0, 10000);
 	}
 
+	// その他の設定セクション
 	if (ImGui::CollapsingHeader("各状態の設定")) {
 		ImGui::Checkbox("ビルボード", &isBillBoard);
 		ImGui::Checkbox("ランダムカラー", &isRandomColor);

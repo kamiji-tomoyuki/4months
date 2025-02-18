@@ -144,6 +144,21 @@ Quaternion Quaternion::Inverse() const
 	return { conjugate.x / normSquared, conjugate.y / normSquared, conjugate.z / normSquared, conjugate.w / normSquared };
 }
 
+Quaternion Quaternion::MakeRotateAxisAngleQuaternion(const Vector3& axis, float angle)
+{
+	Quaternion result;
+	float halfAngle = angle / 2.0f;
+	float sinHalfAngle = sinf(halfAngle);
+	// 回転軸を正規化
+	Vector3 axisNormal = axis.Normalize();
+	//クォータニオンを計算
+	result.x = axisNormal.x * sinHalfAngle;
+	result.y = axisNormal.y * sinHalfAngle;
+	result.z = axisNormal.z * sinHalfAngle;
+	result.w = cosf(halfAngle);
+	return result;
+}
+
 Quaternion Quaternion::Sleap(Quaternion q1, Quaternion q2, float t)
 {
 	// クォータニオンの内積を計算

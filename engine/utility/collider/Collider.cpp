@@ -14,7 +14,7 @@ Collider::Collider() {
 	AABB_ = std::make_unique<Object3d>();
 	AABB_->Initialize("debug/AABB.obj");
 	OBB_ = std::make_unique<Object3d>();
-	OBB_->Initialize("debug/OBB.obj");
+	OBB_->Initialize("debug/AABB.obj");
 	variables_ = GlobalVariables::GetInstance();
 
 	// 派生クラス名を取得して整形

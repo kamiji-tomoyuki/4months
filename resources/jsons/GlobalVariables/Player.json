@@ -1,0 +1,17 @@
+{
+    "Player": {
+        "attackPower_": 500.0,
+        "attackVelocity_": [
+            0.0,
+            0.0,
+            100.0
+        ],
+        "deltaTime": 0.01666666753590107,
+        "kAcceleration": 0.5,
+        "kAttenuation": 0.0,
+        "kHp_": 10000,
+        "kLimitRunSpeed": 200.0,
+        "powerMagnification_": 2.0,
+        "size": 6.5
+    }
+}

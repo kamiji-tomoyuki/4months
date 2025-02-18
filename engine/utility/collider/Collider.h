@@ -4,6 +4,7 @@
 #include"Object3d.h"
 #include"ViewProjection.h"
 #include"GlobalVariables.h"
+
 struct AABB {
 	Vector3 min; //!< 最小点
 	Vector3 max; //!< 最大点
@@ -26,7 +27,7 @@ public:
 	/// <summary>
 	/// 初期化
 	/// </summary>
-	void Initialize();
+	virtual void Initialize();
 
 	/// <summary>
 	/// ワールドトランスフォームの更新
@@ -73,6 +74,8 @@ public:
 	/// <returns></returns>
 	// 半径を取得
 	float GetRadius() { return radius_; }
+	//識別IDを取得
+	uint32_t GetTypeID() const { return typeID_; }
 	// 中心座標を取得
 	virtual Vector3 GetCenterPosition() const = 0;
 	virtual Vector3 GetCenterRotation() const = 0;
@@ -88,6 +91,7 @@ public:
 	/// </summary>
 	/// <param name="radius"></param>
 	void SetRadius(float radius) { radius_ = radius; }
+	void SetTypeID(uint32_t typeID) { typeID_ = typeID; }
 	void SetIsColliding(bool colliding) { wasColliding = isColliding; isColliding = colliding; }
 	void SetCollisionEnabled(bool enabled) { isCollisionEnabled_ = enabled; }
 	void SetAABBScale(Vector3 scale) { scale_ = scale; }
@@ -102,6 +106,9 @@ private:
 
 	// 衝突半径
 	float radius_ = 1.0f;
+	//識別ID
+	uint32_t typeID_ = 0u;
+
 	// ワールドトランスフォーム
 	WorldTransform Cubewt_;
 	WorldTransform AABBwt_;
