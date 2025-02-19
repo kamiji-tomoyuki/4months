@@ -23,23 +23,23 @@ void TitleScene::Initialize()
 	debugCamera_ = std::make_unique<DebugCamera>();
 	debugCamera_->Initialize(&vp_);
 
-	wtTitle_.Initialize();
+	/*wtTitle_.Initialize();
 	wtTitle_.translation_ = { 0.0f,3.0f,0.0f };
 	wtTitle_.rotation_ = { 0.0f,0.0f,0.0f };
 	title_ = std::make_unique<Object3d>();
-	title_->Initialize("TitleScene/title.obj");
+	title_->Initialize("TitleScene/Title.obj");*/
 
 	//天球
-	skydome_ = std::make_unique<Skydome>();
+	/*skydome_ = std::make_unique<Skydome>();
 	skydome_->Init();
-	skydome_->SetViewProjection(&vp_);
+	skydome_->SetViewProjection(&vp_);*/
 
-	UI_ = std::make_unique<Sprite>();
+	/*UI_ = std::make_unique<Sprite>();
 	UI_->Initialize("titleUI.png", { 640,360 }, { 1,1,1,1 }, { 0.5f,0.5f });
 
 	UIPad_ = std::make_unique<Sprite>();
 	UIPad_->Initialize("TitlePad.png", { 1230,30 }, { 1,1,1,1 }, { 1.0f,0.0f });
-	UIPad_->SetSize(UIPad_->GetSize() * 0.5f);
+	UIPad_->SetSize(UIPad_->GetSize() * 0.5f);*/
 
 	// BGM
 	audio_->StopWave(0);
@@ -90,21 +90,21 @@ void TitleScene::Update()
 	// シーン切り替え　
 	ChangeScene();
 
-	wtTitle_.scale_ = { 1.3f,1.3f,1.3f };
-	// 3.0fを中心に上下に揺らす
-	wtTitle_.translation_.y = EaseInOutQuint(2.5f, 3.5f, timer_, 1.0f);
-	 
-	wtTitle_.UpdateMatrix();
+	//wtTitle_.scale_ = { 1.3f,1.3f,1.3f };
+	//// 3.0fを中心に上下に揺らす
+	//wtTitle_.translation_.y = EaseInOutQuint(2.5f, 3.5f, timer_, 1.0f);
+	// 
+	//wtTitle_.UpdateMatrix();
 
-	skydome_->SetScale({ 1000.0f,1000.0f,1000.0f });// 天球のScale
-	skydome_->Update();
+	//skydome_->SetScale({ 1000.0f,1000.0f,1000.0f });// 天球のScale
+	//skydome_->Update();
 
-	// UI点滅
-	timer_ += speed_;
-	if (timer_ >= 1.0f || timer_ < 0.0f) {
-		speed_ *= -1.0f;
-	}
-	UI_->SetAlpha(timer_);
+	//// UI点滅
+	//timer_ += speed_;
+	//if (timer_ >= 1.0f || timer_ < 0.0f) {
+	//	speed_ *= -1.0f;
+	//}
+	//UI_->SetAlpha(timer_);
 	for (std::unique_ptr<ParticleEmitter>& emitter_ : emitters_) {
 		emitter_->Update(vp_);
 	}
@@ -133,8 +133,8 @@ void TitleScene::Draw()
 	if (Input::GetInstance()->IsAnyJoystickConnected()) {
 
 	}
-	title_->Draw(wtTitle_, vp_);
-	skydome_->Draw(vp_);
+	/*title_->Draw(wtTitle_, vp_);
+	skydome_->Draw(vp_);*/
 	//--------------------------
 
 	/// Particleの描画準備
@@ -151,8 +151,8 @@ void TitleScene::Draw()
 	/// Spriteの描画準備
 	spCommon_->DrawCommonSetting();
 	//-----Spriteの描画開始-----
-	UI_->Draw();
-	UIPad_->Draw();
+	/*UI_->Draw();
+	UIPad_->Draw();*/
 	//------------------------
 
 	//-----線描画-----
