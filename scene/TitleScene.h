@@ -68,7 +68,7 @@ private:
 
 	//std::unique_ptr<Sprite> UIPad_;
 
-	//std::unique_ptr<Skydome> skydome_ = nullptr;// 天球
+	std::unique_ptr<Skydome> skydome_ = nullptr;// 天球
 
 	bool loop = true;
 	//パーティクルエミッタ
