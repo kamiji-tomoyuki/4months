@@ -228,7 +228,7 @@ void TitleScene::ChangeScene()
 {
 	XINPUT_STATE joyState;
 	if (Input::GetInstance()->GetJoystickState(0, joyState) && joyState.Gamepad.wButtons & XINPUT_GAMEPAD_A || input_->TriggerKey(DIK_SPACE)) {
-		sceneManager_->NextSceneReservation("TUTORIAL");
+		sceneManager_->NextSceneReservation("GAME");
 		if (isChangeScene) {
 			audio_->PlayWave(5, 1.0f, false);
 			isChangeScene = false;
