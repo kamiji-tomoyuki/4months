@@ -1,5 +1,4 @@
 #include "FollowCamera.h"
-#include "myMath.h"
 #include "Input.h"
 #include <algorithm> 
 #include <cmath>

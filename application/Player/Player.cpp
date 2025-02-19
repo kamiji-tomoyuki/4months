@@ -54,6 +54,10 @@ void Player::Init() {
 		playerArm->SetPlayer(this);
 	}
 
+	BaseObject::CreateModel("player/playerBody.obj");
+	arms_[kLArm]->Initialize("player/playerArm.gltf", "player/playerPalm.obj");
+	arms_[kRArm]->Initialize("player/playerArm.gltf", "player/playerPalm.obj");
+
 	arms_[kLArm]->SetID(id_);
 	arms_[kLArm]->SetTranslation(Vector3(1.7f, 0.0f, 1.3f));
 	arms_[kLArm]->SetScale(Vector3(0.8f, 0.8f, 0.8f));

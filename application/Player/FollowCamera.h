@@ -1,7 +1,7 @@
 #pragma once
 #include "WorldTransform.h"
 #include "ViewProjection.h"
-#include "Vector2.h"
+#include "myMath.h"
 
 class LockOn;
 class FollowCamera {

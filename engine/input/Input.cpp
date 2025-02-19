@@ -58,17 +58,25 @@ void Input::Init(HINSTANCE hInstance, HWND hWnd) {
 
 void Input::Update() {
 	keyPre_ = key_;
-	//キーボードの情報の取得開始
 	keyboard_->Acquire();
-	//全キーの入力状態を取得する
 	keyboard_->GetDeviceState(sizeof(key_), key_.data());
+	mouse_->Update();
 
-	mouse_->Update();//マウス更新
-
-
-	// マウスの位置を更新
-	/*mousePosition_.x += static_cast<float>(mouse_.lX);
-	mousePosition_.y += static_cast<float>(mouse_.lY);*/
+	// XInputデバイスのチェックと更新
+	joysticks_.clear();  // 既存のジョイスティック情報をクリア
+	for (DWORD i = 0; i < XUSER_MAX_COUNT; ++i) {
+		XINPUT_STATE state;
+		ZeroMemory(&state, sizeof(XINPUT_STATE));
+		if (XInputGetState(i, &state) == ERROR_SUCCESS) {
+			Joystick joystick = {};
+			joystick.type_ = PadType::XInput;
+			joystick.state_ = state;
+			joystick.statePre_ = state;
+			joystick.deadZoneL_ = XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE;
+			joystick.deadZoneR_ = XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE;
+			joysticks_.push_back(joystick);
+		}
+	}
 
 	for (auto& joystick : joysticks_) {
 		if (joystick.type_ == PadType::XInput) {
@@ -77,6 +85,25 @@ void Input::Update() {
 			ZeroMemory(&state, sizeof(XINPUT_STATE));
 			dwResult = XInputGetState(0, &state);
 			if (dwResult == ERROR_SUCCESS) {
+				SHORT lx = state.Gamepad.sThumbLX;
+				SHORT ly = state.Gamepad.sThumbLY;
+				SHORT rx = state.Gamepad.sThumbRX;
+				SHORT ry = state.Gamepad.sThumbRY;
+
+				// デッドゾーン処理
+				if (std::abs(lx) < joystick.deadZoneL_) {
+					state.Gamepad.sThumbLX = 0;
+				}
+				if (std::abs(ly) < joystick.deadZoneL_) {
+					state.Gamepad.sThumbLY = 0;
+				}
+				if (std::abs(rx) < joystick.deadZoneR_) {
+					state.Gamepad.sThumbRX = 0;
+				}
+				if (std::abs(ry) < joystick.deadZoneR_) {
+					state.Gamepad.sThumbRY = 0;
+				}
+
 				joystick.statePre_ = joystick.state_;
 				joystick.state_ = state;
 			}
@@ -156,7 +183,6 @@ template<typename T>bool Input::GetJoystickStatePrevious(int32_t stickNo, T& out
 }
 
 void Input::SetJoystickDeadZone(int32_t stickNo, int32_t deadZoneL, int32_t deadZoneR) {
-
 	if (stickNo < 0 || stickNo >= static_cast<int32_t>(joysticks_.size())) {
 		return;
 	}
@@ -185,6 +211,33 @@ MouseMove Input::GetMouseMove() {
 
 Vector3 Input::GetMousePos3D(const ViewProjection& viewprojection, float depthFactor, float blockSpacing) {
 	return mouse_->GetMousePos3D(viewprojection, depthFactor, blockSpacing);
+}
+
+bool Input::IsAnyJoystickConnected() const
+{
+	for (size_t i = 0; i < joysticks_.size(); ++i) {
+		const auto& joystick = joysticks_[i];
+
+		// XInputデバイスの場合
+		if (joystick.type_ == PadType::XInput) {
+			XINPUT_STATE state;
+			ZeroMemory(&state, sizeof(XINPUT_STATE));
+			if (XInputGetState(static_cast<DWORD>(i), &state) == ERROR_SUCCESS) {
+				return true;
+			}
+		}
+		// DirectInputデバイスの場合
+		else if (joystick.type_ == PadType::DirectInput) {
+			DIJOYSTATE2 joystickState;
+			if (joystick.device_ &&
+				SUCCEEDED(joystick.device_->Poll()) &&
+				SUCCEEDED(joystick.device_->GetDeviceState(sizeof(joystickState), &joystickState))) {
+				return true;
+			}
+		}
+	}
+
+	return false;
 }
 
 

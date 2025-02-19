@@ -31,7 +31,7 @@ void GameScene::Initialize()
 	timeManager_->SetTimer("start", 2.0f / 60.0f);
 	//プレイヤー
 	Player::SetPlayerID(0);
-	for (uint32_t i = 0; i < 2; ++i) {
+	for (uint32_t i = 0; i < 1; ++i) {
 		std::unique_ptr<Player> player = std::make_unique<Player>();
 		player->Init();
 		player->SetViewProjection(&vp_);
@@ -39,7 +39,7 @@ void GameScene::Initialize()
 		players_.push_back(std::move(player));
 	}
 	players_[0]->SetPosition({ 0.0f,0.0f,-50.0f });
-	players_[1]->SetPosition({ 0.0f,0.0f,5.0f });
+	//players_[1]->SetPosition({ 0.0f,0.0f,5.0f });
 
 	//カメラ
 	followCamera_ = std::make_unique<FollowCamera>();
@@ -74,14 +74,14 @@ void GameScene::Initialize()
 	}
 	emitters_[0]->Initialize("star", "GameScene/star.obj");
 
-	audio_->StopWave(0);
+	/*audio_->StopWave(0);
 	audio_->StopWave(1);
 	audio_->StopWave(2);
 	audio_->StopWave(3);
 	audio_->StopWave(4);
 	audio_->PlayWave(1, 0.1f, true);
 
-	audio_->PlayWave(7, 1.0f, false);
+	audio_->PlayWave(7, 1.0f, false);*/
 }
 
 void GameScene::Update()
@@ -107,10 +107,10 @@ void GameScene::Update()
 	hpBar_->SetPosition(Vector2(1180.0f, 100 + (500.0f - newHeight))); // 右側に配置
 
 	// 敵の HPバーのサイズと位置を更新
-	float enemyHpRatio = static_cast<float>(players_[1]->GetHP()) / kMaxHp;
-	float enemyNewHeight = 500.0f * enemyHpRatio;
-	enemyHpBar_->SetSize(Vector2(100.0f, enemyNewHeight)); // 横幅を70pxに変更
-	enemyHpBar_->SetPosition(Vector2(50.0f, 100 + (500.0f - enemyNewHeight))); // 左側に配置
+	//float enemyHpRatio = static_cast<float>(players_[1]->GetHP()) / kMaxHp;
+	//float enemyNewHeight = 500.0f * enemyHpRatio;
+	//enemyHpBar_->SetSize(Vector2(100.0f, enemyNewHeight)); // 横幅を70pxに変更
+	//enemyHpBar_->SetPosition(Vector2(50.0f, 100 + (500.0f - enemyNewHeight))); // 左側に配置
 
 
 

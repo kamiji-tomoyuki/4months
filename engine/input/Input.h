@@ -152,6 +152,11 @@ public:
 		/// <returns></returns>
 	static Vector3 GetMousePos3D(const ViewProjection& viewprojection, float depthFactor, float blockSpacing = 1.0f);
 
+	/// <summary>
+	/// ゲームパッドが接続されているかどうか
+	/// </summary>
+	/// <returns>接続されている(true) / 未接続(false)</returns>
+	bool IsAnyJoystickConnected() const;
 
 	const BYTE* GetKeyState() const { return key_.data(); }
 	const BYTE* GetPreviousKeyState() const { return keyPre_.data(); }
