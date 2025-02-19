@@ -240,7 +240,6 @@ bool Input::IsAnyJoystickConnected() const
 	return false;
 }
 
-
 int32_t Input::GetWheel() {
 	return mouse_->GetWheel();
 }
