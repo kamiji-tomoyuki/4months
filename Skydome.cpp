@@ -4,7 +4,7 @@
 
 void Skydome::Init() {
 	BaseObject::Init(); // 基底クラスの初期化
-	CreateModel("debug/skydome.obj"); // モデルをロード
+	CreateModel("debug/Skydome.obj"); // モデルをロード
 	transform_.scale_ = { 100.0f,100.0f,100.0f };
 	transform_.scale_ = { 10.0f, 10.0f, 10.0f }; // スケールを設定
 	transform_.UpdateMatrix();
