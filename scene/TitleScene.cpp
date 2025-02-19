@@ -30,9 +30,9 @@ void TitleScene::Initialize()
 	title_->Initialize("TitleScene/Title.obj");*/
 
 	//天球
-	/*skydome_ = std::make_unique<Skydome>();
+	skydome_ = std::make_unique<Skydome>();
 	skydome_->Init();
-	skydome_->SetViewProjection(&vp_);*/
+	skydome_->SetViewProjection(&vp_);
 
 	/*UI_ = std::make_unique<Sprite>();
 	UI_->Initialize("titleUI.png", { 640,360 }, { 1,1,1,1 }, { 0.5f,0.5f });
@@ -96,8 +96,8 @@ void TitleScene::Update()
 	// 
 	//wtTitle_.UpdateMatrix();
 
-	//skydome_->SetScale({ 1000.0f,1000.0f,1000.0f });// 天球のScale
-	//skydome_->Update();
+	skydome_->SetScale({ 1000.0f,1000.0f,1000.0f });// 天球のScale
+	skydome_->Update();
 
 	//// UI点滅
 	//timer_ += speed_;
@@ -133,8 +133,8 @@ void TitleScene::Draw()
 	if (Input::GetInstance()->IsAnyJoystickConnected()) {
 
 	}
-	/*title_->Draw(wtTitle_, vp_);
-	skydome_->Draw(vp_);*/
+	/*title_->Draw(wtTitle_, vp_);*/
+	skydome_->Draw(vp_);
 	//--------------------------
 
 	/// Particleの描画準備
