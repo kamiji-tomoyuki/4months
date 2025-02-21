@@ -8,6 +8,7 @@
 #endif // _DEBUG
 #include <LightGroup.h>
 #include"line/DrawLine3D.h"
+#include <Easing.h>
 
 void TitleScene::Initialize()
 {
@@ -22,24 +23,53 @@ void TitleScene::Initialize()
 	debugCamera_ = std::make_unique<DebugCamera>();
 	debugCamera_->Initialize(&vp_);
 
-	wt1_.Initialize();
-	wt2_.Initialize();
+	/*wtTitle_.Initialize();
+	wtTitle_.translation_ = { 0.0f,3.0f,0.0f };
+	wtTitle_.rotation_ = { 0.0f,0.0f,0.0f };
+	title_ = std::make_unique<Object3d>();
+	title_->Initialize("TitleScene/Title.obj");*/
 
-	wt1_.translation_ = { -2.0f,0.0f,0.0f };
-	wt2_.translation_ = { 2.0f,0.0f,0.0f };
+	//天球
+	skydome_ = std::make_unique<Skydome>();
+	skydome_->Init();
+	skydome_->SetViewProjection(&vp_);
 
-	walk_ = std::make_unique<Object3d>();
-	walk_->Initialize("walk.gltf");
-	sphere_ = std::make_unique<Object3d>();
-	sphere_->Initialize("walk.gltf");
-	sphere_->SetAnimation("sneakWalk.gltf");
+	/*UI_ = std::make_unique<Sprite>();
+	UI_->Initialize("titleUI.png", { 640,360 }, { 1,1,1,1 }, { 0.5f,0.5f });
 
-	obb = std::make_unique<Object3d>();
-	obb->Initialize("walk.gltf");
+	UIPad_ = std::make_unique<Sprite>();
+	UIPad_->Initialize("TitlePad.png", { 1230,30 }, { 1,1,1,1 }, { 1.0f,0.0f });
+	UIPad_->SetSize(UIPad_->GetSize() * 0.5f);*/
 
-	emitter_ = std::make_unique<ParticleEmitter>();
-	emitter_->Initialize("test", "debug/plane.obj");
+	// BGM
+	audio_->StopWave(0);
+	audio_->StopWave(1);
+	audio_->StopWave(2);
+	audio_->StopWave(3);
+	audio_->StopWave(4);
+	audio_->LoadWave("BGM/title.wav");
+	audio_->LoadWave("BGM/battle.wav");
+	audio_->LoadWave("BGM/gameClear.wav");
+	audio_->LoadWave("BGM/gameOver.wav");
+	audio_->LoadWave("BGM/tutorial.wav");
 
+	// SE
+	audio_->LoadWave("SE/scene.wav");		// 5
+	audio_->LoadWave("SE/punch.wav");		// 6
+	audio_->LoadWave("SE/battleStart.wav");	// 7
+	audio_->LoadWave("SE/battleEnd.wav");	// 8
+	audio_->LoadWave("SE/hit.wav");			// 9	ダメージをもらった時
+	audio_->LoadWave("SE/hitBigDamage.wav");// 10	大ダメージを与えた/もらった時
+	audio_->LoadWave("SE/reflection.wav");	// 11	壁に反射したとき
+
+	audio_->PlayWave(0, 0.1f, true);
+
+	for (int i = 0; i < 1; ++i) {
+		std::unique_ptr<ParticleEmitter> emitter_;
+		emitter_ = std::make_unique<ParticleEmitter>();
+		emitters_.push_back(std::move(emitter_));
+	}
+	emitters_[0]->Initialize("star", "GameScene/star.obj");
 }
 
 void TitleScene::Finalize()
@@ -57,22 +87,34 @@ void TitleScene::Update()
 	// カメラ更新
 	CameraUpdate();
 
-	// シーン切り替え
+	// シーン切り替え　
 	ChangeScene();
 
-	emitter_->Update(vp_);
-	walk_->AnimationUpdate(roop);
-	sphere_->AnimationUpdate(roop);
+	//wtTitle_.scale_ = { 1.3f,1.3f,1.3f };
+	//// 3.0fを中心に上下に揺らす
+	//wtTitle_.translation_.y = EaseInOutQuint(2.5f, 3.5f, timer_, 1.0f);
+	// 
+	//wtTitle_.UpdateMatrix();
 
-	wt1_.UpdateMatrix();
-	wt2_.UpdateMatrix();
+	skydome_->SetScale({ 1000.0f,1000.0f,1000.0f });// 天球のScale
+	skydome_->Update();
+
+	//// UI点滅
+	//timer_ += speed_;
+	//if (timer_ >= 1.0f || timer_ < 0.0f) {
+	//	speed_ *= -1.0f;
+	//}
+	//UI_->SetAlpha(timer_);
+	for (std::unique_ptr<ParticleEmitter>& emitter_ : emitters_) {
+		emitter_->Update(vp_);
+	}
 }
 
 void TitleScene::Draw()
 {
 	/// -------描画処理開始-------
 
-	emitter_->DrawEmitter();
+	//emitter_->DrawEmitter();
 
 	/// Spriteの描画準備
 	spCommon_->DrawCommonSetting();
@@ -82,22 +124,36 @@ void TitleScene::Draw()
 
 	objCommon_->skinningDrawCommonSetting();
 	//-----アニメーションの描画開始-----
-	walk_->Draw(wt1_, vp_);
-	walk_->DrawSkeleton(wt1_, vp_);
-	sphere_->Draw(wt2_, vp_);
-	sphere_->DrawSkeleton(wt2_, vp_);
+
+
 	//------------------------------
 
 	objCommon_->DrawCommonSetting();
 	//-----3DObjectの描画開始-----
-	//sphere_->Draw(wt2_, vp_);
+	if (Input::GetInstance()->IsAnyJoystickConnected()) {
+
+	}
+	/*title_->Draw(wtTitle_, vp_);*/
+	skydome_->Draw(vp_);
 	//--------------------------
 
 	/// Particleの描画準備
 	ptCommon_->DrawCommonSetting();
 	//------Particleの描画開始-------
-	emitter_->Draw();
+
+	for (std::unique_ptr<ParticleEmitter>& emitter_ : emitters_) {
+		emitter_->Draw();
+		//emitter_->DrawEmitter();
+	}
+
 	//-----------------------------
+
+	/// Spriteの描画準備
+	spCommon_->DrawCommonSetting();
+	//-----Spriteの描画開始-----
+	/*UI_->Draw();
+	UIPad_->Draw();*/
+	//------------------------
 
 	//-----線描画-----
 	DrawLine3D::GetInstance()->Draw(vp_);
@@ -125,7 +181,7 @@ void TitleScene::DrawForOffScreen()
 
 	objCommon_->DrawCommonSetting();
 	//-----3DObjectの描画開始-----
-	//sphere_->Draw(wt2_, vp_);
+
 	//--------------------------
 
 	/// Particleの描画準備
@@ -146,20 +202,16 @@ void TitleScene::Debug()
 	ImGui::Begin("TitleScene:Debug");
 	debugCamera_->imgui();
 	LightGroup::GetInstance()->imgui();
-	ImGui::Checkbox("roop", &roop);
 
-	if (ImGui::Button("walk")) {
-		walk_->SetAnimation("walk.gltf");
+	int emitterId = 0;
+	for (std::unique_ptr<ParticleEmitter>& emitter_ : emitters_) {
+		ImGui::PushID(emitterId);
+		emitter_->imgui();
+		ImGui::PopID();
+		++emitterId;
 	}
-	if (ImGui::Button("sneakWalk")) {
-		walk_->SetAnimation("sneakWalk.gltf");
-	}
-	if (ImGui::Button("Jump")) {
-		walk_->SetAnimation("test.gltf");
-	}
-
+	
 	ImGui::End();
-	emitter_->imgui();
 }
 
 void TitleScene::CameraUpdate()
@@ -174,7 +226,12 @@ void TitleScene::CameraUpdate()
 
 void TitleScene::ChangeScene()
 {
-	if (input_->TriggerKey(DIK_SPACE)) {
+	XINPUT_STATE joyState;
+	if (Input::GetInstance()->GetJoystickState(0, joyState) && joyState.Gamepad.wButtons & XINPUT_GAMEPAD_A || input_->TriggerKey(DIK_SPACE)) {
 		sceneManager_->NextSceneReservation("GAME");
+		if (isChangeScene) {
+			audio_->PlayWave(5, 1.0f, false);
+			isChangeScene = false;
+		}
 	}
 }

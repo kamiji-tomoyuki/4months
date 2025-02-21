@@ -16,9 +16,72 @@ void GameScene::Initialize()
 	spCommon_ = SpriteCommon::GetInstance();
 	ptCommon_ = ParticleCommon::GetInstance();
 	input_ = Input::GetInstance();
+	input_->SetJoystickDeadZone(0, 3000, 3000);
 
 	debugCamera_ = std::make_unique<DebugCamera>();
 	debugCamera_->Initialize(&vp_);
+
+	//天球
+	skydome_ = std::make_unique<Skydome>();
+	skydome_->Init();
+	skydome_->SetViewProjection(&vp_);
+
+	timeManager_ = std::make_unique<TimeManager>();
+	timeManager_->Initialize();
+	timeManager_->SetTimer("start", 2.0f / 60.0f);
+	//プレイヤー
+	Player::SetPlayerID(0);
+	for (uint32_t i = 0; i < 1; ++i) {
+		std::unique_ptr<Player> player = std::make_unique<Player>();
+		player->Init();
+		player->SetViewProjection(&vp_);
+		player->SetTimeManager(timeManager_.get());
+		players_.push_back(std::move(player));
+	}
+	players_[0]->SetPosition({ 0.0f,0.0f,-50.0f });
+	//players_[1]->SetPosition({ 0.0f,0.0f,5.0f });
+
+	//カメラ
+	followCamera_ = std::make_unique<FollowCamera>();
+	followCamera_->Initialize();
+	followCamera_->SetTarget(&players_[0]->GetWorldTransform());
+	players_[0]->SetViewProjection(&followCamera_->GetViewProjection());
+	for (std::unique_ptr<Player>& player : players_) {
+		player->SetFollowCamera(followCamera_.get());
+	}
+	//ロックオン
+	lockOn_ = std::make_unique<LockOn>();
+	lockOn_->Initialize();
+	followCamera_->SetLockOn(lockOn_.get());
+	players_[0]->SetLockOn(lockOn_.get());
+
+	// HPバーのスプライトを作成
+	hpBar_ = std::make_unique<Sprite>();
+	hpBar_->Initialize("hp.png", Vector2(1180.0f, 200.0f)); // 右端に配置
+	hpBar_->SetSize(Vector2(70.0f, 500.0f)); // 横幅を少し太く
+	hpBar_->SetAnchorPoint({ 0.5f,0.0f });
+
+	// 敵の HP バーのスプライトを作成
+	enemyHpBar_ = std::make_unique<Sprite>();
+	enemyHpBar_->Initialize("enemyHpBar.png", Vector2(50.0f, 200.0f)); // 左端に配置
+	enemyHpBar_->SetSize(Vector2(70.0f, 500.0f)); // 横幅を少し太く
+	enemyHpBar_->SetAnchorPoint({ 0.0f,0.0f });
+
+	for (int i = 0; i < 1; ++i) {
+		std::unique_ptr<ParticleEmitter> emitter_;
+		emitter_ = std::make_unique<ParticleEmitter>();
+		emitters_.push_back(std::move(emitter_));
+	}
+	emitters_[0]->Initialize("star", "GameScene/star.obj");
+
+	/*audio_->StopWave(0);
+	audio_->StopWave(1);
+	audio_->StopWave(2);
+	audio_->StopWave(3);
+	audio_->StopWave(4);
+	audio_->PlayWave(1, 0.1f, true);
+
+	audio_->PlayWave(7, 1.0f, false);*/
 }
 
 void GameScene::Update()
@@ -28,11 +91,39 @@ void GameScene::Update()
 	Debug();
 #endif // _DEBUG
 
+	timeManager_->Update();
+	for (std::unique_ptr<Player>& player : players_) {
+		player->Update(); 
+		player->UpdateParticle(vp_);
+	}
+
+	skydome_->SetScale({ 1000.0f,1000.0f,1000.0f });// 天球のScale
+	skydome_->Update();
+
+	// HPバーのサイズと位置を更新
+	float hpRatio = static_cast<float>(players_[0]->GetHP()) / kMaxHp;
+	float newHeight = 500.0f * hpRatio; // HPに応じた高さ
+	hpBar_->SetSize(Vector2(100.0f, newHeight)); // 横幅を70pxに変更
+	hpBar_->SetPosition(Vector2(1180.0f, 100 + (500.0f - newHeight))); // 右側に配置
+
+	// 敵の HPバーのサイズと位置を更新
+	//float enemyHpRatio = static_cast<float>(players_[1]->GetHP()) / kMaxHp;
+	//float enemyNewHeight = 500.0f * enemyHpRatio;
+	//enemyHpBar_->SetSize(Vector2(100.0f, enemyNewHeight)); // 横幅を70pxに変更
+	//enemyHpBar_->SetPosition(Vector2(50.0f, 100 + (500.0f - enemyNewHeight))); // 左側に配置
+
+
+
 	// カメラ更新
 	CameraUpdate();
 
 	// シーン切り替え
 	ChangeScene();
+	for (std::unique_ptr<ParticleEmitter>& emitter_ : emitters_) {
+		emitter_->Update(vp_);
+	}
+
+	
 }
 
 void GameScene::Draw()
@@ -42,24 +133,43 @@ void GameScene::Draw()
 	/// Spriteの描画準備
 	spCommon_->DrawCommonSetting();
 	//-----Spriteの描画開始-----
+	//ロックオンマーク
+	lockOn_->Draw();
+	// HPバーの描画
+	hpBar_->Draw();
+	enemyHpBar_->Draw(); // 敵の HPバーも描画
 
 	//------------------------
 
 	objCommon_->skinningDrawCommonSetting();
 	//-----アニメーションの描画開始-----
-
+	for (std::unique_ptr<Player>& player : players_) {
+		player->DrawAnimation(vp_);
+	}
 	//------------------------------
 
 
 	objCommon_->DrawCommonSetting();
 	//-----3DObjectの描画開始-----
 
+	for (std::unique_ptr<Player>& player : players_) {
+		player->Draw(vp_);
+	}
+	skydome_->Draw(vp_);
 	//--------------------------
+
 
 	/// Particleの描画準備
 	ptCommon_->DrawCommonSetting();
 	//------Particleの描画開始-------
-
+	for (std::unique_ptr<ParticleEmitter>& emitter_ : emitters_) {
+		emitter_->Draw();
+		/*emitter_->DrawEmitter();*/
+	}
+	for (std::unique_ptr<Player>& player : players_) {
+		player->DrawParticle(vp_);
+	}
+	
 	//-----------------------------
 
 	//-----線描画-----
@@ -109,6 +219,17 @@ void GameScene::Debug()
 	ImGui::Begin("GameScene:Debug");
 	debugCamera_->imgui();
 	LightGroup::GetInstance()->imgui();
+	for (std::unique_ptr<Player>& player : players_) {
+		player->ImGui();
+	}
+
+	int emitterId = 0;
+	for (std::unique_ptr<ParticleEmitter>& emitter_ : emitters_) {
+		ImGui::PushID(emitterId);
+		emitter_->imgui();
+		ImGui::PopID();
+		++emitterId;
+	}
 	ImGui::End();
 }
 
@@ -116,18 +237,41 @@ void GameScene::CameraUpdate()
 {
 	if (debugCamera_->GetActive()) {
 		debugCamera_->Update();
-	}
-	else {
-		vp_.UpdateMatrix();
+	} else {
+		followCamera_->Update();
+		vp_.matView_ = followCamera_->GetViewProjection().matView_;
+		vp_.matProjection_ = followCamera_->GetViewProjection().matProjection_;
+		vp_.TransferMatrix();
+		//vp_.UpdateMatrix();
+		std::list<Player*> enemies;
+		int index = 0;
+		for (std::unique_ptr<Player>& player : players_) {
+			if (index != 0) {
+				enemies.push_back(player.get());
+			}
+			index++;
+		}
+		lockOn_->Update(enemies, vp_);
 	}
 }
 
 void GameScene::ChangeScene()
 {
-	if (input_->TriggerKey(DIK_SPACE) && !input_->PushKey(DIK_LCONTROL)) {
-		sceneManager_->NextSceneReservation("CLEAR");
-	}
-	else if (input_->TriggerKey(DIK_SPACE) && input_->PushKey(DIK_LCONTROL)) {
-		sceneManager_->NextSceneReservation("GameOver");
+	for (std::unique_ptr<Player>& player : players_) {
+		if (player->IsClear()) {
+			sceneManager_->NextSceneReservation("CLEAR");
+			if (isPlay) {
+				audio_->PlayWave(8, 1.0f, false);
+				isPlay = false;
+			}
+		}
+		if (player->IsGameOver())
+		{
+			sceneManager_->NextSceneReservation("GAMEOVER");
+			if (isPlay) {
+				audio_->PlayWave(8, 1.0f, false);
+				isPlay = false;
+			}
+		}
 	}
 }

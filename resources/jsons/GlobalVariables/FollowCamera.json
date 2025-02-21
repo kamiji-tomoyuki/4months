@@ -1,0 +1,11 @@
+{
+    "FollowCamera": {
+        "destinationAngleX_": -2.799999952316284,
+        "destinationAngleY_": 0.0,
+        "offset_": [
+            0.0,
+            9.0,
+            -50.0
+        ]
+    }
+}

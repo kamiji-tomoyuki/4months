@@ -1,0 +1,95 @@
+{
+    "star": {
+        "AllScale Max": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "AllScale Min": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Emit rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Emit scale": [
+            300.0,
+            100.0,
+            300.0
+        ],
+        "Emit translation": [
+            0.0,
+            0.0,
+            -75.0
+        ],
+        "Particle EndAcce": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Particle EndRote": [
+            -0.04363321512937546,
+            -0.02792525663971901,
+            -0.03839724510908127
+        ],
+        "Particle EndScale": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Particle StartAcce": [
+            0.0,
+            0.10000000149011612,
+            0.0
+        ],
+        "Particle StartRote": [
+            0.02792525663971901,
+            0.015707962214946747,
+            0.04363323003053665
+        ],
+        "Particle StartScale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "RotationVelo Max": [
+            0.05999999865889549,
+            0.05999999865889549,
+            0.07999999821186066
+        ],
+        "RotationVelo Min": [
+            -0.05000000074505806,
+            -0.05000000074505806,
+            -0.07000000029802322
+        ],
+        "Scale Max": 2.0,
+        "Scale Min": 1.399999976158142,
+        "alphaMax": 1.0,
+        "alphaMin": 0.0,
+        "count": 10,
+        "emitFrequency": 0.10000000149011612,
+        "isAcceMultiply": false,
+        "isAllRamdomScale": false,
+        "isBillBoard": false,
+        "isRamdomColor": false,
+        "isRandomRotate": true,
+        "isRandomScale": true,
+        "isSinMove": false,
+        "isVisible": true,
+        "lifeTimeMax": 3.0,
+        "lifeTimeMin": 1.0,
+        "maxVelocity": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "minVelocity": [
+            0.0,
+            0.0,
+            0.0
+        ]
+    }
+}
