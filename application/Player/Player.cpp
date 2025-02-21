@@ -252,10 +252,41 @@ void Player::BehaviorRootUpdate() {
 		behaviorRequest_ = Behavior::kAttack;
 		attack_.isLeft = false;
 	}
-	if (Input::GetInstance()->GetJoystickState(0, joyState) && (/*joyState.Gamepad.bLeftTrigger & XINPUT_GAMEPAD_TRIGGER_THRESHOLD ||*/ joyState.Gamepad.bRightTrigger & XINPUT_GAMEPAD_TRIGGER_THRESHOLD) ||
+	//if (Input::GetInstance()->GetJoystickState(0, joyState) && (/*joyState.Gamepad.bLeftTrigger & XINPUT_GAMEPAD_TRIGGER_THRESHOLD ||*/ joyState.Gamepad.bRightTrigger & XINPUT_GAMEPAD_TRIGGER_THRESHOLD) ||
+	//	Input::GetInstance()->TriggerKey(DIK_L)) {
+	//	behaviorRequest_ = Behavior::kGrab;
+	//}
+	if (Input::GetInstance()->GetJoystickState(0, joyState) && joyState.Gamepad.wButtons & XINPUT_GAMEPAD_X ||
 		Input::GetInstance()->TriggerKey(DIK_L)) {
-		behaviorRequest_ = Behavior::kGrab;
+		behaviorRequest_ = Behavior::kDash;
 	}
+}
+
+void Player::BehaviorDashInitialize(){
+	workDash_.DashTime_ = 0;
+}
+
+void Player::BehaviorDashUpdate(){
+	float startSpeed = kAcceleration;
+	float endSpeed = kAcceleration * workDash_.kAttenuation_;
+	Vector3 move{};
+	/*float armStartTheta = 0;
+	float armEndTheta = std::numbers::pi_v<float> / 2.0f;
+	float armTheta{};*/
+	workDash_.DashTime_ += timeManager_->deltaTime_;
+	if (workDash_.DashTime_ / workDash_.kDashTime_ >= 1.0f) {
+		behaviorRequest_ = Behavior::kRoot;
+	}
+	/*armTheta = EaseOutExpo(armStartTheta, armEndTheta,workDash_.DashTime_ , workDash_.kDashTime_);*/
+	move.z = EaseOutExpo(startSpeed, endSpeed,workDash_.DashTime_ , workDash_.kDashTime_);
+	Matrix4x4 rotateMatrix = MakeRotateYMatrix(transform_.rotation_.y);
+	move = Transformation(move, rotateMatrix);
+	// 移動
+	transform_.translation_ = (transform_.translation_ + move);
+	transform_.UpdateMatrix();
+
+	/*arms_[kLArm]->SetRotationX(armTheta);
+	arms_[kRArm]->SetRotationX(armTheta);*/
 }
 
 void Player::BehaviorAttackInitialize() {
@@ -493,12 +524,14 @@ Vector3 Player::GetCenterRotation() const {
 }
 void(Player::* Player::BehaviorInitFuncTable[])() = {
 	&Player::BehaviorRootInitialize,
+	&Player::BehaviorDashInitialize,
 	&Player::BehaviorAttackInitialize,
 	&Player::BehaviorGrabInitialize,
 	&Player::BehaviorCelebrateInitialize,
 };
 void(Player::* Player::BehaviorUpdateFuncTable[])() = {
 	&Player::BehaviorRootUpdate,
+	&Player::BehaviorDashUpdate,
 	&Player::BehaviorAttackUpdate,
 	&Player::BehaviorGrabUpdate,
 	&Player::BehaviorCelebrateUpdate,
