@@ -24,6 +24,7 @@ public:
 	};
 	enum class Behavior {
 		kRoot,//通常状態
+		kDash,//ダッシュ中
 		kAttack,//攻撃中
 		kGrab,//掴み中
 		kCelebrate, // 喜び動作
@@ -50,6 +51,12 @@ public:
 		float time = 0;
 		bool isGrab = false;
 	};
+	struct WorkDash {
+		float kDashTime_ = 0.3f;
+		float DashTime_ = 0;
+		float kAttenuation_ = 3.0f;
+	};
+
 	Player();
 
 	~Player() {}
@@ -104,6 +111,9 @@ private:
 	void BehaviorRootInitialize();
 	void BehaviorRootUpdate();
 
+	void BehaviorDashInitialize();
+	void BehaviorDashUpdate();
+
 	void BehaviorAttackInitialize();
 	void BehaviorAttackUpdate();
 
@@ -135,6 +145,7 @@ private:
 	Root root_;
 	Attack attack_;
 	Grab grab_;
+	WorkDash workDash_;
 
 	//移動速度 減衰速度
 	float kAcceleration = 0.1f;
