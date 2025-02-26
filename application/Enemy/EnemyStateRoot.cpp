@@ -1,6 +1,9 @@
 #include "EnemyStateRoot.h"
 #include "Player.h"
+#include "TimeManager.h"
 #include "EnemyStateApproach.h"
+#include "EnemyStateAttack.h"
+#include "EnemyStateDefense.h"
 
 EnemyStateRoot::EnemyStateRoot(Enemy* enemy)
 	: BaseEnemyState("State Root", enemy){}
@@ -29,9 +32,9 @@ void EnemyStateRoot::Update(){
 		enemy_->ChangeState(std::make_unique<EnemyStateApproach>(enemy_));
 	}
 	if (isAttack) {
-		//enemy_->ChangeState(std::make_unique<EnemyStateApproach>(enemy_));
+		enemy_->ChangeState(std::make_unique<EnemyStateAttack>(enemy_));
 	}
 	if (isDefense) {
-		//enemy_->ChangeState(std::make_unique<EnemyStateApproach>(enemy_));
+		enemy_->ChangeState(std::make_unique<EnemyStateDefense>(enemy_));
 	}
 }

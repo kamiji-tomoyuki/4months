@@ -365,6 +365,12 @@
     <ClCompile Include="application\Enemy\EnemyStateRoot.cpp">
       <Filter>ソースファイル\application\Enemy</Filter>
     </ClCompile>
+    <ClCompile Include="EnemyStateAttack.cpp">
+      <Filter>ソースファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="EnemyStateDefense.cpp">
+      <Filter>ソースファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
@@ -629,6 +635,8 @@
     <ClInclude Include="application\Enemy\EnemyStateRoot.h">
       <Filter>ソースファイル\application\Enemy</Filter>
     </ClInclude>
+    <ClInclude Include="EnemyStateAttack.h" />
+    <ClInclude Include="EnemyStateDefense.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\shaders\Particle\Particle.PS.hlsl">
