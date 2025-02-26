@@ -18,8 +18,6 @@ void Enemy::Init(){
 
 void Enemy::Update() {
 	BaseObject::Update();
-	// キャラ移動
-	state_->Update();
 }
 
 void Enemy::Draw(const ViewProjection& viewProjection) { BaseObject::Draw(viewProjection); }
@@ -44,7 +42,24 @@ void Enemy::OnCollisionOut(Collider* other){
 void Enemy::ChangeState(std::unique_ptr<BaseEnemyState> state){
 	state_ = std::move(state);
 }
+bool Enemy::GetProbabilities(float probabilities)
+{
+	static std::random_device rd;
+	static std::mt19937 gen(rd());
+	static std::uniform_real_distribution<float> dist(0.0f, 1.0f);
 
+	float randomValue = dist(gen);
+	if (randomValue <= probabilities) {
+		return true;
+	}
+	return false;
+}
+void Enemy::VectorRotation(const Vector3& direction) {
+	Vector3 move = direction;
+	transform_.rotation_.y = std::atan2f(move.x, move.z);
+	Vector3 velocityZ = Transformation(move, MakeRotateYMatrix(-transform_.rotation_.y));
+	transform_.rotation_.x = std::atan2f(-velocityZ.y, velocityZ.z);
+}
 void Enemy::SetTranslation(const Vector3& translation) {
 	transform_.translation_ = translation;
 	transform_.UpdateMatrix();

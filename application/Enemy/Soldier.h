@@ -3,6 +3,8 @@
 
 class Soldier : public Enemy{
 public:
+
+public:
 	Soldier();
 	/// <summary>
 	/// 初期化
@@ -37,8 +39,10 @@ public:
 	/// <param name="other"></param>
 	void OnCollisionOut([[maybe_unused]] Collider* other) override;
 
+	void ApplyGlobalVariables();
 private:
-
+	const char* groupName = "Soldier";
+	bool isMove_ = true;
 public:
 	Vector3 GetCenterPosition() const override;
 	Vector3 GetCenterRotation() const override;

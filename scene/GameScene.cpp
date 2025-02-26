@@ -362,5 +362,6 @@ void GameScene::AddEnemy(const Vector3& position) {
 	newEnemy->Init();
 	newEnemy->SetTranslation(position);
 	newEnemy->SetRadius(0.6f);
+	newEnemy->SetTimeManager(timeManager_.get());
 	enemies_.push_back(std::move(newEnemy));
 }

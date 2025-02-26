@@ -1,7 +1,8 @@
 #include "Soldier.h"
 #include <CollisionTypeIdDef.h>
 #include "myMath.h"
-#include "EnemyStateApproach.h"
+#include "EnemyStateRoot.h"
+#include "Player.h"
 
 Soldier::Soldier(){
 
@@ -9,15 +10,38 @@ Soldier::Soldier(){
 void Soldier::Init(){
 	Enemy::Init();
 	BaseObject::CreateModel("player/playerBody.obj");
-	Enemy::ChangeState(std::make_unique<EnemyStateApproach>(this));
+	Enemy::ChangeState(std::make_unique<EnemyStateRoot>(this));
+
+	//imgui
+	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
+	// グループを追加
+	GlobalVariables::GetInstance()->CreateGroup(groupName);
+	globalVariables->AddItem(groupName, "shortDistanceProbability_.kAttack", shortDistanceProbability_.kAttack);
+	globalVariables->AddItem(groupName, "shortDistanceProbability_.kDefense", shortDistanceProbability_.kDefense);
+	globalVariables->AddItem(groupName, "middleDistanceProbability_.kAttack", middleDistanceProbability_.kAttack);
+	globalVariables->AddItem(groupName, "middleDistanceProbability_.kDefense", middleDistanceProbability_.kDefense);
+	globalVariables->AddItem(groupName, "longDistanceProbability_.kAttack", longDistanceProbability_.kAttack);
+	globalVariables->AddItem(groupName, "longDistanceProbability_.kDefense", longDistanceProbability_.kDefense);
+
+	globalVariables->AddItem(groupName, "shortDistance", shortDistance_);
+	globalVariables->AddItem(groupName, "middleDistance", middleDistance_);
+
+	globalVariables->AddItem(groupName, "CoolTime", kCoolTime_);
+	//確認用
+	globalVariables->AddItem(groupName, "isMove_", isMove_);
 }
 void Soldier::Update(){
+	ApplyGlobalVariables();
+	Enemy::VectorRotation(player_->GetCenterPosition() - GetCenterPosition());
 	Enemy::Update();
-	//transform_.rotation_.y += 0.01f;
-	//Matrix4x4 rotateMatrix = MakeRotateYMatrix(transform_.rotation_.y);
-	//Vector3 move = Transformation(Vector3{ 0,0,0.1f }, rotateMatrix);
-	//// 移動
-	//transform_.translation_ = (transform_.translation_ + move);
+	if (!isMove_) {
+		return;
+	}
+	// キャラ移動
+	state_->Update();
+	transform_.translation_ += velocity_ * timeManager_->deltaTime_;
+
+	Enemy::Update();
 }
 void Soldier::Draw(const ViewProjection& viewProjection){
 	Enemy::Draw(viewProjection);
@@ -35,6 +59,22 @@ void Soldier::OnCollisionEnter(Collider* other){
 }
 void Soldier::OnCollisionOut(Collider* other){
 
+}
+
+void Soldier::ApplyGlobalVariables() {
+	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
+	shortDistanceProbability_.kAttack = globalVariables->GetFloatValue(groupName, "shortDistanceProbability_.kAttack");
+	shortDistanceProbability_.kDefense = globalVariables->GetFloatValue(groupName, "shortDistanceProbability_.kDefense");
+	middleDistanceProbability_.kAttack = globalVariables->GetFloatValue(groupName, "middleDistanceProbability_.kAttack");
+	middleDistanceProbability_.kDefense = globalVariables->GetFloatValue(groupName, "middleDistanceProbability_.kDefense");
+	longDistanceProbability_.kAttack = globalVariables->GetFloatValue(groupName, "longDistanceProbability_.kAttack");
+	longDistanceProbability_.kDefense = globalVariables->GetFloatValue(groupName, "longDistanceProbability_.kDefense");
+
+	shortDistance_ = globalVariables->GetFloatValue(groupName, "shortDistance");
+	middleDistance_ = globalVariables->GetFloatValue(groupName, "middleDistance");
+
+	kCoolTime_ = globalVariables->GetFloatValue(groupName, "CoolTime");
+	isMove_ = globalVariables->GetBoolValue(groupName, "isMove_");
 }
 
 Vector3 Soldier::GetCenterPosition() const{
