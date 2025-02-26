@@ -54,8 +54,8 @@ void Player::Init() {
 	// グループを追加
 	GlobalVariables::GetInstance()->CreateGroup(groupName);
 	globalVariables->AddItem(groupName, "kAcceleration", kAcceleration_);
-	//globalVariables->AddItem(groupName, "kAttenuation", kAttenuation);
-	//globalVariables->AddItem(groupName, "kLimitRunSpeed", kLimitRunSpeed);
+	globalVariables->AddItem(groupName, "kAttenuation", kAttenuation);
+	globalVariables->AddItem(groupName, "kLimitRunSpeed", kLimitRunSpeed);
 	//globalVariables->AddItem(groupName, "attackVelocity_", attackVelocity_);
 	globalVariables->AddItem(groupName, "size", size_);
 	globalVariables->AddItem(groupName, "kHp_", kHp_);
@@ -99,13 +99,13 @@ void Player::Update() {
 	//}
 
 	// 速度に減衰をかける
-	//velocity_.x *= (1.0f - kAttenuation);
-	//velocity_.z *= (1.0f - kAttenuation);
+	velocity_.x *= (1.0f - kAttenuation);
+	velocity_.z *= (1.0f - kAttenuation);
 	//Yなし
 	velocity_.y = 0.0f;
 
-	//velocity_.x = std::clamp(velocity_.x, -kLimitRunSpeed, kLimitRunSpeed);
-	//velocity_.z = std::clamp(velocity_.z, -kLimitRunSpeed, kLimitRunSpeed);
+	velocity_.x = std::clamp(velocity_.x, -kLimitRunSpeed, kLimitRunSpeed);
+	velocity_.z = std::clamp(velocity_.z, -kLimitRunSpeed, kLimitRunSpeed);
 
 	transform_.scale_ = { size_,size_ ,size_ };
 	Collider::SetRadius(size_ * 1.2f);
@@ -182,10 +182,12 @@ void Player::OnCollisionOut([[maybe_unused]] Collider* other) {
 
 }
 
+// 浮遊動作(無入力)の初期化
 void Player::InitializeFloatingGimmick() {
-	//root_.floatingParameter = 0.0f;
+	root_.floatingParameter = 0.0f;
 }
 
+// 浮遊動作(無入力)の更新
 void Player::UpdateFloatingGimmick() {
 	// 1フレームでのパラメータ加算値
 	const float step = 2.0f * std::numbers::pi_v<float> / root_.period;
@@ -201,6 +203,7 @@ void Player::UpdateFloatingGimmick() {
 	arms_[kRArm]->SetRotationX(std::sin(root_.floatingParameter) * root_.armAmplitude);*/
 }
 
+// 通常動作の初期化
 void Player::BehaviorRootInitialize() {
 	attack_.isAttack = false;
 	arms_[kLArm]->SetIsAttack(false);
@@ -210,10 +213,11 @@ void Player::BehaviorRootInitialize() {
 	arms_[kRArm]->SetIsGrab(false);
 }
 
+// 通常動作の更新
 void Player::BehaviorRootUpdate() {
 	UpdateFloatingGimmick();
 	Move();
-	//XINPUT_STATE joyState;
+	XINPUT_STATE joyState;
 	//if (Input::GetInstance()->GetJoystickState(0, joyState) && joyState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER || Input::GetInstance()->TriggerKey(DIK_J)) {
 	//	behaviorRequest_ = Behavior::kAttack;
 	//	attack_.isLeft = true;
@@ -226,16 +230,18 @@ void Player::BehaviorRootUpdate() {
 	////	Input::GetInstance()->TriggerKey(DIK_L)) {
 	////	behaviorRequest_ = Behavior::kGrab;
 	////}
-	//if (Input::GetInstance()->GetJoystickState(0, joyState) && joyState.Gamepad.wButtons & XINPUT_GAMEPAD_X ||
-	//	Input::GetInstance()->TriggerKey(DIK_L)) {
-	//	behaviorRequest_ = Behavior::kDash;
-	//}
+	if (Input::GetInstance()->GetJoystickState(0, joyState) && joyState.Gamepad.wButtons & XINPUT_GAMEPAD_X ||
+		Input::GetInstance()->TriggerKey(DIK_L)) {
+		behaviorRequest_ = Behavior::kDash;
+	}
 }
 
+// ダッシュ動作の初期化
 void Player::BehaviorDashInitialize(){
-	//workDash_.DashTime_ = 0;
+	workDash_.DashTime_ = 0;
 }
 
+// ダッシュ動作の更新
 void Player::BehaviorDashUpdate(){
 	float startSpeed = kAcceleration_;
 	float endSpeed = kAcceleration_ * workDash_.kAttenuation_;
@@ -259,6 +265,7 @@ void Player::BehaviorDashUpdate(){
 	arms_[kRArm]->SetRotationX(armTheta);*/
 }
 
+// 攻撃動作の初期化
 void Player::BehaviorAttackInitialize() {
 	transform_.UpdateMatrix();
 	attack_.time = 0;
@@ -273,6 +280,7 @@ void Player::BehaviorAttackInitialize() {
 	}
 }
 
+// 攻撃動作の更新
 void Player::BehaviorAttackUpdate() {
 
 	//アームの開始角度
@@ -317,6 +325,7 @@ void Player::BehaviorAttackUpdate() {
 	//}
 }
 
+// 掴む動作の初期化
 void Player::BehaviorGrabInitialize() {
 	transform_.UpdateMatrix();
 	grab_.time = 0;
@@ -327,6 +336,7 @@ void Player::BehaviorGrabInitialize() {
 	arms_[kRArm]->SetIsGrab(true);
 }
 
+// 掴む動作の更新
 void Player::BehaviorGrabUpdate() {
 	//アームの開始角度
 	float armNowL = 0.0f;
@@ -350,6 +360,7 @@ void Player::BehaviorGrabUpdate() {
 	arms_[kRArm]->SetTranslationZ(armNowR);
 }
 
+// 勝利(喜ぶ)動作の初期化
 void Player::BehaviorCelebrateInitialize()
 {
 	arms_[kLArm]->SetRotationX(0.0f);
@@ -358,6 +369,7 @@ void Player::BehaviorCelebrateInitialize()
 	//celebrateTime_ = 0.0f;
 }
 
+// 勝利(喜ぶ)動作更新
 void Player::BehaviorCelebrateUpdate()
 {
 	// 腕を振る動作 (sin波を使って上下)
@@ -366,12 +378,13 @@ void Player::BehaviorCelebrateUpdate()
 	arms_[kRArm]->SetRotationX(-wave); // 反対方向
 }
 
+// 調整項目の適用
 void Player::ApplyGlobalVariables() {
 	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
 	const char* groupName = "Player";
 	kAcceleration_ = globalVariables->GetFloatValue(groupName, "kAcceleration");
-	//kAttenuation = globalVariables->GetFloatValue(groupName, "kAttenuation");
-	//kLimitRunSpeed = globalVariables->GetFloatValue(groupName, "kLimitRunSpeed");
+	kAttenuation = globalVariables->GetFloatValue(groupName, "kAttenuation");
+	kLimitRunSpeed = globalVariables->GetFloatValue(groupName, "kLimitRunSpeed");
 	//attackVelocity_ = globalVariables->GetVector3Value(groupName, "attackVelocity_");
 	size_ = globalVariables->GetFloatValue(groupName, "size");
 	kHp_ = globalVariables->GetIntValue(groupName, "kHp_");
@@ -379,6 +392,7 @@ void Player::ApplyGlobalVariables() {
 	//powerMagnification_ = globalVariables->GetFloatValue(groupName, "powerMagnification_");
 }
 
+// 移動処理
 void Player::Move() {
 	Matrix4x4 rotateMatrix;
 	Vector3 move{};
@@ -406,14 +420,14 @@ void Player::Move() {
 
 	if (move.Length() != 0) {
 		// 入力がある場合の処理
-		/*if (velocity_.x < 0.0f && move.x > 0.0f ||
+		if (velocity_.x < 0.0f && move.x > 0.0f ||
 			velocity_.x > 0.0f && move.x < 0.0f) {
 			velocity_.x *= (1.0f - kAttenuation);
 		}
 		if (velocity_.z < 0.0f && move.z > 0.0f ||
 			velocity_.z > 0.0f && move.z < 0.0f) {
 			velocity_.z *= (1.0f - kAttenuation);
-		}*/
+		}
 
 		rotateMatrix = MakeRotateXYZMatrix(viewProjection_->rotation_);
 		move = Transformation(move, rotateMatrix);
@@ -424,6 +438,7 @@ void Player::Move() {
 	}
 }
 
+// 向きをセット
 void Player::VectorRotation(const Vector3& direction) {
 	Vector3 move = direction;
 	transform_.rotation_.y = std::atan2f(move.x, move.z);

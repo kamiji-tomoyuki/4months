@@ -54,7 +54,7 @@ public:
 	struct WorkDash {
 		float kDashTime_ = 0.3f;
 		float DashTime_ = 0;
-		float kAttenuation_ = 3.0f;
+		float kAttenuation_ = 1.50f;
 	};
 
 	Player();
@@ -156,8 +156,10 @@ private:	// 動作パターン
 
 	// 移動速度 減衰速度
 	float kAcceleration_ = 0.1f;
-	//float kAttenuation = 0.1f;
-	//float kLimitRunSpeed = 5.0f;
+	float kAttenuation = 0.1f;
+	float kLimitRunSpeed = 5.0f;
+
+	// 攻撃速度 攻撃距離
 	//Vector3 attackVelocity_ = { 0.0f,0.0f,5.0f };
 	//float velocityLength = 0.0f;
 	//float velocityLengthW = 0.0f;
