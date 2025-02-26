@@ -1,24 +1,25 @@
-#include "Soldier.h"
+#include "Boss.h"
 #include <CollisionTypeIdDef.h>
 #include "myMath.h"
 #include "EnemyStateRoot.h"
 #include "Player.h"
 
-Soldier::Soldier(){
+Boss::Boss() {
 
 }
-void Soldier::Init(){
+void Boss::Init() {
 	Enemy::Init();
-	BaseObject::CreateModel("player/playerBody.obj");
+	Collider::SetTypeID(static_cast<uint32_t>(CollisionTypeIdDef::kBoss));
+	BaseObject::CreateModel("enemy/enemyBody.obj");
 	Enemy::ChangeState(std::make_unique<EnemyStateRoot>(this));
-	Collider::SetRadius(1.0f);
-	Enemy::SetScale({ 1.0f,1.0f,1.0f });
+	Collider::SetRadius(10.0f);
+	Enemy::SetScale({ 10.0f,10.0f,10.0f });
 	//imgui
 	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
 	// グループを追加
 	GlobalVariables::GetInstance()->CreateGroup(groupName);
 	globalVariables->AddItem(groupName, "kHp_", kHp_);
-	
+
 	globalVariables->AddItem(groupName, "shortDistanceProbability_.kAttack", shortDistanceProbability_.kAttack);
 	globalVariables->AddItem(groupName, "shortDistanceProbability_.kDefense", shortDistanceProbability_.kDefense);
 	globalVariables->AddItem(groupName, "middleDistanceProbability_.kAttack", middleDistanceProbability_.kAttack);
@@ -32,11 +33,11 @@ void Soldier::Init(){
 	globalVariables->AddItem(groupName, "CoolTime", kCoolTime_);
 	//確認用
 	globalVariables->AddItem(groupName, "isMove_", isMove_);
+	//更新
 	ApplyGlobalVariables();
-
 	hp_ = kHp_;
 }
-void Soldier::Update(){
+void Boss::Update() {
 	ApplyGlobalVariables();
 	Enemy::VectorRotation(player_->GetCenterPosition() - GetCenterPosition());
 	Enemy::Update();
@@ -49,25 +50,24 @@ void Soldier::Update(){
 
 	Enemy::Update();
 }
-void Soldier::Draw(const ViewProjection& viewProjection){
+void Boss::Draw(const ViewProjection& viewProjection) {
 	Enemy::Draw(viewProjection);
 }
-void Soldier::OnCollision(Collider* other){
+void Boss::OnCollision(Collider* other) {
 	// 衝突相手の種別IDを取得
 	uint32_t typeID = other->GetTypeID();
 	// 衝突相手が敵なら
 	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kPlayerWeapon)) {
-
 	}
 }
-void Soldier::OnCollisionEnter(Collider* other){
-	
+void Boss::OnCollisionEnter(Collider* other) {
+
 }
-void Soldier::OnCollisionOut(Collider* other){
+void Boss::OnCollisionOut(Collider* other) {
 
 }
 
-void Soldier::ApplyGlobalVariables() {
+void Boss::ApplyGlobalVariables() {
 	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
 	kHp_ = globalVariables->GetIntValue(groupName, "kHp_");
 
@@ -85,7 +85,7 @@ void Soldier::ApplyGlobalVariables() {
 	isMove_ = globalVariables->GetBoolValue(groupName, "isMove_");
 }
 
-Vector3 Soldier::GetCenterPosition() const{
+Vector3 Boss::GetCenterPosition() const {
 	//ローカル座標でのオフセット
 	const Vector3 offset = { 0.0f, 0.0f, 0.0f };
 	// ワールド座標に変換
@@ -93,6 +93,6 @@ Vector3 Soldier::GetCenterPosition() const{
 	return worldPos;
 }
 
-Vector3 Soldier::GetCenterRotation() const{
+Vector3 Boss::GetCenterRotation() const {
 	return transform_.rotation_;
 }

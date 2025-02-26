@@ -3,6 +3,8 @@
 #include"SceneManager.h"
 #include <line/DrawLine3D.h>
 #include <fstream>
+#include "Boss.h"
+#include <CollisionTypeIdDef.h>
 
 void GameScene::Finalize()
 {
@@ -34,9 +36,9 @@ void GameScene::Initialize()
 	Player::SetPlayerID(0);
 	for (uint32_t i = 0; i < 1; ++i) {
 		std::unique_ptr<Player> player = std::make_unique<Player>();
+		player->SetTimeManager(timeManager_.get());
 		player->Init();
 		player->SetViewProjection(&vp_);
-		player->SetTimeManager(timeManager_.get());
 		players_.push_back(std::move(player));
 	}
 	players_[0]->SetPosition({ 0.0f,0.0f,-50.0f });
@@ -44,16 +46,14 @@ void GameScene::Initialize()
 	//敵
 	LoadEnemyPopData();
 
-	//for (size_t i = 0; i < 3; i++) {
-	//	enemies_.push_back(std::make_unique<Soldier>());
-	//}
-	//float enemyPopNum = 0;
-	//for (const std::unique_ptr<Enemy>& enemy : enemies_) {
-	//	enemy->Init();
-	//	enemy->SetTranslation({ (float)enemyPopNum * 4.0f, 0, 0 });
-	//	enemy->SetRadius(0.6f);
-	//	enemyPopNum++;
-	//}
+	for (size_t i = 0; i < 1; i++) {
+		std::unique_ptr<Enemy> newEnemy = std::make_unique<Boss>();
+		newEnemy->SetPlayer(players_[0].get());
+		newEnemy->Init();
+		newEnemy->SetTranslation({0.0f,0.0f,100.0f});
+		newEnemy->SetTimeManager(timeManager_.get());
+		enemies_.push_back(std::move(newEnemy));
+	}
 
 	//カメラ
 	followCamera_ = std::make_unique<FollowCamera>();
@@ -108,6 +108,9 @@ void GameScene::Update()
 	for (const std::unique_ptr<Enemy>& enemy : enemies_) {
 		if (!enemy->GetIsAlive()) {
 			lockOn_->ResetTarget();
+			if (enemy->GetTypeID() == static_cast<uint32_t>(CollisionTypeIdDef::kBoss)) {
+				isClear = true;
+			}
 		}
 	}
 	enemies_.remove_if([](const std::unique_ptr<Enemy>& enemy) {
@@ -282,14 +285,15 @@ void GameScene::CameraUpdate()
 
 void GameScene::ChangeScene()
 {
-	for (std::unique_ptr<Player>& player : players_) {
-		if (player->IsClear()) {
-			sceneManager_->NextSceneReservation("CLEAR");
-			if (isPlay) {
-				audio_->PlayWave(8, 1.0f, false);
-				isPlay = false;
-			}
+	if (isClear) {
+		sceneManager_->NextSceneReservation("CLEAR");
+		if (isPlay) {
+			audio_->PlayWave(8, 1.0f, false);
+			isPlay = false;
 		}
+		isClear = false;
+	}
+	for (std::unique_ptr<Player>& player : players_) {
 		if (player->IsGameOver())
 		{
 			sceneManager_->NextSceneReservation("GAMEOVER");
@@ -361,7 +365,6 @@ void GameScene::AddEnemy(const Vector3& position) {
 	newEnemy->SetPlayer(players_[0].get());
 	newEnemy->Init();
 	newEnemy->SetTranslation(position);
-	newEnemy->SetRadius(0.6f);
 	newEnemy->SetTimeManager(timeManager_.get());
 	enemies_.push_back(std::move(newEnemy));
 }

@@ -371,6 +371,9 @@
     <ClCompile Include="EnemyStateDefense.cpp">
       <Filter>ソースファイル</Filter>
     </ClCompile>
+    <ClCompile Include="Boss.cpp">
+      <Filter>ソースファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
@@ -637,6 +640,7 @@
     </ClInclude>
     <ClInclude Include="EnemyStateAttack.h" />
     <ClInclude Include="EnemyStateDefense.h" />
+    <ClInclude Include="Boss.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\shaders\Particle\Particle.PS.hlsl">

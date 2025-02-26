@@ -94,4 +94,6 @@ private:
 	bool isPlay = true;
 	//敵発生コマンド
 	std::stringstream enemyPopCommands;
+	//クリア
+	bool isClear = false;
 };

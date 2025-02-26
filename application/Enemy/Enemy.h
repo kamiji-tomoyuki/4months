@@ -77,6 +77,7 @@ protected:
 	static uint32_t nextSerialNumber_;
 	//命
 	bool isAlive_ = true;
+	int kHp_ = 10000;
 	int hp_ = 5;
 	//行動距離
 	float shortDistance_ = 10.0f;
@@ -94,6 +95,9 @@ public:
 	void SetVelocity(const Vector3& velocity) { velocity_ = velocity; }
 	void SetIsAlive(bool isAlive) { isAlive_ = isAlive; }
 	void SetHP(int hp) { hp_ = hp; }
+	void SetScale(const Vector3& scale) {
+		transform_.scale_ = scale;  // **スケールを適用**
+	}
 
 	Player* GetPlayer() { return player_; }
 	TimeManager* GetTimeManager() { return timeManager_; }

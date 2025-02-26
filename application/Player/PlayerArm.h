@@ -2,6 +2,7 @@
 #include "Collider.h"
 	
 class Player;
+class TimeManager;
 class PlayerArm : public Collider{
 public:
 	/// <summary>
@@ -46,6 +47,7 @@ public:
 
 private:
 	Player* player_ = nullptr;
+	TimeManager* timeManager_ = nullptr;
 
 	// モデル配列データ
 	std::unique_ptr<Object3d> obj3d_;
@@ -70,6 +72,7 @@ public:
 	void SetID(int id) { id_ = id; }
 	void SetModel(const std::string& filePath);
 	void SetPlayer(Player* player);
+	void SetTimeManager(TimeManager* timeManager) { timeManager_ = timeManager; }
 	void SetObjColor(Vector4 c) { objColor_.SetColor(c); }
 	void SetTranslation(Vector3 pos) { transform_.translation_ = pos; }
 	void SetTranslationY(float pos) { transform_.translation_.y = pos; }

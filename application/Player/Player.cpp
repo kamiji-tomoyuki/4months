@@ -52,6 +52,7 @@ void Player::Init() {
 	for (std::unique_ptr<PlayerArm>& playerArm : arms_) {
 		playerArm = std::make_unique<PlayerArm>();
 		playerArm->SetPlayer(this);
+		playerArm->SetTimeManager(timeManager_);
 	}
 
 	BaseObject::CreateModel("player/playerBody.obj");
