@@ -347,7 +347,19 @@
     <ClCompile Include="scene\GameOverScene.cpp">
       <Filter>ソースファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Enemy.cpp">
+    <ClCompile Include="application\Enemy\Enemy.cpp">
+      <Filter>ソースファイル\application\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Enemy\Soldier.cpp">
+      <Filter>ソースファイル\application\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Enemy\BaseEnemyState.cpp">
+      <Filter>ソースファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Enemy\EnemyStateApproach.cpp">
+      <Filter>ソースファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Enemy\EnemyStateLeave.cpp">
       <Filter>ソースファイル</Filter>
     </ClCompile>
   </ItemGroup>
@@ -596,7 +608,15 @@
     </ClInclude>
     <ClInclude Include="scene\ClearScene.h" />
     <ClInclude Include="scene\GameOverScene.h" />
-    <ClInclude Include="Enemy.h" />
+    <ClInclude Include="application\Enemy\Enemy.h">
+      <Filter>ソースファイル\application\Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="application\Enemy\Soldier.h">
+      <Filter>ソースファイル\application\Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="application\Enemy\BaseEnemyState.h" />
+    <ClInclude Include="application\Enemy\EnemyStateApproach.h" />
+    <ClInclude Include="application\Enemy\EnemyStateLeave.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\shaders\Particle\Particle.PS.hlsl">

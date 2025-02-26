@@ -1,42 +1,52 @@
 #pragma once
 #include "BaseObject.h"
+#include "BaseEnemyState.h"
 
+class Player;
 class Enemy : public BaseObject {
 public:
 	Enemy();
 	/// <summary>
 	/// 初期化
 	/// </summary>
-	void Init() override;
+	virtual void Init() override;
 
 	/// <summary>
 	/// 更新
 	/// </summary>
-	void Update() override;
+	virtual void Update() override;
 
 	/// <summary>
 	/// 描画
 	/// </summary>
-	void Draw(const ViewProjection& viewProjection)override;
+	virtual void Draw(const ViewProjection& viewProjection)override;
+
 	/// <summary>
-		/// 当たってる間
-		/// </summary>
-		/// <param name="other"></param>
-	void OnCollision([[maybe_unused]] Collider* other) override;
+	/// 当たってる間
+	/// </summary>
+	/// <param name="other"></param>
+	virtual void OnCollision([[maybe_unused]] Collider* other) override;
 
 	/// <summary>
 	/// 当たった瞬間
 	/// </summary>
 	/// <param name="other"></param>
-	void OnCollisionEnter([[maybe_unused]] Collider* other) override;
+	virtual void OnCollisionEnter([[maybe_unused]] Collider* other) override;
 
 	/// <summary>
 	/// 当たり終わった瞬間
 	/// </summary>
 	/// <param name="other"></param>
-	void OnCollisionOut([[maybe_unused]] Collider* other) override;
+	virtual void OnCollisionOut([[maybe_unused]] Collider* other) override;
+
+	//Updateのステートチェンジ
+	void ChangeState(std::unique_ptr<BaseEnemyState> state);
 
 private:
+	//ポインタ
+	Player* player_ = nullptr;
+	//ステート
+	std::unique_ptr<BaseEnemyState> state_;
 	//シリアルナンバー
 	uint32_t serialNumber_ = 0;
 	//次のシリアルナンバー
@@ -47,9 +57,10 @@ private:
 	int hp_ = 5;
 
 public:
+	void SetPlayer(Player* player) { player_ = player; }
 	void SetTranslation(const Vector3& translation);
-	Vector3 GetCenterPosition() const override;
-	Vector3 GetCenterRotation() const override;
+	virtual Vector3 GetCenterPosition() const override = 0;
+	virtual Vector3 GetCenterRotation() const override = 0;
 	uint32_t GetSerialNumber() const { return serialNumber_; }
 	bool GetIsAlive() { return isAlive_; }
 	void SetIsAlive(bool isAlive) { isAlive_ = isAlive; }
