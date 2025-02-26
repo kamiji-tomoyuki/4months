@@ -3,13 +3,13 @@
 #include "Input.h"
 #include "myMath.h"
 #include <WinApp.h>
-#include "Player.h"
+#include "Enemy.h"
 
 void LockOn::Initialize() {
 
 }
 
-void LockOn::Update(const std::list<Player*>& enemies,const ViewProjection& viewProjection) {
+void LockOn::Update(const std::list<std::unique_ptr<Enemy>>& enemies,const ViewProjection& viewProjection) {
 	XINPUT_STATE joyState;
 	
 	if (target_) {
@@ -53,13 +53,13 @@ void LockOn::Draw() {
 	}
 }
 
-void LockOn::Search(const std::list<Player*>& enemies, const ViewProjection& viewProjection) {
+void LockOn::Search(const std::list<std::unique_ptr<Enemy>>& enemies, const ViewProjection& viewProjection) {
 	//ロックオンの絞り込み
 	//目標
-	std::list<std::pair<float, Player*>> targets;
+	std::list<std::pair<float, Enemy*>> targets;
 
 	//全ての敵に対して順にロックオン判定
-	for (Player* enemy : enemies) {
+	for (const std::unique_ptr<Enemy>& enemy : enemies) {
 		//敵のロックオン座標取得
 		Vector3 positionWorld = enemy->GetCenterPosition();
 
@@ -72,7 +72,7 @@ void LockOn::Search(const std::list<Player*>& enemies, const ViewProjection& vie
 			float arcTangent = std::atan2(std::sqrtf(positionView.x * positionView.x + positionView.y * positionView.y), positionView.z);
 			//角度条件チェック
 			if (std::fabs(arcTangent) <= angleRange) {
-				targets.emplace_back(std::make_pair(positionView.z, enemy));
+				targets.emplace_back(std::make_pair(positionView.z, enemy.get()));
 			}
 		}
 	}

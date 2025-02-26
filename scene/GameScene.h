@@ -18,6 +18,8 @@
 #include "TimeManager.h"
 #include "LockOn.h"
 #include <ParticleEmitter.h>
+#include "Enemy.h"
+#include "Soldier.h"
 
 class GameScene : public BaseScene
 {
@@ -55,6 +57,10 @@ private:
 	void CameraUpdate();
 
 	void ChangeScene();
+	//enemyPop
+	void LoadEnemyPopData();
+	void UpdateEnemyPopCommands();
+	void AddEnemy(const Vector3& position);
 private:
 
 	Audio* audio_;
@@ -70,6 +76,8 @@ private:
 	std::unique_ptr<Skydome> skydome_ = nullptr;// 天球
 
 	std::vector<std::unique_ptr<Player>> players_;
+	//Enemy
+	std::list<std::unique_ptr<Enemy>> enemies_;
 	//ロックオン
 	std::unique_ptr<LockOn> lockOn_;
 	//カメラ
@@ -84,4 +92,8 @@ private:
 	std::vector<std::unique_ptr<ParticleEmitter>> emitters_;
 	// SE 多重再生防止
 	bool isPlay = true;
+	//敵発生コマンド
+	std::stringstream enemyPopCommands;
+	//クリア
+	bool isClear = false;
 };

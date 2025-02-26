@@ -1,6 +1,8 @@
 #include "PlayerArm.h"
 #include "Player.h"
 #include "CollisionTypeIdDef.h"
+#include "Enemy.h"
+#include "TimeManager.h"
 
 void PlayerArm::Initialize(){
 	Collider::Initialize();
@@ -43,7 +45,23 @@ void PlayerArm::DrawAnimation(const ViewProjection& viewProjection)
 }
 
 void PlayerArm::OnCollision([[maybe_unused]] Collider* other){
-
+	if (timeManager_->GetTimer("start").isStart || timeManager_->GetTimer("collision").isStart) {
+		return;
+	}
+	// 衝突相手の種別IDを取得
+	uint32_t typeID = other->GetTypeID();
+	//衝突相手
+	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kEnemy) ||
+		typeID == static_cast<uint32_t>(CollisionTypeIdDef::kBoss)) {
+		Enemy* enemy = static_cast<Enemy*>(other);
+		if (GetIsAttack()) {
+			enemy->SetHP(enemy->GetHP() - int(1000));
+			if (enemy->GetHP() <= 0) {
+				enemy->SetIsAlive(false);
+			}
+			SetIsAttack(false);
+		}
+	}
 }
 
 void PlayerArm::OnCollisionEnter([[maybe_unused]] Collider* other){

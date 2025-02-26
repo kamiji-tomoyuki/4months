@@ -341,6 +341,39 @@
     <ClCompile Include="math\Quaternion.cpp">
       <Filter>ソースファイル\math</Filter>
     </ClCompile>
+    <ClCompile Include="scene\ClearScene.cpp">
+      <Filter>ソースファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="scene\GameOverScene.cpp">
+      <Filter>ソースファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Enemy\Enemy.cpp">
+      <Filter>ソースファイル\application\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Enemy\Soldier.cpp">
+      <Filter>ソースファイル\application\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Enemy\BaseEnemyState.cpp">
+      <Filter>ソースファイル\application\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Enemy\EnemyStateApproach.cpp">
+      <Filter>ソースファイル\application\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Enemy\EnemyStateLeave.cpp">
+      <Filter>ソースファイル\application\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Enemy\EnemyStateRoot.cpp">
+      <Filter>ソースファイル\application\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="EnemyStateAttack.cpp">
+      <Filter>ソースファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="EnemyStateDefense.cpp">
+      <Filter>ソースファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Boss.cpp">
+      <Filter>ソースファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
@@ -585,6 +618,29 @@
     <ClInclude Include="math\Quaternion.h">
       <Filter>ソースファイル\math</Filter>
     </ClInclude>
+    <ClInclude Include="scene\ClearScene.h" />
+    <ClInclude Include="scene\GameOverScene.h" />
+    <ClInclude Include="application\Enemy\Enemy.h">
+      <Filter>ソースファイル\application\Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="application\Enemy\Soldier.h">
+      <Filter>ソースファイル\application\Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="application\Enemy\EnemyStateLeave.h">
+      <Filter>ソースファイル\application\Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="application\Enemy\EnemyStateApproach.h">
+      <Filter>ソースファイル\application\Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="application\Enemy\BaseEnemyState.h">
+      <Filter>ソースファイル\application\Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="application\Enemy\EnemyStateRoot.h">
+      <Filter>ソースファイル\application\Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="EnemyStateAttack.h" />
+    <ClInclude Include="EnemyStateDefense.h" />
+    <ClInclude Include="Boss.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\shaders\Particle\Particle.PS.hlsl">
