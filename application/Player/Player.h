@@ -128,7 +128,6 @@ private:	// 動作パターン
 	void BehaviorCelebrateInitialize();
 	void BehaviorCelebrateUpdate();
 
-
 	// 調整項目の適用
 	void ApplyGlobalVariables();
 
@@ -168,7 +167,7 @@ private:	// 動作パターン
 	float size_ = 1.0f;
 	// 速度
 	Vector3 velocity_{};
-	Vector3 acceleration{};
+	Vector3 acceleration_{};
 
 	// 狙う方向
 	Vector3 aimingDirection_{};

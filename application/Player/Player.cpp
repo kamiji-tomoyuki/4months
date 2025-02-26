@@ -222,10 +222,10 @@ void Player::BehaviorRootUpdate() {
 	//	behaviorRequest_ = Behavior::kAttack;
 	//	attack_.isLeft = true;
 	//}
-	//if (Input::GetInstance()->GetJoystickState(0, joyState) && joyState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER || Input::GetInstance()->TriggerKey(DIK_K)) {
-	//	behaviorRequest_ = Behavior::kAttack;
-	//	attack_.isLeft = false;
-	//}
+	if (Input::GetInstance()->GetJoystickState(0, joyState) && joyState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER || Input::GetInstance()->TriggerKey(DIK_K)) {
+		behaviorRequest_ = Behavior::kAttack;
+		attack_.isLeft = false;
+	}
 	////if (Input::GetInstance()->GetJoystickState(0, joyState) && (/*joyState.Gamepad.bLeftTrigger & XINPUT_GAMEPAD_TRIGGER_THRESHOLD ||*/ joyState.Gamepad.bRightTrigger & XINPUT_GAMEPAD_TRIGGER_THRESHOLD) ||
 	////	Input::GetInstance()->TriggerKey(DIK_L)) {
 	////	behaviorRequest_ = Behavior::kGrab;
@@ -282,28 +282,49 @@ void Player::BehaviorAttackInitialize() {
 
 // 攻撃動作の更新
 void Player::BehaviorAttackUpdate() {
-
+	Move();
 	//アームの開始角度
-
-	float armNow = 0.0f;
 	float speed = kAcceleration_ * 2.0f;
-	//Vector3 move{};
-	//attack_.time += timeManager_->deltaTime_;
+	Vector3 move{};
+	attack_.time += timeManager_->deltaTime_;
 
-	/*if (attack_.time / attack_.kLimitTime > 1.0f) {
+	if (attack_.time / attack_.kLimitTime > 1.0f) {
 		behaviorRequest_ = Behavior::kRoot;
-	}*/
+	}
 
-	/*if (attack_.time / attack_.kLimitTime < 0.5f) {
-		armNow = EaseInSine(attack_.armStart, attack_.armStart + attack_.armEnd, attack_.time * 2.0f, attack_.kLimitTime);
+	// 攻撃方向
+	XINPUT_STATE joyState;
+	Input::GetInstance()->GetJoystickState(0, joyState);
+	if (aimingDirection_.x == 0 && aimingDirection_.z == 0)
+	{
+		aimingDirection_ = { (float)joyState.Gamepad.sThumbRX / SHRT_MAX, 0.0, (float)joyState.Gamepad.sThumbRY / SHRT_MAX };
+		aimingDirection_ = aimingDirection_.Normalize();
+		aimingDirection_ *= 5.0f;
+	}
+	Vector3 armNow = { 0.0f };
+
+	if (attack_.time / attack_.kLimitTime < 0.5f) {
+		attack_.armEnd = aimingDirection_.x;
+		armNow.x = EaseInSine(attack_.armStart, attack_.armStart + attack_.armEnd, attack_.time * 2.0f, attack_.kLimitTime);
+		attack_.armEnd = aimingDirection_.z;
+		armNow.z = EaseInSine(attack_.armStart, attack_.armStart + attack_.armEnd, attack_.time * 2.0f, attack_.kLimitTime);
 	} else {
-		armNow = EaseOutSine(attack_.armStart + attack_.armEnd, attack_.armStart, attack_.time * 2.0f - attack_.kLimitTime, attack_.kLimitTime);
-	}*/
+		attack_.armEnd = aimingDirection_.x;
+		armNow.x = EaseOutSine(attack_.armStart + attack_.armEnd, attack_.armStart, attack_.time * 2.0f - attack_.kLimitTime, attack_.kLimitTime);
+		attack_.armEnd = aimingDirection_.z;
+		armNow.z = EaseOutSine(attack_.armStart + attack_.armEnd, attack_.armStart, attack_.time * 2.0f - attack_.kLimitTime, attack_.kLimitTime);
+	}
+
+	if (attack_.time / attack_.kLimitTime >= 1.0f) {
+		aimingDirection_ = { 0.0f, 0.0f, 0.0f };
+	}
 
 	if (attack_.isLeft) {
-		arms_[kLArm]->SetTranslationZ(armNow);
+		arms_[kLArm]->SetTranslationX(armNow.x);
+		arms_[kLArm]->SetTranslationZ(armNow.z);
 	} else {
-		arms_[kRArm]->SetTranslationZ(armNow);
+		arms_[kRArm]->SetTranslationX(armNow.x);
+		arms_[kRArm]->SetTranslationZ(armNow.z);
 	}
 	//ロックオン中
 	//if (lockOn_ && lockOn_->ExistTarget()) {
