@@ -18,6 +18,7 @@
 #include "TimeManager.h"
 #include "LockOn.h"
 #include <ParticleEmitter.h>
+#include <Enemy.h>
 
 class GameScene : public BaseScene
 {
@@ -70,6 +71,8 @@ private:
 	std::unique_ptr<Skydome> skydome_ = nullptr;// 天球
 
 	std::vector<std::unique_ptr<Player>> players_;
+	//Enemy
+	std::list<std::unique_ptr<Enemy>> enemies_;
 	//ロックオン
 	std::unique_ptr<LockOn> lockOn_;
 	//カメラ

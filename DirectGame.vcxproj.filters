@@ -341,6 +341,15 @@
     <ClCompile Include="math\Quaternion.cpp">
       <Filter>ソースファイル\math</Filter>
     </ClCompile>
+    <ClCompile Include="scene\ClearScene.cpp">
+      <Filter>ソースファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="scene\GameOverScene.cpp">
+      <Filter>ソースファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Enemy.cpp">
+      <Filter>ソースファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
@@ -585,6 +594,9 @@
     <ClInclude Include="math\Quaternion.h">
       <Filter>ソースファイル\math</Filter>
     </ClInclude>
+    <ClInclude Include="scene\ClearScene.h" />
+    <ClInclude Include="scene\GameOverScene.h" />
+    <ClInclude Include="Enemy.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\shaders\Particle\Particle.PS.hlsl">

@@ -39,7 +39,18 @@ void GameScene::Initialize()
 		players_.push_back(std::move(player));
 	}
 	players_[0]->SetPosition({ 0.0f,0.0f,-50.0f });
-	//players_[1]->SetPosition({ 0.0f,0.0f,5.0f });
+
+	//敵
+	for (size_t i = 0; i < 3; i++) {
+		enemies_.push_back(std::make_unique<Enemy>());
+	}
+	float enemyPopNum = 0;
+	for (const std::unique_ptr<Enemy>& enemy : enemies_) {
+		enemy->Init();
+		enemy->SetTranslation({ (float)enemyPopNum * 4.0f, 0, 0 });
+		enemy->SetRadius(0.6f);
+		enemyPopNum++;
+	}
 
 	//カメラ
 	followCamera_ = std::make_unique<FollowCamera>();
@@ -96,7 +107,9 @@ void GameScene::Update()
 		player->Update(); 
 		player->UpdateParticle(vp_);
 	}
-
+	for (const std::unique_ptr<Enemy>& enemy : enemies_) {
+		enemy->Update();
+	}
 	skydome_->SetScale({ 1000.0f,1000.0f,1000.0f });// 天球のScale
 	skydome_->Update();
 
@@ -154,6 +167,9 @@ void GameScene::Draw()
 
 	for (std::unique_ptr<Player>& player : players_) {
 		player->Draw(vp_);
+	}
+	for (const std::unique_ptr<Enemy>& enemy : enemies_) {
+		enemy->Draw(vp_);
 	}
 	skydome_->Draw(vp_);
 	//--------------------------
@@ -243,15 +259,7 @@ void GameScene::CameraUpdate()
 		vp_.matProjection_ = followCamera_->GetViewProjection().matProjection_;
 		vp_.TransferMatrix();
 		//vp_.UpdateMatrix();
-		std::list<Player*> enemies;
-		int index = 0;
-		for (std::unique_ptr<Player>& player : players_) {
-			if (index != 0) {
-				enemies.push_back(player.get());
-			}
-			index++;
-		}
-		lockOn_->Update(enemies, vp_);
+		lockOn_->Update(enemies_, vp_);
 	}
 }
 
