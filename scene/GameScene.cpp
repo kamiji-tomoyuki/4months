@@ -112,8 +112,6 @@ void GameScene::Update()
 	//enemyHpBar_->SetSize(Vector2(100.0f, enemyNewHeight)); // 横幅を70pxに変更
 	//enemyHpBar_->SetPosition(Vector2(50.0f, 100 + (500.0f - enemyNewHeight))); // 左側に配置
 
-
-
 	// カメラ更新
 	CameraUpdate();
 
@@ -122,8 +120,6 @@ void GameScene::Update()
 	for (std::unique_ptr<ParticleEmitter>& emitter_ : emitters_) {
 		emitter_->Update(vp_);
 	}
-
-	
 }
 
 void GameScene::Draw()
@@ -137,7 +133,7 @@ void GameScene::Draw()
 	lockOn_->Draw();
 	// HPバーの描画
 	hpBar_->Draw();
-	enemyHpBar_->Draw(); // 敵の HPバーも描画
+	//enemyHpBar_->Draw(); // 敵の HPバーも描画
 
 	//------------------------
 

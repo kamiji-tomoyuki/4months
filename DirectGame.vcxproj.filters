@@ -341,6 +341,12 @@
     <ClCompile Include="math\Quaternion.cpp">
       <Filter>ソースファイル\math</Filter>
     </ClCompile>
+    <ClCompile Include="scene\ClearScene.cpp">
+      <Filter>ソースファイル\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="scene\GameOverScene.cpp">
+      <Filter>ソースファイル\scene</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
@@ -584,6 +590,12 @@
     <ClInclude Include="Skydome.h" />
     <ClInclude Include="math\Quaternion.h">
       <Filter>ソースファイル\math</Filter>
+    </ClInclude>
+    <ClInclude Include="scene\ClearScene.h">
+      <Filter>ソースファイル\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="scene\GameOverScene.h">
+      <Filter>ソースファイル\scene</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
