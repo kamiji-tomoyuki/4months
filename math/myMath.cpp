@@ -371,35 +371,6 @@ std::pair<Vector3, Vector3> ComputeCollisionVelocities(
 	return std::make_pair(velocityAfter1 + sub1, velocityAfter2 + sub2);
 }
 
-Vector3 Project(const Vector3& v1, const Vector3& v2)
-{
-	Vector3 v3;
-	v3 = (v1.Dot(v2.Normalize()) * v2.Normalize());
-	return v3;
-}
-
-std::pair<Vector3, Vector3> ComputeCollisionVelocities(
-	float mass1, const Vector3& velocity1, float mass2, const Vector3& velocity2, float coefficientOfRestitution, const Vector3& normal)
-{
-	// 衝突面の法線方向に速度を射影
-	Vector3 project1 = Project(velocity1, normal); // 物体1の法線方向の速度
-	Vector3 project2 = Project(velocity2, normal); // 物体2の法線方向の速度
-
-	// 接線方向の速度成分（衝突後も変化しない）
-	Vector3 sub1 = velocity1 - project1;
-	Vector3 sub2 = velocity2 - project2;
-
-	// 法線方向の衝突後の速度を計算
-	Vector3 velocityAfter1 = (project1 * (mass1 - coefficientOfRestitution * mass2) +
-		project2 * (1.0f + coefficientOfRestitution) * mass2) / (mass1 + mass2);
-
-	Vector3 velocityAfter2 = (project2 * (mass2 - coefficientOfRestitution * mass1) +
-		project1 * (1.0f + coefficientOfRestitution) * mass1) / (mass1 + mass2);
-
-	// 最終的な速度：法線方向の速度 + 接線方向の速度
-	return std::make_pair(velocityAfter1 + sub1, velocityAfter2 + sub2);
-}
-
 //
 //void VectorScreenPrintf(int x, int y, const Vector3& vector, const char* label) {
 //	Novice::ScreenPrintf(x, y, "%.02f", vector.x);
