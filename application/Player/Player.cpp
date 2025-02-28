@@ -9,34 +9,7 @@
 #include "FollowCamera.h"
 #include "LockOn.h"
 #include <Audio.h>
-
-static Vector3 Project(const Vector3& v1, const Vector3& v2)
-{
-	Vector3 v3;
-	v3 = (v1.Dot(v2.Normalize()) * v2.Normalize());
-	return v3;
-}
-static std::pair<Vector3, Vector3> ComputeCollisionVelocities(
-	float mass1, const Vector3& velocity1, float mass2, const Vector3& velocity2, float coefficientOfRestitution, const Vector3& normal)
-{
-	// 衝突面の法線方向に速度を射影
-	Vector3 project1 = Project(velocity1, normal); // 物体1の法線方向の速度
-	Vector3 project2 = Project(velocity2, normal); // 物体2の法線方向の速度
-
-	// 接線方向の速度成分（衝突後も変化しない）
-	Vector3 sub1 = velocity1 - project1;
-	Vector3 sub2 = velocity2 - project2;
-
-	// 法線方向の衝突後の速度を計算
-	Vector3 velocityAfter1 = (project1 * (mass1 - coefficientOfRestitution * mass2) +
-		project2 * (1.0f + coefficientOfRestitution) * mass2) / (mass1 + mass2);
-
-	Vector3 velocityAfter2 = (project2 * (mass2 - coefficientOfRestitution * mass1) +
-		project1 * (1.0f + coefficientOfRestitution) * mass1) / (mass1 + mass2);
-
-	// 最終的な速度：法線方向の速度 + 接線方向の速度
-	return std::make_pair(velocityAfter1 + sub1, velocityAfter2 + sub2);
-}
+#include "Enemy.h"
 
 Player::Player() {
 	id_ = playerID;
@@ -47,6 +20,7 @@ void Player::Init() {
 	//基底クラスの初期化
 	BaseObject::Init();
 	Collider::SetTypeID(static_cast<uint32_t>(CollisionTypeIdDef::kPlayer));
+	Collider::SetAABBScale({ 0.0f,0.0f,0.0f });
 	InitializeFloatingGimmick();
 	//プレイヤーの手
 	for (std::unique_ptr<PlayerArm>& playerArm : arms_) {
@@ -197,16 +171,60 @@ void Player::OnCollision([[maybe_unused]] Collider* other) {
 	// 衝突相手の種別IDを取得
 	uint32_t typeID = other->GetTypeID();
 	//衝突相手
-	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kPlayerWeapon)) {
-		PlayerArm* enemyArm = static_cast<PlayerArm*>(other);
-		
+	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kEnemy)) {
+		Enemy* enemy = static_cast<Enemy*>(other);
+		if (timeManager_->GetTimer("start").isStart || timeManager_->GetTimer("collision").isStart) {
+			return;
+		}
+		// 衝突後の新しい速度を計算
+		auto [newVelocity1, newVelocity2] = ComputeCollisionVelocities(
+			1.0f, GetVelocity(), 1.0f, enemy->GetVelocity(), 1.0f, Vector3(GetCenterPosition() - enemy->GetCenterPosition()).Normalize()
+		);
+
+		// 計算した速度でボールの速度を更新
+		SetVelocity(newVelocity1);
+		enemy->SetVelocity(newVelocity2);
+
+		float distance = Vector3(GetCenterPosition() - enemy->GetCenterPosition()).Length();
+
+		Vector3 correction = Vector3(GetCenterPosition() - enemy->GetCenterPosition()).Normalize() * (GetRadius() + enemy->GetRadius() - distance) * 0.55f;
+		transform_.translation_ += correction;
+		enemy->SetTranslation(enemy->GetTransform().translation_ - correction);
+
+		//timeManager_->SetTimer("collision", timeManager_->deltaTime_ * 3.0f);
 	}
+
+	transform_.UpdateMatrix();
 }
 
 void Player::OnCollisionEnter([[maybe_unused]] Collider* other) {
 	// 衝突相手の種別IDを取得
 	uint32_t typeID = other->GetTypeID();
 	//衝突相手
+	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kEnemy)) {
+		Enemy* enemy = static_cast<Enemy*>(other);
+		if (timeManager_->GetTimer("start").isStart || timeManager_->GetTimer("collision").isStart) {
+			return;
+		}
+		// 衝突後の新しい速度を計算
+		auto [newVelocity1, newVelocity2] = ComputeCollisionVelocities(
+			1.0f, GetVelocity(), 1.0f, enemy->GetVelocity(), 1.0f, Vector3(GetCenterPosition() - enemy->GetCenterPosition()).Normalize()
+		);
+
+		// 計算した速度でボールの速度を更新
+		SetVelocity(newVelocity1);
+		enemy->SetVelocity(newVelocity2);
+
+		float distance = Vector3(GetCenterPosition() - enemy->GetCenterPosition()).Length();
+
+		Vector3 correction = Vector3(GetCenterPosition() - enemy->GetCenterPosition()).Normalize() * (GetRadius() + enemy->GetRadius() - distance) * 0.55f;
+		transform_.translation_ += correction;
+		enemy->SetTranslation(enemy->GetTransform().translation_ - correction);
+
+		//timeManager_->SetTimer("collision", timeManager_->deltaTime_ * 3.0f);
+	}
+
+	transform_.UpdateMatrix();
 }
 
 void Player::OnCollisionOut([[maybe_unused]] Collider* other) {

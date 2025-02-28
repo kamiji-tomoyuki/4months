@@ -12,7 +12,10 @@ void Soldier::Init(){
 	BaseObject::CreateModel("player/playerBody.obj");
 	Enemy::ChangeState(std::make_unique<EnemyStateRoot>(this));
 	Collider::SetRadius(1.0f);
+	Collider::SetAABBScale({ 0.0f,0.0f,0.0f });
 	Enemy::SetScale({ 1.0f,1.0f,1.0f });
+	shortDistance_ = (player_->GetRadius() + GetRadius());
+	middleDistance_ = (player_->GetRadius() + GetRadius()) * 3.0f;
 	//imgui
 	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
 	// グループを追加
@@ -55,7 +58,7 @@ void Soldier::Draw(const ViewProjection& viewProjection){
 void Soldier::OnCollision(Collider* other){
 	// 衝突相手の種別IDを取得
 	uint32_t typeID = other->GetTypeID();
-	// 衝突相手が敵なら
+	//衝突相手
 	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kPlayerWeapon)) {
 
 	}
