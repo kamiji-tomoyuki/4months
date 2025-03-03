@@ -54,8 +54,8 @@ void Player::Init() {
 	// グループを追加
 	GlobalVariables::GetInstance()->CreateGroup(groupName);
 	globalVariables->AddItem(groupName, "kAcceleration", kAcceleration_);
-	globalVariables->AddItem(groupName, "kAttenuation", kAttenuation);
-	globalVariables->AddItem(groupName, "kLimitRunSpeed", kLimitRunSpeed);
+	globalVariables->AddItem(groupName, "kAttenuation", kAttenuation_);
+	globalVariables->AddItem(groupName, "kLimitRunSpeed", kLimitRunSpeed_);
 	//globalVariables->AddItem(groupName, "attackVelocity_", attackVelocity_);
 	globalVariables->AddItem(groupName, "size", size_);
 	globalVariables->AddItem(groupName, "kHp_", kHp_);
@@ -99,13 +99,13 @@ void Player::Update() {
 	//}
 
 	// 速度に減衰をかける
-	velocity_.x *= (1.0f - kAttenuation);
-	velocity_.z *= (1.0f - kAttenuation);
+	velocity_.x *= (1.0f - kAttenuation_);
+	velocity_.z *= (1.0f - kAttenuation_);
 	//Yなし
 	velocity_.y = 0.0f;
 
-	velocity_.x = std::clamp(velocity_.x, -kLimitRunSpeed, kLimitRunSpeed);
-	velocity_.z = std::clamp(velocity_.z, -kLimitRunSpeed, kLimitRunSpeed);
+	velocity_.x = std::clamp(velocity_.x, -kLimitRunSpeed_, kLimitRunSpeed_);
+	velocity_.z = std::clamp(velocity_.z, -kLimitRunSpeed_, kLimitRunSpeed_);
 
 	transform_.scale_ = { size_,size_ ,size_ };
 	Collider::SetRadius(size_ * 1.2f);
@@ -118,7 +118,6 @@ void Player::Update() {
 		arm->SetSize(size_ * 1.3f);
 		arm->Update();
 	}
-
 }
 
 void Player::UpdateParticle(const ViewProjection& viewProjection) {
@@ -218,10 +217,10 @@ void Player::BehaviorRootUpdate() {
 	UpdateFloatingGimmick();
 	Move();
 	XINPUT_STATE joyState;
-	//if (Input::GetInstance()->GetJoystickState(0, joyState) && joyState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER || Input::GetInstance()->TriggerKey(DIK_J)) {
-	//	behaviorRequest_ = Behavior::kAttack;
-	//	attack_.isLeft = true;
-	//}
+	if (Input::GetInstance()->GetJoystickState(0, joyState) && joyState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER || Input::GetInstance()->TriggerKey(DIK_J)) {
+		behaviorRequest_ = Behavior::kProtection;
+		attack_.isLeft = true;
+	}
 	if (Input::GetInstance()->GetJoystickState(0, joyState) && joyState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER || Input::GetInstance()->TriggerKey(DIK_K)) {
 		behaviorRequest_ = Behavior::kAttack;
 		attack_.isLeft = false;
@@ -295,6 +294,8 @@ void Player::BehaviorAttackUpdate() {
 	// 攻撃方向
 	XINPUT_STATE joyState;
 	Input::GetInstance()->GetJoystickState(0, joyState);
+	
+	// 方向が未入力の時にセット
 	if (aimingDirection_.x == 0 && aimingDirection_.z == 0)
 	{
 		aimingDirection_ = { (float)joyState.Gamepad.sThumbRX / SHRT_MAX, 0.0, (float)joyState.Gamepad.sThumbRY / SHRT_MAX };
@@ -303,18 +304,20 @@ void Player::BehaviorAttackUpdate() {
 	}
 	Vector3 armNow = { 0.0f };
 
+	// 攻撃モーション
 	if (attack_.time / attack_.kLimitTime < 0.5f) {
 		attack_.armEnd = aimingDirection_.x;
-		armNow.x = EaseInSine(attack_.armStart, attack_.armStart + attack_.armEnd, attack_.time * 2.0f, attack_.kLimitTime);
+		armNow.x = EaseInSine(1.7f, 1.7f + attack_.armEnd, attack_.time * 2.0f, attack_.kLimitTime);
 		attack_.armEnd = aimingDirection_.z;
 		armNow.z = EaseInSine(attack_.armStart, attack_.armStart + attack_.armEnd, attack_.time * 2.0f, attack_.kLimitTime);
 	} else {
 		attack_.armEnd = aimingDirection_.x;
-		armNow.x = EaseOutSine(attack_.armStart + attack_.armEnd, attack_.armStart, attack_.time * 2.0f - attack_.kLimitTime, attack_.kLimitTime);
+		armNow.x = EaseOutSine(1.7f + attack_.armEnd, 1.7f, attack_.time * 2.0f - attack_.kLimitTime, attack_.kLimitTime);
 		attack_.armEnd = aimingDirection_.z;
 		armNow.z = EaseOutSine(attack_.armStart + attack_.armEnd, attack_.armStart, attack_.time * 2.0f - attack_.kLimitTime, attack_.kLimitTime);
 	}
 
+	// 攻撃モーションが終わり次第攻撃方向をリセット
 	if (attack_.time / attack_.kLimitTime >= 1.0f) {
 		aimingDirection_ = { 0.0f, 0.0f, 0.0f };
 	}
@@ -326,6 +329,7 @@ void Player::BehaviorAttackUpdate() {
 		arms_[kRArm]->SetTranslationX(armNow.x);
 		arms_[kRArm]->SetTranslationZ(armNow.z);
 	}
+
 	//ロックオン中
 	//if (lockOn_ && lockOn_->ExistTarget()) {
 	//	// ロックオン座標
@@ -346,39 +350,102 @@ void Player::BehaviorAttackUpdate() {
 	//}
 }
 
-// 掴む動作の初期化
-void Player::BehaviorGrabInitialize() {
+// 防御動作の初期化
+void Player::BehaviorProtectionInitialize() {
 	transform_.UpdateMatrix();
+	attack_.time = 0;
+	attack_.isAttack = true;
+	attack_.isLeft = !attack_.isLeft;
+	if (attack_.isLeft) {
+		attack_.armStart = arms_[kLArm]->GetTranslation().z;
+		arms_[kLArm]->SetIsAttack(true);
+	}
+	else {
+		attack_.armStart = arms_[kRArm]->GetTranslation().z;
+		arms_[kRArm]->SetIsAttack(true);
+	}
+	/*transform_.UpdateMatrix();
 	grab_.time = 0;
 	grab_.isGrab = false;
 	grab_.armStartL = arms_[kLArm]->GetTranslation().z;
 	grab_.armStartR = arms_[kRArm]->GetTranslation().z;
 	arms_[kLArm]->SetIsGrab(true);
-	arms_[kRArm]->SetIsGrab(true);
+	arms_[kRArm]->SetIsGrab(true);*/
 }
 
-// 掴む動作の更新
-void Player::BehaviorGrabUpdate() {
+// 防御動作の更新
+void Player::BehaviorProtectionUpdate() {
+	Move();
 	//アームの開始角度
-	float armNowL = 0.0f;
+	float speed = kAcceleration_ * 2.0f;
+	Vector3 move{};
+	attack_.time += timeManager_->deltaTime_;
+
+	if (attack_.time / attack_.kLimitTime > 1.0f) {
+		behaviorRequest_ = Behavior::kRoot;
+	}
+
+	// 攻撃方向
+	XINPUT_STATE joyState;
+	Input::GetInstance()->GetJoystickState(0, joyState);
+
+	// 方向が未入力の時にセット
+	if (aimingDirection_.x == 0 && aimingDirection_.z == 0)
+	{
+		aimingDirection_ = { (float)joyState.Gamepad.sThumbRX / SHRT_MAX, 0.0, (float)joyState.Gamepad.sThumbRY / SHRT_MAX };
+		aimingDirection_ = aimingDirection_.Normalize();
+		aimingDirection_ *= 5.0f;
+	}
+	Vector3 armNow = { 0.0f };
+
+	// 攻撃モーション
+	if (attack_.time / attack_.kLimitTime < 0.5f) {
+		attack_.armEnd = aimingDirection_.x;
+		armNow.x = EaseInSine(-1.7f, -1.7f + attack_.armEnd, attack_.time * 2.0f, attack_.kLimitTime);
+		attack_.armEnd = aimingDirection_.z;
+		armNow.z = EaseInSine(attack_.armStart, attack_.armStart + attack_.armEnd, attack_.time * 2.0f, attack_.kLimitTime);
+	}
+	else {
+		attack_.armEnd = aimingDirection_.x;
+		armNow.x = EaseOutSine(-1.7f + attack_.armEnd, -1.7f, attack_.time * 2.0f - attack_.kLimitTime, attack_.kLimitTime);
+		attack_.armEnd = aimingDirection_.z;
+		armNow.z = EaseOutSine(attack_.armStart + attack_.armEnd, attack_.armStart, attack_.time * 2.0f - attack_.kLimitTime, attack_.kLimitTime);
+	}
+
+	// 攻撃モーションが終わり次第攻撃方向をリセット
+	if (attack_.time / attack_.kLimitTime >= 1.0f) {
+		aimingDirection_ = { 0.0f, 0.0f, 0.0f };
+	}
+
+	if (attack_.isLeft) {
+		arms_[kLArm]->SetTranslationX(armNow.x);
+		arms_[kLArm]->SetTranslationZ(armNow.z);
+	}
+	else {
+		arms_[kRArm]->SetTranslationX(armNow.x);
+		arms_[kRArm]->SetTranslationZ(armNow.z);
+	}
+	
+	//アームの開始角度
+	/*float armNowL = 0.0f;
 	float armNowR = 0.0f;
 
-	//grab_.time += timeManager_->deltaTime_;
+	grab_.time += timeManager_->deltaTime_;
 
-	/*if (grab_.time / grab_.kLimitTime > 1.0f) {
+	if (grab_.time / grab_.kLimitTime > 1.0f) {
 		behaviorRequest_ = Behavior::kRoot;
-	}*/
+	}
 
-	/*if (grab_.time / grab_.kLimitTime < 0.5f) {
+	if (grab_.time / grab_.kLimitTime < 0.5f) {
 		armNowL = EaseInSine(grab_.armStartL, grab_.armStartL + grab_.armEnd, grab_.time * 2.0f, grab_.kLimitTime);
 		armNowR = EaseInSine(grab_.armStartR, grab_.armStartR + grab_.armEnd, grab_.time * 2.0f, grab_.kLimitTime);
 	} else {
 		armNowL = EaseOutSine(grab_.armStartL + grab_.armEnd, grab_.armStartL, grab_.time * 2.0f - grab_.kLimitTime, grab_.kLimitTime);
 		armNowR = EaseOutSine(grab_.armStartR + grab_.armEnd, grab_.armStartR, grab_.time * 2.0f - grab_.kLimitTime, grab_.kLimitTime);
-	}*/
-	//
+	}
+	
 	arms_[kLArm]->SetTranslationZ(armNowL);
-	arms_[kRArm]->SetTranslationZ(armNowR);
+	arms_[kRArm]->SetTranslationZ(armNowR);*/
 }
 
 // 勝利(喜ぶ)動作の初期化
@@ -404,8 +471,8 @@ void Player::ApplyGlobalVariables() {
 	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
 	const char* groupName = "Player";
 	kAcceleration_ = globalVariables->GetFloatValue(groupName, "kAcceleration");
-	kAttenuation = globalVariables->GetFloatValue(groupName, "kAttenuation");
-	kLimitRunSpeed = globalVariables->GetFloatValue(groupName, "kLimitRunSpeed");
+	kAttenuation_ = globalVariables->GetFloatValue(groupName, "kAttenuation");
+	kLimitRunSpeed_ = globalVariables->GetFloatValue(groupName, "kLimitRunSpeed");
 	//attackVelocity_ = globalVariables->GetVector3Value(groupName, "attackVelocity_");
 	size_ = globalVariables->GetFloatValue(groupName, "size");
 	kHp_ = globalVariables->GetIntValue(groupName, "kHp_");
@@ -443,11 +510,11 @@ void Player::Move() {
 		// 入力がある場合の処理
 		if (velocity_.x < 0.0f && move.x > 0.0f ||
 			velocity_.x > 0.0f && move.x < 0.0f) {
-			velocity_.x *= (1.0f - kAttenuation);
+			velocity_.x *= (1.0f - kAttenuation_);
 		}
 		if (velocity_.z < 0.0f && move.z > 0.0f ||
 			velocity_.z > 0.0f && move.z < 0.0f) {
-			velocity_.z *= (1.0f - kAttenuation);
+			velocity_.z *= (1.0f - kAttenuation_);
 		}
 
 		rotateMatrix = MakeRotateXYZMatrix(viewProjection_->rotation_);
@@ -466,7 +533,6 @@ void Player::VectorRotation(const Vector3& direction) {
 	Vector3 velocityZ = Transformation(move, MakeRotateYMatrix(-transform_.rotation_.y));
 	transform_.rotation_.x = std::atan2f(-velocityZ.y, velocityZ.z);
 }
-
 
 void Player::ImGui()
 {
@@ -532,13 +598,13 @@ void(Player::* Player::BehaviorInitFuncTable[])() = {
 	&Player::BehaviorRootInitialize,
 	&Player::BehaviorDashInitialize,
 	&Player::BehaviorAttackInitialize,
-	&Player::BehaviorGrabInitialize,
+	&Player::BehaviorProtectionInitialize,
 	&Player::BehaviorCelebrateInitialize,
 };
 void(Player::* Player::BehaviorUpdateFuncTable[])() = {
 	&Player::BehaviorRootUpdate,
 	&Player::BehaviorDashUpdate,
 	&Player::BehaviorAttackUpdate,
-	&Player::BehaviorGrabUpdate,
+	&Player::BehaviorProtectionUpdate,
 	&Player::BehaviorCelebrateUpdate,
 };
