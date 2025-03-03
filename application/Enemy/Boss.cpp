@@ -57,6 +57,7 @@ void Boss::Draw(const ViewProjection& viewProjection) {
 	Enemy::Draw(viewProjection);
 }
 void Boss::OnCollision(Collider* other) {
+	Enemy::OnCollision(other);
 	// 衝突相手の種別IDを取得
 	uint32_t typeID = other->GetTypeID();
 	// 衝突相手が敵なら
@@ -64,10 +65,10 @@ void Boss::OnCollision(Collider* other) {
 	}
 }
 void Boss::OnCollisionEnter(Collider* other) {
-
+	Enemy::OnCollisionEnter(other);
 }
 void Boss::OnCollisionOut(Collider* other) {
-
+	Enemy::OnCollisionOut(other);
 }
 
 void Boss::ApplyGlobalVariables() {

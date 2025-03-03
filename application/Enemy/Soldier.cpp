@@ -14,8 +14,8 @@ void Soldier::Init(){
 	Collider::SetRadius(1.0f);
 	Collider::SetAABBScale({ 0.0f,0.0f,0.0f });
 	Enemy::SetScale({ 1.0f,1.0f,1.0f });
-	shortDistance_ = (player_->GetRadius() + GetRadius());
-	middleDistance_ = (player_->GetRadius() + GetRadius()) * 3.0f;
+	shortDistance_ = (player_->GetRadius() + GetRadius()) * 2.0f;
+	middleDistance_ = (player_->GetRadius() + GetRadius()) * 4.0f;
 	//imgui
 	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
 	// グループを追加
@@ -56,6 +56,7 @@ void Soldier::Draw(const ViewProjection& viewProjection){
 	Enemy::Draw(viewProjection);
 }
 void Soldier::OnCollision(Collider* other){
+	Enemy::OnCollision(other);
 	// 衝突相手の種別IDを取得
 	uint32_t typeID = other->GetTypeID();
 	//衝突相手
@@ -64,10 +65,10 @@ void Soldier::OnCollision(Collider* other){
 	}
 }
 void Soldier::OnCollisionEnter(Collider* other){
-	
+	Enemy::OnCollisionEnter(other);
 }
 void Soldier::OnCollisionOut(Collider* other){
-
+	Enemy::OnCollisionOut(other);
 }
 
 void Soldier::ApplyGlobalVariables() {

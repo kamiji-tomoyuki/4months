@@ -56,7 +56,8 @@ void Enemy::OnCollisionEnter(Collider* other){
 	// 衝突相手の種別IDを取得
 	uint32_t typeID = other->GetTypeID();
 	//衝突相手
-	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kEnemy)) {
+	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kEnemy) ||
+		typeID == static_cast<uint32_t>(CollisionTypeIdDef::kBoss)) {
 		Enemy* enemy = static_cast<Enemy*>(other);
 		if (timeManager_->GetTimer("start").isStart || timeManager_->GetTimer("collision").isStart) {
 			return;
@@ -79,6 +80,7 @@ void Enemy::OnCollisionEnter(Collider* other){
 		//timeManager_->SetTimer("collision", timeManager_->deltaTime_ * 3.0f);
 	}
 
+	transform_.translation_.y = 0.0f;
 	transform_.UpdateMatrix();
 }
 
