@@ -112,6 +112,7 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="application\Enemy\BaseEnemyState.cpp" />
     <ClCompile Include="application\Enemy\EnemyStateApproach.cpp" />
     <ClCompile Include="application\Enemy\EnemyStateLeave.cpp" />
+    <ClCompile Include="application\Ground.cpp" />
     <ClCompile Include="application\Player\FollowCamera.cpp" />
     <ClCompile Include="application\Player\LockOn.cpp" />
     <ClCompile Include="application\Player\Player.cpp" />
@@ -218,6 +219,7 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="application\Enemy\BaseEnemyState.h" />
     <ClInclude Include="application\Enemy\EnemyStateApproach.h" />
     <ClInclude Include="application\Enemy\EnemyStateLeave.h" />
+    <ClInclude Include="application\Ground.h" />
     <ClInclude Include="application\Player\FollowCamera.h" />
     <ClInclude Include="application\Player\LockOn.h" />
     <ClInclude Include="application\Player\Player.h" />

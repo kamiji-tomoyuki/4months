@@ -15,6 +15,7 @@
 #include <vector>
 
 #include "Skydome.h"
+#include "Ground.h"
 #include "TimeManager.h"
 #include "LockOn.h"
 #include <ParticleEmitter.h>
@@ -74,6 +75,7 @@ private:
 	std::unique_ptr<DebugCamera> debugCamera_;
 
 	std::unique_ptr<Skydome> skydome_ = nullptr;// 天球
+	std::unique_ptr<Ground> ground_ = nullptr;//地面
 
 	std::vector<std::unique_ptr<Player>> players_;
 	//Enemy

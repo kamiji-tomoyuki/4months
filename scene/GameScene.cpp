@@ -29,6 +29,10 @@ void GameScene::Initialize()
 	skydome_->Init();
 	skydome_->SetViewProjection(&vp_);
 
+	//地面
+	ground_ = std::make_unique<Ground>();
+	ground_->Init();
+
 	timeManager_ = std::make_unique<TimeManager>();
 	timeManager_->Initialize();
 	timeManager_->SetTimer("start", 2.0f / 60.0f);
@@ -134,6 +138,8 @@ void GameScene::Update()
 	skydome_->SetScale({ 1000.0f,1000.0f,1000.0f });// 天球のScale
 	skydome_->Update();
 
+	ground_->Update();
+
 	// HPバーのサイズと位置を更新
 	float hpRatio = static_cast<float>(players_[0]->GetHP()) / kMaxHp;
 	float newHeight = 500.0f * hpRatio; // HPに応じた高さ
@@ -190,6 +196,7 @@ void GameScene::Draw()
 		enemy->Draw(vp_);
 	}
 	skydome_->Draw(vp_);
+	ground_->Draw(vp_);
 	//--------------------------
 
 

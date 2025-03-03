@@ -371,14 +371,17 @@
     <ClCompile Include="application\Enemy\EnemyStateRoot.cpp">
       <Filter>ソースファイル\application\Enemy</Filter>
     </ClCompile>
-    <ClCompile Include="application\Enemy\EnemyStateAttack.cpp">
-      <Filter>ソースファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="application\Enemy\EnemyStateDefense.cpp">
-      <Filter>ソースファイル</Filter>
-    </ClCompile>
     <ClCompile Include="application\Enemy\Boss.cpp">
       <Filter>ソースファイル\application\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Enemy\EnemyStateAttack.cpp">
+      <Filter>ソースファイル\application\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Enemy\EnemyStateDefense.cpp">
+      <Filter>ソースファイル\application\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Ground.cpp">
+      <Filter>ソースファイル</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -650,11 +653,16 @@
     <ClInclude Include="application\Enemy\EnemyStateRoot.h">
       <Filter>ソースファイル\application\Enemy</Filter>
     </ClInclude>
-    <ClInclude Include="application\Enemy\EnemyStateAttack.h" />
-    <ClInclude Include="application\Enemy\EnemyStateDefense.h" />
     <ClInclude Include="application\Enemy\Boss.h">
       <Filter>ソースファイル\application\Enemy</Filter>
     </ClInclude>
+    <ClInclude Include="application\Enemy\EnemyStateDefense.h">
+      <Filter>ソースファイル\application\Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="application\Enemy\EnemyStateAttack.h">
+      <Filter>ソースファイル\application\Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="application\Ground.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\shaders\Particle\Particle.PS.hlsl">
