@@ -3,9 +3,10 @@
 #include "Vector4.h"
 #include "assert.h"
 #include "cmath"
+#include "utility"
 #include <Vector3.h>
 #include <Quaternion.h>
-
+#include <algorithm>
 
 class ViewProjection;
 
@@ -87,6 +88,12 @@ float radiansToDegrees(float radians);
 float degreesToRadians(float degrees);
 
 Quaternion Slerp(Quaternion q0, Quaternion q1, float t);
+
+/// ここから 追加
+Vector3 Project(const Vector3& v1, const Vector3& v2);
+
+std::pair<Vector3, Vector3> ComputeCollisionVelocities(float mass1, const Vector3& velocity1, float mass2, const Vector3& velocity2, float coefficientOfRestitution, const Vector3& normal);
+/// ここまで 追加
 
 //// デバッグ用
 //void VectorScreenPrintf(int x, int y, const Vector3& vector, const char* label);

@@ -4,7 +4,7 @@
 #include "Sprite.h"
 #include "ViewProjection.h"
 
-class Player;
+class Enemy;
 class LockOn {
 public:
 	/// <summary>
@@ -15,20 +15,20 @@ public:
 	/// <summary>
 	/// 更新
 	/// </summary>
-	void Update(const std::list<Player*>& enemies, const ViewProjection& viewProjection);
+	void Update(const std::list<std::unique_ptr<Enemy>>& enemies, const ViewProjection& viewProjection);
 
 	/// <summary>
 	/// 描画
 	/// </summary>
 	void Draw();
 private:
-	void Search(const std::list<Player*>& enemies, const ViewProjection& viewProjection);
+	void Search(const std::list<std::unique_ptr<Enemy>>& enemies, const ViewProjection& viewProjection);
 	bool IsOutRange(const ViewProjection& viewProjection);
 	Matrix4x4 MakeViewProjectionViewPort(const ViewProjection& viewProjection);
 	//ロックオンマーク用スプライト
 	//std::unique_ptr<Sprite> lockOnMark_;
 	//ロックオン対象
-	Player* target_ = nullptr;
+	Enemy* target_ = nullptr;
 	// 最小距離
 	float minDistance_ = 10.0f;
 	// 最大距離

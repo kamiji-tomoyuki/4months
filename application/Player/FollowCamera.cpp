@@ -34,7 +34,16 @@ void FollowCamera::Update() {
 	if (Input::GetInstance()->GetJoystickState(0, joyState)) {
 		// 移動量
 
-		move = { -(float)joyState.Gamepad.sThumbRY / SHRT_MAX, (float)joyState.Gamepad.sThumbRX / SHRT_MAX, 0.0f };
+		//move = { -(float)joyState.Gamepad.sThumbRY / SHRT_MAX, (float)joyState.Gamepad.sThumbRX / SHRT_MAX, 0.0f };
+
+		// LT
+		if (joyState.Gamepad.bLeftTrigger & XINPUT_GAMEPAD_TRIGGER_THRESHOLD) {
+			move += Vector3(0.0f, -1.0f, 0.0f);
+		}
+		// RT
+		if (joyState.Gamepad.bRightTrigger & XINPUT_GAMEPAD_TRIGGER_THRESHOLD) {
+			move += Vector3(0.0f, 1.0f, 0.0f);
+		}
 
 		// 右Rスティック
 		if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_THUMB) {

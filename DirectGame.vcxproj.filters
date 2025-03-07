@@ -342,12 +342,50 @@
       <Filter>ソースファイル\math</Filter>
     </ClCompile>
     <ClCompile Include="scene\ClearScene.cpp">
+      <Filter>ソースファイル\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="scene\GameOverScene.cpp">
+      <Filter>ソースファイル\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="scene\ClearScene.cpp">
       <Filter>ソースファイル</Filter>
     </ClCompile>
     <ClCompile Include="scene\GameOverScene.cpp">
       <Filter>ソースファイル</Filter>
     </ClCompile>
     <ClCompile Include="engine\utility\json\JsonLoader.cpp">
+    </ClCompile>
+    <ClCompile Include="application\Enemy\Enemy.cpp">
+      <Filter>ソースファイル\application\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Enemy\Soldier.cpp">
+      <Filter>ソースファイル\application\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Enemy\BaseEnemyState.cpp">
+      <Filter>ソースファイル\application\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Enemy\EnemyStateApproach.cpp">
+      <Filter>ソースファイル\application\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Enemy\EnemyStateLeave.cpp">
+      <Filter>ソースファイル\application\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Enemy\EnemyStateRoot.cpp">
+      <Filter>ソースファイル\application\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Enemy\Boss.cpp">
+      <Filter>ソースファイル\application\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Enemy\EnemyStateAttack.cpp">
+      <Filter>ソースファイル\application\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Enemy\EnemyStateDefense.cpp">
+      <Filter>ソースファイル\application\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Ground.cpp">
+      <Filter>ソースファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="EnemySword.cpp">
       <Filter>ソースファイル</Filter>
     </ClCompile>
   </ItemGroup>
@@ -594,9 +632,44 @@
     <ClInclude Include="math\Quaternion.h">
       <Filter>ソースファイル\math</Filter>
     </ClInclude>
+    <ClInclude Include="scene\ClearScene.h">
+      <Filter>ソースファイル\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="scene\GameOverScene.h">
+      <Filter>ソースファイル\scene</Filter>
+    </ClInclude>
     <ClInclude Include="scene\ClearScene.h" />
     <ClInclude Include="scene\GameOverScene.h" />
     <ClInclude Include="engine\utility\json\JsonLoader.h" />
+    <ClInclude Include="application\Enemy\Enemy.h">
+      <Filter>ソースファイル\application\Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="application\Enemy\Soldier.h">
+      <Filter>ソースファイル\application\Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="application\Enemy\EnemyStateLeave.h">
+      <Filter>ソースファイル\application\Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="application\Enemy\EnemyStateApproach.h">
+      <Filter>ソースファイル\application\Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="application\Enemy\BaseEnemyState.h">
+      <Filter>ソースファイル\application\Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="application\Enemy\EnemyStateRoot.h">
+      <Filter>ソースファイル\application\Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="application\Enemy\Boss.h">
+      <Filter>ソースファイル\application\Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="application\Enemy\EnemyStateDefense.h">
+      <Filter>ソースファイル\application\Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="application\Enemy\EnemyStateAttack.h">
+      <Filter>ソースファイル\application\Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="application\Ground.h" />
+    <ClInclude Include="EnemySword.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\shaders\Particle\Particle.PS.hlsl">

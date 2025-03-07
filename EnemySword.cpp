@@ -1,18 +1,18 @@
-#include "PlayerArm.h"
-#include "Player.h"
-#include "CollisionTypeIdDef.h"
+#include "EnemySword.h"
 #include "Enemy.h"
+#include "CollisionTypeIdDef.h"
 #include "TimeManager.h"
+#include "Player.h"
 
-void PlayerArm::Initialize(){
+void EnemySword::Initialize() {
 	Collider::Initialize();
 	Collider::SetTypeID(static_cast<uint32_t>(CollisionTypeIdDef::kPlayerWeapon));
 	obj3d_ = std::make_unique<Object3d>();
 	palm_ = std::make_unique<Object3d>();
-	
+
 }
 
-void PlayerArm::Initialize(std::string filePath, std::string palmFilePath){
+void EnemySword::Initialize(std::string filePath, std::string palmFilePath) {
 	Initialize();
 	obj3d_->Initialize(filePath);
 	palm_->Initialize(palmFilePath);
@@ -23,7 +23,7 @@ void PlayerArm::Initialize(std::string filePath, std::string palmFilePath){
 	objColor_.Initialize();
 	objColor_.SetColor(Vector4(1, 1, 1, 1));
 }
-void PlayerArm::Update(){
+void EnemySword::Update() {
 	//元となるワールドトランスフォームの更新
 	transform_.UpdateMatrix();
 	transformPalm_.translation_ = transform_.translation_;
@@ -35,44 +35,42 @@ void PlayerArm::Update(){
 	obj3d_->AnimationUpdate(true);
 }
 
-void PlayerArm::Draw(const ViewProjection& viewProjection){
+void EnemySword::Draw(const ViewProjection& viewProjection) {
 	palm_->Draw(transformPalm_, viewProjection);
 }
 
-void PlayerArm::DrawAnimation(const ViewProjection& viewProjection)
-{
+void EnemySword::DrawAnimation(const ViewProjection& viewProjection){
 	obj3d_->Draw(transform_, viewProjection, &objColor_);
 }
 
-void PlayerArm::OnCollision([[maybe_unused]] Collider* other){
+void EnemySword::OnCollision([[maybe_unused]] Collider* other) {
 	if (timeManager_->GetTimer("start").isStart || timeManager_->GetTimer("collision").isStart) {
 		return;
 	}
 	// 衝突相手の種別IDを取得
 	uint32_t typeID = other->GetTypeID();
 	//衝突相手
-	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kEnemy) ||
-		typeID == static_cast<uint32_t>(CollisionTypeIdDef::kBoss)) {
-		Enemy* enemy = static_cast<Enemy*>(other);
+	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kPlayer)) {
+		Player* player = static_cast<Player*>(other);
 		if (GetIsAttack()) {
-			enemy->SetHP(enemy->GetHP() - int(1000));
-			if (enemy->GetHP() <= 0) {
-				enemy->SetIsAlive(false);
+			player->SetHP(player->GetHP() - int(1000));
+			if (player->GetHP() <= 0) {
+				player->SetGameOver(true);
 			}
 			SetIsAttack(false);
 		}
 	}
 }
 
-void PlayerArm::OnCollisionEnter([[maybe_unused]] Collider* other){
+void EnemySword::OnCollisionEnter([[maybe_unused]] Collider* other) {
 
 }
 
-void PlayerArm::OnCollisionOut([[maybe_unused]] Collider* other){
+void EnemySword::OnCollisionOut([[maybe_unused]] Collider* other) {
 
 }
 
-Vector3 PlayerArm::GetCenterPosition() const{
+Vector3 EnemySword::GetCenterPosition() const {
 	//ローカル座標でのオフセット
 	const Vector3 offset = { 0.0f, 0.0f, 0.0f };
 	//ワールド座標に変換
@@ -80,16 +78,16 @@ Vector3 PlayerArm::GetCenterPosition() const{
 	return worldPos;
 }
 
-Vector3 PlayerArm::GetCenterRotation() const{
+Vector3 EnemySword::GetCenterRotation() const {
 	return transform_.rotation_;
 }
 
-void PlayerArm::SetModel(const std::string& filePath){
+void EnemySword::SetModel(const std::string& filePath) {
 	obj3d_->SetModel(filePath);
 }
 
-void PlayerArm::SetPlayer(Player* player) {
-	player_ = player;
-	transform_.parent_ = &player->GetWorldTransform();
+void EnemySword::SetEnemy(Enemy* enemy) {
+	enemy_ = enemy;
+	transform_.parent_ = &enemy_->GetWorldTransform();
 	transformPalm_.parent_ = transform_.parent_;
 }
