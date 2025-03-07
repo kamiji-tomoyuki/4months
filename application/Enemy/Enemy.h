@@ -88,6 +88,8 @@ protected:
 	BehaviorProbability longDistanceProbability_ = { 0.01f,0.01f };
 	//行動クールタイム
 	float kCoolTime_ = 0.3f;
+	// 減衰速度
+	float kAttenuation_ = 0.1f;
 public:
 	void SetPlayer(Player* player) { player_ = player; }
 	void SetTimeManager(TimeManager* timeManager) { timeManager_ = timeManager; }

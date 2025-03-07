@@ -13,7 +13,6 @@ void EnemyStateDefense::Update(){
 
 	float kDefense = 0.1f;
 
-	enemy_->SetVelocity({});
 	if (!timeManager->GetTimer("DefenseCoolTime").isStart) {
 		timeManager->SetTimer("DefenseCoolTime", kDefense);
 	}

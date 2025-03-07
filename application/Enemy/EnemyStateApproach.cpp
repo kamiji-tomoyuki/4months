@@ -16,6 +16,7 @@ void EnemyStateApproach::Update() {
 
 	//プレイヤーの位置によって行動を変える
 	if (Vector3(player->GetCenterPosition() - enemy_->GetCenterPosition()).Length() < enemy_->GetShortDistance()) {
+		enemy_->SetVelocity({});
 		enemy_->ChangeState(std::make_unique<EnemyStateRoot>(enemy_));
 	} else if (Vector3(player->GetCenterPosition() - enemy_->GetCenterPosition()).Length() < enemy_->GetMiddleDistance()) {
 		

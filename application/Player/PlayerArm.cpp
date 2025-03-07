@@ -55,6 +55,7 @@ void PlayerArm::OnCollision([[maybe_unused]] Collider* other){
 		typeID == static_cast<uint32_t>(CollisionTypeIdDef::kBoss)) {
 		Enemy* enemy = static_cast<Enemy*>(other);
 		if (GetIsAttack()) {
+			enemy->SetVelocity(enemy->GetVelocity() + Vector3(0.0f, 0.0f, 10.0f));
 			enemy->SetHP(enemy->GetHP() - int(1000));
 			if (enemy->GetHP() <= 0) {
 				enemy->SetIsAlive(false);

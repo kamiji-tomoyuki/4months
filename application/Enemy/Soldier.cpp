@@ -58,7 +58,11 @@ void Soldier::Update(){
 	// キャラ移動
 	state_->Update();
 	
+	velocity_ *= kAttenuation_;
+
 	transform_.translation_ += velocity_ * timeManager_->deltaTime_;
+
+	transform_.translation_.y = GetRadius();
 
 	Enemy::Update();
 	sword_->Update();

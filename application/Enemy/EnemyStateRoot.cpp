@@ -15,7 +15,7 @@ void EnemyStateRoot::Update(){
 	bool isAttack = false;
 	bool isDefense = false;
 
-	enemy_->SetVelocity({});
+
 	//プレイヤーの位置によって行動を変える
 	if (Vector3(player->GetCenterPosition() - enemy_->GetCenterPosition()).Length() < enemy_->GetShortDistance()) {
 		if (!timeManager->GetTimer("CoolTime").isStart) {

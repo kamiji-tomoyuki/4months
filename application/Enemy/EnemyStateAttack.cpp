@@ -11,7 +11,6 @@ void EnemyStateAttack::Update(){
 	Player* player = enemy_->GetPlayer();
 	TimeManager* timeManager = enemy_->GetTimeManager();
 
-	enemy_->SetVelocity({});
 	if (!timeManager->GetTimer("AttackCoolTime").isStart) {
 		timeManager->SetTimer("AttackCoolTime", enemy_->GetCoolTime());
 	}
