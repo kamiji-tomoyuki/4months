@@ -53,9 +53,9 @@ void GameScene::Initialize()
 	for (size_t i = 0; i < 1; i++) {
 		std::unique_ptr<Enemy> newEnemy = std::make_unique<Boss>();
 		newEnemy->SetPlayer(players_[0].get());
+		newEnemy->SetTimeManager(timeManager_.get());
 		newEnemy->Init();
 		newEnemy->SetTranslation({0.0f,0.0f,100.0f});
-		newEnemy->SetTimeManager(timeManager_.get());
 		enemies_.push_back(std::move(newEnemy));
 	}
 
@@ -183,6 +183,9 @@ void GameScene::Draw()
 	for (std::unique_ptr<Player>& player : players_) {
 		player->DrawAnimation(vp_);
 	}
+	for (const std::unique_ptr<Enemy>& enemy : enemies_) {
+		enemy->DrawAnimation(vp_);
+	}
 	//------------------------------
 
 
@@ -198,7 +201,7 @@ void GameScene::Draw()
 	skydome_->Draw(vp_);
 	ground_->Draw(vp_);
 	//--------------------------
-
+	                 
 
 	/// Particleの描画準備
 	ptCommon_->DrawCommonSetting();
@@ -368,8 +371,8 @@ void GameScene::UpdateEnemyPopCommands() {
 void GameScene::AddEnemy(const Vector3& position) {
 	std::unique_ptr<Enemy> newEnemy = std::make_unique<Soldier>();
 	newEnemy->SetPlayer(players_[0].get());
+	newEnemy->SetTimeManager(timeManager_.get());
 	newEnemy->Init();
 	newEnemy->SetTranslation(position);
-	newEnemy->SetTimeManager(timeManager_.get());
 	enemies_.push_back(std::move(newEnemy));
 }

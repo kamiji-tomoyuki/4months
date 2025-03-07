@@ -9,13 +9,22 @@ Soldier::Soldier(){
 }
 void Soldier::Init(){
 	Enemy::Init();
-	BaseObject::CreateModel("player/playerBody.obj");
 	Enemy::ChangeState(std::make_unique<EnemyStateRoot>(this));
 	Collider::SetRadius(1.0f);
 	Collider::SetAABBScale({ 0.0f,0.0f,0.0f });
 	Enemy::SetScale({ 1.0f,1.0f,1.0f });
 	shortDistance_ = (player_->GetRadius() + GetRadius()) * 2.0f;
 	middleDistance_ = (player_->GetRadius() + GetRadius()) * 4.0f;
+
+	//エネミーの剣
+	sword_ = std::make_unique<EnemySword>();
+	sword_->SetEnemy(this);
+	sword_->SetTimeManager(timeManager_);
+
+	BaseObject::CreateModel("player/playerBody.obj");
+	sword_->Initialize("player/playerArm.gltf", "player/playerPalm.obj");
+	sword_->SetTranslation(Vector3(1.7f, 0.0f, 1.3f));
+
 	//imgui
 	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
 	// グループを追加
@@ -48,12 +57,18 @@ void Soldier::Update(){
 	}
 	// キャラ移動
 	state_->Update();
+	
 	transform_.translation_ += velocity_ * timeManager_->deltaTime_;
 
 	Enemy::Update();
+	sword_->Update();
 }
 void Soldier::Draw(const ViewProjection& viewProjection){
 	Enemy::Draw(viewProjection);
+	sword_->Draw(viewProjection);
+}
+void Soldier::DrawAnimation(const ViewProjection& viewProjection){
+	sword_->DrawAnimation(viewProjection);
 }
 void Soldier::OnCollision(Collider* other){
 	Enemy::OnCollision(other);

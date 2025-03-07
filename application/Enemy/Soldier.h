@@ -1,5 +1,6 @@
 #pragma once
 #include "Enemy.h"
+#include "EnemySword.h"
 
 class Soldier : public Enemy{
 public:
@@ -20,7 +21,7 @@ public:
 	/// 描画
 	/// </summary>
 	void Draw(const ViewProjection& viewProjection)override;
-
+	void DrawAnimation(const ViewProjection& viewProjection)override;
 	/// <summary>
 		/// 当たってる間
 		/// </summary>
@@ -43,6 +44,8 @@ public:
 private:
 	const char* groupName = "Soldier";
 	bool isMove_ = true;
+
+	std::unique_ptr<EnemySword> sword_;
 public:
 	Vector3 GetCenterPosition() const override;
 	Vector3 GetCenterRotation() const override;

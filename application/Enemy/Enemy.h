@@ -34,7 +34,7 @@ public:
 	/// 描画
 	/// </summary>
 	virtual void Draw(const ViewProjection& viewProjection)override;
-
+	virtual void DrawAnimation(const ViewProjection& viewProjection);
 	//当たり判定
 	virtual Vector3 GetCenterPosition() const override = 0;
 	virtual Vector3 GetCenterRotation() const override = 0;

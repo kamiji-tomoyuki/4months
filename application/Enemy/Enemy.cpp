@@ -22,6 +22,10 @@ void Enemy::Update() {
 
 void Enemy::Draw(const ViewProjection& viewProjection) { BaseObject::Draw(viewProjection); }
 
+void Enemy::DrawAnimation(const ViewProjection& viewProjection){
+
+}
+
 void Enemy::OnCollision(Collider* other) {
 	// 衝突相手の種別IDを取得
 	uint32_t typeID = other->GetTypeID();
