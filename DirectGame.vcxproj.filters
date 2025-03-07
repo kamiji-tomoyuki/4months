@@ -353,6 +353,8 @@
     <ClCompile Include="scene\GameOverScene.cpp">
       <Filter>ソースファイル</Filter>
     </ClCompile>
+    <ClCompile Include="engine\utility\json\JsonLoader.cpp">
+    </ClCompile>
     <ClCompile Include="application\Enemy\Enemy.cpp">
       <Filter>ソースファイル\application\Enemy</Filter>
     </ClCompile>
@@ -638,6 +640,7 @@
     </ClInclude>
     <ClInclude Include="scene\ClearScene.h" />
     <ClInclude Include="scene\GameOverScene.h" />
+    <ClInclude Include="engine\utility\json\JsonLoader.h" />
     <ClInclude Include="application\Enemy\Enemy.h">
       <Filter>ソースファイル\application\Enemy</Filter>
     </ClInclude>
