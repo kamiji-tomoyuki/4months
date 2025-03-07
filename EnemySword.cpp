@@ -53,6 +53,9 @@ void EnemySword::OnCollision([[maybe_unused]] Collider* other) {
 	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kPlayer)) {
 		Player* player = static_cast<Player*>(other);
 		if (GetIsAttack()) {
+			Vector3 newVelocity = player->GetCenterPosition() - enemy_->GetCenterPosition();
+
+			player->SetVelocity(player->GetVelocity() + newVelocity.Normalize() * 100.0f);
 			player->SetHP(player->GetHP() - int(1000));
 			if (player->GetHP() <= 0) {
 				player->SetGameOver(true);
