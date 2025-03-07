@@ -1,6 +1,7 @@
 #include "Player.h"
 #include <cassert>
 #include <algorithm>
+#include <numbers>
 #include "Input.h"
 #include "Easing.h"
 #include "GlobalVariables.h"
@@ -9,6 +10,8 @@
 #include "FollowCamera.h"
 #include "LockOn.h"
 #include <Audio.h>
+
+using namespace std::numbers;
 
 Player::Player() {
 	id_ = playerID_;
@@ -27,16 +30,16 @@ void Player::Init() {
 	}
 
 	BaseObject::CreateModel("player/playerBody.obj");
-	arms_[kLArm]->Initialize("player/playerArm.gltf", "player/playerPalm.obj");
-	arms_[kRArm]->Initialize("player/playerArm.gltf", "player/playerPalm.obj");
+	arms_[kSword]->Initialize("player/playerArm.gltf", "player/playerPalm.obj");
+	//arms_[kSword]->Initialize("player/playerArm.gltf", "player/playerPalm.obj");
 
-	arms_[kLArm]->SetID(id_);
-	arms_[kLArm]->SetTranslation(Vector3(1.7f, 0.0f, 1.3f));
-	arms_[kLArm]->SetScale(Vector3(0.8f, 0.8f, 0.8f));
+	arms_[kSword]->SetID(id_);
+	arms_[kSword]->SetTranslation(Vector3(1.7f, 0.0f, 1.3f));
+	arms_[kSword]->SetScale(Vector3(0.8f, 0.8f, 0.8f));
 
-	arms_[kRArm]->SetID(id_);
-	arms_[kRArm]->SetTranslation(Vector3(-1.7f, 0.0f, 1.3f));
-	arms_[kRArm]->SetScale(Vector3(0.8f, 0.8f, 0.8f));
+	//arms_[kRArm]->SetID(id_);
+	//arms_[kRArm]->SetTranslation(Vector3(-1.7f, 0.0f, 1.3f));
+	//arms_[kRArm]->SetScale(Vector3(0.8f, 0.8f, 0.8f));
 	//imgui
 	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
 	const char* groupName = "Player";
@@ -205,30 +208,56 @@ void Player::UpdateFloatingGimmick() {
 // 通常動作の初期化
 void Player::BehaviorRootInitialize() {
 	attack_.isAttack = false;
-	arms_[kLArm]->SetIsAttack(false);
-	arms_[kRArm]->SetIsAttack(false);
+	arms_[kSword]->SetIsAttack(false);
+	//arms_[kRArm]->SetIsAttack(false);
 	grab_.isGrab = false;
-	arms_[kLArm]->SetIsGrab(false);
-	arms_[kRArm]->SetIsGrab(false);
+	arms_[kSword]->SetIsGrab(false);
+	//arms_[kRArm]->SetIsGrab(false);
 }
 
 // 通常動作の更新
 void Player::BehaviorRootUpdate() {
 	UpdateFloatingGimmick();
+
+	// 移動処理
 	Move();
-	XINPUT_STATE joyState;
-	if (Input::GetInstance()->GetJoystickState(0, joyState) && joyState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER || Input::GetInstance()->TriggerKey(DIK_J)) {
-		behaviorRequest_ = Behavior::kProtection;
-		attack_.isLeft = true;
+	if (aimingDirection_.x == 0 && aimingDirection_.z == 0) {
+		arms_[kSword]->SetTranslation({ 1.5f, 0.0f, 0.0f });
 	}
-	if (Input::GetInstance()->GetJoystickState(0, joyState) && joyState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER || Input::GetInstance()->TriggerKey(DIK_K)) {
+
+	// ゲームパッド入力処理
+	XINPUT_STATE joyState;
+	// 予備動作(攻撃防御方向入力)
+	if (Input::GetInstance()->GetJoystickState(0, joyState) && (joyState.Gamepad.sThumbRX != 0 || joyState.Gamepad.sThumbRY != 0)) {
+		// 方向取得
+		DirectionPreliminaryAction();
+
+		// 攻撃の構え処理
+		if (Input::GetInstance()->GetJoystickState(0, joyState) && joyState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) {
+			behaviorRequest_ = Behavior::kPreliminary;
+		}
+		// 攻撃の処理
+		// Rボタンを離した時
+		//else if (Input::GetInstance()->GetJoystickStatePrevious(0, joyState) && joyState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) {
+		//	behaviorRequest_ = Behavior::kAttack;
+
+		//	// フェイク可能時間をセット
+
+		//}
+
+		// 防御処理
+		// 　フェイク可能時間内の条件追加
+		if (Input::GetInstance()->GetJoystickState(0, joyState) && joyState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER || Input::GetInstance()->TriggerKey(DIK_J)) {
+			behaviorRequest_ = Behavior::kProtection;
+			attack_.isLeft = true;
+		}
+	}
+	// 攻撃処理
+	/*if (Input::GetInstance()->GetJoystickState(0, joyState) && joyState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER || Input::GetInstance()->TriggerKey(DIK_K)) {
 		behaviorRequest_ = Behavior::kAttack;
 		attack_.isLeft = false;
-	}
-	////if (Input::GetInstance()->GetJoystickState(0, joyState) && (/*joyState.Gamepad.bLeftTrigger & XINPUT_GAMEPAD_TRIGGER_THRESHOLD ||*/ joyState.Gamepad.bRightTrigger & XINPUT_GAMEPAD_TRIGGER_THRESHOLD) ||
-	////	Input::GetInstance()->TriggerKey(DIK_L)) {
-	////	behaviorRequest_ = Behavior::kGrab;
-	////}
+	}*/
+	// ダッシュ処理
 	if (Input::GetInstance()->GetJoystickState(0, joyState) && joyState.Gamepad.wButtons & XINPUT_GAMEPAD_X ||
 		Input::GetInstance()->TriggerKey(DIK_L)) {
 		behaviorRequest_ = Behavior::kDash;
@@ -264,6 +293,70 @@ void Player::BehaviorDashUpdate(){
 	arms_[kRArm]->SetRotationX(armTheta);*/
 }
 
+// 攻撃の構えの動作の初期化
+void Player::BehaviorPostureAttackInitialize()
+{
+	transform_.UpdateMatrix();
+	attack_.time = 0;
+	attack_.isAttack = true;
+	attack_.isLeft = !attack_.isLeft;
+	attack_.armStart = arms_[kSword]->GetTranslation().z;
+	arms_[kSword]->SetIsAttack(true);
+}
+
+// 攻撃の構えの動作の更新
+void Player::BehaviorPostureAttackUpdate()
+{
+	// 移動処理
+	Move();
+	// 方向取得
+	DirectionPreliminaryAction();
+	if (aimingDirection_.x == 0 && aimingDirection_.z == 0) {
+		behaviorRequest_ = Behavior::kRoot;
+	}
+
+	// 武器を入力方向に移動
+	float cosTheta = atan2f(aimingDirection_.z, aimingDirection_.x);
+	// 上
+	if (cosTheta > 0.25f * pi && cosTheta < 0.75f * pi) {
+		arms_[kSword]->SetTranslationX(aimingDirection_.x);
+		arms_[kSword]->SetTranslationY(aimingDirection_.z);
+		arms_[kSword]->SetTranslationZ(0.0f);
+		attackTypeRequest_ = AttackType::kDownSwing;
+	}
+	// 下
+	else if (cosTheta < -0.25f * pi && cosTheta > -0.75f * pi) {
+		arms_[kSword]->SetTranslationX(1.2f);
+		arms_[kSword]->SetTranslationY(0.0f);
+		arms_[kSword]->SetTranslationZ(-0.75f);
+		attackTypeRequest_ = AttackType::kThrust;
+	}
+	// 左
+	else if (cosTheta >= 0.75f * pi || cosTheta <= -0.75f * pi) {
+		arms_[kSword]->SetTranslationX(aimingDirection_.x);
+		arms_[kSword]->SetTranslationY(0.0f);
+		arms_[kSword]->SetTranslationZ(aimingDirection_.z);
+		attackTypeRequest_ = AttackType::kRightSlash;
+	}
+	// 右
+	else {
+		arms_[kSword]->SetTranslationX(aimingDirection_.x);
+		arms_[kSword]->SetTranslationY(0.0f);
+		arms_[kSword]->SetTranslationZ(aimingDirection_.z);
+		attackTypeRequest_ = AttackType::kLeftSlash;
+	}
+
+	// ゲームパッド入力処理
+	XINPUT_STATE joyState;
+	// 攻撃の処理
+	if (Input::GetInstance()->GetJoystickState(0, joyState) && !(joyState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER)) {
+		behaviorRequest_ = Behavior::kAttack;
+		
+		// フェイク可能時間をセット
+
+	}
+}
+
 // 攻撃動作の初期化
 void Player::BehaviorAttackInitialize() {
 	transform_.UpdateMatrix();
@@ -271,18 +364,20 @@ void Player::BehaviorAttackInitialize() {
 	attack_.isAttack = true;
 	attack_.isLeft = !attack_.isLeft;
 	if (attack_.isLeft) {
-		attack_.armStart = arms_[kLArm]->GetTranslation().z;
-		arms_[kLArm]->SetIsAttack(true);
+		attack_.armStart = arms_[kSword]->GetTranslation().z;
+		arms_[kSword]->SetIsAttack(true);
 	} else {
-		attack_.armStart = arms_[kRArm]->GetTranslation().z;
-		arms_[kRArm]->SetIsAttack(true);
+		//attack_.armStart = arms_[kRArm]->GetTranslation().z;
+		//arms_[kRArm]->SetIsAttack(true);
 	}
 }
 
 // 攻撃動作の更新
 void Player::BehaviorAttackUpdate() {
+	// 移動処理
 	Move();
-	//アームの開始角度
+
+	// アームの開始角度
 	float speed = kAcceleration_ * 2.0f;
 	Vector3 move{};
 	attack_.time += timeManager_->deltaTime_;
@@ -291,21 +386,32 @@ void Player::BehaviorAttackUpdate() {
 		behaviorRequest_ = Behavior::kRoot;
 	}
 
+	if (attackTypeRequest_) {
+		//振るまいを変更する
+		attackType_ = attackTypeRequest_.value();
+
+		(this->*AttackTypeInitFuncTable[static_cast<size_t>(attackType_)])();
+
+		attackTypeRequest_ = std::nullopt;
+	}
+
+	(this->*AttackTypeUpdateFuncTable[static_cast<size_t>(attackType_)])();
+
 	// 攻撃方向
-	XINPUT_STATE joyState;
-	Input::GetInstance()->GetJoystickState(0, joyState);
+	/*XINPUT_STATE joyState;
+	Input::GetInstance()->GetJoystickState(0, joyState);*/
 	
 	// 方向が未入力の時にセット
-	if (aimingDirection_.x == 0 && aimingDirection_.z == 0)
+	/*if (aimingDirection_.x == 0 && aimingDirection_.z == 0)
 	{
-		aimingDirection_ = { (float)joyState.Gamepad.sThumbRX / SHRT_MAX, 0.0, (float)joyState.Gamepad.sThumbRY / SHRT_MAX };
-		aimingDirection_ = aimingDirection_.Normalize();
+		aimingDirection_ = { InputDirection().x, 0.0f, InputDirection().y };
 		aimingDirection_ *= 5.0f;
 	}
-	Vector3 armNow = { 0.0f };
+	Vector3 armNow = { 0.0f };*/
 
 	// 攻撃モーション
-	if (attack_.time / attack_.kLimitTime < 0.5f) {
+	
+	/*if (attack_.time / attack_.kLimitTime < 0.5f) {
 		attack_.armEnd = aimingDirection_.x;
 		armNow.x = EaseInSine(1.7f, 1.7f + attack_.armEnd, attack_.time * 2.0f, attack_.kLimitTime);
 		attack_.armEnd = aimingDirection_.z;
@@ -315,20 +421,20 @@ void Player::BehaviorAttackUpdate() {
 		armNow.x = EaseOutSine(1.7f + attack_.armEnd, 1.7f, attack_.time * 2.0f - attack_.kLimitTime, attack_.kLimitTime);
 		attack_.armEnd = aimingDirection_.z;
 		armNow.z = EaseOutSine(attack_.armStart + attack_.armEnd, attack_.armStart, attack_.time * 2.0f - attack_.kLimitTime, attack_.kLimitTime);
-	}
+	}*/
 
 	// 攻撃モーションが終わり次第攻撃方向をリセット
-	if (attack_.time / attack_.kLimitTime >= 1.0f) {
-		aimingDirection_ = { 0.0f, 0.0f, 0.0f };
-	}
+	//if (attack_.time / attack_.kLimitTime >= 1.0f) {
+	//	aimingDirection_ = { 0.0f, 0.0f, 0.0f };
+	//}
 
-	if (attack_.isLeft) {
-		arms_[kLArm]->SetTranslationX(armNow.x);
-		arms_[kLArm]->SetTranslationZ(armNow.z);
-	} else {
-		arms_[kRArm]->SetTranslationX(armNow.x);
-		arms_[kRArm]->SetTranslationZ(armNow.z);
-	}
+	//if (attack_.isLeft) {
+	//	arms_[kSword]->SetTranslationX(armNow.x);
+	//	arms_[kSword]->SetTranslationZ(armNow.z);
+	//} else {
+	//	//arms_[kRArm]->SetTranslationX(armNow.x);
+	//	//arms_[kRArm]->SetTranslationZ(armNow.z);
+	//}
 
 	//ロックオン中
 	//if (lockOn_ && lockOn_->ExistTarget()) {
@@ -357,12 +463,12 @@ void Player::BehaviorProtectionInitialize() {
 	attack_.isAttack = true;
 	attack_.isLeft = !attack_.isLeft;
 	if (attack_.isLeft) {
-		attack_.armStart = arms_[kLArm]->GetTranslation().z;
-		arms_[kLArm]->SetIsAttack(true);
+		attack_.armStart = arms_[kSword]->GetTranslation().z;
+		arms_[kSword]->SetIsAttack(true);
 	}
 	else {
-		attack_.armStart = arms_[kRArm]->GetTranslation().z;
-		arms_[kRArm]->SetIsAttack(true);
+		//attack_.armStart = arms_[kRArm]->GetTranslation().z;
+		//arms_[kRArm]->SetIsAttack(true);
 	}
 	/*transform_.UpdateMatrix();
 	grab_.time = 0;
@@ -390,41 +496,41 @@ void Player::BehaviorProtectionUpdate() {
 	Input::GetInstance()->GetJoystickState(0, joyState);
 
 	// 方向が未入力の時にセット
-	if (aimingDirection_.x == 0 && aimingDirection_.z == 0)
-	{
-		aimingDirection_ = { (float)joyState.Gamepad.sThumbRX / SHRT_MAX, 0.0, (float)joyState.Gamepad.sThumbRY / SHRT_MAX };
-		aimingDirection_ = aimingDirection_.Normalize();
-		aimingDirection_ *= 5.0f;
-	}
-	Vector3 armNow = { 0.0f };
+	//if (aimingDirection_.x == 0 && aimingDirection_.z == 0)
+	//{
+	//	aimingDirection_ = { (float)joyState.Gamepad.sThumbRX / SHRT_MAX, 0.0, (float)joyState.Gamepad.sThumbRY / SHRT_MAX };
+	//	aimingDirection_ = aimingDirection_.Normalize();
+	//	aimingDirection_ *= 5.0f;
+	//}
+	//Vector3 armNow = { 0.0f };
 
-	// 攻撃モーション
-	if (attack_.time / attack_.kLimitTime < 0.5f) {
-		attack_.armEnd = aimingDirection_.x;
-		armNow.x = EaseInSine(-1.7f, -1.7f + attack_.armEnd, attack_.time * 2.0f, attack_.kLimitTime);
-		attack_.armEnd = aimingDirection_.z;
-		armNow.z = EaseInSine(attack_.armStart, attack_.armStart + attack_.armEnd, attack_.time * 2.0f, attack_.kLimitTime);
-	}
-	else {
-		attack_.armEnd = aimingDirection_.x;
-		armNow.x = EaseOutSine(-1.7f + attack_.armEnd, -1.7f, attack_.time * 2.0f - attack_.kLimitTime, attack_.kLimitTime);
-		attack_.armEnd = aimingDirection_.z;
-		armNow.z = EaseOutSine(attack_.armStart + attack_.armEnd, attack_.armStart, attack_.time * 2.0f - attack_.kLimitTime, attack_.kLimitTime);
-	}
+	//// 攻撃モーション
+	//if (attack_.time / attack_.kLimitTime < 0.5f) {
+	//	attack_.armEnd = aimingDirection_.x;
+	//	armNow.x = EaseInSine(-1.7f, -1.7f + attack_.armEnd, attack_.time * 2.0f, attack_.kLimitTime);
+	//	attack_.armEnd = aimingDirection_.z;
+	//	armNow.z = EaseInSine(attack_.armStart, attack_.armStart + attack_.armEnd, attack_.time * 2.0f, attack_.kLimitTime);
+	//}
+	//else {
+	//	attack_.armEnd = aimingDirection_.x;
+	//	armNow.x = EaseOutSine(-1.7f + attack_.armEnd, -1.7f, attack_.time * 2.0f - attack_.kLimitTime, attack_.kLimitTime);
+	//	attack_.armEnd = aimingDirection_.z;
+	//	armNow.z = EaseOutSine(attack_.armStart + attack_.armEnd, attack_.armStart, attack_.time * 2.0f - attack_.kLimitTime, attack_.kLimitTime);
+	//}
 
-	// 攻撃モーションが終わり次第攻撃方向をリセット
-	if (attack_.time / attack_.kLimitTime >= 1.0f) {
-		aimingDirection_ = { 0.0f, 0.0f, 0.0f };
-	}
+	//// 攻撃モーションが終わり次第攻撃方向をリセット
+	//if (attack_.time / attack_.kLimitTime >= 1.0f) {
+	//	aimingDirection_ = { 0.0f, 0.0f, 0.0f };
+	//}
 
-	if (attack_.isLeft) {
-		arms_[kLArm]->SetTranslationX(armNow.x);
-		arms_[kLArm]->SetTranslationZ(armNow.z);
-	}
-	else {
-		arms_[kRArm]->SetTranslationX(armNow.x);
-		arms_[kRArm]->SetTranslationZ(armNow.z);
-	}
+	//if (attack_.isLeft) {
+	//	arms_[kSword]->SetTranslationX(armNow.x);
+	//	arms_[kSword]->SetTranslationZ(armNow.z);
+	//}
+	//else {
+	//	//arms_[kRArm]->SetTranslationX(armNow.x);
+	//	//arms_[kRArm]->SetTranslationZ(armNow.z);
+	//}
 	
 	//アームの開始角度
 	/*float armNowL = 0.0f;
@@ -451,8 +557,8 @@ void Player::BehaviorProtectionUpdate() {
 // 勝利(喜ぶ)動作の初期化
 void Player::BehaviorCelebrateInitialize()
 {
-	arms_[kLArm]->SetRotationX(0.0f);
-	arms_[kRArm]->SetRotationX(0.0f);
+	arms_[kSword]->SetRotationX(0.0f);
+	//arms_[kRArm]->SetRotationX(0.0f);
 
 	//celebrateTime_ = 0.0f;
 }
@@ -462,8 +568,8 @@ void Player::BehaviorCelebrateUpdate()
 {
 	// 腕を振る動作 (sin波を使って上下)
 	float wave = std::sin(timeManager_->GetCurrentTime() * 10.0f) * 0.5f; // -0.5 〜 0.5 の範囲
-	arms_[kLArm]->SetRotationX(wave);
-	arms_[kRArm]->SetRotationX(-wave); // 反対方向
+	arms_[kSword]->SetRotationX(wave);
+	//arms_[kRArm]->SetRotationX(-wave); // 反対方向
 }
 
 // 調整項目の適用
@@ -526,12 +632,90 @@ void Player::Move() {
 	}
 }
 
+// 予備動作の方向
+void Player::DirectionPreliminaryAction()
+{
+	// 方向をセット
+	aimingDirection_ = { InputDirection().x, 0.0, InputDirection ().y };
+	aimingDirection_ *= 5.0f;
+}
+
+// 振り下ろし(上入力攻撃)の初期化
+void Player::AttackTypeDownSwingInitialize()
+{
+	attack_.armStart = arms_[kSword]->GetTranslation();
+	attack_.armEnd = { arms_[kSword]->GetTranslation().x + aimingDirection_.x, arms_[kSword]->GetTranslation().y - aimingDirection_.z, arms_[kSword]->GetTranslation().z + aimingDirection_.z };
+	attack_.time = 0.0f;
+}
+
+// 振り下ろし(上入力攻撃)の更新
+void Player::AttackTypeDownSwingUpdate()
+{
+	Vector3 newPos = EaseInSine(attack_.armStart, attack_.armEnd, attack_.time, attack_.kLimitTime);
+
+	arms_[kSword]->SetTranslation(newPos);
+}
+
+// 突き(下入力攻撃)の初期化
+void Player::AttackTypeThrustInitialize()
+{
+
+}
+
+// 突き(下入力攻撃)の更新
+void Player::AttackTypeThrustUpdate()
+{
+
+}
+
+// 右振り抜き(左入力攻撃)の初期化
+void Player::AttackTypeLeftSwingInitialize()
+{
+
+}
+
+// 右振り抜き(左入力攻撃)の更新
+void Player::AttackTypeLeftSwingUpdate()
+{
+
+}
+
+// 左振り抜き(右入力攻撃)の初期化
+void Player::AttackTypeRightSwingInitialize()
+{
+
+}
+
+// 左振り抜き(右入力攻撃)の更新
+void Player::AttackTypeRightSwingUpdate()
+{
+
+}
+
+// 未入力
+void Player::AttackTypeNullInitialize()
+{
+}
+void Player::AttackTypeNullUpdate()
+{
+}
+
 // 向きをセット
 void Player::VectorRotation(const Vector3& direction) {
 	Vector3 move = direction;
 	transform_.rotation_.y = std::atan2f(move.x, move.z);
 	Vector3 velocityZ = Transformation(move, MakeRotateYMatrix(-transform_.rotation_.y));
 	transform_.rotation_.x = std::atan2f(-velocityZ.y, velocityZ.z);
+}
+
+// 方向を取得
+Vector2 Player::InputDirection()
+{
+	XINPUT_STATE joyState;
+	Input::GetInstance()->GetJoystickState(0, joyState);
+	Vector3 input = { (float)joyState.Gamepad.sThumbRX / SHRT_MAX, (float)joyState.Gamepad.sThumbRY / SHRT_MAX, 0.0f };
+	input = input.Normalize();
+	return { input.x, input.y };
 }
 
 void Player::ImGui()
@@ -558,6 +742,14 @@ void Player::ImGui()
 
 		ImGui::Text("HP:");
 		ImGui::DragInt("HP", &hp_);
+		XINPUT_STATE joyState;
+		if (Input::GetInstance()->GetJoystickState(0, joyState) && joyState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) {
+			ImGui::Text("RB:true");
+			ImGui::Text("RStick:(%4.2f, %4.2f)", aimingDirection_.x, aimingDirection_.z);
+		}
+		else {
+			ImGui::Text("RB:false");
+		}
 		ImGui::PopID();
 		ImGui::End();
 	}
@@ -597,6 +789,7 @@ Vector3 Player::GetCenterRotation() const {
 void(Player::* Player::BehaviorInitFuncTable[])() = {
 	&Player::BehaviorRootInitialize,
 	&Player::BehaviorDashInitialize,
+	&Player::BehaviorPostureAttackInitialize,
 	&Player::BehaviorAttackInitialize,
 	&Player::BehaviorProtectionInitialize,
 	&Player::BehaviorCelebrateInitialize,
@@ -604,7 +797,23 @@ void(Player::* Player::BehaviorInitFuncTable[])() = {
 void(Player::* Player::BehaviorUpdateFuncTable[])() = {
 	&Player::BehaviorRootUpdate,
 	&Player::BehaviorDashUpdate,
+	&Player::BehaviorPostureAttackUpdate,
 	&Player::BehaviorAttackUpdate,
 	&Player::BehaviorProtectionUpdate,
 	&Player::BehaviorCelebrateUpdate,
+};
+
+void(Player::* Player::AttackTypeInitFuncTable[])() = {
+	&Player::AttackTypeDownSwingInitialize,
+	&Player::AttackTypeThrustInitialize,
+	&Player::AttackTypeLeftSwingInitialize,
+	&Player::AttackTypeRightSwingInitialize,
+	&Player::AttackTypeNullInitialize,
+};
+void(Player::* Player::AttackTypeUpdateFuncTable[])() = {
+	&Player::AttackTypeDownSwingUpdate,
+	&Player::AttackTypeThrustUpdate,
+	&Player::AttackTypeLeftSwingUpdate,
+	&Player::AttackTypeRightSwingUpdate,
+	&Player::AttackTypeNullUpdate,
 };
