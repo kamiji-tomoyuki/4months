@@ -18,16 +18,23 @@ class LockOn;
 class Player :public BaseObject {
 public:
 	enum ModelState {
-		kLArm,
-		kRArm,
-		kModelNum,
+		kSword,		// 剣
+		kModelNum,	
 	};
 	enum class Behavior {
-		kRoot,		// 通常状態
-		kDash,		// ダッシュ中
-		kAttack,	// 攻撃中
-		kProtection,// 掴み中
-		kCelebrate, // 喜び動作
+		kRoot,			// 通常状態
+		kDash,			// ダッシュ中
+		kPreliminary,	// 攻撃の予備動作
+		kAttack,		// 攻撃中
+		kProtection,	// 防御中
+		kCelebrate,		// 喜び動作
+	};
+	enum class AttackType {
+		kDownSwing,		// 振り下ろし(上入力攻撃)
+		kThrust,		// 突き(下入力攻撃)
+		kRightSlash,	// 右振り抜き(左入力攻撃)
+		kLeftSlash,		// 左振り抜き(右入力攻撃)
+		kNullType,		// 未入力
 	};
 	struct Root {
 		float floatingParameter = 0.0f;//浮遊ギミックの媒介変数
@@ -37,8 +44,8 @@ public:
 	};
 	struct Attack {
 		float kLimitTime = 0.4f;
-		float armStart = 0.0f;
-		float armEnd = 3.0f;
+		Vector3 armStart = { 0.0f };
+		Vector3 armEnd = { 0.0f };
 		float time = 0;
 		bool isAttack = false;
 		bool isLeft = false;
@@ -52,7 +59,7 @@ public:
 		bool isGrab = false;
 	};
 	struct WorkDash {
-		float kDashTime_ = 0.3f;
+		float kDashTime_ = 0.6f;
 		float DashTime_ = 0;
 		float kAttenuation_ = 1.50f;
 	};
@@ -100,6 +107,9 @@ public:
 
 	// 向きをセット
 	void VectorRotation(const Vector3& direction);
+	// 方向を取得
+	Vector2 InputDirection();
+
 	// 中心座標を取得
 	Vector3 GetCenterPosition() const override;
 	Vector3 GetCenterRotation() const override;
@@ -115,6 +125,10 @@ private:	// 動作パターン
 	// ダッシュ動作
 	void BehaviorDashInitialize();
 	void BehaviorDashUpdate();
+
+	// 攻撃の構えの動作
+	void BehaviorPostureAttackInitialize();
+	void BehaviorPostureAttackUpdate();
 
 	// 攻撃動作
 	void BehaviorAttackInitialize();
@@ -134,13 +148,43 @@ private:	// 動作パターン
 	// 移動
 	void Move();
 
-	// メンバ変数
+	// 予備動作の方向
+	void DirectionPreliminaryAction();
+
+private:	// 攻撃方向タイプ
+	// 振り下ろし(上入力攻撃)
+	void AttackTypeDownSwingInitialize();
+	void AttackTypeDownSwingUpdate();
+
+	// 突き(下入力攻撃)
+	void AttackTypeThrustInitialize();
+	void AttackTypeThrustUpdate();
+	
+	// 右振り抜き(左入力攻撃)
+	void AttackTypeLeftSwingInitialize();
+	void AttackTypeLeftSwingUpdate();
+	
+	// 左振り抜き(右入力攻撃)
+	void AttackTypeRightSwingInitialize();
+	void AttackTypeRightSwingUpdate();
+
+	// 未入力
+	void AttackTypeNullInitialize();
+	void AttackTypeNullUpdate();
+
+private:	// メンバ変数
 	// 動作パターン
 	Behavior behavior_ = Behavior::kRoot;
 	static void(Player::* BehaviorInitFuncTable[])();
 	static void(Player::* BehaviorUpdateFuncTable[])();
 	// 動作パターンのリクエスト
 	std::optional<Behavior> behaviorRequest_ = std::nullopt;
+	// 攻撃方向タイプ
+	AttackType attackType_ = AttackType::kNullType;
+	static void(Player::* AttackTypeInitFuncTable[])();
+	static void(Player::* AttackTypeUpdateFuncTable[])();
+	// 攻撃方向タイプのリクエスト
+	std::optional<AttackType> attackTypeRequest_ = std::nullopt;
 
 	const ViewProjection* viewProjection_ = nullptr;
 
