@@ -50,7 +50,7 @@ void Boss::Update() {
 	// キャラ移動
 	state_->Update();
 
-	velocity_ *= kAttenuation_;
+	velocity_ *= 1.0f - kAttenuation_;
 
 	transform_.translation_ += velocity_ * timeManager_->deltaTime_;
 

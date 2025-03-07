@@ -10,9 +10,10 @@ Soldier::Soldier(){
 void Soldier::Init(){
 	Enemy::Init();
 	Enemy::ChangeState(std::make_unique<EnemyStateRoot>(this));
-	Collider::SetRadius(1.0f);
+	Collider::SetRadius(3.0f);
 	Collider::SetAABBScale({ 0.0f,0.0f,0.0f });
 	Enemy::SetScale({ 1.0f,1.0f,1.0f });
+	Enemy::SetScale({ GetRadius(),GetRadius(),GetRadius() });
 	shortDistance_ = (player_->GetRadius() + GetRadius()) * 2.0f;
 	middleDistance_ = (player_->GetRadius() + GetRadius()) * 4.0f;
 
@@ -58,7 +59,7 @@ void Soldier::Update(){
 	// キャラ移動
 	state_->Update();
 	
-	velocity_ *= kAttenuation_;
+	velocity_ *= 1.0f - kAttenuation_;
 
 	transform_.translation_ += velocity_ * timeManager_->deltaTime_;
 
