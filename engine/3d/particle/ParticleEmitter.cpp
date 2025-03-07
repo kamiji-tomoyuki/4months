@@ -4,54 +4,118 @@
 // コンストラクタ
 ParticleEmitter::ParticleEmitter() {}
 
-void ParticleEmitter::Initialize(const std::string& name, const std::string& fileName)
-{
-	name_ = name;
-	transform_.Initialize();
+void ParticleEmitter::Initialize(const std::string& name, const std::string& fileName) {
+	//パーティクルマネージャーの生成
 	Manager_ = std::make_unique<ParticleManager>();
+
+	//パーティクルマネージャーの初期化
 	Manager_->Initialize(SrvManager::GetInstance());
+
+	//パーティクルマネージャーにパーティクルグループを生成
 	Manager_->CreateParticleGroup(name_, fileName);
-	emitFrequency_ = 0.1f;
-	velocityMin_ = { -1.0f, -1.0f, -1.0f };
-	velocityMax_ = { 1.0f, 1.0f, 1.0f };
-	lifeTimeMin_ = { 1.0f };
-	lifeTimeMax_ = { 3.0f };
-	isVisible = true;
-	startAcce_ = { 1.0f,1.0f,1.0f };
-	endAcce_ = { 1.0f,1.0f,1.0f };
-	startScale_ = { 1.0f,1.0f,1.0f };
-	endScale_ = { 1.0f,1.0f,1.0f };
-	rotateVelocityMin = { -0.07f,-0.07f,-0.07f };
-	rotateVelocityMax = { 0.07f,0.07f,0.07f };
+
+	//名前の初期化
+	name_ = name;
+
+	//ワールド座標の初期化
+	transform_.Initialize();
+
+	//パーティクルの最大数の初期化
 	count_ = 3;
+
+	//パーティクルの発生頻度の初期化
+	emitFrequency_ = 0.1f;
+
+	//経過時間の初期化
+	elapsedTime_ = 0.0f;
+
+	//パーティクルの生存時間の最小値の初期化
+	lifeTimeMin_ = { 1.0f };
+
+	//パーティクルの生存時間の最大値の初期化
+	lifeTimeMax_ = { 3.0f };
+
+	//パーティクルの透明度の最小値の初期化
 	alphaMin_ = 1.0f;
+
+	//パーティクルの透明度の最大値の初期化
 	alphaMax_ = 1.0f;
-	AddItem();
+
+	//パーティクルの速度の最小値の初期化
+	velocityMin_ = { -1.0f, -1.0f, -1.0f };
+
+	//パーティクルの速度の最大値の初期化
+	velocityMax_ = { 1.0f, 1.0f, 1.0f };
+
+	//パーティクルの初期加速度の初期化
+	startAcce_ = { 1.0f,1.0f,1.0f };
+
+	//パーティクルの終了加速度の初期化
+	endAcce_ = { 1.0f,1.0f,1.0f };
+
+	//パーティクルの回転速度の最小値の初期化
+	rotateVelocityMin = { -0.07f,-0.07f,-0.07f };
+
+	//パーティクルの回転速度の最大値の初期化
+	rotateVelocityMax = { 0.07f,0.07f,0.07f };
+
+	//パーティクルの初期スケールの初期化
+	startScale_ = { 1.0f,1.0f,1.0f };
+
+	//パーティクルの終了スケールの初期化
+	endScale_ = { 1.0f,1.0f,1.0f };
+
+	//描画フラグの初期化
+	isEmitterVisible = true;
+
+	//ビルボードフラグの初期化
 	isBillBoard = false;
+
+	//アクティブフラグの初期化
 	isActive_ = false;
+
+	//加速度の乗算フラグの初期化
 	isAcceMultiply = false;
+
+	//全体のスケールの最小値の初期化
 	allScaleMin = { 1.0f,1.0f,1.0f };
+
+	//全体のスケールの最大値の初期化
 	allScaleMax = { 1.0f,1.0f,1.0f };
+
+	//グローバル値の設定
+	AddItem();
+
+	//グローバル値の適用
 	ApplyGlobalVariables();
 }
 
 // Update関数
 void ParticleEmitter::Update(const ViewProjection& vp_) {
+
 	SetEmitValue();
+
 	// 経過時間を進める
 	elapsedTime_ += deltaTime;
 
 	// 発生頻度に基づいてパーティクルを発生させる
 	while (elapsedTime_ >= emitFrequency_) {
-		Emit();  // パーティクルを発生させる
-		elapsedTime_ -= emitFrequency_;  // 過剰に進んだ時間を考慮
+
+		// パーティクルを発生させる
+		Emit();
+
+		// 過剰に進んだ時間を考慮
+		elapsedTime_ -= emitFrequency_;
 	}
+
+	//パーティクルの更新
 	Manager_->Update(vp_);
+
+	//エミッターの座標の更新
 	transform_.UpdateMatrix();
 }
 
-void ParticleEmitter::UpdateOnce(const ViewProjection& vp_)
-{
+void ParticleEmitter::UpdateOnce(const ViewProjection& vp_) {
 	SetEmitValue();
 	if (isActive_) {
 		Emit();  // パーティクルを発生させる
@@ -61,21 +125,23 @@ void ParticleEmitter::UpdateOnce(const ViewProjection& vp_)
 	transform_.UpdateMatrix();
 }
 
-void ParticleEmitter::Draw()
-{
+void ParticleEmitter::Draw() {
+
 	Manager_->SetRandomRotate(isRandomRotate);
 	Manager_->SetAcceMultipy(isAcceMultiply);
 	Manager_->SetBillBorad(isBillBoard);
 	Manager_->SetRandomSize(isRandomScale);
 	Manager_->SetAllRandomSize(isAllRamdomScale);
 	Manager_->SetSinMove(isSinMove);
+
+	//パーティクルの描画
 	Manager_->Draw();
 }
 
-void ParticleEmitter::DrawEmitter()
-{
-	// isVisibleがtrueのときだけ描画
-	if (!isVisible) return;
+void ParticleEmitter::DrawEmitter() {
+
+	// isEmitterVisibleがtrueのときだけ描画
+	if (!isEmitterVisible) return;
 
 	// 立方体のローカル座標での基本頂点（スケーリング済み）
 	std::array<Vector3, 8> localVertices = {
@@ -116,37 +182,37 @@ void ParticleEmitter::DrawEmitter()
 
 // Emit関数
 void ParticleEmitter::Emit() {
+
 	// ParticleManagerのEmit関数を呼び出す
 	Manager_->Emit(
-		name_,
-		transform_.translation_,
-		count_,
-		transform_.scale_,          // スケールを引数として渡す
-		velocityMin_,               // 最小速度を引数として渡す
-		velocityMax_,               // 最大速度を引数として渡す
-		lifeTimeMin_,               // 最小ライフタイムを引数として渡す
-		lifeTimeMax_,               // 最大ライフタイムを引数として渡す
-		startScale_,
-		endScale_,
-		startAcce_,
-		endAcce_,
-		startRote_,
-		endRote_,
-		isRandomColor,
-		alphaMin_,
-		alphaMax_,
-		rotateVelocityMin,
-		rotateVelocityMax,
-		allScaleMax,
-		allScaleMin,
-		scaleMin,
-		scaleMax,
-		transform_.rotation_
+		name_,						// パーティクルの名前を引数として渡す
+		transform_.translation_,	// 位置を引数として渡す
+		count_,						// パーティクルの最大数を引数として渡す
+		transform_.scale_,			// スケールを引数として渡す
+		velocityMin_,				// 最小速度を引数として渡す
+		velocityMax_,				// 最大速度を引数として渡す
+		lifeTimeMin_,				// 最小ライフタイムを引数として渡す
+		lifeTimeMax_,				// 最大ライフタイムを引数として渡す
+		startScale_,				// 初期スケールを引数として渡す
+		endScale_,					// 終了スケールを引数として渡す
+		startAcce_,					// 初期加速度を引数として渡す
+		endAcce_,					// 終了加速度を引数として渡す
+		startRote_,					// 初期回転を引数として渡す
+		endRote_,					// 終了回転を引数として渡す
+		isRandomColor,				// ランダムカラーを引数として渡す
+		alphaMin_,					// 最小アルファ値を引数として渡す
+		alphaMax_,					// 最大アルファ値を引数として渡す
+		rotateVelocityMin,			// 最小回転速度を引数として渡す
+		rotateVelocityMax,			// 最大回転速度を引数として渡す
+		allScaleMax,				// 全体のスケールの最大値を引数として渡す
+		allScaleMin,				// 全体のスケールの最小値を引数として渡す
+		scaleMin,					// スケールの最小値を引数として渡す
+		scaleMax,					// スケールの最大値を引数として渡す
+		transform_.rotation_		// 回転を引数として渡す
 	);
 }
 
-void ParticleEmitter::ApplyGlobalVariables()
-{
+void ParticleEmitter::ApplyGlobalVariables() {
 	emitFrequency_ = globalVariables->GetFloatValue(groupName, "emitFrequency");
 	count_ = globalVariables->GetIntValue(groupName, "count");
 	transform_.translation_ = globalVariables->GetVector3Value(groupName, "Emit translation");
@@ -162,7 +228,7 @@ void ParticleEmitter::ApplyGlobalVariables()
 	velocityMax_ = globalVariables->GetVector3Value(groupName, "maxVelocity");
 	lifeTimeMax_ = globalVariables->GetFloatValue(groupName, "lifeTimeMax");
 	lifeTimeMin_ = globalVariables->GetFloatValue(groupName, "lifeTimeMin");
-	isVisible = globalVariables->GetBoolValue(groupName, "isVisible");
+	isEmitterVisible = globalVariables->GetBoolValue(groupName, "isEmitterVisible");
 	isBillBoard = globalVariables->GetBoolValue(groupName, "isBillBoard");
 	isRandomColor = globalVariables->GetBoolValue(groupName, "isRamdomColor");
 	alphaMin_ = globalVariables->GetFloatValue(groupName, "alphaMin");
@@ -180,8 +246,7 @@ void ParticleEmitter::ApplyGlobalVariables()
 	isSinMove = globalVariables->GetBoolValue(groupName, "isSinMove");
 }
 
-void ParticleEmitter::SetEmitValue()
-{
+void ParticleEmitter::SetEmitValue() {
 
 	globalVariables->SetValue(groupName, "emitFrequency", emitFrequency_);
 	globalVariables->SetValue(groupName, "count", count_);
@@ -198,7 +263,7 @@ void ParticleEmitter::SetEmitValue()
 	globalVariables->SetValue(groupName, "maxVelocity", velocityMax_);
 	globalVariables->SetValue(groupName, "lifeTimeMax", lifeTimeMax_);
 	globalVariables->SetValue(groupName, "lifeTimeMin", lifeTimeMin_);
-	globalVariables->SetValue(groupName, "isVisible", isVisible);
+	globalVariables->SetValue(groupName, "isEmitterVisible", isEmitterVisible);
 	globalVariables->SetValue(groupName, "isBillBoard", isBillBoard);
 	globalVariables->SetValue(groupName, "isRamdomColor", isRandomColor);
 	globalVariables->SetValue(groupName, "alphaMin", alphaMin_);
@@ -216,8 +281,7 @@ void ParticleEmitter::SetEmitValue()
 	globalVariables->SetValue(groupName, "isSinMove", isSinMove);
 }
 
-void ParticleEmitter::AddItem()
-{
+void ParticleEmitter::AddItem() {
 	groupName = name_.c_str();
 	globalVariables = GlobalVariables::GetInstance();
 	globalVariables->CreateGroup(groupName);
@@ -243,7 +307,7 @@ void ParticleEmitter::AddItem()
 	globalVariables->AddItem(groupName, "AllScale Min", allScaleMin);
 	globalVariables->AddItem(groupName, "Scale Min", scaleMin);
 	globalVariables->AddItem(groupName, "Scale Max", scaleMax);
-	globalVariables->AddItem(groupName, "isVisible", isVisible);
+	globalVariables->AddItem(groupName, "isEmitterVisible", isEmitterVisible);
 	globalVariables->AddItem(groupName, "isBillBoard", isBillBoard);
 	globalVariables->AddItem(groupName, "isRandomRotate", isRandomRotate);
 	globalVariables->AddItem(groupName, "isAcceMultiply", isAcceMultiply);
@@ -290,7 +354,7 @@ void ParticleEmitter::imgui() {
 		ImGui::Separator();
 
 		// 可視性フラグ
-		ImGui::Checkbox("表示", &isVisible);
+		ImGui::Checkbox("表示", &isEmitterVisible);
 	}
 
 	// パーティクルデータセクション
@@ -340,17 +404,14 @@ void ParticleEmitter::imgui() {
 				allScaleMax.y = std::clamp(allScaleMax.y, allScaleMin.y, FLT_MAX);
 				allScaleMin.z = std::clamp(allScaleMin.z, -FLT_MAX, allScaleMax.z);
 				allScaleMax.z = std::clamp(allScaleMax.z, allScaleMin.z, FLT_MAX);
-			}
-			else if (isRandomScale) {
+			} else if (isRandomScale) {
 				ImGui::DragFloat("最大値", &scaleMax, 0.1f, 0.0f);
 				ImGui::DragFloat("最小値", &scaleMin, 0.1f, 0.0f);
 				scaleMax = std::clamp(scaleMax, scaleMin, FLT_MAX);
 				scaleMin = std::clamp(scaleMin, 0.0f, scaleMax);
-			}
-			else if (isSinMove) {
+			} else if (isSinMove) {
 				ImGui::DragFloat3("最初", &startScale_.x, 0.1f, 0.0f);
-			}
-			else {
+			} else {
 				ImGui::DragFloat3("最初", &startScale_.x, 0.1f, 0.0f);
 			}
 			if (!isSinMove) {
