@@ -670,6 +670,7 @@
     </ClInclude>
     <ClInclude Include="application\Ground.h" />
     <ClInclude Include="EnemySword.h" />
+    <ClInclude Include="engine\3d\particle\ParticleParamater.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\shaders\Particle\Particle.PS.hlsl">

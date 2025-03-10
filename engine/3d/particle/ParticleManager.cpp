@@ -284,6 +284,22 @@ ParticleManager::Particle ParticleManager::MakeNewParticle(
 	return particle;
 }
 
+ParticleManager::Particle ParticleManager::MakeNewParticle(
+	std::mt19937& randomEngine,
+	const ParameterState& positionState,
+	const EasingState& positionEasingState,
+	const Parameter& position,
+	const ParameterState& rotationState,
+	const EasingState& rotationEasingState,
+	const Parameter& rotation,
+	const ParameterState& scaleState,
+	const EasingState&
+	scaleEasingState,
+	const Parameter& scale
+) {
+	return Particle();
+}
+
 ParticleManager::MaterialData ParticleManager::LoadMaterialTemplateFile(const std::string& directoryPath, const std::string& filename)
 {
 	MaterialData materialData;

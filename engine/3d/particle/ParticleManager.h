@@ -10,9 +10,10 @@
 #include "Vector4.h"
 #include "Matrix4x4.h"
 
+#include "ParticleParamater.h"
+
 // パーティクル管理
-class ParticleManager
-{
+class ParticleManager {
 public:
 
 	/// <summary>
@@ -67,7 +68,7 @@ private:
 		WorldTransform transform;
 		Vector3 velocity;
 		Vector3 Acce;
-		Vector4 color; 
+		Vector4 color;
 		float lifeTime;
 		float currentTime;
 		Vector3 startScale;
@@ -80,8 +81,7 @@ private:
 		float initialAlpha;
 	};
 
-	struct MaterialData
-	{
+	struct MaterialData {
 		std::string textureFilePath;
 	};
 
@@ -116,8 +116,7 @@ private:
 	Material* materialData = nullptr;
 
 
-	struct ModelData
-	{
+	struct ModelData {
 		std::vector<VertexData> vertices;
 		MaterialData material;
 	};
@@ -140,17 +139,55 @@ private:
 	bool isSinMove_ = false;
 
 public:
-	
+
 	/// <summary>
 	/// 指定した名前のパーティクルグループにパーティクルを発生させる
 	/// </summary>
-	std::list<Particle> Emit(const std::string name, const Vector3& position, uint32_t count, const Vector3& scale,
-		const Vector3& velocityMin, const Vector3& velocityMax, float lifeTimeMin, float lifeTimeMax,
-		const Vector3& particleStartScale, const Vector3& particleEndScale, const Vector3& startAcce, const Vector3& endAcce,
-		const Vector3& startRote, const Vector3& endRote, bool isRandomColor, float alphaMin, float alphaMax,
-		const Vector3& rotateVelocityMin, const Vector3& rotateVelocityMax,
-		const Vector3& allScaleMax, const Vector3& allScaleMin,
-		const float& scaleMin, const float& scaleMax, const Vector3& rotation);
+	std::list<Particle> Emit(
+		const std::string name,
+		const Vector3& position,
+		uint32_t count,
+		const Vector3& scale,
+		const Vector3& velocityMin,
+		const Vector3& velocityMax,
+		float lifeTimeMin,
+		float lifeTimeMax,
+		const Vector3& particleStartScale,
+		const Vector3& particleEndScale,
+		const Vector3& startAcce,
+		const Vector3& endAcce,
+		const Vector3& startRote,
+		const Vector3& endRote,
+		bool isRandomColor,
+		float alphaMin,
+		float alphaMax,
+		const Vector3& rotateVelocityMin,
+		const Vector3& rotateVelocityMax,
+		const Vector3& allScaleMax,
+		const Vector3& allScaleMin,
+		const float& scaleMin,
+		const float& scaleMax,
+		const Vector3& rotation
+	);
+
+	std::list<Particle> Emit(
+		const std::string name,
+		const float count,
+		const float lifeTime,
+		const float lifeTimeRandomRange,
+		const ParameterState& positionState,
+		const EasingState& positionEasingState,
+		const Parameter& position,
+		const ParameterState& rotationState,
+		const EasingState& rotationEasingState,
+		const Parameter& rotation,
+		const ParameterState& scaleState,
+		const EasingState& scaleEasingState,
+		const Parameter& scale,
+		const Vector4& startColor,
+		const Vector4& endColor,
+		const Vector4& randomColor
+	);
 
 private:
 	/// <summary>
@@ -174,15 +211,41 @@ private:
 	/// </summary>
 	void CreateMaterial();
 
-	Particle MakeNewParticle(std::mt19937& randomEngine,
+	Particle MakeNewParticle(
+		std::mt19937& randomEngine,
 		const Vector3& translate,
 		const Vector3& rotation,
 		const Vector3& scale,
-		const Vector3& velocityMin, const Vector3& velocityMax,
-		float lifeTimeMin, float lifeTimeMax, const Vector3& particleStartScale, const Vector3& particleEndScale,
-		const Vector3& startAcce, const Vector3& endAcce, const Vector3& startRote, const Vector3& endRote
-		, bool isRamdomColor, float alphaMin, float alphaMax, const Vector3& rotateVelocityMin, const Vector3& rotateVelocityMax,
-		const Vector3& allScaleMax, const Vector3& allScaleMin,
-		const float& scaleMin, const float& scaleMax);
+		const Vector3& velocityMin,
+		const Vector3& velocityMax,
+		float lifeTimeMin,
+		float lifeTimeMax,
+		const Vector3& particleStartScale,
+		const Vector3& particleEndScale,
+		const Vector3& startAcce,
+		const Vector3& endAcce,
+		const Vector3& startRote,
+		const Vector3& endRote,
+		bool isRamdomColor,
+		float alphaMin,
+		float alphaMax,
+		const Vector3& rotateVelocityMin,
+		const Vector3& rotateVelocityMax,
+		const Vector3& allScaleMax,
+		const Vector3& allScaleMin,
+		const float& scaleMin,
+		const float& scaleMax
+	);
+	Particle MakeNewParticle(
+		std::mt19937& randomEngine,
+		const ParameterState& positionState,
+		const EasingState& positionEasingState,
+		const Parameter& position,
+		const ParameterState& rotationState,
+		const EasingState& rotationEasingState,
+		const Parameter& rotation,
+		const ParameterState& scaleState,
+		const EasingState& scaleEasingState,
+		const Parameter& scale
+	);
 };
-
