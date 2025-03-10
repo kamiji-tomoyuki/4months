@@ -118,6 +118,7 @@ void Player::Update() {
 	Collider::SetAABBScale({ 0.0f,0.0f,0.0f });
 
 	transform_.translation_ += velocity_ * timeManager_->deltaTime_;
+	transform_.translation_.y = GetRadius();
 	transform_.UpdateMatrix();
 
 	for (const std::unique_ptr<PlayerArm>& arm : arms_) {
@@ -343,10 +344,10 @@ void Player::BehaviorPostureAttackInitialize()
 {
 	transform_.UpdateMatrix();
 	attack_.time = 0;
-	attack_.isAttack = true;
+	attack_.isAttack = false;
 	attack_.isLeft = !attack_.isLeft;
 	attack_.armStart = arms_[kSword]->GetTranslation().z;
-	arms_[kSword]->SetIsAttack(true);
+	arms_[kSword]->SetIsAttack(false);
 }
 
 // 攻撃の構えの動作の更新
@@ -505,11 +506,11 @@ void Player::BehaviorAttackUpdate() {
 void Player::BehaviorProtectionInitialize() {
 	transform_.UpdateMatrix();
 	attack_.time = 0;
-	attack_.isAttack = true;
+	attack_.isAttack = false;
 	attack_.isLeft = !attack_.isLeft;
 	if (attack_.isLeft) {
 		attack_.armStart = arms_[kSword]->GetTranslation().z;
-		arms_[kSword]->SetIsAttack(true);
+		arms_[kSword]->SetIsAttack(false);
 	}
 	else {
 		//attack_.armStart = arms_[kRArm]->GetTranslation().z;
@@ -696,7 +697,11 @@ void Player::AttackTypeDownSwingInitialize()
 // 振り下ろし(上入力攻撃)の更新
 void Player::AttackTypeDownSwingUpdate()
 {
-	Vector3 newPos = EaseInSine(attack_.armStart, attack_.armEnd, attack_.time, attack_.kLimitTime);
+	//Vector3 newPos = EaseInSine(attack_.armStart, attack_.armEnd, attack_.time, attack_.kLimitTime);
+	Vector3 newPos = 0.0f;
+	float theta = float(pi / 2.0f * (attack_.time / attack_.kLimitTime));
+
+	newPos = { Lerp(attack_.armStart.x, attack_.armEnd.x, attack_.time / attack_.kLimitTime), attack_.armStart.y * cosf(theta) - attack_.armStart.z * sinf(theta), attack_.armStart.y * sinf(theta) + attack_.armStart.z * cosf(theta)};
 
 	arms_[kSword]->SetTranslation(newPos);
 }
@@ -704,37 +709,55 @@ void Player::AttackTypeDownSwingUpdate()
 // 突き(下入力攻撃)の初期化
 void Player::AttackTypeThrustInitialize()
 {
-
+	attack_.armStart = arms_[kSword]->GetTranslation();
+	attack_.armEnd = { arms_[kSword]->GetTranslation().x - aimingDirection_.x, arms_[kSword]->GetTranslation().y, -aimingDirection_.z };
+	attack_.time = 0.0f;
 }
 
 // 突き(下入力攻撃)の更新
 void Player::AttackTypeThrustUpdate()
 {
+	Vector3 newPos = EaseInExpo(attack_.armStart, attack_.armEnd, attack_.time, attack_.kLimitTime);
 
+	arms_[kSword]->SetTranslation(newPos);
 }
 
 // 右振り抜き(左入力攻撃)の初期化
 void Player::AttackTypeLeftSwingInitialize()
 {
-
+	attack_.armStart = arms_[kSword]->GetTranslation();
+	attack_.armEnd = { -aimingDirection_.x, arms_[kSword]->GetTranslation().y, arms_[kSword]->GetTranslation().z };
+	attack_.time = 0.0f;
 }
 
 // 右振り抜き(左入力攻撃)の更新
 void Player::AttackTypeLeftSwingUpdate()
 {
+	Vector3 newPos = 0.0f;
+	float theta = float(pi * (attack_.time / attack_.kLimitTime));
+	
+	newPos = { attack_.armStart.x * cosf(-theta) - attack_.armStart.z * sinf(-theta), attack_.armStart.y, attack_.armStart.x * sinf(-theta) + attack_.armStart.z * cosf(-theta) };
 
+	arms_[kSword]->SetTranslation(newPos);
 }
 
 // 左振り抜き(右入力攻撃)の初期化
 void Player::AttackTypeRightSwingInitialize()
 {
-
+	attack_.armStart = arms_[kSword]->GetTranslation();
+	attack_.armEnd = { -aimingDirection_.x, arms_[kSword]->GetTranslation().y, arms_[kSword]->GetTranslation().z };
+	attack_.time = 0.0f;
 }
 
 // 左振り抜き(右入力攻撃)の更新
 void Player::AttackTypeRightSwingUpdate()
 {
+	Vector3 newPos = 0.0f;
+	float theta = float(pi * (attack_.time / attack_.kLimitTime));
 
+	newPos = { attack_.armStart.x * cosf(theta) - attack_.armStart.z * sinf(theta), attack_.armStart.y, attack_.armStart.x * sinf(theta) + attack_.armStart.z * cosf(theta) };
+
+	arms_[kSword]->SetTranslation(newPos);
 }
 
 // 未入力
