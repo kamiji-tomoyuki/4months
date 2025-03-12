@@ -45,7 +45,7 @@ void GameScene::Initialize()
 		player->SetViewProjection(&vp_);
 		players_.push_back(std::move(player));
 	}
-	players_[0]->SetPosition({ 0.0f,0.0f,-50.0f });
+	players_[0]->SetPosition({ 0.0f,1.750f,-50.0f });
 
 	//敵
 	LoadEnemyPopData();
