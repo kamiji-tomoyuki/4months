@@ -108,10 +108,6 @@ void Soldier::AttackInitialize(){
 void Soldier::AttackUpdate(){
 	Enemy::AttackUpdate();
 	attack_.time += timeManager_->deltaTime_;
-	if (attack_.time / attack_.kLimitTime >= 1.0f) {
-		attack_.time = attack_.kLimitTime;
-		attack_.isAttack = false;
-	}
 	if (attackTypeRequest_) {
 
 		//振るまいを変更する
@@ -128,6 +124,12 @@ void Soldier::AttackUpdate(){
 	}
 
 	(this->*AttackTypeUpdateFuncTable[static_cast<size_t>(attackType_)])();
+
+	if (attack_.time / attack_.kLimitTime >= 1.0f) {
+		attack_.time = attack_.kLimitTime;
+		attack_.isAttack = false;
+		sword_->SetTranslation({ 1.7f, 0.0f, 1.3f });
+	}
 }
 
 void Soldier::ProtectionInitialize(){
