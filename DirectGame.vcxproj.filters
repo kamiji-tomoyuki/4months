@@ -342,12 +342,6 @@
       <Filter>ソースファイル\math</Filter>
     </ClCompile>
     <ClCompile Include="scene\ClearScene.cpp">
-      <Filter>ソースファイル\scene</Filter>
-    </ClCompile>
-    <ClCompile Include="scene\GameOverScene.cpp">
-      <Filter>ソースファイル\scene</Filter>
-    </ClCompile>
-    <ClCompile Include="scene\ClearScene.cpp">
       <Filter>ソースファイル</Filter>
     </ClCompile>
     <ClCompile Include="scene\GameOverScene.cpp">
@@ -387,6 +381,12 @@
     </ClCompile>
     <ClCompile Include="EnemySword.cpp">
       <Filter>ソースファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="scene\GameOverScene.cpp">
+      <Filter>ソースファイル\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="scene\ClearScene.cpp">
+      <Filter>ソースファイル\scene</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -632,12 +632,6 @@
     <ClInclude Include="math\Quaternion.h">
       <Filter>ソースファイル\math</Filter>
     </ClInclude>
-    <ClInclude Include="scene\ClearScene.h">
-      <Filter>ソースファイル\scene</Filter>
-    </ClInclude>
-    <ClInclude Include="scene\GameOverScene.h">
-      <Filter>ソースファイル\scene</Filter>
-    </ClInclude>
     <ClInclude Include="scene\ClearScene.h" />
     <ClInclude Include="scene\GameOverScene.h" />
     <ClInclude Include="engine\utility\json\JsonLoader.h" />
@@ -670,6 +664,12 @@
     </ClInclude>
     <ClInclude Include="application\Ground.h" />
     <ClInclude Include="EnemySword.h" />
+    <ClInclude Include="scene\GameOverScene.h">
+      <Filter>ソースファイル\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="scene\ClearScene.h">
+      <Filter>ソースファイル\scene</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\shaders\Particle\Particle.PS.hlsl">
