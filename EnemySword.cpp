@@ -53,11 +53,11 @@ void EnemySword::OnCollision([[maybe_unused]] Collider* other) {
 	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kPlayer)) {
 		Player* player = static_cast<Player*>(other);
 
-		Vector3 newVelocity = player->GetCenterPosition() - enemy_->GetCenterPosition();
-
-		player->SetVelocity(player->GetVelocity() + newVelocity.Normalize() * 10.0f);
-
 		if (GetIsAttack()) {
+			Vector3 newVelocity = player->GetCenterPosition() - enemy_->GetCenterPosition();
+
+			player->SetVelocity(player->GetVelocity() + newVelocity.Normalize() * 100.0f);
+
 			player->SetHP(player->GetHP() - int(1000));
 			if (player->GetHP() <= 0) {
 				player->SetGameOver(true);
@@ -68,7 +68,27 @@ void EnemySword::OnCollision([[maybe_unused]] Collider* other) {
 }
 
 void EnemySword::OnCollisionEnter([[maybe_unused]] Collider* other) {
+	if (timeManager_->GetTimer("start").isStart || timeManager_->GetTimer("collision").isStart) {
+		return;
+	}
+	// 衝突相手の種別IDを取得
+	uint32_t typeID = other->GetTypeID();
+	//衝突相手
+	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kPlayer)) {
+		Player* player = static_cast<Player*>(other);
 
+		if (GetIsAttack()) {
+			Vector3 newVelocity = player->GetCenterPosition() - enemy_->GetCenterPosition();
+
+			player->SetVelocity(player->GetVelocity() + newVelocity.Normalize() * 100.0f);
+
+			player->SetHP(player->GetHP() - int(1000));
+			if (player->GetHP() <= 0) {
+				player->SetGameOver(true);
+			}
+			SetIsAttack(false);
+		}
+	}
 }
 
 void EnemySword::OnCollisionOut([[maybe_unused]] Collider* other) {

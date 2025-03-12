@@ -110,6 +110,7 @@ void Soldier::AttackUpdate(){
 	attack_.time += timeManager_->deltaTime_;
 	if (attack_.time / attack_.kLimitTime >= 1.0f) {
 		attack_.time = attack_.kLimitTime;
+		attack_.isAttack = false;
 	}
 	if (attackTypeRequest_) {
 
@@ -177,6 +178,7 @@ void Soldier::AttackTypeDownSwingInitialize(){
 	attack_.armStart = sword_->GetTranslation();
 	attack_.armEnd = { sword_->GetTranslation().x + aimingDirection_.x, sword_->GetTranslation().y - aimingDirection_.z, sword_->GetTranslation().z + aimingDirection_.z };
 	attack_.time = 0.0f;
+	sword_->SetIsAttack(true);
 }
 
 // 振り下ろし(上入力攻撃)の更新
@@ -198,6 +200,7 @@ void Soldier::AttackTypeThrustInitialize(){
 	attack_.armStart = sword_->GetTranslation();
 	attack_.armEnd = { sword_->GetTranslation().x - aimingDirection_.x, sword_->GetTranslation().y, -aimingDirection_.z };
 	attack_.time = 0.0f;
+	sword_->SetIsAttack(true);
 }
 
 // 突き(下入力攻撃)の更新
@@ -215,6 +218,7 @@ void Soldier::AttackTypeLeftSwingInitialize(){
 	attack_.armStart = sword_->GetTranslation();
 	attack_.armEnd = { -aimingDirection_.x, sword_->GetTranslation().y, sword_->GetTranslation().z };
 	attack_.time = 0.0f;
+	sword_->SetIsAttack(true);
 }
 
 // 右振り抜き(左入力攻撃)の更新
@@ -235,6 +239,7 @@ void Soldier::AttackTypeRightSwingInitialize(){
 	attack_.armStart = sword_->GetTranslation();
 	attack_.armEnd = { -aimingDirection_.x, sword_->GetTranslation().y, sword_->GetTranslation().z };
 	attack_.time = 0.0f;
+	sword_->SetIsAttack(true);
 }
 
 // 左振り抜き(右入力攻撃)の更新
