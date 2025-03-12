@@ -48,6 +48,7 @@ void GameScene::Initialize()
 	players_[0]->SetPosition({ 0.0f,1.750f,-50.0f });
 
 	//敵
+	Enemy::SetEnemyID(0);
 	LoadEnemyPopData();
 
 	for (size_t i = 0; i < 1; i++) {
@@ -196,6 +197,9 @@ void GameScene::Draw()
 		player->Draw(vp_);
 	}
 	for (const std::unique_ptr<Enemy>& enemy : enemies_) {
+		if (enemy->GetSerialNumber() == enemy->GetNextSerialNumber() - 1) {
+			break;
+		}
 		enemy->Draw(vp_);
 	}
 	skydome_->Draw(vp_);

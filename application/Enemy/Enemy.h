@@ -98,6 +98,7 @@ protected:
 	// 減衰速度
 	float kAttenuation_ = 0.005f;
 public:
+	static void SetEnemyID(int ID) { nextSerialNumber_ = ID; }
 	void SetPlayer(Player* player) { player_ = player; }
 	void SetTimeManager(TimeManager* timeManager) { timeManager_ = timeManager; }
 	void SetTranslation(const Vector3& translation);
@@ -112,6 +113,7 @@ public:
 	TimeManager* GetTimeManager() { return timeManager_; }
 	Vector3 GetVelocity() { return velocity_; }
 	uint32_t GetSerialNumber() const { return serialNumber_; }
+	uint32_t GetNextSerialNumber() const { return nextSerialNumber_; }
 	bool GetIsAlive() { return isAlive_; }
 	int GetHP() { return hp_; }
 	float GetShortDistance() { return shortDistance_; }

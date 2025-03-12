@@ -54,6 +54,9 @@ void PlayerArm::OnCollision([[maybe_unused]] Collider* other){
 	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kEnemy) ||
 		typeID == static_cast<uint32_t>(CollisionTypeIdDef::kBoss)) {
 		Enemy* enemy = static_cast<Enemy*>(other);
+		if (enemy->GetSerialNumber() == enemy->GetNextSerialNumber() - 1) {
+			return;
+		}
 		if (GetIsAttack()) {
 			Vector3 newVelocity = enemy->GetCenterPosition() - player_->GetCenterPosition();
 
@@ -77,6 +80,9 @@ void PlayerArm::OnCollisionEnter([[maybe_unused]] Collider* other){
 	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kEnemy) ||
 		typeID == static_cast<uint32_t>(CollisionTypeIdDef::kBoss)) {
 		Enemy* enemy = static_cast<Enemy*>(other);
+		if (enemy->GetSerialNumber() == enemy->GetNextSerialNumber() - 1) {
+			return;
+		}
 		if (GetIsAttack()) {
 			Vector3 newVelocity = enemy->GetCenterPosition() - player_->GetCenterPosition();
 
