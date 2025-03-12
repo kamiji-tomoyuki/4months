@@ -8,16 +8,19 @@ void ParticleEmitter::Initialize(const std::string& name, const std::string& fil
 
 	Manager_ = std::make_unique<ParticleManager>();
 	Manager_->Initialize(SrvManager::GetInstance());
-	Manager_->CreateParticleGroup(name_, fileName);
+	Manager_->CreateParticleGroup(name, fileName);
 
-	name_ = name;
-	count_ = 1;
-	frequency_ = 1.0f;
-	lifeTime_ = 100.0f;
-	lifeTimeRandomRange_ = 0.0f;
 	startTime_ = 0.0f;
 	endTime_ = 100.0f;
-	isLoop_ = false;
+	isLoop_ = true;
+	isStart_ = false;
+
+	name_ = name;
+	count_ = 0;
+	maxCount_ = 10;
+	frequency_ = 1.0f;
+	lifeTime_ = 1.0f;
+	lifeTimeRandomRange_ = 0.0f;
 	isActive_ = true;
 	isDrawEmitter_ = false;
 	transform_.Initialize();
@@ -25,39 +28,39 @@ void ParticleEmitter::Initialize(const std::string& name, const std::string& fil
 	positionState_ = START;
 	positionEasingState_ = LERP;
 	position_.startNum = { 0.0f, 0.0f, 0.0f };
-	position_.randomStartNum = { 0.0f, 0.0f, 0.0f };
+	position_.startRandomRange = { 0.0f,0.0f,0.0f };
 	position_.endNum = { 0.0f, 0.0f, 0.0f };
-	position_.ramdomEndNum = { 0.0f, 0.0f, 0.0f };
+	position_.endRandomRange = { 0.0f, 0.0f, 0.0f };
 	position_.velocity = { 0.0f, 0.0f, 0.0f };
-	position_.randomVelocity = { 0.0f, 0.0f, 0.0f };
+	position_.velocityRandomRange = { 0.0f, 0.0f, 0.0f };
 	position_.acceleration = { 0.0f, 0.0f, 0.0f };
-	position_.randomAcceleration = { 0.0f, 0.0f, 0.0f };
+	position_.accelerationRandomRange = { 0.0f, 0.0f, 0.0f };
 
 	rotationState_ = START;
 	rotationEasingState_ = LERP;
 	rotation_.startNum = { 0.0f, 0.0f, 0.0f };
-	rotation_.randomStartNum = { 0.0f, 0.0f, 0.0f };
+	rotation_.startRandomRange = { 0.0f, 0.0f, 0.0f };
 	rotation_.endNum = { 0.0f, 0.0f, 0.0f };
-	rotation_.ramdomEndNum = { 0.0f, 0.0f, 0.0f };
+	rotation_.endRandomRange = { 0.0f, 0.0f, 0.0f };
 	rotation_.velocity = { 0.0f, 0.0f, 0.0f };
-	rotation_.randomVelocity = { 0.0f, 0.0f, 0.0f };
+	rotation_.velocityRandomRange = { 0.0f, 0.0f, 0.0f };
 	rotation_.acceleration = { 0.0f, 0.0f, 0.0f };
-	rotation_.randomAcceleration = { 0.0f, 0.0f, 0.0f };
+	rotation_.accelerationRandomRange = { 0.0f, 0.0f, 0.0f };
 
 	scaleState_ = START;
 	scaleEasingState_ = LERP;
-	scale_.startNum = { 0.0f, 0.0f, 0.0f };
-	scale_.randomStartNum = { 0.0f, 0.0f, 0.0f };
-	scale_.endNum = { 0.0f, 0.0f, 0.0f };
-	scale_.ramdomEndNum = { 0.0f, 0.0f, 0.0f };
+	scale_.startNum = { 1.0f, 1.0f, 1.0f };
+	scale_.startRandomRange = { 0.0f, 0.0f, 0.0f };
+	scale_.endNum = { 1.0f, 1.0f, 1.0f };
+	scale_.endRandomRange = { 0.0f, 0.0f, 0.0f };
 	scale_.velocity = { 0.0f, 0.0f, 0.0f };
-	scale_.randomVelocity = { 0.0f, 0.0f, 0.0f };
+	scale_.velocityRandomRange = { 0.0f, 0.0f, 0.0f };
 	scale_.acceleration = { 0.0f, 0.0f, 0.0f };
-	scale_.randomAcceleration = { 0.0f, 0.0f, 0.0f };
+	scale_.accelerationRandomRange = { 0.0f, 0.0f, 0.0f };
 
 	startColor_ = { 1.0f, 1.0f, 1.0f, 1.0f };
 	endColor_ = { 1.0f, 1.0f, 1.0f, 1.0f };
-	randomColor_ = { 1.0f, 1.0f, 1.0f, 1.0f };
+	randomColor_ = { 0.0f, 0.0f, 0.0f, 0.0f };
 
 	AddItem();
 	ApplyGlobalVariables();
@@ -66,24 +69,23 @@ void ParticleEmitter::Initialize(const std::string& name, const std::string& fil
 // Update関数
 void ParticleEmitter::Update(const ViewProjection& vp_) {
 
-	// 時間を進める
-	time_ += 1.0f / 60.0f;
+	if (isStart_) {
+
+		// 時間を進める
+		currentTimer_ += 1.0f / 60.0f;
+	}
+
+	count_ = std::clamp(static_cast<int>(currentTimer_ / frequency_), 0, maxCount_);
 
 	// アクティブなら
 	if (isActive_) {
 
-		// 発生頻度に基づいてパーティクルを発生させる
-		while (time_ >= frequency_) {
-
-			// パーティクルを発生させる
-			Emit();
-
-			// 過剰に進んだ時間を考慮
-			time_ -= frequency_;
-		}
+		// パーティクルを発生させる
+		Emit();
 	}
 
 	Manager_->Update(vp_);
+
 	transform_.UpdateMatrix();
 }
 
@@ -149,29 +151,23 @@ void ParticleEmitter::Emit() {
 	// ParticleManagerのEmit関数を呼び出す
 	Manager_->Emit(
 		name_,
-		transform_.translation_,
 		count_,
-		transform_.scale_,          // スケールを引数として渡す
-		velocityMin_,               // 最小速度を引数として渡す
-		velocityMax_,               // 最大速度を引数として渡す
-		lifeTimeMin_,               // 最小ライフタイムを引数として渡す
-		lifeTimeMax_,               // 最大ライフタイムを引数として渡す
-		startScale_,
-		endScale_,
-		startAcce_,
-		endAcce_,
-		startRote_,
-		endRote_,
-		isRandomColor,
-		alphaMin_,
-		alphaMax_,
-		rotateVelocityMin,
-		rotateVelocityMax,
-		allScaleMax,
-		allScaleMin,
-		scaleMin,
-		scaleMax,
-		transform_.rotation_
+		maxCount_,
+		lifeTime_,
+		lifeTimeRandomRange_,
+		positionState_,
+		positionEasingState_,
+		position_,
+		rotationState_,
+		rotationEasingState_,
+		rotation_,
+		scaleState_,
+		scaleEasingState_,
+		scale_,
+		startColor_,
+		endColor_,
+		randomColor_,
+		isBillboard_
 	);
 }
 
@@ -286,6 +282,24 @@ void ParticleEmitter::imgui() {
 #ifdef _DEBUG
 	ImGui::Begin(name_.c_str());
 
+	if (ImGui::CollapsingHeader("タイマー")) {
+		ImGui::Columns(2, "TimerColumns", false); // 2列レイアウト
+
+		ImGui::Text("タイマー"); ImGui::NextColumn();
+		ImGui::DragFloat("##タイマー", &currentTimer_, 0.1f, 0.0f);
+		ImGui::NextColumn();
+
+		ImGui::Text("ループ"); ImGui::NextColumn();
+		ImGui::Checkbox("##ループ", &isLoop_);
+		ImGui::NextColumn();
+
+		ImGui::Text("スタート"); ImGui::NextColumn();
+		ImGui::Checkbox("##スタート", &isStart_);
+		ImGui::NextColumn();
+
+		ImGui::Columns(1); // 列終了
+	}
+
 	/// === エミッター設定 === ///
 
 	if (ImGui::CollapsingHeader("エミッター設定")) {
@@ -303,6 +317,10 @@ void ParticleEmitter::imgui() {
 
 		ImGui::Text("生成数"); ImGui::NextColumn();
 		ImGui::DragInt("##生成数", &count_, 1, 1, 100);
+		ImGui::NextColumn();
+
+		ImGui::Text("最大生成数"); ImGui::NextColumn();
+		ImGui::DragInt("##最大生成数", &maxCount_, 1, 1, 100);
 		ImGui::NextColumn();
 
 		ImGui::Text("発生頻度"); ImGui::NextColumn();
@@ -330,8 +348,16 @@ void ParticleEmitter::imgui() {
 			ImGui::NextColumn();
 		}
 
-		ImGui::Text("ループ"); ImGui::NextColumn();
-		ImGui::Checkbox("##ループ", &isLoop_);
+		ImGui::Text("初期色"); ImGui::NextColumn();
+		ImGui::ColorEdit4("##初期色", &startColor_.x);
+		ImGui::NextColumn();
+
+		ImGui::Text("終了色"); ImGui::NextColumn();
+		ImGui::ColorEdit4("##終了色", &endColor_.x);
+		ImGui::NextColumn();
+
+		ImGui::Text("色のランダム幅"); ImGui::NextColumn();
+		ImGui::ColorEdit4("##色のランダム幅", &randomColor_.x);
 		ImGui::NextColumn();
 
 		ImGui::Columns(1); // 列終了
@@ -344,8 +370,12 @@ void ParticleEmitter::imgui() {
 
 		const char* items[] = { "位置","位置・速度・加速度","イージング" };
 
-		ImGui::Text("ステート"); ImGui::NextColumn();
-		ImGui::Combo("##ステート", (int*)&positionState_, items, sizeof(items));
+		int currentItem = static_cast<int>(positionState_);
+
+		ImGui::Text("座標ステート"); ImGui::NextColumn();
+		if (ImGui::Combo("##座標ステート", &currentItem, items, IM_ARRAYSIZE(items))) {
+			positionState_ = static_cast<ParameterState>(currentItem);
+		}
 		ImGui::NextColumn();
 
 		ImGui::Text("初期座標"); ImGui::NextColumn();
@@ -353,22 +383,22 @@ void ParticleEmitter::imgui() {
 		ImGui::NextColumn();
 
 		ImGui::Text("初期座標のランダム幅"); ImGui::NextColumn();
-		ImGui::DragFloat3("##初期座標のランダム幅", &position_.randomStartNum.x, 0.1f);
+		ImGui::DragFloat3("##初期座標のランダム幅", &position_.startRandomRange.x, 0.1f, 0.0f);
 		ImGui::NextColumn();
 
 		ImGui::Separator();
 
 		switch (positionState_) {
-		case ParticleEmitter::START:
+		case START:
 			break;
-		case ParticleEmitter::VELOCITY:
+		case VELOCITY:
 
 			ImGui::Text("速度"); ImGui::NextColumn();
 			ImGui::DragFloat3("##速度", &position_.velocity.x, 0.1f);
 			ImGui::NextColumn();
 
 			ImGui::Text("速度のランダム幅"); ImGui::NextColumn();
-			ImGui::DragFloat3("##速度のランダム幅", &position_.randomVelocity.x, 0.1f);
+			ImGui::DragFloat3("##速度のランダム幅", &position_.velocityRandomRange.x, 0.1f, 0.0f);
 			ImGui::NextColumn();
 
 			ImGui::Separator();
@@ -378,11 +408,11 @@ void ParticleEmitter::imgui() {
 			ImGui::NextColumn();
 
 			ImGui::Text("加速度のランダム幅"); ImGui::NextColumn();
-			ImGui::DragFloat3("##加速度のランダム幅", &position_.randomAcceleration.x, 0.1f);
+			ImGui::DragFloat3("##加速度のランダム幅", &position_.accelerationRandomRange.x, 0.1f, 0.0f);
 			ImGui::NextColumn();
 
 			break;
-		case ParticleEmitter::EASING:
+		case EASING:
 
 			const char* easingItems[] = { "Lerp","EaseIn","EaseOut" };
 
@@ -391,7 +421,7 @@ void ParticleEmitter::imgui() {
 			ImGui::NextColumn();
 
 			ImGui::Text("終了座標のランダム幅"); ImGui::NextColumn();
-			ImGui::DragFloat3("##終了座標のランダム幅", &position_.ramdomEndNum.x, 0.1f);
+			ImGui::DragFloat3("##終了座標のランダム幅", &position_.endRandomRange.x, 0.1f, 0.0f);
 			ImGui::NextColumn();
 
 			ImGui::Separator();
@@ -407,58 +437,62 @@ void ParticleEmitter::imgui() {
 	}
 
 	if (ImGui::CollapsingHeader("角度設定")) {
-		ImGui::Columns(2, "PositionColumns", false); // 2列レイアウト
+		ImGui::Columns(2, "RorationColumns", false); // 2列レイアウト
 
 		const char* items[] = { "角度","角度・角速度・角加速度","イージング" };
 
-		ImGui::Text("ステート"); ImGui::NextColumn();
-		ImGui::Combo("##ステート", (int*)&rotationState_, items, sizeof(items));
+		int currentItem = static_cast<int>(rotationState_);
+
+		ImGui::Text("角度ステート"); ImGui::NextColumn();
+		if (ImGui::Combo("##角度ステート", &currentItem, items, IM_ARRAYSIZE(items))) {
+			rotationState_ = static_cast<ParameterState>(currentItem);
+		}
 		ImGui::NextColumn();
 
 		ImGui::Text("初期角度"); ImGui::NextColumn();
-		ImGui::DragFloat3("##角度", &rotation_.startNum.x, 0.1f);
+		ImGui::DragFloat3("##角度", &rotation_.startNum.x, 0.01f, 0.0f, 3.14f);
 		ImGui::NextColumn();
 
 		ImGui::Text("初期角度のランダム幅"); ImGui::NextColumn();
-		ImGui::DragFloat3("##角度のランダム幅", &rotation_.randomStartNum.x, 0.1f);
+		ImGui::DragFloat3("##角度のランダム幅", &rotation_.startRandomRange.x, 0.01f, 0.0f, 3.14f);
 		ImGui::NextColumn();
 
 		ImGui::Separator();
 
 		switch (rotationState_) {
-		case ParticleEmitter::START:
+		case START:
 			break;
-		case ParticleEmitter::VELOCITY:
+		case VELOCITY:
 
 			ImGui::Text("角速度"); ImGui::NextColumn();
-			ImGui::DragFloat3("##角速度", &rotation_.velocity.x, 0.1f);
+			ImGui::DragFloat3("##角速度", &rotation_.velocity.x, 0.01f, 0.0f, 3.14f);
 			ImGui::NextColumn();
 
 			ImGui::Text("角速度のランダム幅"); ImGui::NextColumn();
-			ImGui::DragFloat3("##角速度のランダム幅", &rotation_.randomVelocity.x, 0.1f);
+			ImGui::DragFloat3("##角速度のランダム幅", &rotation_.velocityRandomRange.x, 0.01f, 0.0f, 3.14f);
 			ImGui::NextColumn();
 
 			ImGui::Separator();
 
 			ImGui::Text("角加速度"); ImGui::NextColumn();
-			ImGui::DragFloat3("##角加速度", &rotation_.acceleration.x, 0.1f);
+			ImGui::DragFloat3("##角加速度", &rotation_.acceleration.x, 0.01f, 0.0f, 3.14f);
 			ImGui::NextColumn();
 
 			ImGui::Text("角加速度のランダム幅"); ImGui::NextColumn();
-			ImGui::DragFloat3("##角加速度のランダム幅", &rotation_.randomAcceleration.x, 0.1f);
+			ImGui::DragFloat3("##角加速度のランダム幅", &rotation_.accelerationRandomRange.x, 0.01f, 0.0f, 3.14f);
 			ImGui::NextColumn();
 
 			break;
-		case ParticleEmitter::EASING:
+		case EASING:
 
 			const char* easingItems[] = { "Lerp","EaseIn","EaseOut" };
 
 			ImGui::Text("終了角度"); ImGui::NextColumn();
-			ImGui::DragFloat3("##終了角度", &rotation_.endNum.x, 0.1f);
+			ImGui::DragFloat3("##終了角度", &rotation_.endNum.x, 0.01f, 0.0f, 3.14f);
 			ImGui::NextColumn();
 
 			ImGui::Text("終了角度のランダム幅"); ImGui::NextColumn();
-			ImGui::DragFloat3("##終了角度のランダム幅", &rotation_.ramdomEndNum.x, 0.1f);
+			ImGui::DragFloat3("##終了角度のランダム幅", &rotation_.endRandomRange.x, 0.01f, 0.0f, 3.14f);
 			ImGui::NextColumn();
 
 			ImGui::Separator();
@@ -474,12 +508,16 @@ void ParticleEmitter::imgui() {
 	}
 
 	if (ImGui::CollapsingHeader("拡大設定")) {
-		ImGui::Columns(2, "PositionColumns", false); // 2列レイアウト
+		ImGui::Columns(2, "ScaleColumns", false); // 2列レイアウト
 
 		const char* items[] = { "拡大","拡大・拡大速度・拡大加速度","イージング" };
 
-		ImGui::Text("ステート"); ImGui::NextColumn();
-		ImGui::Combo("##ステート", (int*)&scaleState_, items, sizeof(items));
+		int currentItem = static_cast<int>(scaleState_);
+
+		ImGui::Text("拡縮ステート"); ImGui::NextColumn();
+		if (ImGui::Combo("##拡縮ステート", &currentItem, items, IM_ARRAYSIZE(items))) {
+			scaleState_ = static_cast<ParameterState>(currentItem);
+		}
 		ImGui::NextColumn();
 
 		ImGui::Text("初期拡大"); ImGui::NextColumn();
@@ -487,22 +525,22 @@ void ParticleEmitter::imgui() {
 		ImGui::NextColumn();
 
 		ImGui::Text("初期拡大のランダム幅"); ImGui::NextColumn();
-		ImGui::DragFloat3("##初期拡大のランダム幅", &scale_.randomStartNum.x, 0.1f);
+		ImGui::DragFloat3("##初期拡大のランダム幅", &scale_.startRandomRange.x, 0.1f, 0.0f);
 		ImGui::NextColumn();
 
 		ImGui::Separator();
 
 		switch (scaleState_) {
-		case ParticleEmitter::START:
+		case START:
 			break;
-		case ParticleEmitter::VELOCITY:
+		case VELOCITY:
 
 			ImGui::Text("拡大速度"); ImGui::NextColumn();
 			ImGui::DragFloat3("##拡大速度", &scale_.velocity.x, 0.1f);
 			ImGui::NextColumn();
 
 			ImGui::Text("拡大速度のランダム幅"); ImGui::NextColumn();
-			ImGui::DragFloat3("##拡大速度のランダム幅", &scale_.randomVelocity.x, 0.1f);
+			ImGui::DragFloat3("##拡大速度のランダム幅", &scale_.velocityRandomRange.x, 0.1f, 0.0f);
 			ImGui::NextColumn();
 
 			ImGui::Separator();
@@ -512,11 +550,11 @@ void ParticleEmitter::imgui() {
 			ImGui::NextColumn();
 
 			ImGui::Text("拡大加速度のランダム幅"); ImGui::NextColumn();
-			ImGui::DragFloat3("##拡大加速度のランダム幅", &scale_.randomAcceleration.x, 0.1f);
+			ImGui::DragFloat3("##拡大加速度のランダム幅", &scale_.accelerationRandomRange.x, 0.1f, 0.0f);
 			ImGui::NextColumn();
 
 			break;
-		case ParticleEmitter::EASING:
+		case EASING:
 
 			const char* easingItems[] = { "Lerp","EaseIn","EaseOut" };
 
@@ -525,7 +563,7 @@ void ParticleEmitter::imgui() {
 			ImGui::NextColumn();
 
 			ImGui::Text("終了拡大のランダム幅"); ImGui::NextColumn();
-			ImGui::DragFloat3("##終了拡大のランダム幅", &scale_.ramdomEndNum.x, 0.1f);
+			ImGui::DragFloat3("##終了拡大のランダム幅", &scale_.endRandomRange.x, 0.1f, 0.0f);
 			ImGui::NextColumn();
 
 			ImGui::Separator();

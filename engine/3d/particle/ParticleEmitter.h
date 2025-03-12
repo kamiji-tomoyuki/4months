@@ -35,6 +35,23 @@ private:
 	void SetEmitValue();
 	void ApplyGlobalVariables();
 
+	/// === タイマー === ///
+
+	//生成開始時間
+	float startTime_;
+
+	//生成終了時間
+	float endTime_;
+
+	//現在時間
+	float currentTimer_;
+
+	//ループフラグ
+	bool isLoop_;
+
+	//再生開始フラグ
+	bool isStart_;
+
 	/// === エミッター設定 === ///
 
 	//アクティブフラグ
@@ -49,6 +66,9 @@ private:
 	//生成数
 	int count_;
 
+	//最大生成数
+	int maxCount_;
+
 	//発生頻度
 	float frequency_;
 
@@ -58,20 +78,8 @@ private:
 	//生存時間のランダム幅
 	float lifeTimeRandomRange_;
 
-	//生成開始時間
-	float startTime_;
-
-	//生成終了時間
-	float endTime_;
-
-	//ループフラグ
-	bool isLoop_;
-
 	//エミッターのトランスフォーム
 	WorldTransform transform_;
-
-	//現在時間
-	float time_;
 
 	/// === パーティクル設定 === ///
 
