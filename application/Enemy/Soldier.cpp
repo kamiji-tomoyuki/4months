@@ -58,6 +58,7 @@ void Soldier::Update(){
 	Enemy::Update();
 	if (aimingDirection_.x == 0 && aimingDirection_.z == 0) {
 		sword_->SetTranslation({ 1.7f, 0.0f, 1.3f });
+
 	}
 	if (!isMove_) {
 		return;
@@ -99,6 +100,7 @@ void Soldier::OnCollisionOut(Collider* other){
 
 void Soldier::AttackInitialize(){
 	Enemy::AttackInitialize();
+	attackTypeRequest_ = AttackType::kNullType;
 	// 方向取得
 	DirectionPreliminaryAction();
 }

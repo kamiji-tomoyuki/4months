@@ -52,6 +52,11 @@ void EnemySword::OnCollision([[maybe_unused]] Collider* other) {
 	//衝突相手
 	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kPlayer)) {
 		Player* player = static_cast<Player*>(other);
+
+		Vector3 newVelocity = player->GetCenterPosition() - enemy_->GetCenterPosition();
+
+		player->SetVelocity(player->GetVelocity() + newVelocity.Normalize() * 10.0f);
+
 		if (GetIsAttack()) {
 			player->SetHP(player->GetHP() - int(1000));
 			if (player->GetHP() <= 0) {
