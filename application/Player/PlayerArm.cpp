@@ -57,7 +57,7 @@ void PlayerArm::OnCollision([[maybe_unused]] Collider* other){
 		if (GetIsAttack()) {
 			Vector3 newVelocity = enemy->GetCenterPosition() - player_->GetCenterPosition();
 
-			enemy->SetVelocity(enemy->GetVelocity() + newVelocity.Normalize() * 100.0f);
+			enemy->SetVelocity(enemy->GetVelocity() + newVelocity.Normalize() * 10.0f);
 			enemy->SetHP(enemy->GetHP() - int(1000));
 			if (enemy->GetHP() <= 0) {
 				enemy->SetIsAlive(false);

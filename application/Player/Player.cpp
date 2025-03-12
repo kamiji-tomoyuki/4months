@@ -435,6 +435,7 @@ void Player::BehaviorAttackUpdate() {
 	}
 
 	if (attackTypeRequest_) {
+
 		//振るまいを変更する
 		attackType_ = attackTypeRequest_.value();
 

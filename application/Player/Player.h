@@ -259,6 +259,8 @@ public:
 	// プレイヤーの腕を取得
 	std::array<std::unique_ptr<PlayerArm>, kModelNum>& GetArms() { return arms_; }
 
+	const Vector3& GetAimingDirection() { return aimingDirection_; }
+
 	void SetBehavior(Behavior newBehavior);
 
 	static void SetPlayerID(int ID) { playerID_ = ID; }

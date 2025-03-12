@@ -63,6 +63,13 @@ public:
 	//方向の回転
 	void VectorRotation(const Vector3& direction);
 
+	// 攻撃動作
+	virtual void AttackInitialize();
+	virtual void AttackUpdate();
+
+	// 防御動作
+	virtual void ProtectionInitialize();
+	virtual void ProtectionUpdate();
 protected:
 	//ポインタ
 	Player* player_ = nullptr;
@@ -87,7 +94,7 @@ protected:
 	BehaviorProbability middleDistanceProbability_ = { 0.50f ,0.05f };
 	BehaviorProbability longDistanceProbability_ = { 0.01f,0.01f };
 	//行動クールタイム
-	float kCoolTime_ = 0.3f;
+	float kCoolTime_ = 1.0f;
 	// 減衰速度
 	float kAttenuation_ = 0.005f;
 public:
