@@ -413,6 +413,8 @@ void Player::BehaviorAttackInitialize() {
 		attack_.armStart = arms_[kSword]->GetTranslation().z;
 		arms_[kSword]->SetIsAttack(true);
 	} else {
+		attack_.armStart = arms_[kSword]->GetTranslation().z;
+		arms_[kSword]->SetIsAttack(true);
 		//attack_.armStart = arms_[kRArm]->GetTranslation().z;
 		//arms_[kRArm]->SetIsAttack(true);
 	}
@@ -513,6 +515,8 @@ void Player::BehaviorProtectionInitialize() {
 		arms_[kSword]->SetIsAttack(false);
 	}
 	else {
+		attack_.armStart = arms_[kSword]->GetTranslation().z;
+		arms_[kSword]->SetIsAttack(false);
 		//attack_.armStart = arms_[kRArm]->GetTranslation().z;
 		//arms_[kRArm]->SetIsAttack(true);
 	}
