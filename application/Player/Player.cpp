@@ -164,7 +164,7 @@ void Player::DrawAnimation(const ViewProjection& viewProjection)
 
 void Player::OnCollision([[maybe_unused]] Collider* other) {
 
-	//if (isGameOver_) return; // GameOver中は衝突処理をスキップ
+	if (isGameOver_) return; // GameOver中は衝突処理をスキップ
 
 	if (timeManager_->GetTimer("start").isStart || timeManager_->GetTimer("collision").isStart) {
 		return;
@@ -259,6 +259,7 @@ void Player::BehaviorRootInitialize() {
 	grab_.isGrab = false;
 	arms_[kSword]->SetIsGrab(false);
 	//arms_[kRArm]->SetIsGrab(false);
+	arms_[kSword]->SetTranslation({ 1.5f, 0.0f, 0.0f });
 }
 
 // 通常動作の更新
@@ -267,29 +268,18 @@ void Player::BehaviorRootUpdate() {
 
 	// 移動処理
 	Move();
-	if (aimingDirection_.x == 0 && aimingDirection_.z == 0) {
-		arms_[kSword]->SetTranslation({ 1.5f, 0.0f, 0.0f });
-	}
+
+	// 方向取得
+	DirectionPreliminaryAction();
 
 	// ゲームパッド入力処理
 	XINPUT_STATE joyState;
 	// 予備動作(攻撃防御方向入力)
 	if (Input::GetInstance()->GetJoystickState(0, joyState) && (joyState.Gamepad.sThumbRX != 0 || joyState.Gamepad.sThumbRY != 0)) {
-		// 方向取得
-		DirectionPreliminaryAction();
-
 		// 攻撃の構え処理
 		if (Input::GetInstance()->GetJoystickState(0, joyState) && joyState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) {
 			behaviorRequest_ = Behavior::kPreliminary;
 		}
-		// 攻撃の処理
-		// Rボタンを離した時
-		//else if (Input::GetInstance()->GetJoystickStatePrevious(0, joyState) && joyState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) {
-		//	behaviorRequest_ = Behavior::kAttack;
-
-		//	// フェイク可能時間をセット
-
-		//}
 
 		// 防御処理
 		// 　フェイク可能時間内の条件追加
@@ -298,11 +288,6 @@ void Player::BehaviorRootUpdate() {
 			attack_.isLeft = true;
 		}
 	}
-	// 攻撃処理
-	/*if (Input::GetInstance()->GetJoystickState(0, joyState) && joyState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER || Input::GetInstance()->TriggerKey(DIK_K)) {
-		behaviorRequest_ = Behavior::kAttack;
-		attack_.isLeft = false;
-	}*/
 	// ダッシュ処理
 	if (Input::GetInstance()->GetJoystickState(0, joyState) && joyState.Gamepad.wButtons & XINPUT_GAMEPAD_X ||
 		Input::GetInstance()->TriggerKey(DIK_L)) {
@@ -397,9 +382,6 @@ void Player::BehaviorPostureAttackUpdate()
 	// 攻撃の処理
 	if (Input::GetInstance()->GetJoystickState(0, joyState) && !(joyState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER)) {
 		behaviorRequest_ = Behavior::kAttack;
-		
-		// フェイク可能時間をセット
-
 	}
 }
 
@@ -432,6 +414,8 @@ void Player::BehaviorAttackUpdate() {
 
 	if (attack_.time / attack_.kLimitTime > 1.0f) {
 		behaviorRequest_ = Behavior::kRoot;
+
+		//arms_[kSword]->SetTranslation({ 1.5f, 0.0f, 0.0f });
 	}
 
 	if (attackTypeRequest_) {
