@@ -25,20 +25,19 @@ void Player::Init() {
 	Collider::SetTypeID(static_cast<uint32_t>(CollisionTypeIdDef::kPlayer));
 	Collider::SetAABBScale({ 0.0f,0.0f,0.0f });
 	InitializeFloatingGimmick();
-	//プレイヤーの手
-	for (std::unique_ptr<PlayerArm>& playerArm : arms_) {
-		playerArm = std::make_unique<PlayerArm>();
-		playerArm->SetPlayer(this);
-		playerArm->SetTimeManager(timeManager_);
-	}
+	//プレイヤーの剣
+	sword_ = std::make_unique<PlayerSword>();
+	sword_->SetPlayer(this);
+	sword_->SetTimeManager(timeManager_);
 
 	BaseObject::CreateModel("player/playerBody.obj");
-	arms_[kSword]->Initialize("player/playerArm.gltf", "player/playerPalm.obj");
+	sword_->Initialize("player/playerArm.gltf", "sword/sword.obj");
 	//arms_[kSword]->Initialize("player/playerArm.gltf", "player/playerPalm.obj");
 
-	arms_[kSword]->SetID(id_);
-	arms_[kSword]->SetTranslation(Vector3(1.7f, 0.0f, 1.3f));
-	arms_[kSword]->SetScale(Vector3(0.8f, 0.8f, 0.8f));
+	sword_->SetID(id_);
+	sword_->SetRotation(Vector3(0.0f, 0.0f, 0.0f));
+	sword_->SetTranslation(Vector3(1.5f, 0.0f, 0.0f));
+	sword_->SetScale(Vector3(0.8f, 0.8f, 0.8f));
 
 	//arms_[kRArm]->SetID(id_);
 	//arms_[kRArm]->SetTranslation(Vector3(-1.7f, 0.0f, 1.3f));
@@ -121,10 +120,8 @@ void Player::Update() {
 	transform_.translation_.y = GetRadius();
 	transform_.UpdateMatrix();
 
-	for (const std::unique_ptr<PlayerArm>& arm : arms_) {
-		arm->SetSize(size_ * 1.3f);
-		arm->Update();
-	}
+	sword_->SetSize(size_ * 1.3f);
+	sword_->Update();
 }
 
 void Player::UpdateParticle(const ViewProjection& viewProjection) {
@@ -142,9 +139,7 @@ void Player::UpdateParticle(const ViewProjection& viewProjection) {
 void Player::Draw(const ViewProjection& viewProjection) {
 	//基底クラス描画
 	BaseObject::Draw(viewProjection);
-	for (const std::unique_ptr<PlayerArm>& arm : arms_) {
-		arm->Draw(viewProjection);
-	}
+	sword_->Draw(viewProjection);
 
 }
 
@@ -157,9 +152,7 @@ void Player::DrawParticle(const ViewProjection& viewProjection) {
 
 void Player::DrawAnimation(const ViewProjection& viewProjection)
 {
-	for (const std::unique_ptr<PlayerArm>& arm : arms_) {
-		arm->DrawAnimation(viewProjection);
-	}
+	//sword_->DrawAnimation(viewProjection);
 }
 
 void Player::OnCollision([[maybe_unused]] Collider* other) {
@@ -254,12 +247,13 @@ void Player::UpdateFloatingGimmick() {
 // 通常動作の初期化
 void Player::BehaviorRootInitialize() {
 	attack_.isAttack = false;
-	arms_[kSword]->SetIsAttack(false);
+	sword_->SetIsAttack(false);
 	//arms_[kRArm]->SetIsAttack(false);
-	grab_.isGrab = false;
-	arms_[kSword]->SetIsGrab(false);
+	defence_.isDefence = false;
+	sword_->SetIsDefence(false);
 	//arms_[kRArm]->SetIsGrab(false);
-	arms_[kSword]->SetTranslation({ 1.5f, 0.0f, 0.0f });
+	sword_->SetRotation(Vector3(0.0f, 0.0f, 0.0f));
+	sword_->SetTranslation(Vector3(1.5f, 0.0f, 0.0f));
 }
 
 // 通常動作の更新
@@ -285,7 +279,6 @@ void Player::BehaviorRootUpdate() {
 		// 　フェイク可能時間内の条件追加
 		if (Input::GetInstance()->GetJoystickState(0, joyState) && joyState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER || Input::GetInstance()->TriggerKey(DIK_J)) {
 			behaviorRequest_ = Behavior::kProtection;
-			attack_.isLeft = true;
 		}
 	}
 	// ダッシュ処理
@@ -330,9 +323,8 @@ void Player::BehaviorPostureAttackInitialize()
 	transform_.UpdateMatrix();
 	attack_.time = 0;
 	attack_.isAttack = false;
-	attack_.isLeft = !attack_.isLeft;
-	attack_.armStart = arms_[kSword]->GetTranslation().z;
-	arms_[kSword]->SetIsAttack(false);
+	attack_.swordStart = sword_->GetTranslation().z;
+	sword_->SetIsAttack(false);
 }
 
 // 攻撃の構えの動作の更新
@@ -350,30 +342,30 @@ void Player::BehaviorPostureAttackUpdate()
 	float cosTheta = atan2f(aimingDirection_.z, aimingDirection_.x);
 	// 上
 	if (cosTheta > 0.25f * pi && cosTheta < 0.75f * pi) {
-		arms_[kSword]->SetTranslationX(aimingDirection_.x);
-		arms_[kSword]->SetTranslationY(aimingDirection_.z);
-		arms_[kSword]->SetTranslationZ(0.0f);
+		sword_->SetTranslationX(aimingDirection_.x);
+		sword_->SetTranslationY(aimingDirection_.z);
+		sword_->SetTranslationZ(0.0f);
 		attackTypeRequest_ = AttackType::kDownSwing;
 	}
 	// 下
 	else if (cosTheta < -0.25f * pi && cosTheta > -0.75f * pi) {
-		arms_[kSword]->SetTranslationX(1.2f);
-		arms_[kSword]->SetTranslationY(0.0f);
-		arms_[kSword]->SetTranslationZ(-0.75f);
+		sword_->SetTranslationX(1.2f);
+		sword_->SetTranslationY(0.0f);
+		sword_->SetTranslationZ(-1.0f);
 		attackTypeRequest_ = AttackType::kThrust;
 	}
 	// 左
 	else if (cosTheta >= 0.75f * pi || cosTheta <= -0.75f * pi) {
-		arms_[kSword]->SetTranslationX(aimingDirection_.x);
-		arms_[kSword]->SetTranslationY(0.0f);
-		arms_[kSword]->SetTranslationZ(aimingDirection_.z);
+		sword_->SetTranslationX(aimingDirection_.x);
+		sword_->SetTranslationY(0.0f);
+		sword_->SetTranslationZ(aimingDirection_.z);
 		attackTypeRequest_ = AttackType::kRightSlash;
 	}
 	// 右
 	else {
-		arms_[kSword]->SetTranslationX(aimingDirection_.x);
-		arms_[kSword]->SetTranslationY(0.0f);
-		arms_[kSword]->SetTranslationZ(aimingDirection_.z);
+		sword_->SetTranslationX(aimingDirection_.x);
+		sword_->SetTranslationY(0.0f);
+		sword_->SetTranslationZ(aimingDirection_.z);
 		attackTypeRequest_ = AttackType::kLeftSlash;
 	}
 
@@ -390,16 +382,8 @@ void Player::BehaviorAttackInitialize() {
 	transform_.UpdateMatrix();
 	attack_.time = 0;
 	attack_.isAttack = true;
-	attack_.isLeft = !attack_.isLeft;
-	if (attack_.isLeft) {
-		attack_.armStart = arms_[kSword]->GetTranslation().z;
-		arms_[kSword]->SetIsAttack(true);
-	} else {
-		attack_.armStart = arms_[kSword]->GetTranslation().z;
-		arms_[kSword]->SetIsAttack(true);
-		//attack_.armStart = arms_[kRArm]->GetTranslation().z;
-		//arms_[kRArm]->SetIsAttack(true);
-	}
+	attack_.swordStart = sword_->GetTranslation().z;
+	sword_->SetIsAttack(true);
 }
 
 // 攻撃動作の更新
@@ -491,26 +475,13 @@ void Player::BehaviorAttackUpdate() {
 // 防御動作の初期化
 void Player::BehaviorProtectionInitialize() {
 	transform_.UpdateMatrix();
-	attack_.time = 0;
 	attack_.isAttack = false;
-	attack_.isLeft = !attack_.isLeft;
-	if (attack_.isLeft) {
-		attack_.armStart = arms_[kSword]->GetTranslation().z;
-		arms_[kSword]->SetIsAttack(false);
-	}
-	else {
-		attack_.armStart = arms_[kSword]->GetTranslation().z;
-		arms_[kSword]->SetIsAttack(false);
-		//attack_.armStart = arms_[kRArm]->GetTranslation().z;
-		//arms_[kRArm]->SetIsAttack(true);
-	}
-	/*transform_.UpdateMatrix();
-	grab_.time = 0;
-	grab_.isGrab = false;
-	grab_.armStartL = arms_[kLArm]->GetTranslation().z;
-	grab_.armStartR = arms_[kRArm]->GetTranslation().z;
-	arms_[kLArm]->SetIsGrab(true);
-	arms_[kRArm]->SetIsGrab(true);*/
+	sword_->SetIsAttack(false);
+	transform_.UpdateMatrix();
+	defence_.time = 0;
+	defence_.isDefence = true;
+	defence_.swordStart = sword_->GetTranslation().z;
+	sword_->SetIsDefence(true);
 }
 
 // 防御動作の更新
@@ -529,27 +500,27 @@ void Player::BehaviorProtectionUpdate() {
 	float cosTheta = atan2f(aimingDirection_.z, aimingDirection_.x);
 	// 上
 	if (cosTheta > 0.25f * pi && cosTheta < 0.75f * pi) {
-		arms_[kSword]->SetTranslationX(aimingDirection_.x * 0.6f);
-		arms_[kSword]->SetTranslationY(aimingDirection_.z * 0.4f);
-		arms_[kSword]->SetTranslationZ(0.25f);
+		sword_->SetTranslationX(aimingDirection_.x * 0.6f);
+		sword_->SetTranslationY(aimingDirection_.z * 0.4f);
+		sword_->SetTranslationZ(0.25f);
 	}
 	// 下
 	else if (cosTheta < -0.25f * pi && cosTheta > -0.75f * pi) {
-		arms_[kSword]->SetTranslationX(aimingDirection_.x * 0.6f);
-		arms_[kSword]->SetTranslationY(aimingDirection_.z * 0.2f);
-		arms_[kSword]->SetTranslationZ(0.25f);
+		sword_->SetTranslationX(aimingDirection_.x * 0.6f);
+		sword_->SetTranslationY(aimingDirection_.z * 0.2f);
+		sword_->SetTranslationZ(0.25f);
 	}
 	// 左
 	else if (cosTheta >= 0.75f * pi || cosTheta <= -0.75f * pi) {
-		arms_[kSword]->SetTranslationX(aimingDirection_.x * 0.6f);
-		arms_[kSword]->SetTranslationY(aimingDirection_.z * 0.6f);
-		arms_[kSword]->SetTranslationZ(0.0f);
+		sword_->SetTranslationX(aimingDirection_.x * 0.6f);
+		sword_->SetTranslationY(aimingDirection_.z * 0.6f);
+		sword_->SetTranslationZ(0.0f);
 	}
 	// 右
 	else {
-		arms_[kSword]->SetTranslationX(aimingDirection_.x * 0.6f);
-		arms_[kSword]->SetTranslationY(aimingDirection_.z * 0.6f);
-		arms_[kSword]->SetTranslationZ(0.0f);
+		sword_->SetTranslationX(aimingDirection_.x * 0.6f);
+		sword_->SetTranslationY(aimingDirection_.z * 0.6f);
+		sword_->SetTranslationZ(0.0f);
 	}
 
 	// 攻撃方向
@@ -567,7 +538,7 @@ void Player::BehaviorProtectionUpdate() {
 // 勝利(喜ぶ)動作の初期化
 void Player::BehaviorCelebrateInitialize()
 {
-	arms_[kSword]->SetRotationX(0.0f);
+	sword_->SetRotationX(0.0f);
 	//arms_[kRArm]->SetRotationX(0.0f);
 
 	//celebrateTime_ = 0.0f;
@@ -578,7 +549,7 @@ void Player::BehaviorCelebrateUpdate()
 {
 	// 腕を振る動作 (sin波を使って上下)
 	float wave = std::sin(timeManager_->GetCurrentTime() * 10.0f) * 0.5f; // -0.5 〜 0.5 の範囲
-	arms_[kSword]->SetRotationX(wave);
+	sword_->SetRotationX(wave);
 	//arms_[kRArm]->SetRotationX(-wave); // 反対方向
 }
 
@@ -653,8 +624,8 @@ void Player::DirectionPreliminaryAction()
 // 振り下ろし(上入力攻撃)の初期化
 void Player::AttackTypeDownSwingInitialize()
 {
-	attack_.armStart = arms_[kSword]->GetTranslation();
-	attack_.armEnd = { arms_[kSword]->GetTranslation().x + aimingDirection_.x, arms_[kSword]->GetTranslation().y - aimingDirection_.z, arms_[kSword]->GetTranslation().z + aimingDirection_.z };
+	attack_.swordStart = sword_->GetTranslation();
+	attack_.swordEnd = { sword_->GetTranslation().x + aimingDirection_.x, sword_->GetTranslation().y - aimingDirection_.z, sword_->GetTranslation().z + aimingDirection_.z };
 	attack_.time = 0.0f;
 }
 
@@ -665,32 +636,32 @@ void Player::AttackTypeDownSwingUpdate()
 	Vector3 newPos = 0.0f;
 	float theta = float(pi / 2.0f * (attack_.time / attack_.kLimitTime));
 
-	newPos = { Lerp(attack_.armStart.x, attack_.armEnd.x, attack_.time / attack_.kLimitTime), attack_.armStart.y * cosf(theta) - attack_.armStart.z * sinf(theta), attack_.armStart.y * sinf(theta) + attack_.armStart.z * cosf(theta)};
+	newPos = { Lerp(attack_.swordStart.x, attack_.swordEnd.x, attack_.time / attack_.kLimitTime), attack_.swordStart.y * cosf(theta) - attack_.swordStart.z * sinf(theta), attack_.swordStart.y * sinf(theta) + attack_.swordStart.z * cosf(theta)};
 
-	arms_[kSword]->SetTranslation(newPos);
+	sword_->SetTranslation(newPos);
 }
 
 // 突き(下入力攻撃)の初期化
 void Player::AttackTypeThrustInitialize()
 {
-	attack_.armStart = arms_[kSword]->GetTranslation();
-	attack_.armEnd = { arms_[kSword]->GetTranslation().x - aimingDirection_.x, arms_[kSword]->GetTranslation().y, -aimingDirection_.z };
+	attack_.swordStart = sword_->GetTranslation();
+	attack_.swordEnd = { sword_->GetTranslation().x - aimingDirection_.x, sword_->GetTranslation().y, -aimingDirection_.z * 0.2f * 7.0f };
 	attack_.time = 0.0f;
 }
 
 // 突き(下入力攻撃)の更新
 void Player::AttackTypeThrustUpdate()
 {
-	Vector3 newPos = EaseInExpo(attack_.armStart, attack_.armEnd, attack_.time, attack_.kLimitTime);
+	Vector3 newPos = EaseInExpo(attack_.swordStart, attack_.swordEnd, attack_.time, attack_.kLimitTime);
 
-	arms_[kSword]->SetTranslation(newPos);
+	sword_->SetTranslation(newPos);
 }
 
 // 右振り抜き(左入力攻撃)の初期化
 void Player::AttackTypeLeftSwingInitialize()
 {
-	attack_.armStart = arms_[kSword]->GetTranslation();
-	attack_.armEnd = { -aimingDirection_.x, arms_[kSword]->GetTranslation().y, arms_[kSword]->GetTranslation().z };
+	attack_.swordStart = sword_->GetTranslation();
+	attack_.swordEnd = { -aimingDirection_.x, sword_->GetTranslation().y, sword_->GetTranslation().z };
 	attack_.time = 0.0f;
 }
 
@@ -700,16 +671,16 @@ void Player::AttackTypeLeftSwingUpdate()
 	Vector3 newPos = 0.0f;
 	float theta = float(pi * (attack_.time / attack_.kLimitTime));
 	
-	newPos = { attack_.armStart.x * cosf(-theta) - attack_.armStart.z * sinf(-theta), attack_.armStart.y, attack_.armStart.x * sinf(-theta) + attack_.armStart.z * cosf(-theta) };
+	newPos = { attack_.swordStart.x * cosf(-theta) - attack_.swordStart.z * sinf(-theta), attack_.swordStart.y, attack_.swordStart.x * sinf(-theta) + attack_.swordStart.z * cosf(-theta) };
 
-	arms_[kSword]->SetTranslation(newPos);
+	sword_->SetTranslation(newPos);
 }
 
 // 左振り抜き(右入力攻撃)の初期化
 void Player::AttackTypeRightSwingInitialize()
 {
-	attack_.armStart = arms_[kSword]->GetTranslation();
-	attack_.armEnd = { -aimingDirection_.x, arms_[kSword]->GetTranslation().y, arms_[kSword]->GetTranslation().z };
+	attack_.swordStart = sword_->GetTranslation();
+	attack_.swordEnd = { -aimingDirection_.x, sword_->GetTranslation().y, sword_->GetTranslation().z };
 	attack_.time = 0.0f;
 }
 
@@ -719,9 +690,9 @@ void Player::AttackTypeRightSwingUpdate()
 	Vector3 newPos = 0.0f;
 	float theta = float(pi * (attack_.time / attack_.kLimitTime));
 
-	newPos = { attack_.armStart.x * cosf(theta) - attack_.armStart.z * sinf(theta), attack_.armStart.y, attack_.armStart.x * sinf(theta) + attack_.armStart.z * cosf(theta) };
+	newPos = { attack_.swordStart.x * cosf(theta) - attack_.swordStart.z * sinf(theta), attack_.swordStart.y, attack_.swordStart.x * sinf(theta) + attack_.swordStart.z * cosf(theta) };
 
-	arms_[kSword]->SetTranslation(newPos);
+	sword_->SetTranslation(newPos);
 }
 
 // 未入力

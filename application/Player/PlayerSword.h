@@ -1,15 +1,15 @@
 #pragma once
 #include "Collider.h"
-	
+
 class Player;
 class TimeManager;
-class PlayerArm : public Collider{
+class PlayerSword : public Collider {
 public:
 	/// <summary>
 	/// 初期化
 	/// </summary>
 	void Initialize() override;
-	void Initialize(std::string filePath,std::string palmFilePath);
+	void Initialize(std::string filePath, std::string palmFilePath);
 
 	/// <summary>
 	/// 更新
@@ -59,14 +59,14 @@ private:
 	ObjColor objColor_;
 
 	bool isAttack_ = false;
-	bool isGrab_ = false;
+	bool isDefence_ = false;
 
 	int id_ = 0;
 public:
 	int GetID() { return id_; }
 	Vector3 GetTranslation() { return transform_.translation_; }
 	bool GetIsAttack() { return isAttack_; }
-	bool GetIsGrab() { return isGrab_; }
+	bool GetIsDefence() { return isDefence_; }
 	Player* GetPlayer() { return player_; }
 
 	void SetID(int id) { id_ = id; }
@@ -85,5 +85,6 @@ public:
 	void SetScale(Vector3 scale) { transform_.scale_ = scale; }
 	void SetSize(float size) { Collider::SetRadius(size); }
 	void SetIsAttack(bool isAttack) { isAttack_ = isAttack; }
-	void SetIsGrab(bool isGrab) { isGrab_ = isGrab; }
+	void SetIsDefence(bool isGrab) { isDefence_ = isGrab; }
 };
+

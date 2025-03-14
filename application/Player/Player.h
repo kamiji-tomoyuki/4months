@@ -6,7 +6,7 @@
 #include "ViewProjection.h"
 #include "BaseObject.h"
 #include "optional"
-#include "PlayerArm.h"
+#include "PlayerSword.h"
 #include "TimeManager.h"
 #include "ParticleEmitter.h"
 
@@ -17,10 +17,6 @@ class LockOn;
 /// </summary>
 class Player :public BaseObject {
 public:
-	enum ModelState {
-		kSword,		// 剣
-		kModelNum,	
-	};
 	enum class Behavior {
 		kRoot,			// 通常状態
 		kDash,			// ダッシュ中
@@ -44,19 +40,17 @@ public:
 	};
 	struct Attack {
 		float kLimitTime = 0.4f;
-		Vector3 armStart = { 0.0f };
-		Vector3 armEnd = { 0.0f };
+		Vector3 swordStart = { 0.0f };
+		Vector3 swordEnd = { 0.0f };
 		float time = 0;
 		bool isAttack = false;
-		bool isLeft = false;
 	};
-	struct Grab {
+	struct Defence {
 		float kLimitTime = 0.5f;
-		float armStartL = 0.0f;
-		float armStartR = 0.0f;
-		float armEnd = 3.0f;
+		Vector3 swordStart = { 0.0f };
+		Vector3 swordEnd = 3.0f;
 		float time = 0;
-		bool isGrab = false;
+		bool isDefence = false;
 	};
 	struct WorkDash {
 		float kDashTime_ = 0.6f;
@@ -194,7 +188,7 @@ private:	// メンバ変数
 	// 各動作に必要なデータ
 	Root root_;
 	Attack attack_;
-	Grab grab_;
+	Defence defence_;
 	WorkDash workDash_;
 
 	// 移動速度 減衰速度
@@ -224,7 +218,7 @@ private:	// メンバ変数
 	bool isClear_ = false;
 	bool isGameOver_ = false;
 
-	std::array<std::unique_ptr<PlayerArm>, kModelNum> arms_;
+	std::unique_ptr<PlayerSword> sword_;
 	// パーティクルエミッタ
 	//std::vector<std::unique_ptr<ParticleEmitter>> emitters_;
 	// ポインタ
@@ -256,8 +250,8 @@ public:
 		transform_.scale_ = scale;  // **スケールを適用**
 	}
 
-	// プレイヤーの腕を取得
-	std::array<std::unique_ptr<PlayerArm>, kModelNum>& GetArms() { return arms_; }
+	// プレイヤーの剣を取得
+	PlayerSword* GetSword() { return sword_.get(); }
 
 	void SetBehavior(Behavior newBehavior);
 

@@ -329,9 +329,6 @@
     <ClCompile Include="application\Player\FollowCamera.cpp">
       <Filter>ソースファイル\application\Player</Filter>
     </ClCompile>
-    <ClCompile Include="application\Player\PlayerArm.cpp">
-      <Filter>ソースファイル\application\Player\Weapon</Filter>
-    </ClCompile>
     <ClCompile Include="TimeManager.cpp">
       <Filter>ソースファイル</Filter>
     </ClCompile>
@@ -340,12 +337,6 @@
     </ClCompile>
     <ClCompile Include="math\Quaternion.cpp">
       <Filter>ソースファイル\math</Filter>
-    </ClCompile>
-    <ClCompile Include="scene\ClearScene.cpp">
-      <Filter>ソースファイル\scene</Filter>
-    </ClCompile>
-    <ClCompile Include="scene\GameOverScene.cpp">
-      <Filter>ソースファイル\scene</Filter>
     </ClCompile>
     <ClCompile Include="scene\ClearScene.cpp">
       <Filter>ソースファイル</Filter>
@@ -387,6 +378,15 @@
     </ClCompile>
     <ClCompile Include="EnemySword.cpp">
       <Filter>ソースファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="scene\GameOverScene.cpp">
+      <Filter>ソースファイル\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="scene\ClearScene.cpp">
+      <Filter>ソースファイル\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Player\PlayerSword.cpp">
+      <Filter>ソースファイル\application\Player\Weapon</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -624,19 +624,10 @@
     <ClInclude Include="application\Player\FollowCamera.h">
       <Filter>ソースファイル\application\Player</Filter>
     </ClInclude>
-    <ClInclude Include="application\Player\PlayerArm.h">
-      <Filter>ソースファイル\application\Player\Weapon</Filter>
-    </ClInclude>
     <ClInclude Include="TimeManager.h" />
     <ClInclude Include="Skydome.h" />
     <ClInclude Include="math\Quaternion.h">
       <Filter>ソースファイル\math</Filter>
-    </ClInclude>
-    <ClInclude Include="scene\ClearScene.h">
-      <Filter>ソースファイル\scene</Filter>
-    </ClInclude>
-    <ClInclude Include="scene\GameOverScene.h">
-      <Filter>ソースファイル\scene</Filter>
     </ClInclude>
     <ClInclude Include="scene\ClearScene.h" />
     <ClInclude Include="scene\GameOverScene.h" />
@@ -670,6 +661,15 @@
     </ClInclude>
     <ClInclude Include="application\Ground.h" />
     <ClInclude Include="EnemySword.h" />
+    <ClInclude Include="scene\GameOverScene.h">
+      <Filter>ソースファイル\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="scene\ClearScene.h">
+      <Filter>ソースファイル\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="application\Player\PlayerSword.h">
+      <Filter>ソースファイル\application\Player\Weapon</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\shaders\Particle\Particle.PS.hlsl">
