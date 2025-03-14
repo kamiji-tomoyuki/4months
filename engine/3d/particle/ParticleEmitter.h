@@ -66,9 +66,6 @@ private:
 	//生成数
 	int count_;
 
-	//最大生成数
-	int maxCount_;
-
 	//発生頻度
 	float frequency_;
 

@@ -55,6 +55,7 @@ private:
 
 	struct Particle {
 		WorldTransform transform;
+		WorldTransform emitterTransform;
 		ParameterState positionState;
 		EasingState positionEasingState;
 		Parameter positionPara;
@@ -127,8 +128,8 @@ public:
 
 	std::list<Particle> Emit(
 		const std::string name,
+		const WorldTransform& parent,
 		const int count,
-		const int maxCount,
 		const float lifeTime,
 		const float lifeTimeRandomRange,
 		const ParameterState& positionState,
@@ -170,6 +171,7 @@ private:
 
 	Particle MakeNewParticle(
 		std::mt19937& randomEngine,
+		const WorldTransform& parent,
 		const ParameterState& positionState,
 		const EasingState& positionEasingState,
 		const Parameter& position,

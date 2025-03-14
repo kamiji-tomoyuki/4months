@@ -1,6 +1,7 @@
 #include "ParticleManager.h"
 #include "TextureManager.h"
 #include "fstream"
+#include "Vector3.h"
 
 std::unordered_map<std::string, ParticleManager::ModelData> ParticleManager::modelCache;
 
@@ -177,15 +178,36 @@ void ParticleManager::Update(const ViewProjection& viewProjection) {
 			// ワールドトランスフォームの更新
 			particleIterator->transform.UpdateMatrix();
 
+			particleIterator->transform.matWorld_ *= particleIterator->emitterTransform.matWorld_;
+
+			particleIterator->transform.TransferMatrix();
+
 			// ワールド行列の計算
 			Matrix4x4 worldMatrix{};
 
 			if (particleIterator->isBillboard) {
+
+				Vector3 objPos = {
+					particleIterator->transform.matWorld_.m[3][0],
+					particleIterator->transform.matWorld_.m[3][1],
+					particleIterator->transform.matWorld_.m[3][2]
+				};
+
+				Vector3 forward = (viewProjection.translation_ - objPos).Normalize();
+
+				Vector3 up = { 0.0f,1.0f,0.0f };
+
+				Vector3 right = (up.Cross(forward)).Normalize();
+
+				up = forward.Cross(right);
+
 				// ビルボード
-				worldMatrix =
-					MakeScaleMatrix(particleIterator->transform.scale_) *
-					billboardMatrix *
-					MakeTranslateMatrix(particleIterator->transform.translation_);
+				worldMatrix = {
+					right.x,up.x,forward.x,0,
+					right.y,up.y,forward.y,0,
+					right.z,up.z,forward.z,0,
+					objPos.x,objPos.y,objPos.z,1
+				};
 			} else {
 				// 通常
 				worldMatrix = particleIterator->transform.matWorld_;
@@ -230,8 +252,8 @@ void ParticleManager::Draw() {
 
 std::list<ParticleManager::Particle> ParticleManager::Emit(
 	const std::string name,
+	const WorldTransform& parent,
 	const int count,
-	const int maxCount,
 	const float lifeTime,
 	const float lifeTimeRandomRange,
 	const ParameterState& positionState,
@@ -255,10 +277,11 @@ std::list<ParticleManager::Particle> ParticleManager::Emit(
 
 	std::list<Particle> newParticles;
 
-	for (size_t nowCount = particleGroup.particles.size(); nowCount < static_cast<size_t>(count); ++nowCount) {
+	if (particleGroup.instanceCount <= static_cast<uint32_t>(count)) {
 
 		Particle particle = MakeNewParticle(
 			randomEngine,
+			parent,
 			positionState,
 			positionEasingState,
 			position,
@@ -285,6 +308,7 @@ std::list<ParticleManager::Particle> ParticleManager::Emit(
 
 ParticleManager::Particle ParticleManager::MakeNewParticle(
 	std::mt19937& randomEngine,
+	const WorldTransform& emitterTransform,
 	const ParameterState& positionState,
 	const EasingState& positionEasingState,
 	const Parameter& position,
@@ -355,6 +379,12 @@ ParticleManager::Particle ParticleManager::MakeNewParticle(
 	newParticle.color = newParticle.startColor;
 
 	/// === ワールドトランスフォーム設定 === ///
+
+	newParticle.emitterTransform.Initialize();
+
+	newParticle.emitterTransform = emitterTransform;
+
+	newParticle.emitterTransform.UpdateMatrix();
 
 	newParticle.transform.Initialize();
 

@@ -16,19 +16,19 @@ void ParticleEmitter::Initialize(const std::string& name, const std::string& fil
 	isStart_ = false;
 
 	name_ = name;
-	count_ = 0;
-	maxCount_ = 10;
-	frequency_ = 1.0f;
+	count_ = 100;
+	frequency_ = 0.01f;
 	lifeTime_ = 1.0f;
 	lifeTimeRandomRange_ = 0.0f;
 	isActive_ = true;
-	isDrawEmitter_ = false;
+	isDrawEmitter_ = true;
+	isBillboard_ = true;
 	transform_.Initialize();
 
 	positionState_ = START;
 	positionEasingState_ = LERP;
 	position_.startNum = { 0.0f, 0.0f, 0.0f };
-	position_.startRandomRange = { 0.0f,0.0f,0.0f };
+	position_.startRandomRange = { 0.0f,5.0f,0.0f };
 	position_.endNum = { 0.0f, 0.0f, 0.0f };
 	position_.endRandomRange = { 0.0f, 0.0f, 0.0f };
 	position_.velocity = { 0.0f, 0.0f, 0.0f };
@@ -75,13 +75,16 @@ void ParticleEmitter::Update(const ViewProjection& vp_) {
 		currentTimer_ += 1.0f / 60.0f;
 	}
 
-	count_ = std::clamp(static_cast<int>(currentTimer_ / frequency_), 0, maxCount_);
-
 	// アクティブなら
 	if (isActive_) {
 
-		// パーティクルを発生させる
-		Emit();
+		if (currentTimer_ >= frequency_) {
+
+			// パーティクルを発生させる
+			Emit();
+
+			currentTimer_ -= frequency_;
+		}
 	}
 
 	Manager_->Update(vp_);
@@ -103,29 +106,33 @@ void ParticleEmitter::UpdateOnce(const ViewProjection& vp_) {
 void ParticleEmitter::Draw() {
 
 	Manager_->Draw();
+
+	DrawEmitter();
 }
 
 void ParticleEmitter::DrawEmitter() {
 	// isDrawEmitter_がtrueのときだけ描画
 	if (!isDrawEmitter_) return;
 
+	Vector3 range = position_.startRandomRange;
+
 	// 立方体のローカル座標での基本頂点（スケーリング済み）
 	std::array<Vector3, 8> localVertices = {
-		Vector3{-1.0f, -1.0f, -1.0f}, // 左下手前
-		Vector3{ 1.0f, -1.0f, -1.0f}, // 右下手前
-		Vector3{-1.0f,  1.0f, -1.0f}, // 左上手前
-		Vector3{ 1.0f,  1.0f, -1.0f}, // 右上手前
-		Vector3{-1.0f, -1.0f,  1.0f}, // 左下奥
-		Vector3{ 1.0f, -1.0f,  1.0f}, // 右下奥
-		Vector3{-1.0f,  1.0f,  1.0f}, // 左上奥
-		Vector3{ 1.0f,  1.0f,  1.0f}  // 右上奥
+		Vector3{-1.0f - range.x, -1.0f - range.y, -1.0f - range.z}, // 左下手前
+		Vector3{ 1.0f + range.x, -1.0f - range.y, -1.0f - range.z}, // 右下手前
+		Vector3{-1.0f - range.x,  1.0f + range.y, -1.0f - range.z}, // 左上手前
+		Vector3{ 1.0f + range.x,  1.0f + range.y, -1.0f - range.z}, // 右上手前
+		Vector3{-1.0f - range.x, -1.0f - range.y,  1.0f + range.z}, // 左下奥
+		Vector3{ 1.0f + range.x, -1.0f - range.y,  1.0f + range.z}, // 右下奥
+		Vector3{-1.0f - range.x,  1.0f + range.y,  1.0f + range.z}, // 左上奥
+		Vector3{ 1.0f + range.x,  1.0f + range.y,  1.0f + range.z}  // 右上奥
 	};
 
 	// ワールド変換結果を格納する配列
 	std::array<Vector3, 8> worldVertices;
 
 	// ワールド行列の計算
-	Matrix4x4 worldMatrix = MakeAffineMatrix(transform_.scale_, transform_.rotation_, transform_.translation_);
+	Matrix4x4 worldMatrix = MakeAffineMatrix(transform_.scale_, transform_.rotation_, transform_.translation_ + position_.startNum);
 
 	// 頂点のワールド変換
 	for (size_t i = 0; i < localVertices.size(); i++) {
@@ -151,8 +158,8 @@ void ParticleEmitter::Emit() {
 	// ParticleManagerのEmit関数を呼び出す
 	Manager_->Emit(
 		name_,
+		transform_,
 		count_,
-		maxCount_,
 		lifeTime_,
 		lifeTimeRandomRange_,
 		positionState_,
@@ -309,18 +316,30 @@ void ParticleEmitter::imgui() {
 		ImGui::Checkbox("##アクティブ", &isActive_);
 		ImGui::NextColumn();
 
+		ImGui::Text("エミッター描画"); ImGui::NextColumn();
+		ImGui::Checkbox("##エミッター描画", &isDrawEmitter_);
+		ImGui::NextColumn();
+
 		ImGui::Text("名前"); ImGui::NextColumn();
 		ImGui::InputText("##名前", const_cast<char*>(name_.c_str()), 256);
+		ImGui::NextColumn();
+
+		ImGui::Text("エミッター座標"); ImGui::NextColumn();
+		ImGui::DragFloat3("##エミッター座標", &transform_.translation_.x,0.1f);
+		ImGui::NextColumn();
+
+		ImGui::Text("エミッター角度"); ImGui::NextColumn();
+		ImGui::DragFloat3("##エミッター角度", &transform_.rotation_.x,0.1f);
+		ImGui::NextColumn();
+
+		ImGui::Text("エミッター拡縮"); ImGui::NextColumn();
+		ImGui::DragFloat3("##エミッター拡縮", &transform_.scale_.x,0.1f);
 		ImGui::NextColumn();
 
 		ImGui::Separator();
 
 		ImGui::Text("生成数"); ImGui::NextColumn();
 		ImGui::DragInt("##生成数", &count_, 1, 1, 100);
-		ImGui::NextColumn();
-
-		ImGui::Text("最大生成数"); ImGui::NextColumn();
-		ImGui::DragInt("##最大生成数", &maxCount_, 1, 1, 100);
 		ImGui::NextColumn();
 
 		ImGui::Text("発生頻度"); ImGui::NextColumn();
@@ -358,6 +377,10 @@ void ParticleEmitter::imgui() {
 
 		ImGui::Text("色のランダム幅"); ImGui::NextColumn();
 		ImGui::ColorEdit4("##色のランダム幅", &randomColor_.x);
+		ImGui::NextColumn();
+
+		ImGui::Text("ビルボード"); ImGui::NextColumn();
+		ImGui::Checkbox("##ビルボード", &isBillboard_);
 		ImGui::NextColumn();
 
 		ImGui::Columns(1); // 列終了
