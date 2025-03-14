@@ -98,6 +98,17 @@ void Soldier::OnCollisionOut(Collider* other){
 	Enemy::OnCollisionOut(other);
 }
 
+void Soldier::RootInitialize(){
+	Enemy::RootInitialize();
+	sword_->SetIsAttack(false);
+	sword_->SetIsDefense(false);
+	sword_->SetTranslation({ 1.7f, 0.0f, 1.3f });
+}
+
+void Soldier::RootUpdate(){
+	Enemy::RootUpdate();
+}
+
 void Soldier::AttackInitialize(){
 	Enemy::AttackInitialize();
 	attackTypeRequest_ = AttackType::kNullType;
@@ -133,11 +144,61 @@ void Soldier::AttackUpdate(){
 
 void Soldier::ProtectionInitialize(){
 	Enemy::ProtectionInitialize();
+	attack_.time = 0;
+	attack_.isAttack = false;
+	attack_.isLeft = !attack_.isLeft;
+	if (attack_.isLeft) {
+		attack_.armStart = sword_->GetTranslation().z;
+		sword_->SetIsAttack(false);
+		sword_->SetIsDefense(true);
 
+	} else {
+		attack_.armStart = sword_->GetTranslation().z;
+		sword_->SetIsAttack(false);
+		sword_->SetIsDefense(true);
+		//attack_.armStart = arms_[kRArm]->GetTranslation().z;
+		//arms_[kRArm]->SetIsAttack(true);
+	}
+	// 方向取得
+	DirectionPreliminaryAction();
+	if (player_->GetAimingDirection().x == 0 && player_->GetAimingDirection().z == 0) {
+		//behaviorRequest_ = Behavior::kRoot;
+	} else {
+		aimingDirection_.x = -player_->GetAimingDirection().x;
+		aimingDirection_.z = player_->GetAimingDirection().z;
+	}
 }
 
 void Soldier::ProtectionUpdate(){
 	Enemy::ProtectionUpdate();
+	// 入力方向にセット
+
+	// 入力方向によって角度をセット
+	float cosTheta = atan2f(aimingDirection_.z, aimingDirection_.x);
+	// 上
+	if (cosTheta > 0.25f * pi && cosTheta < 0.75f * pi) {
+		sword_->SetTranslationX(aimingDirection_.x * 0.6f);
+		sword_->SetTranslationY(aimingDirection_.z * 0.4f);
+		sword_->SetTranslationZ(0.25f);
+	}
+	// 下
+	else if (cosTheta < -0.25f * pi && cosTheta > -0.75f * pi) {
+		sword_->SetTranslationX(aimingDirection_.x * 0.6f);
+		sword_->SetTranslationY(aimingDirection_.z * 0.2f);
+		sword_->SetTranslationZ(0.25f);
+	}
+	// 左
+	else if (cosTheta >= 0.75f * pi || cosTheta <= -0.75f * pi) {
+		sword_->SetTranslationX(aimingDirection_.x * 0.6f);
+		sword_->SetTranslationY(aimingDirection_.z * 0.6f);
+		sword_->SetTranslationZ(0.0f);
+	}
+	// 右
+	else {
+		sword_->SetTranslationX(aimingDirection_.x * 0.6f);
+		sword_->SetTranslationY(aimingDirection_.z * 0.6f);
+		sword_->SetTranslationZ(0.0f);
+	}
 
 }
 
