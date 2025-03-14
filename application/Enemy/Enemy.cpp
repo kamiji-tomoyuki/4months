@@ -113,6 +113,12 @@ void Enemy::VectorRotation(const Vector3& direction) {
 	Vector3 velocityZ = Transformation(move, MakeRotateYMatrix(-transform_.rotation_.y));
 	transform_.rotation_.x = std::atan2f(-velocityZ.y, velocityZ.z);
 }
+void Enemy::RootInitialize(){
+
+}
+void Enemy::RootUpdate(){
+
+}
 void Enemy::AttackInitialize(){
 
 }

@@ -65,6 +65,9 @@ void PlayerSword::OnCollision(Collider* other)
 	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kEnemy) ||
 		typeID == static_cast<uint32_t>(CollisionTypeIdDef::kBoss)) {
 		Enemy* enemy = static_cast<Enemy*>(other);
+		if (enemy->GetSerialNumber() == enemy->GetNextSerialNumber() - 1) {
+			return;
+		}
 		if (GetIsAttack()) {
 			Vector3 newVelocity = enemy->GetCenterPosition() - player_->GetCenterPosition();
 
@@ -90,6 +93,9 @@ void PlayerSword::OnCollisionEnter(Collider* other)
 	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kEnemy) ||
 		typeID == static_cast<uint32_t>(CollisionTypeIdDef::kBoss)) {
 		Enemy* enemy = static_cast<Enemy*>(other);
+		if (enemy->GetSerialNumber() == enemy->GetNextSerialNumber() - 1) {
+			return;
+		}
 		if (GetIsAttack()) {
 			Vector3 newVelocity = enemy->GetCenterPosition() - player_->GetCenterPosition();
 

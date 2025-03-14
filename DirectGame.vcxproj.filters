@@ -376,9 +376,6 @@
     <ClCompile Include="application\Ground.cpp">
       <Filter>ソースファイル</Filter>
     </ClCompile>
-    <ClCompile Include="EnemySword.cpp">
-      <Filter>ソースファイル</Filter>
-    </ClCompile>
     <ClCompile Include="scene\GameOverScene.cpp">
       <Filter>ソースファイル\scene</Filter>
     </ClCompile>
@@ -387,6 +384,9 @@
     </ClCompile>
     <ClCompile Include="application\Player\PlayerSword.cpp">
       <Filter>ソースファイル\application\Player\Weapon</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Enemy\EnemySword.cpp">
+      <Filter>ソースファイル\application\Enemy</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -660,15 +660,17 @@
       <Filter>ソースファイル\application\Enemy</Filter>
     </ClInclude>
     <ClInclude Include="application\Ground.h" />
-    <ClInclude Include="EnemySword.h" />
     <ClInclude Include="scene\GameOverScene.h">
       <Filter>ソースファイル\scene</Filter>
     </ClInclude>
     <ClInclude Include="scene\ClearScene.h">
       <Filter>ソースファイル\scene</Filter>
     </ClInclude>
-    <ClInclude Include="application\Player\PlayerSword.h">
+     <ClInclude Include="application\Player\PlayerSword.h">
       <Filter>ソースファイル\application\Player\Weapon</Filter>
+    </ClInclude>
+    <ClInclude Include="application\Enemy\EnemySword.h">
+      <Filter>ソースファイル\application\Enemy</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

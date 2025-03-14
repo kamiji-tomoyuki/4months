@@ -54,6 +54,9 @@ public:
 	/// <param name="other"></param>
 	void OnCollisionOut([[maybe_unused]] Collider* other) override;
 
+	//通常
+	void RootInitialize()override;
+	void RootUpdate()override;
 	// 攻撃動作
 	void AttackInitialize()override;
 	void AttackUpdate()override;

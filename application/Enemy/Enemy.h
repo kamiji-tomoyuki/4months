@@ -63,6 +63,8 @@ public:
 	//方向の回転
 	void VectorRotation(const Vector3& direction);
 
+	virtual void RootInitialize();
+	virtual void RootUpdate();
 	// 攻撃動作
 	virtual void AttackInitialize();
 	virtual void AttackUpdate();
@@ -90,7 +92,7 @@ protected:
 	float shortDistance_ = 10.0f;
 	float middleDistance_ = 50.0f;
 	//行動確率
-	BehaviorProbability shortDistanceProbability_ = { 0.60f,0.10f };
+	BehaviorProbability shortDistanceProbability_ = { 0.40f,0.40f };
 	BehaviorProbability middleDistanceProbability_ = { 0.50f ,0.05f };
 	BehaviorProbability longDistanceProbability_ = { 0.01f,0.01f };
 	//行動クールタイム
@@ -98,6 +100,7 @@ protected:
 	// 減衰速度
 	float kAttenuation_ = 0.005f;
 public:
+	static void SetEnemyID(int ID) { nextSerialNumber_ = ID; }
 	void SetPlayer(Player* player) { player_ = player; }
 	void SetTimeManager(TimeManager* timeManager) { timeManager_ = timeManager; }
 	void SetTranslation(const Vector3& translation);
@@ -112,6 +115,7 @@ public:
 	TimeManager* GetTimeManager() { return timeManager_; }
 	Vector3 GetVelocity() { return velocity_; }
 	uint32_t GetSerialNumber() const { return serialNumber_; }
+	uint32_t GetNextSerialNumber() const { return nextSerialNumber_; }
 	bool GetIsAlive() { return isAlive_; }
 	int GetHP() { return hp_; }
 	float GetShortDistance() { return shortDistance_; }
