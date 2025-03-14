@@ -1,18 +1,21 @@
-#include "PlayerArm.h"
+#include "PlayerSword.h"
 #include "Player.h"
 #include "CollisionTypeIdDef.h"
 #include "Enemy.h"
 #include "TimeManager.h"
 
-void PlayerArm::Initialize(){
+/// 初期化
+void PlayerSword::Initialize()
+{
 	Collider::Initialize();
 	Collider::SetTypeID(static_cast<uint32_t>(CollisionTypeIdDef::kPlayerWeapon));
 	obj3d_ = std::make_unique<Object3d>();
 	palm_ = std::make_unique<Object3d>();
-	
 }
 
-void PlayerArm::Initialize(std::string filePath, std::string palmFilePath){
+/// 初期化
+void PlayerSword::Initialize(std::string filePath, std::string palmFilePath)
+{
 	Initialize();
 	obj3d_->Initialize(filePath);
 	palm_->Initialize(palmFilePath);
@@ -23,7 +26,10 @@ void PlayerArm::Initialize(std::string filePath, std::string palmFilePath){
 	objColor_.Initialize();
 	objColor_.SetColor(Vector4(1, 1, 1, 1));
 }
-void PlayerArm::Update(){
+
+/// 更新
+void PlayerSword::Update()
+{
 	//元となるワールドトランスフォームの更新
 	transform_.UpdateMatrix();
 	transformPalm_.translation_ = transform_.translation_;
@@ -35,16 +41,21 @@ void PlayerArm::Update(){
 	obj3d_->AnimationUpdate(true);
 }
 
-void PlayerArm::Draw(const ViewProjection& viewProjection){
+/// 描画
+void PlayerSword::Draw(const ViewProjection& viewProjection)
+{
 	palm_->Draw(transformPalm_, viewProjection);
 }
 
-void PlayerArm::DrawAnimation(const ViewProjection& viewProjection)
+/// 描画
+void PlayerSword::DrawAnimation(const ViewProjection& viewProjection)
 {
 	obj3d_->Draw(transform_, viewProjection, &objColor_);
 }
 
-void PlayerArm::OnCollision([[maybe_unused]] Collider* other){
+/// 当たってる間
+void PlayerSword::OnCollision(Collider* other)
+{
 	if (timeManager_->GetTimer("start").isStart || timeManager_->GetTimer("collision").isStart) {
 		return;
 	}
@@ -70,7 +81,9 @@ void PlayerArm::OnCollision([[maybe_unused]] Collider* other){
 	}
 }
 
-void PlayerArm::OnCollisionEnter([[maybe_unused]] Collider* other){
+/// 当たった瞬間
+void PlayerSword::OnCollisionEnter(Collider* other)
+{
 	if (timeManager_->GetTimer("start").isStart || timeManager_->GetTimer("collision").isStart) {
 		return;
 	}
@@ -96,11 +109,14 @@ void PlayerArm::OnCollisionEnter([[maybe_unused]] Collider* other){
 	}
 }
 
-void PlayerArm::OnCollisionOut([[maybe_unused]] Collider* other){
-
+/// 当たり終わった瞬間
+void PlayerSword::OnCollisionOut(Collider* other)
+{
 }
 
-Vector3 PlayerArm::GetCenterPosition() const{
+// 中心座標を取得
+Vector3 PlayerSword::GetCenterPosition() const
+{
 	//ローカル座標でのオフセット
 	const Vector3 offset = { 0.0f, 0.0f, 0.0f };
 	//ワールド座標に変換
@@ -108,15 +124,21 @@ Vector3 PlayerArm::GetCenterPosition() const{
 	return worldPos;
 }
 
-Vector3 PlayerArm::GetCenterRotation() const{
+// 中心座標を取得
+Vector3 PlayerSword::GetCenterRotation() const
+{
 	return transform_.rotation_;
 }
 
-void PlayerArm::SetModel(const std::string& filePath){
+/// モデルセット
+void PlayerSword::SetModel(const std::string& filePath)
+{
 	obj3d_->SetModel(filePath);
 }
 
-void PlayerArm::SetPlayer(Player* player) {
+/// プレイヤーセット
+void PlayerSword::SetPlayer(Player* player)
+{
 	player_ = player;
 	transform_.parent_ = &player->GetWorldTransform();
 	transformPalm_.parent_ = transform_.parent_;
