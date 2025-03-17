@@ -3,6 +3,7 @@
 #include "CollisionTypeIdDef.h"
 #include "Enemy.h"
 #include "TimeManager.h"
+#include "EnemySword.h"
 
 /// 初期化
 void PlayerSword::Initialize()
@@ -62,6 +63,12 @@ void PlayerSword::OnCollision(Collider* other)
 	// 衝突相手の種別IDを取得
 	uint32_t typeID = other->GetTypeID();
 	//衝突相手
+	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kEnemyWeapon)) {
+		EnemySword* enemySwod = static_cast<EnemySword*>(other);
+		if (GetIsAttack() && enemySwod->GetIsDefense()) {
+			SetIsAttack(false);
+		}
+	}
 	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kEnemy) ||
 		typeID == static_cast<uint32_t>(CollisionTypeIdDef::kBoss)) {
 		Enemy* enemy = static_cast<Enemy*>(other);
@@ -71,7 +78,7 @@ void PlayerSword::OnCollision(Collider* other)
 		if (GetIsAttack()) {
 			Vector3 newVelocity = enemy->GetCenterPosition() - player_->GetCenterPosition();
 
-			enemy->SetVelocity(enemy->GetVelocity() + newVelocity.Normalize() * 10.0f);
+			enemy->SetVelocity(enemy->GetVelocity() + newVelocity.Normalize() * 30.0f);
 			enemy->SetHP(enemy->GetHP() - int(1000));
 			if (enemy->GetHP() <= 0) {
 				enemy->SetIsAlive(false);
@@ -90,6 +97,12 @@ void PlayerSword::OnCollisionEnter(Collider* other)
 	// 衝突相手の種別IDを取得
 	uint32_t typeID = other->GetTypeID();
 	//衝突相手
+	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kEnemyWeapon)) {
+		EnemySword* enemySwod = static_cast<EnemySword*>(other);
+		if (GetIsAttack() && enemySwod->GetIsDefense()) {
+			SetIsAttack(false);
+		}
+	}
 	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kEnemy) ||
 		typeID == static_cast<uint32_t>(CollisionTypeIdDef::kBoss)) {
 		Enemy* enemy = static_cast<Enemy*>(other);
@@ -99,7 +112,7 @@ void PlayerSword::OnCollisionEnter(Collider* other)
 		if (GetIsAttack()) {
 			Vector3 newVelocity = enemy->GetCenterPosition() - player_->GetCenterPosition();
 
-			enemy->SetVelocity(enemy->GetVelocity() + newVelocity.Normalize() * 100.0f);
+			enemy->SetVelocity(enemy->GetVelocity() + newVelocity.Normalize() * 30.0f);
 			enemy->SetHP(enemy->GetHP() - int(1000));
 			if (enemy->GetHP() <= 0) {
 				enemy->SetIsAlive(false);

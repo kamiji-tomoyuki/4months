@@ -3,10 +3,11 @@
 #include "CollisionTypeIdDef.h"
 #include "TimeManager.h"
 #include "Player.h"
+#include "PlayerSword.h"
 
 void EnemySword::Initialize() {
 	Collider::Initialize();
-	Collider::SetTypeID(static_cast<uint32_t>(CollisionTypeIdDef::kPlayerWeapon));
+	Collider::SetTypeID(static_cast<uint32_t>(CollisionTypeIdDef::kEnemyWeapon));
 	obj3d_ = std::make_unique<Object3d>();
 	palm_ = std::make_unique<Object3d>();
 
@@ -50,13 +51,19 @@ void EnemySword::OnCollision([[maybe_unused]] Collider* other) {
 	// 衝突相手の種別IDを取得
 	uint32_t typeID = other->GetTypeID();
 	//衝突相手
+	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kPlayerWeapon)) {
+		PlayerSword* playerSwod = static_cast<PlayerSword*>(other);
+		if (GetIsAttack() && playerSwod->GetIsDefence()) {
+			SetIsAttack(false);
+		}
+	}
 	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kPlayer)) {
 		Player* player = static_cast<Player*>(other);
 
 		if (GetIsAttack()) {
 			Vector3 newVelocity = player->GetCenterPosition() - enemy_->GetCenterPosition();
 
-			player->SetVelocity(player->GetVelocity() + newVelocity.Normalize() * 100.0f);
+			player->SetVelocity(player->GetVelocity() + newVelocity.Normalize() * 300.0f);
 
 			player->SetHP(player->GetHP() - int(1000));
 			if (player->GetHP() <= 0) {
@@ -74,13 +81,19 @@ void EnemySword::OnCollisionEnter([[maybe_unused]] Collider* other) {
 	// 衝突相手の種別IDを取得
 	uint32_t typeID = other->GetTypeID();
 	//衝突相手
+	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kPlayerWeapon)) {
+		PlayerSword* playerSwod = static_cast<PlayerSword*>(other);
+		if (GetIsAttack() && playerSwod->GetIsDefence()) {
+			SetIsAttack(false);
+		}
+	}
 	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kPlayer)) {
 		Player* player = static_cast<Player*>(other);
 
 		if (GetIsAttack()) {
 			Vector3 newVelocity = player->GetCenterPosition() - enemy_->GetCenterPosition();
 
-			player->SetVelocity(player->GetVelocity() + newVelocity.Normalize() * 100.0f);
+			player->SetVelocity(player->GetVelocity() + newVelocity.Normalize() * 300.0f);
 
 			player->SetHP(player->GetHP() - int(1000));
 			if (player->GetHP() <= 0) {
