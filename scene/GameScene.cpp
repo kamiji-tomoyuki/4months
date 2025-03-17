@@ -212,7 +212,7 @@ void GameScene::Draw()
 	//------Particleの描画開始-------
 	for (std::unique_ptr<ParticleEmitter>& emitter_ : emitters_) {
 		emitter_->Draw();
-		/*emitter_->DrawEmitter();*/
+		emitter_->DrawEmitter();
 	}
 	for (std::unique_ptr<Player>& player : players_) {
 		player->DrawParticle(vp_);

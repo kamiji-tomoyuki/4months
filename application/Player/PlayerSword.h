@@ -1,5 +1,6 @@
 #pragma once
 #include "Collider.h"
+#include "ParticleEmitter.h"
 
 class Player;
 class TimeManager;
@@ -15,11 +16,13 @@ public:
 	/// 更新
 	/// </summary>
 	void Update();
-
+	void UpdateParticle(const ViewProjection& viewProjection);
 	/// <summary>
 	/// 描画
 	/// </summary>
 	void Draw(const ViewProjection& viewProjection);
+
+	void DrawParticle(const ViewProjection& viewProjection);
 
 	void DrawAnimation(const ViewProjection& viewProjection);
 
@@ -60,6 +63,9 @@ private:
 
 	bool isAttack_ = false;
 	bool isDefence_ = false;
+
+	// パーティクルエミッタ
+	std::vector<std::unique_ptr<ParticleEmitter>> emitters_;
 
 	int id_ = 0;
 public:

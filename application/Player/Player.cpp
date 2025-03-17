@@ -122,6 +122,7 @@ void Player::Update() {
 
 	sword_->SetSize(size_ * 1.3f);
 	sword_->Update();
+	
 }
 
 void Player::UpdateParticle(const ViewProjection& viewProjection) {
@@ -134,6 +135,7 @@ void Player::UpdateParticle(const ViewProjection& viewProjection) {
 		emitter_->SetEmitPosition(GetCenterPosition());
 		emitter_->UpdateOnce(viewProjection);
 	}*/
+	sword_->UpdateParticle(viewProjection);
 }
 
 void Player::Draw(const ViewProjection& viewProjection) {
@@ -148,6 +150,7 @@ void Player::DrawParticle(const ViewProjection& viewProjection) {
 	//	emitter_->Draw();
 	//	//emitter_->DrawEmitter();
 	//}
+	sword_->DrawParticle(viewProjection);
 }
 
 void Player::DrawAnimation(const ViewProjection& viewProjection)

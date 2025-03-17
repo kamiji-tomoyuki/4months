@@ -26,6 +26,14 @@ void PlayerSword::Initialize(std::string filePath, std::string palmFilePath)
 	//カラーのセット
 	objColor_.Initialize();
 	objColor_.SetColor(Vector4(1, 1, 1, 1));
+
+	for (int i = 0; i < 2; ++i) {
+		std::unique_ptr<ParticleEmitter> emitter_;
+		emitter_ = std::make_unique<ParticleEmitter>();
+		emitters_.push_back(std::move(emitter_));
+	}
+	emitters_[0]->Initialize("Attack" + std::to_string(id_), "GameScene/planeSpark.obj");
+	emitters_[1]->Initialize("PlayerDefence" + std::to_string(id_), "GameScene/planeSmoke.obj");
 }
 
 /// 更新
@@ -42,12 +50,29 @@ void PlayerSword::Update()
 	obj3d_->AnimationUpdate(true);
 }
 
+void PlayerSword::UpdateParticle(const ViewProjection& viewProjection){
+	if (timeManager_->GetTimer("PlayerDefence" + std::to_string(id_)).isStart &&
+		!timeManager_->GetTimer("PlayerDefenceCoolTime" + std::to_string(id_)).isStart) {
+		emitters_[1]->SetEmitActive(true);
+		timeManager_->SetTimer("PlayerDefenceCoolTime" + std::to_string(id_), 0.1f);
+	}
+	for (std::unique_ptr<ParticleEmitter>& emitter_ : emitters_) {
+		emitter_->SetEmitPosition(GetCenterPosition());
+		emitter_->UpdateOnce(viewProjection);
+	}
+}
+
 /// 描画
 void PlayerSword::Draw(const ViewProjection& viewProjection)
 {
 	palm_->Draw(transformPalm_, viewProjection);
 }
-
+void PlayerSword::DrawParticle(const ViewProjection& viewProjection) {
+	for (std::unique_ptr<ParticleEmitter>& emitter_ : emitters_) {
+		emitter_->Draw();
+		//emitter_->DrawEmitter();
+	}
+}
 /// 描画
 void PlayerSword::DrawAnimation(const ViewProjection& viewProjection)
 {
@@ -67,6 +92,7 @@ void PlayerSword::OnCollision(Collider* other)
 		EnemySword* enemySwod = static_cast<EnemySword*>(other);
 		if (GetIsAttack() && enemySwod->GetIsDefense()) {
 			SetIsAttack(false);
+			emitters_[0]->SetEmitActive(true);
 		}
 	}
 	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kEnemy) ||

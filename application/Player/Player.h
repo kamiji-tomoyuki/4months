@@ -220,7 +220,7 @@ private:	// メンバ変数
 
 	std::unique_ptr<PlayerSword> sword_;
 	// パーティクルエミッタ
-	//std::vector<std::unique_ptr<ParticleEmitter>> emitters_;
+	std::vector<std::unique_ptr<ParticleEmitter>> emitters_;
 	// ポインタ
 	TimeManager* timeManager_ = nullptr;
 	FollowCamera* followCamera_ = nullptr;
