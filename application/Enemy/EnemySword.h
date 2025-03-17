@@ -65,6 +65,7 @@ private:
 public:
 	int GetID() { return id_; }
 	Vector3 GetTranslation() { return transform_.translation_; }
+	Vector3 GetRotate() { return transform_.rotation_; }
 	bool GetIsAttack() { return isAttack_; }
 	bool GetIsDefense() { return isDefense_; }
 	Enemy* GetEnemy() { return enemy_; }

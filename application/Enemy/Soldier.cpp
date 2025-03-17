@@ -80,7 +80,7 @@ void Soldier::Draw(const ViewProjection& viewProjection){
 	sword_->Draw(viewProjection);
 }
 void Soldier::DrawAnimation(const ViewProjection& viewProjection){
-	sword_->DrawAnimation(viewProjection);
+	//sword_->DrawAnimation(viewProjection);
 }
 void Soldier::OnCollision(Collider* other){
 	Enemy::OnCollision(other);
@@ -125,7 +125,7 @@ void Soldier::AttackUpdate(){
 
 		attack_.time = 0;
 		attack_.isAttack = true;
-		attack_.armStart = sword_->GetTranslation().z;
+		attack_.swordStartTransform = sword_->GetTranslation().z;
 		sword_->SetIsAttack(true);
 
 		(this->*AttackTypeInitFuncTable[static_cast<size_t>(attackType_)])();
@@ -148,12 +148,12 @@ void Soldier::ProtectionInitialize(){
 	attack_.isAttack = false;
 	attack_.isLeft = !attack_.isLeft;
 	if (attack_.isLeft) {
-		attack_.armStart = sword_->GetTranslation().z;
+		attack_.swordStartTransform = sword_->GetTranslation().z;
 		sword_->SetIsAttack(false);
 		sword_->SetIsDefense(true);
 
 	} else {
-		attack_.armStart = sword_->GetTranslation().z;
+		attack_.swordStartTransform = sword_->GetTranslation().z;
 		sword_->SetIsAttack(false);
 		sword_->SetIsDefense(true);
 		//attack_.armStart = arms_[kRArm]->GetTranslation().z;
@@ -177,27 +177,43 @@ void Soldier::ProtectionUpdate(){
 	float cosTheta = atan2f(aimingDirection_.z, aimingDirection_.x);
 	// 上
 	if (cosTheta > 0.25f * pi && cosTheta < 0.75f * pi) {
-		sword_->SetTranslationX(aimingDirection_.x * 0.6f);
-		sword_->SetTranslationY(aimingDirection_.z * 0.4f);
-		sword_->SetTranslationZ(0.25f);
+		// 座標
+		sword_->SetTranslation({ aimingDirection_.x, aimingDirection_.z , 0.0f });
+
+		// 角度
+		sword_->SetRotation({ 0.0f, 0.5f * pi_v<float> -cosTheta, 0.0f });
+
+		attackTypeRequest_ = AttackType::kDownSwing;
 	}
 	// 下
 	else if (cosTheta < -0.25f * pi && cosTheta > -0.75f * pi) {
-		sword_->SetTranslationX(aimingDirection_.x * 0.6f);
-		sword_->SetTranslationY(aimingDirection_.z * 0.2f);
-		sword_->SetTranslationZ(0.25f);
+		// 座標
+		sword_->SetTranslation({ 1.5f, 0.0f , -1.5f });
+
+		// 角度
+		sword_->SetRotation({ pi_v<float> *0.5f, -(0.5f * pi_v<float> +cosTheta), 0.0f });
+
+		attackTypeRequest_ = AttackType::kThrust;
 	}
 	// 左
 	else if (cosTheta >= 0.75f * pi || cosTheta <= -0.75f * pi) {
-		sword_->SetTranslationX(aimingDirection_.x * 0.6f);
-		sword_->SetTranslationY(aimingDirection_.z * 0.6f);
-		sword_->SetTranslationZ(0.0f);
+		// 座標
+		sword_->SetTranslation({ aimingDirection_.x, 0.0f , aimingDirection_.z });
+
+		// 角度
+		sword_->SetRotation({ cosTheta >= 0.75f * pi ? pi_v<float> *1.0f - cosTheta : pi_v<float> *1.0f - cosTheta, 0.0f, pi_v<float> *0.5f });
+
+		attackTypeRequest_ = AttackType::kRightSlash;
 	}
 	// 右
 	else {
-		sword_->SetTranslationX(aimingDirection_.x * 0.6f);
-		sword_->SetTranslationY(aimingDirection_.z * 0.6f);
-		sword_->SetTranslationZ(0.0f);
+		// 座標
+		sword_->SetTranslation({ aimingDirection_.x, 0.0f , aimingDirection_.z });
+
+		// 角度
+		sword_->SetRotation({ cosTheta >= 0.0f ? pi_v<float> *1.0f - cosTheta : pi_v < float> *1.0f + -cosTheta, 0.0f, pi_v<float> *0.5f });
+
+		attackTypeRequest_ = AttackType::kLeftSlash;
 	}
 
 }
@@ -237,8 +253,14 @@ void Soldier::DirectionPreliminaryAction(){
 
 // 振り下ろし(上入力攻撃)の初期化
 void Soldier::AttackTypeDownSwingInitialize(){
-	attack_.armStart = sword_->GetTranslation();
-	attack_.armEnd = { sword_->GetTranslation().x + aimingDirection_.x, sword_->GetTranslation().y - aimingDirection_.z, sword_->GetTranslation().z + aimingDirection_.z };
+	// 座標セット
+	attack_.swordStartTransform = sword_->GetTranslation();
+	attack_.swordEndTransform = { sword_->GetTranslation().x + aimingDirection_.x, sword_->GetTranslation().y - aimingDirection_.z, sword_->GetTranslation().z + aimingDirection_.z };
+
+	// 角度セット
+	attack_.swordStartRotate = sword_->GetRotate();
+	attack_.swordEndRotate = { 0.6f * pi_v<float>, sword_->GetRotate().y, sword_->GetRotate().z };
+
 	attack_.time = 0.0f;
 	sword_->SetIsAttack(true);
 }
@@ -248,19 +270,27 @@ void Soldier::AttackTypeDownSwingUpdate(){
 	if (!timeManager_->GetTimer("PostureAttackCoolTime" + std::to_string(GetSerialNumber())).isStart) {
 		return;
 	}
-	//Vector3 newPos = EaseInSine(attack_.armStart, attack_.armEnd, attack_.time, attack_.kLimitTime);
+	// 座標の計算
 	Vector3 newPos = 0.0f;
-	float theta = float(pi / 2.0f * (attack_.time / attack_.kLimitTime));
+	float theta = float(pi * 0.5f * (attack_.time / attack_.kLimitTime));
 
-	newPos = { Lerp(attack_.armStart.x, attack_.armEnd.x, attack_.time / attack_.kLimitTime), attack_.armStart.y * cosf(theta) - attack_.armStart.z * sinf(theta), attack_.armStart.y * sinf(theta) + attack_.armStart.z * cosf(theta) };
+	newPos = { Lerp(attack_.swordStartTransform.x, attack_.swordEndTransform.x, attack_.time / attack_.kLimitTime), attack_.swordStartTransform.y * cosf(theta) - attack_.swordStartTransform.z * sinf(theta), attack_.swordStartTransform.y * sinf(theta) + attack_.swordStartTransform.z * cosf(theta) };
 
 	sword_->SetTranslation(newPos);
+
+	// 角度の計算
+	Vector3 newRotate = 0.0f;
+	theta = float(pi * 0.5f * (attack_.time / attack_.kLimitTime));
+
+	newRotate = { Lerp(attack_.swordStartRotate.x, attack_.swordEndRotate.x, attack_.time / attack_.kLimitTime), attack_.swordEndRotate.y, attack_.swordEndRotate.z };
+
+	sword_->SetRotation(newRotate);
 }
 
 // 突き(下入力攻撃)の初期化
 void Soldier::AttackTypeThrustInitialize(){
-	attack_.armStart = sword_->GetTranslation();
-	attack_.armEnd = { sword_->GetTranslation().x - aimingDirection_.x, sword_->GetTranslation().y, -aimingDirection_.z };
+	attack_.swordStartTransform = sword_->GetTranslation();
+	attack_.swordEndTransform = { sword_->GetTranslation().x - (aimingDirection_.x * 0.2f * 6.0f), sword_->GetTranslation().y, -aimingDirection_.z * 0.2f * 6.0f };
 	attack_.time = 0.0f;
 	sword_->SetIsAttack(true);
 }
@@ -270,15 +300,21 @@ void Soldier::AttackTypeThrustUpdate(){
 	if (!timeManager_->GetTimer("PostureAttackCoolTime" + std::to_string(GetSerialNumber())).isStart) {
 		return;
 	}
-	Vector3 newPos = EaseInExpo(attack_.armStart, attack_.armEnd, attack_.time, attack_.kLimitTime);
+	Vector3 newPos = EaseInOutExpo(attack_.swordStartTransform, attack_.swordEndTransform, attack_.time, attack_.kLimitTime);
 
 	sword_->SetTranslation(newPos);
 }
 
 // 右振り抜き(左入力攻撃)の初期化
 void Soldier::AttackTypeLeftSwingInitialize(){
-	attack_.armStart = sword_->GetTranslation();
-	attack_.armEnd = { -aimingDirection_.x, sword_->GetTranslation().y, sword_->GetTranslation().z };
+	// 座標セット
+	attack_.swordStartTransform = sword_->GetTranslation();
+	attack_.swordEndTransform = { -aimingDirection_.x, sword_->GetTranslation().y, sword_->GetTranslation().z };
+
+	// 角度セット
+	attack_.swordStartRotate = sword_->GetRotate();
+	attack_.swordEndRotate = { sword_->GetRotate().x - pi_v<float>, sword_->GetRotate().y, sword_->GetRotate().z };
+
 	attack_.time = 0.0f;
 	sword_->SetIsAttack(true);
 }
@@ -288,18 +324,32 @@ void Soldier::AttackTypeLeftSwingUpdate(){
 	if (!timeManager_->GetTimer("PostureAttackCoolTime" + std::to_string(GetSerialNumber())).isStart) {
 		return;
 	}
+	// 座標の計算
 	Vector3 newPos = 0.0f;
 	float theta = float(pi * (attack_.time / attack_.kLimitTime));
 
-	newPos = { attack_.armStart.x * cosf(-theta) - attack_.armStart.z * sinf(-theta), attack_.armStart.y, attack_.armStart.x * sinf(-theta) + attack_.armStart.z * cosf(-theta) };
+	newPos = { attack_.swordStartTransform.x * cosf(-theta) - attack_.swordStartTransform.z * sinf(-theta), attack_.swordStartTransform.y, attack_.swordStartTransform.x * sinf(-theta) + attack_.swordStartTransform.z * cosf(-theta) };
 
 	sword_->SetTranslation(newPos);
+
+	// 角度の計算
+	Vector3 newRotate = 0.0f;
+
+	newRotate = { attack_.swordStartRotate.x + theta, attack_.swordStartRotate.y, attack_.swordStartRotate.z };
+
+	sword_->SetRotation(newRotate);
 }
 
 // 左振り抜き(右入力攻撃)の初期化
 void Soldier::AttackTypeRightSwingInitialize(){
-	attack_.armStart = sword_->GetTranslation();
-	attack_.armEnd = { -aimingDirection_.x, sword_->GetTranslation().y, sword_->GetTranslation().z };
+	// 座標セット
+	attack_.swordStartTransform = sword_->GetTranslation();
+	attack_.swordEndTransform = { -aimingDirection_.x, sword_->GetTranslation().y, sword_->GetTranslation().z };
+
+	// 角度セット
+	attack_.swordStartRotate = sword_->GetRotate();
+	attack_.swordEndRotate = { sword_->GetRotate().x + pi_v<float>, sword_->GetRotate().y, sword_->GetRotate().z };
+
 	attack_.time = 0.0f;
 	sword_->SetIsAttack(true);
 }
@@ -309,12 +359,20 @@ void Soldier::AttackTypeRightSwingUpdate(){
 	if (!timeManager_->GetTimer("PostureAttackCoolTime" + std::to_string(GetSerialNumber())).isStart) {
 		return;
 	}
+	// 座標の計算
 	Vector3 newPos = 0.0f;
 	float theta = float(pi * (attack_.time / attack_.kLimitTime));
 
-	newPos = { attack_.armStart.x * cosf(theta) - attack_.armStart.z * sinf(theta), attack_.armStart.y, attack_.armStart.x * sinf(theta) + attack_.armStart.z * cosf(theta) };
+	newPos = { attack_.swordStartTransform.x * cosf(theta) - attack_.swordStartTransform.z * sinf(theta), attack_.swordStartTransform.y, attack_.swordStartTransform.x * sinf(theta) + attack_.swordStartTransform.z * cosf(theta) };
 
 	sword_->SetTranslation(newPos);
+
+	// 角度の計算
+	Vector3 newRotate = 0.0f;
+
+	newRotate = { attack_.swordStartRotate.x - theta, attack_.swordStartRotate.y, attack_.swordStartRotate.z };
+
+	sword_->SetRotation(newRotate);
 }
 
 // 未入力
@@ -322,7 +380,7 @@ void Soldier::AttackTypeNullInitialize(){
 	attack_.time = 0;
 	attack_.isAttack = false;
 	attack_.isLeft = !attack_.isLeft;
-	attack_.armStart = sword_->GetTranslation().z;
+	attack_.swordStartTransform = sword_->GetTranslation().z;
 	sword_->SetIsAttack(false);
 }
 void Soldier::AttackTypeNullUpdate(){
