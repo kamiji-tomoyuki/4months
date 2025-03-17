@@ -39,6 +39,9 @@ void PlayerSword::Initialize(std::string filePath, std::string palmFilePath)
 /// 更新
 void PlayerSword::Update()
 {
+	// 半径をセット
+	SetRadius(4.0f);
+
 	//元となるワールドトランスフォームの更新
 	transform_.UpdateMatrix();
 	transformPalm_.translation_ = transform_.translation_;

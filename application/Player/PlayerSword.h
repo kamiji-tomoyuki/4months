@@ -71,6 +71,7 @@ private:
 public:
 	int GetID() { return id_; }
 	Vector3 GetTranslation() { return transform_.translation_; }
+	Vector3 GetRotate() { return transform_.rotation_; }
 	bool GetIsAttack() { return isAttack_; }
 	bool GetIsDefence() { return isDefence_; }
 	Player* GetPlayer() { return player_; }

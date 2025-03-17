@@ -40,8 +40,10 @@ public:
 	};
 	struct Attack {
 		float kLimitTime = 0.4f;
-		Vector3 swordStart = { 0.0f };
-		Vector3 swordEnd = { 0.0f };
+		Vector3 swordStartTransform = { 0.0f };
+		Vector3 swordEndTransform = { 0.0f };
+		Vector3 swordStartRotate = { 0.0f };
+		Vector3 swordEndRotate = { 0.0f };
 		float time = 0;
 		bool isAttack = false;
 	};
