@@ -133,9 +133,9 @@ void GameOverScene::CameraUpdate()
 	}
 }
 
-void GameOverScene::ChangeScene()
-{
-	if (input_->TriggerKey(DIK_SPACE)) {
+void GameOverScene::ChangeScene(){
+	XINPUT_STATE joyState;
+	if (Input::GetInstance()->GetJoystickState(0, joyState) && joyState.Gamepad.wButtons & XINPUT_GAMEPAD_A || input_->TriggerKey(DIK_SPACE)) {
 		sceneManager_->NextSceneReservation("TITLE");
 	}
 }
