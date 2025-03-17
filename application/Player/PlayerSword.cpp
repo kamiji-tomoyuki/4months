@@ -131,7 +131,7 @@ void PlayerSword::OnCollisionOut(Collider* other)
 Vector3 PlayerSword::GetCenterPosition() const
 {
 	//ローカル座標でのオフセット
-	const Vector3 offset = { 0.0f, 0.0f, 0.0f };
+	const Vector3 offset = { 0.0f, 2.0f, 0.0f };
 	//ワールド座標に変換
 	Vector3 worldPos = Transformation(offset, transform_.matWorld_);
 	return worldPos;
