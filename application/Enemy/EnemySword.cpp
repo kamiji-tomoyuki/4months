@@ -25,6 +25,7 @@ void EnemySword::Initialize(std::string filePath, std::string palmFilePath) {
 	objColor_.SetColor(Vector4(1, 1, 1, 1));
 }
 void EnemySword::Update() {
+	SetRadius(transform_.scale_.Length());
 	//元となるワールドトランスフォームの更新
 	transform_.UpdateMatrix();
 	transformPalm_.translation_ = transform_.translation_;
@@ -110,7 +111,7 @@ void EnemySword::OnCollisionOut([[maybe_unused]] Collider* other) {
 
 Vector3 EnemySword::GetCenterPosition() const {
 	//ローカル座標でのオフセット
-	const Vector3 offset = { 0.0f, 0.0f, 0.0f };
+	const Vector3 offset = { 0.0f, 2.0f, 0.0f };
 	//ワールド座標に変換
 	Vector3 worldPos = Transformation(offset, transform_.matWorld_);
 	return worldPos;
