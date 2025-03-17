@@ -343,30 +343,43 @@ void Player::BehaviorPostureAttackUpdate()
 	float cosTheta = atan2f(aimingDirection_.z, aimingDirection_.x);
 	// 上
 	if (cosTheta > 0.25f * pi && cosTheta < 0.75f * pi) {
-		sword_->SetTranslationX(aimingDirection_.x);
-		sword_->SetTranslationY(aimingDirection_.z);
-		sword_->SetTranslationZ(0.0f);
+		// 座標
+		sword_->SetTranslation({ aimingDirection_.x, aimingDirection_.z , 0.0f });
+
+		// 角度
+		sword_->SetRotation({ 0.0f, 0.0f, 0.0f });
+
 		attackTypeRequest_ = AttackType::kDownSwing;
 	}
 	// 下
 	else if (cosTheta < -0.25f * pi && cosTheta > -0.75f * pi) {
-		sword_->SetTranslationX(1.2f);
-		sword_->SetTranslationY(0.0f);
-		sword_->SetTranslationZ(-1.0f);
+		// 座標
+		sword_->SetTranslation({ 1.2f, 0.0f , -1.0f });
+
+		// 角度
+		sword_->SetRotation({ pi_v<float> * 0.5f, 0.0f, 0.0f });
+
 		attackTypeRequest_ = AttackType::kThrust;
 	}
 	// 左
 	else if (cosTheta >= 0.75f * pi || cosTheta <= -0.75f * pi) {
-		sword_->SetTranslationX(aimingDirection_.x);
-		sword_->SetTranslationY(0.0f);
-		sword_->SetTranslationZ(aimingDirection_.z);
+		// 座標
+		sword_->SetTranslation({ aimingDirection_.x, 0.0f , aimingDirection_.z });
+
+		// 角度
+		sword_->SetRotation({ cosTheta >= 0.75f * pi ? pi_v<float> *(0.5f - cosTheta) : pi_v<float> *(1.5f + cosTheta), 0.0f, pi_v<float> *0.5f });
+		//sword_->SetRotationZ(pi_v<float> *cosTheta >= 0.75f ? 0.5f - cosTheta : 1.5f - cosTheta);
+
 		attackTypeRequest_ = AttackType::kRightSlash;
 	}
 	// 右
 	else {
-		sword_->SetTranslationX(aimingDirection_.x);
-		sword_->SetTranslationY(0.0f);
-		sword_->SetTranslationZ(aimingDirection_.z);
+		// 座標
+		sword_->SetTranslation({ aimingDirection_.x * 0.6f, aimingDirection_.z * 0.4f , 0.25f });
+
+		// 角度
+		sword_->SetRotation({ pi_v<float> *0.5f, pi_v<float> *0.5f, pi_v<float> * (cosTheta * pi >= 0.0f ? 0.25f + (0.25f - cosTheta) : 0.5f + -cosTheta) });
+
 		attackTypeRequest_ = AttackType::kLeftSlash;
 	}
 
@@ -390,7 +403,7 @@ void Player::BehaviorAttackInitialize() {
 // 攻撃動作の更新
 void Player::BehaviorAttackUpdate() {
 	// 移動処理
-	Move();
+	//Move();
 
 	// アームの開始角度
 	float speed = kAcceleration_ * 2.0f;
@@ -414,18 +427,6 @@ void Player::BehaviorAttackUpdate() {
 	}
 
 	(this->*AttackTypeUpdateFuncTable[static_cast<size_t>(attackType_)])();
-
-	// 攻撃方向
-	/*XINPUT_STATE joyState;
-	Input::GetInstance()->GetJoystickState(0, joyState);*/
-	
-	// 方向が未入力の時にセット
-	/*if (aimingDirection_.x == 0 && aimingDirection_.z == 0)
-	{
-		aimingDirection_ = { InputDirection().x, 0.0f, InputDirection().y };
-		aimingDirection_ *= 5.0f;
-	}
-	Vector3 armNow = { 0.0f };*/
 
 	// 攻撃モーション
 	
@@ -502,30 +503,30 @@ void Player::BehaviorProtectionUpdate() {
 	float cosTheta = atan2f(aimingDirection_.z, aimingDirection_.x);
 	// 上
 	if (cosTheta > 0.25f * pi && cosTheta < 0.75f * pi) {
-		sword_->SetTranslationX(aimingDirection_.x * 0.6f);
-		sword_->SetTranslationY(aimingDirection_.z * 0.4f);
-		sword_->SetTranslationZ(0.25f);
+		// 座標
+		sword_->SetTranslation({ aimingDirection_.x * 0.6f + 2.0f, aimingDirection_.z * 0.4f , 0.25f });
+		
+		// 角度
+		sword_->SetRotation({ 0.0f, pi_v<float> * 0.5f, pi_v<float> *0.5f });
 	}
 	// 下
 	else if (cosTheta < -0.25f * pi && cosTheta > -0.75f * pi) {
-		sword_->SetTranslationX(aimingDirection_.x * 0.6f);
-		sword_->SetTranslationY(aimingDirection_.z * 0.2f);
-		sword_->SetTranslationZ(0.25f);
+		// 座標
+		sword_->SetTranslation({ aimingDirection_.x * 0.6f + 2.0f, aimingDirection_.z * 0.2f , 0.25f });
+		
+		// 角度
+		sword_->SetRotation({ 0.0f, pi_v<float> * 0.5f, pi_v<float> *0.5f });
 	}
-	// 左
-	else if (cosTheta >= 0.75f * pi || cosTheta <= -0.75f * pi) {
-		sword_->SetTranslationX(aimingDirection_.x * 0.6f);
-		sword_->SetTranslationY(aimingDirection_.z * 0.6f);
-		sword_->SetTranslationZ(0.0f);
-	}
-	// 右
+	// 左右
 	else {
-		sword_->SetTranslationX(aimingDirection_.x * 0.6f);
-		sword_->SetTranslationY(aimingDirection_.z * 0.6f);
-		sword_->SetTranslationZ(0.0f);
+		// 座標
+		sword_->SetTranslation({ aimingDirection_.x * 0.25f, aimingDirection_.z * 0.25f , 0.0f });
+
+		// 角度
+		sword_->SetRotation({ 0.0f, 0.0f, 0.0f });
 	}
 
-	// 攻撃方向
+	// 
 	XINPUT_STATE joyState;
 	Input::GetInstance()->GetJoystickState(0, joyState);
 	// 防御解除の処理
