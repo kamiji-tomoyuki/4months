@@ -504,26 +504,26 @@ void Player::BehaviorProtectionUpdate() {
 	// 上
 	if (cosTheta > 0.25f * pi && cosTheta < 0.75f * pi) {
 		// 座標
-		sword_->SetTranslation({ aimingDirection_.x * 0.6f, aimingDirection_.z * 0.4f , 0.25f });
+		sword_->SetTranslation({ aimingDirection_.x * 0.6f + 2.0f, aimingDirection_.z * 0.4f , 0.25f });
 		
 		// 角度
-		sword_->SetRotation({ 0.0f, pi_v<float> * 0.5f, 0.25f });
+		sword_->SetRotation({ 0.0f, pi_v<float> * 0.5f, pi_v<float> *0.5f });
 	}
 	// 下
 	else if (cosTheta < -0.25f * pi && cosTheta > -0.75f * pi) {
 		// 座標
-		sword_->SetTranslation({ aimingDirection_.x * 0.6f, aimingDirection_.z * 0.2f , 0.25f });
+		sword_->SetTranslation({ aimingDirection_.x * 0.6f + 2.0f, aimingDirection_.z * 0.2f , 0.25f });
 		
 		// 角度
-		sword_->SetRotation({ 0.0f, pi_v<float> * 0.5f, 0.25f });
+		sword_->SetRotation({ 0.0f, pi_v<float> * 0.5f, pi_v<float> *0.5f });
 	}
 	// 左右
-	else if (cosTheta >= 0.75f * pi || cosTheta <= -0.75f * pi) {
+	else {
 		// 座標
-		sword_->SetTranslation({ aimingDirection_.x * 0.6f, aimingDirection_.z * 0.6f , 0.0f });
+		sword_->SetTranslation({ aimingDirection_.x * 0.25f, aimingDirection_.z * 0.25f , 0.0f });
 
 		// 角度
-		sword_->SetRotation({ 0.5f * pi_v<float>, 0.0f, 0.0f });
+		sword_->SetRotation({ 0.0f, 0.0f, 0.0f });
 	}
 
 	// 
