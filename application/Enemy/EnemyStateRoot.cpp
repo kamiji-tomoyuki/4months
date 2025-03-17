@@ -15,15 +15,26 @@ void EnemyStateRoot::Update(){
 	bool isAttack = false;
 	bool isDefense = false;
 
+	float kAttack = enemy_->GetShortDistanceProbability().kAttack;
+	float kDefense = enemy_->GetShortDistanceProbability().kDefense;
+
+	if (player->GetAimingDirection().x == 0.0f && player->GetAimingDirection().y == 0.0f) {
+		
+
+	} else {
+		float kAttack = 0.1f;
+		kDefense = 0.6f;
+	}
+	enemy_->RootUpdate();
 
 	//プレイヤーの位置によって行動を変える
 	if (Vector3(player->GetCenterPosition() - enemy_->GetCenterPosition()).Length() < enemy_->GetShortDistance()) {
-		if (!timeManager->GetTimer("CoolTime").isStart) {
-			isAttack = enemy_->GetProbabilities(enemy_->GetShortDistanceProbability().kAttack);
+		if (!timeManager->GetTimer("CoolTime" + std::to_string(enemy_->GetSerialNumber())).isStart) {
+			isAttack = enemy_->GetProbabilities(kAttack);
 			if (!isAttack) {
-				isDefense = enemy_->GetProbabilities(enemy_->GetShortDistanceProbability().kDefense);
+				isDefense = enemy_->GetProbabilities(kDefense);
 			}
-			timeManager->SetTimer("CoolTime", enemy_->GetCoolTime());
+			timeManager->SetTimer("CoolTime" + std::to_string(enemy_->GetSerialNumber()), enemy_->GetCoolTime());
 		}
 	} else if (Vector3(player->GetCenterPosition() - enemy_->GetCenterPosition()).Length() < enemy_->GetMiddleDistance()) {
 		enemy_->ChangeState(std::make_unique<EnemyStateApproach>(enemy_));

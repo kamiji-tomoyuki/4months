@@ -45,9 +45,10 @@ void GameScene::Initialize()
 		player->SetViewProjection(&vp_);
 		players_.push_back(std::move(player));
 	}
-	players_[0]->SetPosition({ 0.0f,0.0f,-50.0f });
+	players_[0]->SetPosition({ 0.0f,1.750f,-50.0f });
 
 	//敵
+	Enemy::SetEnemyID(0);
 	LoadEnemyPopData();
 
 	for (size_t i = 0; i < 1; i++) {
@@ -196,6 +197,9 @@ void GameScene::Draw()
 		player->Draw(vp_);
 	}
 	for (const std::unique_ptr<Enemy>& enemy : enemies_) {
+		if (enemy->GetSerialNumber() == enemy->GetNextSerialNumber() - 1) {
+			break;
+		}
 		enemy->Draw(vp_);
 	}
 	skydome_->Draw(vp_);
@@ -208,7 +212,7 @@ void GameScene::Draw()
 	//------Particleの描画開始-------
 	for (std::unique_ptr<ParticleEmitter>& emitter_ : emitters_) {
 		emitter_->Draw();
-		/*emitter_->DrawEmitter();*/
+		emitter_->DrawEmitter();
 	}
 	for (std::unique_ptr<Player>& player : players_) {
 		player->DrawParticle(vp_);
