@@ -324,7 +324,7 @@ void Player::BehaviorPostureAttackInitialize()
 	transform_.UpdateMatrix();
 	attack_.time = 0;
 	attack_.isAttack = false;
-	attack_.swordStart = sword_->GetTranslation().z;
+	attack_.swordStartTransform = sword_->GetTranslation().z;
 	sword_->SetIsAttack(false);
 }
 
@@ -347,17 +347,17 @@ void Player::BehaviorPostureAttackUpdate()
 		sword_->SetTranslation({ aimingDirection_.x, aimingDirection_.z , 0.0f });
 
 		// 角度
-		sword_->SetRotation({ 0.0f, 0.0f, 0.0f });
+		sword_->SetRotation({ 0.0f, 0.5f * pi_v<float> - cosTheta, 0.0f });
 
 		attackTypeRequest_ = AttackType::kDownSwing;
 	}
 	// 下
 	else if (cosTheta < -0.25f * pi && cosTheta > -0.75f * pi) {
 		// 座標
-		sword_->SetTranslation({ 1.2f, 0.0f , -1.0f });
+		sword_->SetTranslation({ 1.5f, 0.0f , -1.5f });
 
 		// 角度
-		sword_->SetRotation({ pi_v<float> * 0.5f, 0.0f, 0.0f });
+		sword_->SetRotation({ pi_v<float> *0.5f, -(0.5f * pi_v<float> +cosTheta), 0.0f });
 
 		attackTypeRequest_ = AttackType::kThrust;
 	}
@@ -367,18 +367,17 @@ void Player::BehaviorPostureAttackUpdate()
 		sword_->SetTranslation({ aimingDirection_.x, 0.0f , aimingDirection_.z });
 
 		// 角度
-		sword_->SetRotation({ cosTheta >= 0.75f * pi ? pi_v<float> *(0.5f - cosTheta) : pi_v<float> *(1.5f + cosTheta), 0.0f, pi_v<float> *0.5f });
-		//sword_->SetRotationZ(pi_v<float> *cosTheta >= 0.75f ? 0.5f - cosTheta : 1.5f - cosTheta);
+		sword_->SetRotation({ cosTheta >= 0.75f * pi ? pi_v<float> * 1.0f - cosTheta : pi_v<float> * 1.0f - cosTheta, 0.0f, pi_v<float> * 0.5f });
 
 		attackTypeRequest_ = AttackType::kRightSlash;
 	}
 	// 右
 	else {
 		// 座標
-		sword_->SetTranslation({ aimingDirection_.x * 0.6f, aimingDirection_.z * 0.4f , 0.25f });
+		sword_->SetTranslation({ aimingDirection_.x, 0.0f , aimingDirection_.z });
 
 		// 角度
-		sword_->SetRotation({ pi_v<float> *0.5f, pi_v<float> *0.5f, pi_v<float> * (cosTheta * pi >= 0.0f ? 0.25f + (0.25f - cosTheta) : 0.5f + -cosTheta) });
+		sword_->SetRotation({ cosTheta >= 0.0f ? pi_v<float> * 1.0f - cosTheta : pi_v < float> * 1.0f + -cosTheta, 0.0f, pi_v<float> * 0.5f });
 
 		attackTypeRequest_ = AttackType::kLeftSlash;
 	}
@@ -395,8 +394,8 @@ void Player::BehaviorPostureAttackUpdate()
 void Player::BehaviorAttackInitialize() {
 	transform_.UpdateMatrix();
 	attack_.time = 0;
-	attack_.isAttack = true;
-	attack_.swordStart = sword_->GetTranslation().z;
+	attack_.isAttack = false;
+	attack_.swordStartTransform = sword_->GetTranslation().z;
 	sword_->SetIsAttack(true);
 }
 
@@ -627,35 +626,49 @@ void Player::DirectionPreliminaryAction()
 // 振り下ろし(上入力攻撃)の初期化
 void Player::AttackTypeDownSwingInitialize()
 {
-	attack_.swordStart = sword_->GetTranslation();
-	attack_.swordEnd = { sword_->GetTranslation().x + aimingDirection_.x, sword_->GetTranslation().y - aimingDirection_.z, sword_->GetTranslation().z + aimingDirection_.z };
+	// 座標セット
+	attack_.swordStartTransform = sword_->GetTranslation();
+	attack_.swordEndTransform = { sword_->GetTranslation().x + aimingDirection_.x, sword_->GetTranslation().y - aimingDirection_.z, sword_->GetTranslation().z + aimingDirection_.z };
+	
+	// 角度セット
+	attack_.swordStartRotate = sword_->GetRotate();
+	attack_.swordEndRotate = { 0.6f * pi_v<float>, sword_->GetRotate().y, sword_->GetRotate().z };
+
 	attack_.time = 0.0f;
 }
 
 // 振り下ろし(上入力攻撃)の更新
 void Player::AttackTypeDownSwingUpdate()
 {
-	//Vector3 newPos = EaseInSine(attack_.armStart, attack_.armEnd, attack_.time, attack_.kLimitTime);
+	// 座標の計算
 	Vector3 newPos = 0.0f;
-	float theta = float(pi / 2.0f * (attack_.time / attack_.kLimitTime));
+	float theta = float(pi * 0.5f * (attack_.time / attack_.kLimitTime));
 
-	newPos = { Lerp(attack_.swordStart.x, attack_.swordEnd.x, attack_.time / attack_.kLimitTime), attack_.swordStart.y * cosf(theta) - attack_.swordStart.z * sinf(theta), attack_.swordStart.y * sinf(theta) + attack_.swordStart.z * cosf(theta)};
+	newPos = { Lerp(attack_.swordStartTransform.x, attack_.swordEndTransform.x, attack_.time / attack_.kLimitTime), attack_.swordStartTransform.y * cosf(theta) - attack_.swordStartTransform.z * sinf(theta), attack_.swordStartTransform.y * sinf(theta) + attack_.swordStartTransform.z * cosf(theta)};
 
 	sword_->SetTranslation(newPos);
+
+	// 角度の計算
+	Vector3 newRotate = 0.0f;
+	theta = float(pi * 0.5f * (attack_.time / attack_.kLimitTime));
+
+	newRotate = { Lerp(attack_.swordStartRotate.x, attack_.swordEndRotate.x, attack_.time / attack_.kLimitTime), attack_.swordEndRotate.y, attack_.swordEndRotate.z };
+
+	sword_->SetRotation(newRotate);
 }
 
 // 突き(下入力攻撃)の初期化
 void Player::AttackTypeThrustInitialize()
 {
-	attack_.swordStart = sword_->GetTranslation();
-	attack_.swordEnd = { sword_->GetTranslation().x - aimingDirection_.x, sword_->GetTranslation().y, -aimingDirection_.z * 0.2f * 7.0f };
+	attack_.swordStartTransform = sword_->GetTranslation();
+	attack_.swordEndTransform = { sword_->GetTranslation().x - (aimingDirection_.x * 0.2f * 6.0f), sword_->GetTranslation().y, -aimingDirection_.z * 0.2f * 6.0f };
 	attack_.time = 0.0f;
 }
 
 // 突き(下入力攻撃)の更新
 void Player::AttackTypeThrustUpdate()
 {
-	Vector3 newPos = EaseInExpo(attack_.swordStart, attack_.swordEnd, attack_.time, attack_.kLimitTime);
+	Vector3 newPos = EaseInOutExpo(attack_.swordStartTransform, attack_.swordEndTransform, attack_.time, attack_.kLimitTime);
 
 	sword_->SetTranslation(newPos);
 }
@@ -663,39 +676,67 @@ void Player::AttackTypeThrustUpdate()
 // 右振り抜き(左入力攻撃)の初期化
 void Player::AttackTypeLeftSwingInitialize()
 {
-	attack_.swordStart = sword_->GetTranslation();
-	attack_.swordEnd = { -aimingDirection_.x, sword_->GetTranslation().y, sword_->GetTranslation().z };
+	// 座標セット
+	attack_.swordStartTransform = sword_->GetTranslation();
+	attack_.swordEndTransform = { -aimingDirection_.x, sword_->GetTranslation().y, sword_->GetTranslation().z };
+	
+	// 角度セット
+	attack_.swordStartRotate = sword_->GetRotate();
+	attack_.swordEndRotate = { sword_->GetRotate().x - pi_v<float>, sword_->GetRotate().y, sword_->GetRotate().z };
+
 	attack_.time = 0.0f;
 }
 
 // 右振り抜き(左入力攻撃)の更新
 void Player::AttackTypeLeftSwingUpdate()
 {
+	// 座標の計算
 	Vector3 newPos = 0.0f;
 	float theta = float(pi * (attack_.time / attack_.kLimitTime));
 	
-	newPos = { attack_.swordStart.x * cosf(-theta) - attack_.swordStart.z * sinf(-theta), attack_.swordStart.y, attack_.swordStart.x * sinf(-theta) + attack_.swordStart.z * cosf(-theta) };
+	newPos = { attack_.swordStartTransform.x * cosf(-theta) - attack_.swordStartTransform.z * sinf(-theta), attack_.swordStartTransform.y, attack_.swordStartTransform.x * sinf(-theta) + attack_.swordStartTransform.z * cosf(-theta) };
 
 	sword_->SetTranslation(newPos);
+
+	// 角度の計算
+	Vector3 newRotate = 0.0f;
+	
+	newRotate = { attack_.swordStartRotate.x + theta, attack_.swordStartRotate.y, attack_.swordStartRotate.z };
+
+	sword_->SetRotation(newRotate);
 }
 
 // 左振り抜き(右入力攻撃)の初期化
 void Player::AttackTypeRightSwingInitialize()
 {
-	attack_.swordStart = sword_->GetTranslation();
-	attack_.swordEnd = { -aimingDirection_.x, sword_->GetTranslation().y, sword_->GetTranslation().z };
+	// 座標セット
+	attack_.swordStartTransform = sword_->GetTranslation();
+	attack_.swordEndTransform = { -aimingDirection_.x, sword_->GetTranslation().y, sword_->GetTranslation().z };
+	
+	// 角度セット
+	attack_.swordStartRotate = sword_->GetRotate();
+	attack_.swordEndRotate = { sword_->GetRotate().x + pi_v<float>, sword_->GetRotate().y, sword_->GetRotate().z };
+
 	attack_.time = 0.0f;
 }
 
 // 左振り抜き(右入力攻撃)の更新
 void Player::AttackTypeRightSwingUpdate()
 {
+	// 座標の計算
 	Vector3 newPos = 0.0f;
 	float theta = float(pi * (attack_.time / attack_.kLimitTime));
 
-	newPos = { attack_.swordStart.x * cosf(theta) - attack_.swordStart.z * sinf(theta), attack_.swordStart.y, attack_.swordStart.x * sinf(theta) + attack_.swordStart.z * cosf(theta) };
+	newPos = { attack_.swordStartTransform.x * cosf(theta) - attack_.swordStartTransform.z * sinf(theta), attack_.swordStartTransform.y, attack_.swordStartTransform.x * sinf(theta) + attack_.swordStartTransform.z * cosf(theta) };
 
 	sword_->SetTranslation(newPos);
+
+	// 角度の計算
+	Vector3 newRotate = 0.0f;
+
+	newRotate = { attack_.swordStartRotate.x - theta, attack_.swordStartRotate.y, attack_.swordStartRotate.z };
+
+	sword_->SetRotation(newRotate);
 }
 
 // 未入力
@@ -752,6 +793,8 @@ void Player::ImGui()
 		if (Input::GetInstance()->GetJoystickState(0, joyState) && joyState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) {
 			ImGui::Text("RB:true");
 			ImGui::Text("RStick:(%4.2f, %4.2f)", aimingDirection_.x, aimingDirection_.z);
+			float cosTheta = atan2f(aimingDirection_.z, aimingDirection_.x);
+			ImGui::Text("cosTheta:(%4.2f)", cosTheta);
 		}
 		else {
 			ImGui::Text("RB:false");
