@@ -514,7 +514,7 @@ void Player::BehaviorProtectionUpdate() {
 	// 下
 	else if (cosTheta < -0.25f * pi && cosTheta > -0.75f * pi) {
 		// 座標
-		sword_->SetTranslation({ aimingDirection_.x * 0.6f + 2.0f, aimingDirection_.z * 0.2f , 0.25f });
+		sword_->SetTranslation({ aimingDirection_.x * 0.6f + 2.0f, 0.0f , 1.5f });
 		
 		// 角度
 		sword_->SetRotation({ 0.0f, pi_v<float> * 0.5f, pi_v<float> *0.5f });
