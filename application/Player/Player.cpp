@@ -485,7 +485,6 @@ void Player::BehaviorProtectionInitialize() {
 	transform_.UpdateMatrix();
 	defence_.time = 0;
 	defence_.isDefence = true;
-	defence_.swordStart = sword_->GetTranslation().z;
 	sword_->SetIsDefence(true);
 }
 

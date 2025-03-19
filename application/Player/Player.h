@@ -33,31 +33,29 @@ public:
 		kNullType,		// 未入力
 	};
 	struct Root {
-		float floatingParameter = 0.0f;//浮遊ギミックの媒介変数
-		int32_t period = 60;// 浮遊移動のサイクル<frame>
-		float floatingAmplitude = 0.2f;// 浮遊の振幅<m>
-		float armAmplitude = 0.4f;//アームの振幅
+		float floatingParameter = 0.0f;		//浮遊ギミックの媒介変数
+		int32_t period = 60;				// 浮遊移動のサイクル<frame>
+		float floatingAmplitude = 0.2f;		// 浮遊の振幅<m>
+		float armAmplitude = 0.4f;			//アームの振幅
 	};
 	struct Attack {
-		float kLimitTime = 0.4f;
-		Vector3 swordStartTransform = { 0.0f };
-		Vector3 swordEndTransform = { 0.0f };
-		Vector3 swordStartRotate = { 0.0f };
-		Vector3 swordEndRotate = { 0.0f };
-		float time = 0;
-		bool isAttack = false;
+		float kLimitTime = 0.4f;					// 攻撃の時間(モーション)
+		Vector3 swordStartTransform = { 0.0f };		// 剣の始めの位置
+		Vector3 swordEndTransform = { 0.0f };		// 剣の終わりの位置
+		Vector3 swordStartRotate = { 0.0f };		// 剣の始めの角度
+		Vector3 swordEndRotate = { 0.0f };			// 剣の終わりの角度
+		float time = 0;								// 現在の進行度(モーション)
+		bool isAttack = false;						// 攻撃フラグ
 	};
 	struct Defence {
-		float kLimitTime = 0.5f;
-		Vector3 swordStart = { 0.0f };
-		Vector3 swordEnd = 3.0f;
-		float time = 0;
-		bool isDefence = false;
+		float kLimitTime = 0.5f;			// 防御の時間(モーション)
+		float time = 0;						// 現在の進行度(モーション)
+		bool isDefence = false;				// 防御フラグ
 	};
 	struct WorkDash {
-		float kDashTime_ = 0.6f;
-		float DashTime_ = 0;
-		float kAttenuation_ = 1.50f;
+		float kDashTime_ = 0.6f;			// ダッシュの時間(モーション)
+		float DashTime_ = 0;				// 現在の進行度(モーション)
+		float kAttenuation_ = 0.250f;		// 減衰率
 	};
 
 	Player();
