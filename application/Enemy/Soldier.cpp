@@ -178,42 +178,26 @@ void Soldier::ProtectionUpdate(){
 	// 上
 	if (cosTheta > 0.25f * pi && cosTheta < 0.75f * pi) {
 		// 座標
-		sword_->SetTranslation({ aimingDirection_.x, aimingDirection_.z , 0.0f });
+		sword_->SetTranslation({ aimingDirection_.x * 0.6f + 2.0f, aimingDirection_.z * 0.4f , 0.25f });
 
 		// 角度
-		sword_->SetRotation({ 0.0f, 0.5f * pi_v<float> -cosTheta, 0.0f });
-
-		attackTypeRequest_ = AttackType::kDownSwing;
+		sword_->SetRotation({ 0.0f, pi_v<float> *0.5f, pi_v<float> *0.5f });
 	}
 	// 下
 	else if (cosTheta < -0.25f * pi && cosTheta > -0.75f * pi) {
 		// 座標
-		sword_->SetTranslation({ 1.5f, 0.0f , -1.5f });
+		sword_->SetTranslation({ aimingDirection_.x * 0.6f + 2.0f, 0.0f , 1.5f });
 
 		// 角度
-		sword_->SetRotation({ pi_v<float> *0.5f, -(0.5f * pi_v<float> +cosTheta), 0.0f });
-
-		attackTypeRequest_ = AttackType::kThrust;
+		sword_->SetRotation({ 0.0f, pi_v<float> *0.5f, pi_v<float> *0.5f });
 	}
-	// 左
-	else if (cosTheta >= 0.75f * pi || cosTheta <= -0.75f * pi) {
-		// 座標
-		sword_->SetTranslation({ aimingDirection_.x, 0.0f , aimingDirection_.z });
-
-		// 角度
-		sword_->SetRotation({ cosTheta >= 0.75f * pi ? pi_v<float> *1.0f - cosTheta : pi_v<float> *1.0f - cosTheta, 0.0f, pi_v<float> *0.5f });
-
-		attackTypeRequest_ = AttackType::kRightSlash;
-	}
-	// 右
+	// 左右
 	else {
 		// 座標
-		sword_->SetTranslation({ aimingDirection_.x, 0.0f , aimingDirection_.z });
+		sword_->SetTranslation({ aimingDirection_.x * 0.25f, aimingDirection_.z * 0.25f , 0.0f });
 
 		// 角度
-		sword_->SetRotation({ cosTheta >= 0.0f ? pi_v<float> *1.0f - cosTheta : pi_v < float> *1.0f + -cosTheta, 0.0f, pi_v<float> *0.5f });
-
-		attackTypeRequest_ = AttackType::kLeftSlash;
+		sword_->SetRotation({ 0.0f, 0.0f, 0.0f });
 	}
 
 }
