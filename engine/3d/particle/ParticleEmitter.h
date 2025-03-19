@@ -6,7 +6,6 @@
 #ifdef _DEBUG
 #include "imgui.h" // ImGuiのインクルード
 #endif // _DEBUG
-#include"GlobalVariables.h"
 #include"ParticleParamater.h"
 
 class ParticleEmitter {
@@ -17,23 +16,27 @@ public:
 	void Initialize(const std::string& name, const std::string& fileName);
 
 	// 更新処理を行うUpdate関数
-	void Update(const ViewProjection& vp_);
+	void Update();
 
-	void UpdateOnce(const ViewProjection& vp_);
+	void UpdateOnce();
 
 	void Draw();
 
 	void DrawEmitter();
 
-	void imgui(); // ImGui用の関数を追加
+	void ChangeModel(const std::string& fileName);
+
+	void ImGui(); // ImGui用の関数を追加
+
+public:
+
+	std::string GetName() { return name_; }
+
+	void AddTime(float time) { emitTimer += time; }
 
 private:
 	// パーティクルを発生させるEmit関数
 	void Emit();
-
-	void AddItem();
-	void SetEmitValue();
-	void ApplyGlobalVariables();
 
 	/// === タイマー === ///
 
@@ -44,7 +47,10 @@ private:
 	float endTime_;
 
 	//現在時間
-	float currentTimer_;
+	float emitTimer;
+
+	//合計時間
+	float totalTimer_;
 
 	//ループフラグ
 	bool isLoop_;
@@ -124,9 +130,5 @@ private:
 	//ビルボードフラグ
 	bool isBillboard_;
 
-	std::unique_ptr<ParticleManager> Manager_;
-
-	GlobalVariables* globalVariables = nullptr;
-	const char* groupName = nullptr;
-
+	ParticleManager* Manager_;
 };

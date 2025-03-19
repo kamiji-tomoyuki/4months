@@ -16,6 +16,10 @@
 class ParticleManager {
 public:
 
+	static ParticleManager* instance;
+
+	static ParticleManager* GetInstance();
+
 	/// <summary>
 	/// 初期化
 	/// </summary>
@@ -37,6 +41,10 @@ public:
 	/// <param name="name"></param>
 	/// <param name="textureFilePath"></param>
 	void CreateParticleGroup(const std::string name, const std::string& filename);
+
+	void ChangeModel(const std::string name, const std::string& filename);
+
+	std::vector<const char*> GetModelFiles();
 
 private:
 
@@ -108,13 +116,18 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12Resource> materialResource = nullptr;
 	Material* materialData = nullptr;
 
-
+	// --- モデルデータ ---
 	struct ModelData {
 		std::vector<VertexData> vertices;
 		MaterialData material;
 	};
+
 	ModelData modelData;
+
 	static std::unordered_map<std::string, ModelData> modelCache;
+
+	std::vector<std::string> modelFiles;
+
 	std::unordered_map<std::string, ParticleGroup>particleGroups;
 
 	// デルタタイム

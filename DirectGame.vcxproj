@@ -183,6 +183,7 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\3d\line\LineManager.cpp" />
     <ClCompile Include="engine\utility\scene\SceneTransition.cpp" />
     <ClCompile Include="engine\offscreen\OffScreen.cpp" />
+    <ClCompile Include="ParticleEditor.cpp" />
     <ClCompile Include="scene\BaseScene.cpp" />
     <ClCompile Include="scene\ClearScene.cpp" />
     <ClCompile Include="scene\GameOverScene.cpp" />
@@ -300,6 +301,7 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\3d\line\LineManager.h" />
     <ClInclude Include="engine\utility\scene\SceneTransition.h" />
     <ClInclude Include="engine\offscreen\OffScreen.h" />
+    <ClInclude Include="ParticleEditor.h" />
     <ClInclude Include="scene\BaseScene.h" />
     <ClInclude Include="scene\ClearScene.h" />
     <ClInclude Include="scene\GameOverScene.h" />

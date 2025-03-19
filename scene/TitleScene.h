@@ -9,6 +9,7 @@
 #include"Object3d.h"
 #include"WorldTransform.h"
 #include"ParticleEmitter.h"
+#include "ParticleEditor.h"
 #include <Skydome.h>
 #include <Sprite.h>
 
@@ -56,7 +57,7 @@ private:
 	Object3dCommon* objCommon_;
 	SpriteCommon* spCommon_;
 	ParticleCommon* ptCommon_;
-	 
+
 	ViewProjection vp_;
 	std::unique_ptr<DebugCamera> debugCamera_;
 
@@ -71,8 +72,10 @@ private:
 	std::unique_ptr<Skydome> skydome_ = nullptr;// 天球
 
 	bool loop = true;
-	//パーティクルエミッタ
-	std::vector<std::unique_ptr<ParticleEmitter>> emitters_;
+
+	std::unique_ptr<ParticleEditor> editor_;
+
+	ParticleManager* particleManager_;
 	
 	bool isChangeScene = true;
 };

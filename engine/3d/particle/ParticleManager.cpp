@@ -1,14 +1,30 @@
 #include "ParticleManager.h"
 #include "TextureManager.h"
 #include "fstream"
+#include "filesystem"
 #include "Vector3.h"
 
 std::unordered_map<std::string, ParticleManager::ModelData> ParticleManager::modelCache;
+
+ParticleManager* ParticleManager::instance = nullptr;
+
+ParticleManager* ParticleManager::GetInstance() {
+	if (instance == nullptr) {
+		instance = new ParticleManager();
+	}
+	return instance;
+}
 
 void ParticleManager::Initialize(SrvManager* srvManager) {
 	particleCommon = ParticleCommon::GetInstance();
 	srvManager_ = srvManager;
 	randomEngine.seed(seedGenerator());
+
+	for (const auto& entry : std::filesystem::directory_iterator("resources/models/GameScene")) {
+		if (entry.path().extension() == ".obj") {
+			modelFiles.push_back(entry.path().filename().string());
+		}
+	}
 }
 
 void ParticleManager::Update(const ViewProjection& viewProjection) {
@@ -380,8 +396,6 @@ ParticleManager::Particle ParticleManager::MakeNewParticle(
 
 	/// === ワールドトランスフォーム設定 === ///
 
-	newParticle.emitterTransform.Initialize();
-
 	newParticle.emitterTransform = emitterTransform;
 
 	newParticle.emitterTransform.UpdateMatrix();
@@ -428,6 +442,33 @@ void ParticleManager::CreateParticleGroup(const std::string name, const std::str
 
 	CreateMaterial();
 	particleGroup.instanceCount = 0;
+}
+
+void ParticleManager::ChangeModel(const std::string name, const std::string& filename) {
+
+	if (!particleGroups.contains(name)) {
+		return;
+	}
+
+	modelData = LoadObjFile("resources/models/GameScene/", filename);
+
+	vertexResource->Map(0, nullptr, reinterpret_cast<void**>(&vertexData));
+	std::memcpy(vertexData, modelData.vertices.data(), sizeof(VertexData) * modelData.vertices.size());
+
+	particleGroups[name].material.textureFilePath = modelData.material.textureFilePath;
+
+	TextureManager::GetInstance()->LoadTexture(modelData.material.textureFilePath);
+}
+
+std::vector<const char*> ParticleManager::GetModelFiles() {
+
+	std::vector<const char*> items;
+
+	for (const auto& file : modelFiles) {
+		items.push_back(file.c_str());
+	}
+
+	return items;
 }
 
 void ParticleManager::CreateVartexData(const std::string& filename) {

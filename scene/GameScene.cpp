@@ -158,7 +158,7 @@ void GameScene::Update()
 	// シーン切り替え
 	ChangeScene();
 	for (std::unique_ptr<ParticleEmitter>& emitter_ : emitters_) {
-		emitter_->Update(vp_);
+		emitter_->Update();
 	}
 
 }
@@ -270,7 +270,7 @@ void GameScene::Debug()
 	int emitterId = 0;
 	for (std::unique_ptr<ParticleEmitter>& emitter_ : emitters_) {
 		ImGui::PushID(emitterId);
-		emitter_->imgui();
+		emitter_->ImGui();
 		ImGui::PopID();
 		++emitterId;
 	}
