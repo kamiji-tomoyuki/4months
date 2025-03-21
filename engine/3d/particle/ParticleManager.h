@@ -42,6 +42,8 @@ public:
 	/// <param name="textureFilePath"></param>
 	void CreateParticleGroup(const std::string name, const std::string& filename);
 
+	void ChangeGroupName(const std::string& newName,const std::string& preName);
+
 	void ChangeModel(const std::string name, const std::string& filename);
 
 	std::vector<const char*> GetModelFiles();
@@ -136,6 +138,8 @@ private:
 
 	std::random_device seedGenerator;
 	std::mt19937 randomEngine;
+
+	int id_;
 
 public:
 

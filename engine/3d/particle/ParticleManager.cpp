@@ -25,6 +25,8 @@ void ParticleManager::Initialize(SrvManager* srvManager) {
 			modelFiles.push_back(entry.path().filename().string());
 		}
 	}
+
+	id_ = 0;
 }
 
 void ParticleManager::Update(const ViewProjection& viewProjection) {
@@ -442,6 +444,17 @@ void ParticleManager::CreateParticleGroup(const std::string name, const std::str
 
 	CreateMaterial();
 	particleGroup.instanceCount = 0;
+}
+
+void ParticleManager::ChangeGroupName(const std::string& newName, const std::string& preName) {
+
+	if (!particleGroups.contains(preName)) {
+		return;
+	}
+
+	particleGroups[newName] = particleGroups[preName];
+
+	particleGroups.erase(preName);
 }
 
 void ParticleManager::ChangeModel(const std::string name, const std::string& filename) {

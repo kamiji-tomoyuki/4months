@@ -97,13 +97,6 @@ void ParticleEditor::ImGui() {
 	ImGui::End();
 }
 
-void ParticleEditor::SaveEmitterData(ParticleEmitter* emitter) {
-
-}
-
-void ParticleEditor::LoadEmitterData(const std::string& fileName) {
-}
-
 void ParticleEditor::CreateEmitter(const std::string& name, const std::string& fileName) {
 
 	std::unique_ptr<ParticleEmitter> newEmitter;

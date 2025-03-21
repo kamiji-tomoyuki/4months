@@ -1,6 +1,8 @@
 #include "ParticleEmitter.h"
 #include"line/DrawLine3D.h"
 #include "array"
+#include "fstream"
+#include "Input.h"
 
 // コンストラクタ
 ParticleEmitter::ParticleEmitter() {}
@@ -58,9 +60,10 @@ void ParticleEmitter::Initialize(const std::string& name, const std::string& fil
 	scale_.acceleration = { 0.0f, 0.0f, 0.0f };
 	scale_.accelerationRandomRange = { 0.0f, 0.0f, 0.0f };
 
+	modelName_ = fileName;
 	startColor_ = { 1.0f, 1.0f, 1.0f, 1.0f };
 	endColor_ = { 1.0f, 1.0f, 1.0f, 1.0f };
-	randomColor_ = { 0.0f, 0.0f, 0.0f, 0.0f };
+	colorRandomRange_ = { 0.0f, 0.0f, 0.0f, 0.0f };
 }
 
 // Update関数
@@ -181,7 +184,7 @@ void ParticleEmitter::Emit() {
 		scale_,
 		startColor_,
 		endColor_,
-		randomColor_,
+		colorRandomRange_,
 		isBillboard_
 	);
 }
@@ -204,12 +207,23 @@ void ParticleEmitter::ImGui() {
 		ImGui::Checkbox("##アクティブ", &isActive_);
 		ImGui::NextColumn();
 
+		ImGui::Text("ループ"); ImGui::NextColumn();
+		ImGui::Checkbox("##ループ", &isLoop_);
+		ImGui::NextColumn();
+
 		ImGui::Text("エミッター描画"); ImGui::NextColumn();
 		ImGui::Checkbox("##エミッター描画", &isDrawEmitter_);
 		ImGui::NextColumn();
 
+		std::string currentName = name_;
+
 		ImGui::Text("名前"); ImGui::NextColumn();
-		ImGui::InputText("##名前", const_cast<char*>(name_.c_str()), 256);
+		if (ImGui::InputText("##名前", const_cast<char*>(currentName.c_str()), 256)) {
+			if (Input::GetInstance()->PushKey(DIK_RETURN)) {
+				Manager_->ChangeGroupName(currentName, name_);
+				name_ = currentName;
+			}
+		}
 		ImGui::NextColumn();
 
 		ImGui::Text("エミッター座標"); ImGui::NextColumn();
@@ -484,7 +498,7 @@ void ParticleEmitter::ImGui() {
 
 		ImGui::Text("モデルデータ"); ImGui::NextColumn();
 		if (ImGui::Combo("##モデルデータ", &currentItem, items.data(), static_cast<int>(items.size()))) {
-			Manager_->ChangeModel(name_,items[currentItem]);
+			Manager_->ChangeModel(name_, items[currentItem]);
 		}
 		ImGui::NextColumn();
 
@@ -497,7 +511,7 @@ void ParticleEmitter::ImGui() {
 		ImGui::NextColumn();
 
 		ImGui::Text("色のランダム幅"); ImGui::NextColumn();
-		ImGui::ColorEdit4("##色のランダム幅", &randomColor_.x);
+		ImGui::ColorEdit4("##色のランダム幅", &colorRandomRange_.x);
 		ImGui::NextColumn();
 
 		ImGui::Text("ビルボード"); ImGui::NextColumn();
@@ -507,5 +521,95 @@ void ParticleEmitter::ImGui() {
 		ImGui::Columns(1); // 列終了
 	}
 
+	if (ImGui::Button("Save")) {
+		SaveEmitterData();
+		std::string message = std::format("{}.json saved.", name_);
+		MessageBoxA(nullptr, message.c_str(), "GlobalVariables", 0);
+	}
+
 #endif
+}
+
+void ParticleEmitter::SaveEmitterData() {
+
+	nlohmann::json jsonData;
+
+	std::string kDirectoryPath = "resources/jsons/particles/";
+
+	std::string filePath = kDirectoryPath + name_ + ".json";
+
+	jsonData["name"] = name_;
+
+	jsonData["count"] = count_;
+	jsonData["frequency"] = frequency_;
+	jsonData["lifeTime"] = lifeTime_;
+	jsonData["lifeTimeRandomRange"] = lifeTimeRandomRange_;
+	jsonData["startTime"] = startTime_;
+	jsonData["endTime"] = endTime_;
+	jsonData["isLoop"] = isLoop_;
+
+	jsonData["position"] = {
+		{"startNum",{position_.startNum.x,position_.startNum.y,position_.startNum.z}},
+		{"startRandomRange",{position_.startRandomRange.x,position_.startRandomRange.y,position_.startRandomRange.z}},
+		{"endNum",{position_.endNum.x,position_.endNum.y,position_.endNum.z}},
+		{"endRandomRange",{position_.endRandomRange.x,position_.endRandomRange.y,position_.endRandomRange.z}},
+		{"velocity",{position_.velocity.x,position_.velocity.y,position_.velocity.z}},
+		{"velocityRandomRange",{position_.velocityRandomRange.x,position_.velocityRandomRange.y,position_.velocityRandomRange.z}},
+		{"acceleration",{position_.acceleration.x,position_.acceleration.y,position_.acceleration.z}},
+		{"accelerationRandomRange",{position_.accelerationRandomRange.x,position_.accelerationRandomRange.y,position_.accelerationRandomRange.z}}
+	};
+	jsonData["positionState"] = positionState_;
+	jsonData["positionEasingState"] = positionEasingState_;
+
+	jsonData["rotation"] = {
+		{"startNum",{rotation_.startNum.x,rotation_.startNum.y,rotation_.startNum.z}},
+		{"startRandomRange",{rotation_.startRandomRange.x,rotation_.startRandomRange.y,rotation_.startRandomRange.z}},
+		{"endNum",{rotation_.endNum.x,rotation_.endNum.y,rotation_.endNum.z}},
+		{"endRandomRange",{rotation_.endRandomRange.x,rotation_.endRandomRange.y,rotation_.endRandomRange.z}},
+		{"velocity",{rotation_.velocity.x,rotation_.velocity.y,rotation_.velocity.z}},
+		{"velocityRandomRange",{rotation_.velocityRandomRange.x,rotation_.velocityRandomRange.y,rotation_.velocityRandomRange.z}},
+		{"acceleration",{rotation_.acceleration.x,rotation_.acceleration.y,rotation_.acceleration.z}},
+		{"accelerationRandomRange",{rotation_.accelerationRandomRange.x,rotation_.accelerationRandomRange.y,rotation_.accelerationRandomRange.z}}
+	};
+	jsonData["rotationState"] = rotationState_;
+	jsonData["rotationEasingState"] = rotationEasingState_;
+
+	jsonData["scale"] = {
+		{"startNum",{scale_.startNum.x,scale_.startNum.y,scale_.startNum.z}},
+		{"startRandomRange",{scale_.startRandomRange.x,scale_.startRandomRange.y,scale_.startRandomRange.z}},
+		{"endNum",{scale_.endNum.x,scale_.endNum.y,scale_.endNum.z}},
+		{"endRandomRange",{scale_.endRandomRange.x,scale_.endRandomRange.y,scale_.endRandomRange.z}},
+		{"velocity",{scale_.velocity.x,scale_.velocity.y,scale_.velocity.z}},
+		{"velocityRandomRange",{scale_.velocityRandomRange.x,scale_.velocityRandomRange.y,scale_.velocityRandomRange.z}},
+		{"acceleration",{scale_.acceleration.x,scale_.acceleration.y,scale_.acceleration.z}},
+		{"accelerationRandomRange",{scale_.accelerationRandomRange.x,scale_.accelerationRandomRange.y,scale_.accelerationRandomRange.z}}
+	};
+	jsonData["scaleState"] = scaleState_;
+	jsonData["scaleEasingState"] = scaleEasingState_;
+
+	jsonData["modelName"] = modelName_;
+	jsonData["startColor"] = { startColor_.x,startColor_.y,startColor_.z,startColor_.w };
+	jsonData["endColor"] = { endColor_.x,endColor_.y,endColor_.z,endColor_.w };
+	jsonData["colorRandomRange"] = { colorRandomRange_.x,colorRandomRange_.y,colorRandomRange_.z,colorRandomRange_.w };
+	jsonData["isBillboard"] = isBillboard_;
+
+	std::filesystem::path dir(kDirectoryPath);
+	if (!std::filesystem::exists(kDirectoryPath)) {
+		std::filesystem::create_directory(kDirectoryPath);
+	}
+
+	std::ofstream file;
+
+	file.open(filePath);
+
+	if (file.fail()) {
+		std::string message = "Failed open data file for write.";
+		MessageBoxA(nullptr, message.c_str(), "GlobalVariavles", 0);
+		assert(0);
+		return;
+	}
+
+	file << jsonData.dump(4);
+
+	file.close();
 }

@@ -3,10 +3,11 @@
 #include "WorldTransform.h"  // Transformの定義があるヘッダーをインクルード
 #include "ParticleManager.h" // ParticleManagerのインクルード
 #include "ViewProjection.h"
+#include "ParticleParamater.h"
+#include "json.hpp"
 #ifdef _DEBUG
 #include "imgui.h" // ImGuiのインクルード
 #endif // _DEBUG
-#include"ParticleParamater.h"
 
 class ParticleEmitter {
 public:
@@ -28,6 +29,8 @@ public:
 
 	void ImGui(); // ImGui用の関数を追加
 
+	void SaveEmitterData();
+
 public:
 
 	std::string GetName() { return name_; }
@@ -40,20 +43,11 @@ private:
 
 	/// === タイマー === ///
 
-	//生成開始時間
-	float startTime_;
-
-	//生成終了時間
-	float endTime_;
-
 	//現在時間
 	float emitTimer;
 
 	//合計時間
 	float totalTimer_;
-
-	//ループフラグ
-	bool isLoop_;
 
 	//再生開始フラグ
 	bool isStart_;
@@ -80,6 +74,15 @@ private:
 
 	//生存時間のランダム幅
 	float lifeTimeRandomRange_;
+
+	//生成開始時間
+	float startTime_;
+
+	//生成終了時間
+	float endTime_;
+
+	//ループフラグ
+	bool isLoop_;
 
 	//エミッターのトランスフォーム
 	WorldTransform transform_;
@@ -125,7 +128,7 @@ private:
 	Vector4 endColor_;
 
 	//ランダムの色
-	Vector4 randomColor_;
+	Vector4 colorRandomRange_;
 
 	//ビルボードフラグ
 	bool isBillboard_;

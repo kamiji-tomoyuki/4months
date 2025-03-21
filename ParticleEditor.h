@@ -4,6 +4,8 @@
 
 #include "vector"
 
+#include "json.hpp"
+
 class ParticleEditor {
 
 public:
@@ -15,10 +17,6 @@ public:
 	void Draw();
 
 	void ImGui();
-
-	void SaveEmitterData(ParticleEmitter* emitter);
-
-	void LoadEmitterData(const std::string& fileName);
 
 	void CreateEmitter(const std::string& name, const std::string& fileName);
 
