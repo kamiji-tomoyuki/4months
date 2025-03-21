@@ -32,11 +32,13 @@ public:
 	/// 更新
 	/// </summary>
 	void Update() override;
+	void UpdateParticle(const ViewProjection& viewProjection) override;
 
 	/// <summary>
 	/// 描画
 	/// </summary>
 	void Draw(const ViewProjection& viewProjection)override;
+	void DrawParticle(const ViewProjection& viewProjection)override;
 	void DrawAnimation(const ViewProjection& viewProjection)override;
 	/// <summary>
 		/// 当たってる間

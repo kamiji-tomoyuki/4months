@@ -1,0 +1,15 @@
+{
+    "Soldier": {
+        "CoolTime": 1.0,
+        "isMove_": true,
+        "kHp_": 10000,
+        "longDistanceProbability_.kAttack": 0.009999999776482582,
+        "longDistanceProbability_.kDefense": 0.009999999776482582,
+        "middleDistance": 100.0,
+        "middleDistanceProbability_.kAttack": 0.5,
+        "middleDistanceProbability_.kDefense": 0.05000000074505806,
+        "shortDistance": 14.40000057220459,
+        "shortDistanceProbability_.kAttack": 0.4000000059604645,
+        "shortDistanceProbability_.kDefense": 0.4000000059604645
+    }
+}

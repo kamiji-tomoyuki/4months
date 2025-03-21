@@ -56,6 +56,10 @@ void EnemySword::OnCollision([[maybe_unused]] Collider* other) {
 		PlayerSword* playerSwod = static_cast<PlayerSword*>(other);
 		if (GetIsAttack() && playerSwod->GetIsDefence()) {
 			SetIsAttack(false);
+			//enemy_->SetObjColor({ 0.0f,0.0f,1.0f,1.0f });
+			Vector3 newVelocity = playerSwod->GetPlayer()->GetCenterPosition() - enemy_->GetCenterPosition();
+
+			playerSwod->GetPlayer()->SetVelocity(playerSwod->GetPlayer()->GetVelocity() + newVelocity.Normalize() * 30.0f);
 		}
 	}
 	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kPlayer)) {

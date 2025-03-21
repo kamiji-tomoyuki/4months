@@ -20,7 +20,15 @@ void Enemy::Update() {
 	BaseObject::Update();
 }
 
+void Enemy::UpdateParticle(const ViewProjection& viewProjection){
+
+}
+
 void Enemy::Draw(const ViewProjection& viewProjection) { BaseObject::Draw(viewProjection); }
+
+void Enemy::DrawParticle(const ViewProjection& viewProjection){
+
+}
 
 void Enemy::DrawAnimation(const ViewProjection& viewProjection){
 

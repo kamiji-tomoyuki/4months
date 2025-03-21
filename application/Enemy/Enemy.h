@@ -29,11 +29,12 @@ public:
 	/// 更新
 	/// </summary>
 	virtual void Update() override;
-
+	virtual void UpdateParticle(const ViewProjection& viewProjection);
 	/// <summary>
 	/// 描画
 	/// </summary>
 	virtual void Draw(const ViewProjection& viewProjection)override;
+	virtual void DrawParticle(const ViewProjection& viewProjection);
 	virtual void DrawAnimation(const ViewProjection& viewProjection);
 	//当たり判定
 	virtual Vector3 GetCenterPosition() const override = 0;
@@ -99,6 +100,9 @@ protected:
 	float kCoolTime_ = 1.0f;
 	// 減衰速度
 	float kAttenuation_ = 0.005f;
+
+	// パーティクルエミッタ
+	std::vector<std::unique_ptr<ParticleEmitter>> emitters_;
 public:
 	static void SetEnemyID(int ID) { nextSerialNumber_ = ID; }
 	void SetPlayer(Player* player) { player_ = player; }

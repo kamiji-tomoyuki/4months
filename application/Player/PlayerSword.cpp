@@ -40,7 +40,8 @@ void PlayerSword::Initialize(std::string filePath, std::string palmFilePath)
 void PlayerSword::Update()
 {
 	// 半径をセット
-	SetRadius(4.0f);
+	//SetRadius(0.0f);
+	//SetAABBScale({ 4.0f,4.0f,10.0f });
 
 	//元となるワールドトランスフォームの更新
 	transform_.UpdateMatrix();
@@ -95,7 +96,11 @@ void PlayerSword::OnCollision(Collider* other)
 		EnemySword* enemySwod = static_cast<EnemySword*>(other);
 		if (GetIsAttack() && enemySwod->GetIsDefense()) {
 			SetIsAttack(false);
+			//player_->SetObjColor({ 0.0f,0.0f,1.0f,1.0f });
 			emitters_[0]->SetEmitActive(true);
+			Vector3 newVelocity = enemySwod->GetEnemy()->GetCenterPosition() - player_->GetCenterPosition();
+
+			enemySwod->GetEnemy()->SetVelocity(enemySwod->GetEnemy()->GetVelocity() + newVelocity.Normalize() * 30.0f);
 		}
 	}
 	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kEnemy) ||
@@ -169,7 +174,7 @@ Vector3 PlayerSword::GetCenterPosition() const
 // 中心座標を取得
 Vector3 PlayerSword::GetCenterRotation() const
 {
-	return transform_.rotation_;
+	return Transformation(Vector3({1,1,1}), transform_.matWorld_);
 }
 
 /// モデルセット
