@@ -18,7 +18,9 @@ public:
 
 	void ImGui();
 
-	void CreateEmitter(const std::string& name, const std::string& fileName);
+	void CreateEmitter();
+
+	void LoadEmitter(const std::string& fileName);
 
 private:
 

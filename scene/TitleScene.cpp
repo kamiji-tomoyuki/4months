@@ -68,7 +68,7 @@ void TitleScene::Initialize()
 
 	editor_->Initialize(&vp_);
 
-	editor_->CreateEmitter("star", "GameScene/star.obj");
+	editor_->CreateEmitter();
 
 	particleManager_ = ParticleManager::GetInstance();
 }

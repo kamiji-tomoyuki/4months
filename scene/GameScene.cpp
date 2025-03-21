@@ -90,7 +90,7 @@ void GameScene::Initialize()
 		emitter_ = std::make_unique<ParticleEmitter>();
 		emitters_.push_back(std::move(emitter_));
 	}
-	emitters_[0]->Initialize("star", "GameScene/star.obj");
+	emitters_[0]->Initialize();
 
 	/*audio_->StopWave(0);
 	audio_->StopWave(1);

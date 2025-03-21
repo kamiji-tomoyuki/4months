@@ -485,7 +485,7 @@ std::vector<const char*> ParticleManager::GetModelFiles() {
 }
 
 void ParticleManager::CreateVartexData(const std::string& filename) {
-	modelData = LoadObjFile("resources/models/", filename);
+	modelData = LoadObjFile("resources/models/GameScene/", filename);
 
 	// --- 頂点リソース生成 ---
 	vertexResource = particleCommon->GetDxCommon()->CreateBufferResource(sizeof(VertexData) * modelData.vertices.size());

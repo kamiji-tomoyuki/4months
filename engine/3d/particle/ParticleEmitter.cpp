@@ -7,17 +7,16 @@
 // コンストラクタ
 ParticleEmitter::ParticleEmitter() {}
 
-void ParticleEmitter::Initialize(const std::string& name, const std::string& fileName) {
+void ParticleEmitter::Initialize() {
 
 	Manager_ = ParticleManager::GetInstance();
-	Manager_->CreateParticleGroup(name, fileName);
 
 	startTime_ = 0.0f;
 	endTime_ = 100.0f;
 	isLoop_ = true;
 	isStart_ = false;
 
-	name_ = name;
+	name_ = "newEmitter";
 	count_ = 100;
 	frequency_ = 0.01f;
 	lifeTime_ = 1.0f;
@@ -30,7 +29,7 @@ void ParticleEmitter::Initialize(const std::string& name, const std::string& fil
 	positionState_ = START;
 	positionEasingState_ = LERP;
 	position_.startNum = { 0.0f, 0.0f, 0.0f };
-	position_.startRandomRange = { 0.0f,5.0f,0.0f };
+	position_.startRandomRange = { 0.0f,0.0f,0.0f };
 	position_.endNum = { 0.0f, 0.0f, 0.0f };
 	position_.endRandomRange = { 0.0f, 0.0f, 0.0f };
 	position_.velocity = { 0.0f, 0.0f, 0.0f };
@@ -60,10 +59,12 @@ void ParticleEmitter::Initialize(const std::string& name, const std::string& fil
 	scale_.acceleration = { 0.0f, 0.0f, 0.0f };
 	scale_.accelerationRandomRange = { 0.0f, 0.0f, 0.0f };
 
-	modelName_ = fileName;
+	modelName_ = "star.obj";
 	startColor_ = { 1.0f, 1.0f, 1.0f, 1.0f };
 	endColor_ = { 1.0f, 1.0f, 1.0f, 1.0f };
 	colorRandomRange_ = { 0.0f, 0.0f, 0.0f, 0.0f };
+
+	Manager_->CreateParticleGroup(name_, modelName_);
 }
 
 // Update関数
@@ -218,8 +219,9 @@ void ParticleEmitter::ImGui() {
 		std::string currentName = name_;
 
 		ImGui::Text("名前"); ImGui::NextColumn();
-		if (ImGui::InputText("##名前", const_cast<char*>(currentName.c_str()), 256)) {
+		if (ImGui::InputText("##名前", currentName.data(), 256)) {
 			if (Input::GetInstance()->PushKey(DIK_RETURN)) {
+				currentName = currentName.c_str();  // 余分な '\0' を削除
 				Manager_->ChangeGroupName(currentName, name_);
 				name_ = currentName;
 			}
@@ -604,7 +606,7 @@ void ParticleEmitter::SaveEmitterData() {
 
 	if (file.fail()) {
 		std::string message = "Failed open data file for write.";
-		MessageBoxA(nullptr, message.c_str(), "GlobalVariavles", 0);
+		MessageBoxA(nullptr, message.c_str(), "ParticleEmitter", 0);
 		assert(0);
 		return;
 	}
@@ -612,4 +614,86 @@ void ParticleEmitter::SaveEmitterData() {
 	file << jsonData.dump(4);
 
 	file.close();
+}
+
+void ParticleEmitter::LoadEmitterData(const std::string& fileName) {
+
+	nlohmann::json jsonData;
+
+	std::string kDirectoryPath = "resources/jsons/particles/";
+
+	std::string filePath = kDirectoryPath + fileName;
+
+	std::ifstream file(filePath);
+
+	if (!file.is_open()) {
+		std::string message = "Failed open data file for read.";
+		MessageBoxA(nullptr, message.c_str(), "ParticleEmitter", 0);
+		assert(0);
+		return;
+	}
+
+	file >> jsonData;
+
+	file.close();
+
+	Manager_->ChangeGroupName(jsonData["name"], name_);
+	Manager_->ChangeModel(jsonData["name"], jsonData["modelName"]);
+
+	if (jsonData.contains("name")) name_ = jsonData["name"];
+	if (jsonData.contains("count")) count_ = jsonData["count"];
+	if (jsonData.contains("frequency")) frequency_ = jsonData["frequency"];
+	if (jsonData.contains("lifeTime")) lifeTime_ = jsonData["lifeTime"];
+	if (jsonData.contains("lifeTimeRandomRange")) lifeTimeRandomRange_ = jsonData["lifeTimeRandomRange"];
+	if (jsonData.contains("startTime")) startTime_ = jsonData["startTime"];
+	if (jsonData.contains("endTime")) endTime_ = jsonData["endTime"];
+	if (jsonData.contains("isLoop")) isLoop_ = jsonData["isLoop"];
+
+	if (jsonData.contains("position")) {
+		auto pos = jsonData["position"];
+		position_.startNum = { pos["startNum"][0],pos["startNum"][1],pos["startNum"][2] };
+		position_.startRandomRange = { pos["startRandomRange"][0],pos["startRandomRange"][1],pos["startRandomRange"][2] };
+		position_.endNum = { pos["endNum"][0],pos["endNum"][1],pos["endNum"][2] };
+		position_.endRandomRange = { pos["endRandomRange"][0],pos["endRandomRange"][1],pos["endRandomRange"][2] };
+		position_.velocity = { pos["velocity"][0],pos["velocity"][1],pos["velocity"][2] };
+		position_.velocityRandomRange = { pos["velocityRandomRange"][0],pos["velocityRandomRange"][1],pos["velocityRandomRange"][2] };
+		position_.acceleration = { pos["acceleration"][0],pos["acceleration"][1],pos["acceleration"][2] };
+		position_.accelerationRandomRange = { pos["accelerationRandomRange"][0],pos["accelerationRandomRange"][1],pos["accelerationRandomRange"][2] };
+	}
+	if (jsonData.contains("positionState")) positionState_ = jsonData["positionState"];
+	if (jsonData.contains("positionEasingState")) positionEasingState_ = jsonData["positionEasingState"];
+
+	if (jsonData.contains("rotation")) {
+		auto pos = jsonData["rotation"];
+		rotation_.startNum = { pos["startNum"][0],pos["startNum"][1],pos["startNum"][2] };
+		rotation_.startRandomRange = { pos["startRandomRange"][0],pos["startRandomRange"][1],pos["startRandomRange"][2] };
+		rotation_.endNum = { pos["endNum"][0],pos["endNum"][1],pos["endNum"][2] };
+		rotation_.endRandomRange = { pos["endRandomRange"][0],pos["endRandomRange"][1],pos["endRandomRange"][2] };
+		rotation_.velocity = { pos["velocity"][0],pos["velocity"][1],pos["velocity"][2] };
+		rotation_.velocityRandomRange = { pos["velocityRandomRange"][0],pos["velocityRandomRange"][1],pos["velocityRandomRange"][2] };
+		rotation_.acceleration = { pos["acceleration"][0],pos["acceleration"][1],pos["acceleration"][2] };
+		rotation_.accelerationRandomRange = { pos["accelerationRandomRange"][0],pos["accelerationRandomRange"][1],pos["accelerationRandomRange"][2] };
+	}
+	if (jsonData.contains("rotationState")) rotationState_ = jsonData["rotationState"];
+	if (jsonData.contains("rotationEasingState")) rotationEasingState_ = jsonData["rotationEasingState"];
+
+	if (jsonData.contains("scale")) {
+		auto pos = jsonData["scale"];
+		scale_.startNum = { pos["startNum"][0],pos["startNum"][1],pos["startNum"][2] };
+		scale_.startRandomRange = { pos["startRandomRange"][0],pos["startRandomRange"][1],pos["startRandomRange"][2] };
+		scale_.endNum = { pos["endNum"][0],pos["endNum"][1],pos["endNum"][2] };
+		scale_.endRandomRange = { pos["endRandomRange"][0],pos["endRandomRange"][1],pos["endRandomRange"][2] };
+		scale_.velocity = { pos["velocity"][0],pos["velocity"][1],pos["velocity"][2] };
+		scale_.velocityRandomRange = { pos["velocityRandomRange"][0],pos["velocityRandomRange"][1],pos["velocityRandomRange"][2] };
+		scale_.acceleration = { pos["acceleration"][0],pos["acceleration"][1],pos["acceleration"][2] };
+		scale_.accelerationRandomRange = { pos["accelerationRandomRange"][0],pos["accelerationRandomRange"][1],pos["accelerationRandomRange"][2] };
+	}
+	if (jsonData.contains("scaleState")) scaleState_ = jsonData["scaleState"];
+	if (jsonData.contains("scaleEasingState")) scaleEasingState_ = jsonData["scaleEasingState"];
+
+	if (jsonData.contains("modelName")) modelName_ = jsonData["modelName"];
+	if (jsonData.contains("startColor")) startColor_ = { jsonData["startColor"][0],jsonData["startColor"][1],jsonData["startColor"][2],jsonData["startColor"][3] };
+	if (jsonData.contains("endColor")) endColor_ = { jsonData["endColor"][0],jsonData["endColor"][1],jsonData["endColor"][2],jsonData["endColor"][3] };
+	if (jsonData.contains("colorRandomRange")) colorRandomRange_ = { jsonData["colorRandomRange"][0],jsonData["colorRandomRange"][1],jsonData["colorRandomRange"][2],jsonData["colorRandomRange"][3] };
+	if (jsonData.contains("isBillboard")) isBillboard_ = jsonData["isBillboard"];
 }

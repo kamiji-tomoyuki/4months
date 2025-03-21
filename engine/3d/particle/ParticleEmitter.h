@@ -14,7 +14,7 @@ public:
 	// コンストラクタでメンバ変数を初期化
 	ParticleEmitter();
 
-	void Initialize(const std::string& name, const std::string& fileName);
+	void Initialize();
 
 	// 更新処理を行うUpdate関数
 	void Update();
@@ -30,6 +30,8 @@ public:
 	void ImGui(); // ImGui用の関数を追加
 
 	void SaveEmitterData();
+
+	void LoadEmitterData(const std::string& fileName);
 
 public:
 
