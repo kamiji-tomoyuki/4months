@@ -174,7 +174,7 @@ Vector3 PlayerSword::GetCenterPosition() const
 // 中心座標を取得
 Vector3 PlayerSword::GetCenterRotation() const
 {
-	return Transformation(Vector3({1,1,1}), transform_.matWorld_);
+	return transformPalm_.rotation_ + palm_->GetRotation();
 }
 
 /// モデルセット

@@ -1,6 +1,7 @@
 #pragma once
 #include "BaseObject.h"
 #include "BaseEnemyState.h"
+#include "ParticleEmitter.h"
 
 class TimeManager;
 class Player;
