@@ -19,7 +19,7 @@ BaseScene* SceneFactory::CreateScene(const std::string& sceneName)
 	else if (sceneName == "CLEAR") {
 		newScene = new ClearScene();
 	}
-	else if (sceneName == "GameOver") {
+	else if (sceneName == "GAMEOVER") {
 		newScene = new GameOverScene();
 	}
 	else if (sceneName == "EDITOR") {

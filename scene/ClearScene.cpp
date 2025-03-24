@@ -133,9 +133,9 @@ void ClearScene::CameraUpdate()
 	}
 }
 
-void ClearScene::ChangeScene()
-{
-	if (input_->TriggerKey(DIK_SPACE)) {
+void ClearScene::ChangeScene(){
+	XINPUT_STATE joyState;
+	if (Input::GetInstance()->GetJoystickState(0, joyState) && joyState.Gamepad.wButtons & XINPUT_GAMEPAD_A || input_->TriggerKey(DIK_SPACE)) {
 		sceneManager_->NextSceneReservation("TITLE");
 	}
 }

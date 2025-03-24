@@ -6,7 +6,7 @@
 #include "ViewProjection.h"
 #include "BaseObject.h"
 #include "optional"
-#include "PlayerArm.h"
+#include "PlayerSword.h"
 #include "TimeManager.h"
 #include "ParticleEmitter.h"
 
@@ -17,10 +17,6 @@ class LockOn;
 /// </summary>
 class Player :public BaseObject {
 public:
-	enum ModelState {
-		kSword,		// 剣
-		kModelNum,	
-	};
 	enum class Behavior {
 		kRoot,			// 通常状態
 		kDash,			// ダッシュ中
@@ -37,31 +33,29 @@ public:
 		kNullType,		// 未入力
 	};
 	struct Root {
-		float floatingParameter = 0.0f;//浮遊ギミックの媒介変数
-		int32_t period = 60;// 浮遊移動のサイクル<frame>
-		float floatingAmplitude = 0.2f;// 浮遊の振幅<m>
-		float armAmplitude = 0.4f;//アームの振幅
+		float floatingParameter = 0.0f;		//浮遊ギミックの媒介変数
+		int32_t period = 60;				// 浮遊移動のサイクル<frame>
+		float floatingAmplitude = 0.2f;		// 浮遊の振幅<m>
+		float armAmplitude = 0.4f;			//アームの振幅
 	};
 	struct Attack {
-		float kLimitTime = 0.4f;
-		Vector3 armStart = { 0.0f };
-		Vector3 armEnd = { 0.0f };
-		float time = 0;
-		bool isAttack = false;
-		bool isLeft = false;
+		float kLimitTime = 0.4f;					// 攻撃の時間(モーション)
+		Vector3 swordStartTransform = { 0.0f };		// 剣の始めの位置
+		Vector3 swordEndTransform = { 0.0f };		// 剣の終わりの位置
+		Vector3 swordStartRotate = { 0.0f };		// 剣の始めの角度
+		Vector3 swordEndRotate = { 0.0f };			// 剣の終わりの角度
+		float time = 0;								// 現在の進行度(モーション)
+		bool isAttack = false;						// 攻撃フラグ
 	};
-	struct Grab {
-		float kLimitTime = 0.5f;
-		float armStartL = 0.0f;
-		float armStartR = 0.0f;
-		float armEnd = 3.0f;
-		float time = 0;
-		bool isGrab = false;
+	struct Defence {
+		float kLimitTime = 0.5f;			// 防御の時間(モーション)
+		float time = 0;						// 現在の進行度(モーション)
+		bool isDefence = false;				// 防御フラグ
 	};
 	struct WorkDash {
-		float kDashTime_ = 0.6f;
-		float DashTime_ = 0;
-		float kAttenuation_ = 1.50f;
+		float kDashTime_ = 0.6f;			// ダッシュの時間(モーション)
+		float DashTime_ = 0;				// 現在の進行度(モーション)
+		float kAttenuation_ = 0.250f;		// 減衰率
 	};
 
 	Player();
@@ -194,7 +188,7 @@ private:	// メンバ変数
 	// 各動作に必要なデータ
 	Root root_;
 	Attack attack_;
-	Grab grab_;
+	Defence defence_;
 	WorkDash workDash_;
 
 	// 移動速度 減衰速度
@@ -224,9 +218,9 @@ private:	// メンバ変数
 	bool isClear_ = false;
 	bool isGameOver_ = false;
 
-	std::array<std::unique_ptr<PlayerArm>, kModelNum> arms_;
+	std::unique_ptr<PlayerSword> sword_;
 	// パーティクルエミッタ
-	//std::vector<std::unique_ptr<ParticleEmitter>> emitters_;
+	std::vector<std::unique_ptr<ParticleEmitter>> emitters_;
 	// ポインタ
 	TimeManager* timeManager_ = nullptr;
 	FollowCamera* followCamera_ = nullptr;
@@ -256,8 +250,10 @@ public:
 		transform_.scale_ = scale;  // **スケールを適用**
 	}
 
-	// プレイヤーの腕を取得
-	std::array<std::unique_ptr<PlayerArm>, kModelNum>& GetArms() { return arms_; }
+	// プレイヤーの剣を取得
+	PlayerSword* GetSword() { return sword_.get(); }
+
+	const Vector3& GetAimingDirection() { return aimingDirection_; }
 
 	void SetBehavior(Behavior newBehavior);
 

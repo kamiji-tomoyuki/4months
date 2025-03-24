@@ -15,8 +15,8 @@ void Boss::Init() {
 	Collider::SetRadius(10.0f);
 	Collider::SetAABBScale({ 0.0f,0.0f,0.0f });
 	Enemy::SetScale({ 10.0f,10.0f,10.0f });
-	shortDistance_ = (player_->GetRadius() + GetRadius()) * 2.0f;
-	middleDistance_ = (player_->GetRadius() + GetRadius()) * 4.0f;
+	shortDistance_ = (player_->GetRadius() + GetRadius()) * 200.0f;
+	middleDistance_ = (player_->GetRadius() + GetRadius()) * 400.0f;
 	//imgui
 	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
 	// グループを追加
@@ -50,7 +50,7 @@ void Boss::Update() {
 	// キャラ移動
 	state_->Update();
 
-	velocity_ *= kAttenuation_;
+	velocity_ *= 1.0f - kAttenuation_;
 
 	transform_.translation_ += velocity_ * timeManager_->deltaTime_;
 

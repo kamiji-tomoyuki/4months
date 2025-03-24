@@ -10,7 +10,7 @@
 #include"DebugCamera.h"
 #include "Player.h"
 #include "FollowCamera.h"
-#include "PlayerArm.h"
+#include "PlayerSword.h"
 #include <array>
 #include <vector>
 

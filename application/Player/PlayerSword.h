@@ -1,9 +1,10 @@
 #pragma once
 #include "Collider.h"
+#include "ParticleEmitter.h"
 
-class Enemy;
+class Player;
 class TimeManager;
-class EnemySword : public Collider {
+class PlayerSword : public Collider {
 public:
 	/// <summary>
 	/// 初期化
@@ -15,11 +16,13 @@ public:
 	/// 更新
 	/// </summary>
 	void Update();
-
+	void UpdateParticle(const ViewProjection& viewProjection);
 	/// <summary>
 	/// 描画
 	/// </summary>
 	void Draw(const ViewProjection& viewProjection);
+
+	void DrawParticle(const ViewProjection& viewProjection);
 
 	void DrawAnimation(const ViewProjection& viewProjection);
 
@@ -45,8 +48,10 @@ public:
 	Vector3 GetCenterPosition() const override;
 	Vector3 GetCenterRotation() const override;
 
+	void ImGui();
+
 private:
-	Enemy* enemy_ = nullptr;
+	Player* player_ = nullptr;
 	TimeManager* timeManager_ = nullptr;
 
 	// モデル配列データ
@@ -59,19 +64,23 @@ private:
 	ObjColor objColor_;
 
 	bool isAttack_ = false;
-	bool isDefense_ = false;
+	bool isDefence_ = false;
+
+	// パーティクルエミッタ
+	std::vector<std::unique_ptr<ParticleEmitter>> emitters_;
 
 	int id_ = 0;
 public:
 	int GetID() { return id_; }
 	Vector3 GetTranslation() { return transform_.translation_; }
+	Vector3 GetRotate() { return transform_.rotation_; }
 	bool GetIsAttack() { return isAttack_; }
-	bool GetIsDefense() { return isDefense_; }
-	Enemy* GetEnemy() { return enemy_; }
+	bool GetIsDefence() { return isDefence_; }
+	Player* GetPlayer() { return player_; }
 
 	void SetID(int id) { id_ = id; }
 	void SetModel(const std::string& filePath);
-	void SetEnemy(Enemy* enemy);
+	void SetPlayer(Player* player);
 	void SetTimeManager(TimeManager* timeManager) { timeManager_ = timeManager; }
 	void SetObjColor(Vector4 c) { objColor_.SetColor(c); }
 	void SetTranslation(Vector3 pos) { transform_.translation_ = pos; }
@@ -85,5 +94,6 @@ public:
 	void SetScale(Vector3 scale) { transform_.scale_ = scale; }
 	void SetSize(float size) { Collider::SetRadius(size); }
 	void SetIsAttack(bool isAttack) { isAttack_ = isAttack; }
-	void SetIsDefense(bool isDefense) { isDefense_ = isDefense; }
+	void SetIsDefence(bool isGrab) { isDefence_ = isGrab; }
 };
+

@@ -20,7 +20,15 @@ void Enemy::Update() {
 	BaseObject::Update();
 }
 
+void Enemy::UpdateParticle(const ViewProjection& viewProjection){
+
+}
+
 void Enemy::Draw(const ViewProjection& viewProjection) { BaseObject::Draw(viewProjection); }
+
+void Enemy::DrawParticle(const ViewProjection& viewProjection){
+
+}
 
 void Enemy::DrawAnimation(const ViewProjection& viewProjection){
 
@@ -112,6 +120,24 @@ void Enemy::VectorRotation(const Vector3& direction) {
 	transform_.rotation_.y = std::atan2f(move.x, move.z);
 	Vector3 velocityZ = Transformation(move, MakeRotateYMatrix(-transform_.rotation_.y));
 	transform_.rotation_.x = std::atan2f(-velocityZ.y, velocityZ.z);
+}
+void Enemy::RootInitialize(){
+
+}
+void Enemy::RootUpdate(){
+
+}
+void Enemy::AttackInitialize(){
+
+}
+void Enemy::AttackUpdate(){
+
+}
+void Enemy::ProtectionInitialize(){
+
+}
+void Enemy::ProtectionUpdate(){
+
 }
 void Enemy::SetTranslation(const Vector3& translation) {
 	transform_.translation_ = translation;
