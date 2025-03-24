@@ -18,7 +18,8 @@
 #include "Ground.h"
 #include "TimeManager.h"
 #include "LockOn.h"
-#include <ParticleEmitter.h>
+#include "ParticleEmitter.h"
+#include "ParticleManager.h"
 #include "Enemy.h"
 #include "Soldier.h"
 
@@ -70,6 +71,8 @@ private:
 	SpriteCommon* spCommon_;
 	ParticleCommon* ptCommon_;
 
+	ParticleManager* particleManager_;
+
 	// ビュープロジェクション
 	ViewProjection vp_;
 	std::unique_ptr<DebugCamera> debugCamera_;
@@ -91,7 +94,7 @@ private:
 	const int kMaxHp = 10000; // HPの最大値
 	std::unique_ptr<Sprite> enemyHpBar_; // 敵の HP バー
 	//パーティクルエミッタ
-	std::vector<std::unique_ptr<ParticleEmitter>> emitters_;
+	std::unique_ptr<ParticleEmitter> starEmitter_;
 	// SE 多重再生防止
 	bool isPlay = true;
 	//敵発生コマンド

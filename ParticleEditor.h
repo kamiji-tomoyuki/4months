@@ -26,6 +26,10 @@ private:
 
 	std::vector<std::unique_ptr<ParticleEmitter>> emitters_;
 
+	std::vector<std::string> emitterFiles_;
+
+	std::string kDirectoryPath_ = "resources/jsons/particles/";
+
 	ViewProjection* viewProjection_;
 
 	float timer_;

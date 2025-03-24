@@ -5,39 +5,59 @@
 #include "ViewProjection.h"
 #include "ParticleParamater.h"
 #include "json.hpp"
+
 #ifdef _DEBUG
 #include "imgui.h" // ImGuiのインクルード
 #endif // _DEBUG
 
+///=====================================================/// 
+/// エミッター
+///=====================================================///
 class ParticleEmitter {
+
 public:
 	// コンストラクタでメンバ変数を初期化
 	ParticleEmitter();
 
+	// メンバ変数の初期化を行うInitialize関数
 	void Initialize();
 
 	// 更新処理を行うUpdate関数
 	void Update();
 
+	// 一度だけ更新を行うUpdate関数
 	void UpdateOnce();
 
+	// エミッターを描画するDraw関数
 	void Draw();
 
+	// エミッターを描画するDraw関数
 	void DrawEmitter();
 
+	// モデルを変更
 	void ChangeModel(const std::string& fileName);
 
-	void ImGui(); // ImGui用の関数を追加
+	// ImGui用の関数を追加
+	void ImGui(); 
 
+	// エミッターの内容をJsonファイルにセーブする
 	void SaveEmitterData();
 
+	// Jsonファイルからエミッターの内容を読み込む
 	void LoadEmitterData(const std::string& fileName);
 
-public:
+	void Start();
 
+public:
+	// 名前を取得
 	std::string GetName() { return name_; }
 
-	void AddTime(float time) { emitTimer += time; }
+	// タイマーを進める
+	void AddTime(float time) { totalTimer_ += time; }
+
+	void SetTime(float time) { totalTimer_ = time; }
+
+	void SetPosition(const Vector3& pos) { transform_.translation_ = pos; }
 
 private:
 	// パーティクルを発生させるEmit関数
@@ -50,9 +70,6 @@ private:
 
 	//合計時間
 	float totalTimer_;
-
-	//再生開始フラグ
-	bool isStart_;
 
 	/// === エミッター設定 === ///
 
@@ -135,5 +152,6 @@ private:
 	//ビルボードフラグ
 	bool isBillboard_;
 
+	// パーティクルマネージャー
 	ParticleManager* Manager_;
 };

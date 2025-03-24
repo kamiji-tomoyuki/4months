@@ -391,6 +391,9 @@
     <ClCompile Include="ParticleEditor.cpp">
       <Filter>ソースファイル</Filter>
     </ClCompile>
+    <ClCompile Include="scene\EditorScene.cpp">
+      <Filter>ソースファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
@@ -675,6 +678,7 @@
     <ClInclude Include="EnemySword.h" />
     <ClInclude Include="engine\3d\particle\ParticleParamater.h" />
     <ClInclude Include="ParticleEditor.h" />
+    <ClInclude Include="scene\EditorScene.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\shaders\Particle\Particle.PS.hlsl">

@@ -20,13 +20,11 @@ void ParticleManager::Initialize(SrvManager* srvManager) {
 	srvManager_ = srvManager;
 	randomEngine.seed(seedGenerator());
 
-	for (const auto& entry : std::filesystem::directory_iterator("resources/models/GameScene")) {
+	for (const auto& entry : std::filesystem::directory_iterator(kDirectoryPath)) {
 		if (entry.path().extension() == ".obj") {
 			modelFiles.push_back(entry.path().filename().string());
 		}
 	}
-
-	id_ = 0;
 }
 
 void ParticleManager::Update(const ViewProjection& viewProjection) {
@@ -64,19 +62,43 @@ void ParticleManager::Update(const ViewProjection& viewProjection) {
 
 			/// === 移動処理 === ///
 
+			Vector3 startPos;
+
+			Vector3 endPos;
+
 			switch (particleIterator->positionState) {
 
 			case START:
 
-				particleIterator->transform.translation_ = particleIterator->positionPara.startNum;
+				startPos = particleIterator->positionPara.startNum;
+
+				endPos = particleIterator->positionPara.startNum;
+
+				particleIterator->transform.translation_ =
+					Lerp(
+						startPos,
+						endPos,
+						t
+					);
 
 				break;
 
 			case VELOCITY:
 
-				particleIterator->transform.translation_ += particleIterator->positionPara.velocity;
-
 				particleIterator->positionPara.velocity += particleIterator->positionPara.acceleration;
+
+				startPos = particleIterator->positionPara.startNum;
+
+				endPos = particleIterator->positionPara.startNum +
+					particleIterator->positionPara.velocity *
+					(particleIterator->lifeTime / kDeltaTime);
+
+				particleIterator->transform.translation_ =
+					Lerp(
+						startPos,
+						endPos,
+						t
+					);
 
 				break;
 
@@ -211,21 +233,11 @@ void ParticleManager::Update(const ViewProjection& viewProjection) {
 					particleIterator->transform.matWorld_.m[3][2]
 				};
 
-				Vector3 forward = (viewProjection.translation_ - objPos).Normalize();
+				worldMatrix =
+					MakeScaleMatrix(particleIterator->transform.scale_) *
+					billboardMatrix *
+					MakeTranslateMatrix(objPos);
 
-				Vector3 up = { 0.0f,1.0f,0.0f };
-
-				Vector3 right = (up.Cross(forward)).Normalize();
-
-				up = forward.Cross(right);
-
-				// ビルボード
-				worldMatrix = {
-					right.x,up.x,forward.x,0,
-					right.y,up.y,forward.y,0,
-					right.z,up.z,forward.z,0,
-					objPos.x,objPos.y,objPos.z,1
-				};
 			} else {
 				// 通常
 				worldMatrix = particleIterator->transform.matWorld_;
@@ -423,14 +435,24 @@ ParticleManager::Particle ParticleManager::MakeNewParticle(
 	return newParticle;
 }
 
-void ParticleManager::CreateParticleGroup(const std::string name, const std::string& filename) {
+void ParticleManager::CreateParticleGroup(std::string& name, const std::string& filename) {
 	// --- パーティクルグループ生成 ---
-	if (particleGroups.contains(name)) {
-		return;
+
+	int id = 0;
+
+	std::string groupName = name;
+
+	while (particleGroups.contains(groupName)) {
+
+		id++;
+
+		groupName = name + std::to_string(id);
 	}
 
-	particleGroups[name] = ParticleGroup();
-	ParticleGroup& particleGroup = particleGroups[name];
+	name = groupName;
+
+	particleGroups[groupName] = ParticleGroup();
+	ParticleGroup& particleGroup = particleGroups[groupName];
 	CreateVartexData(filename);
 
 	particleGroup.material.textureFilePath = modelData.material.textureFilePath;
@@ -463,7 +485,7 @@ void ParticleManager::ChangeModel(const std::string name, const std::string& fil
 		return;
 	}
 
-	modelData = LoadObjFile("resources/models/GameScene/", filename);
+	modelData = LoadObjFile(kDirectoryPath, filename);
 
 	vertexResource->Map(0, nullptr, reinterpret_cast<void**>(&vertexData));
 	std::memcpy(vertexData, modelData.vertices.data(), sizeof(VertexData) * modelData.vertices.size());
@@ -485,7 +507,7 @@ std::vector<const char*> ParticleManager::GetModelFiles() {
 }
 
 void ParticleManager::CreateVartexData(const std::string& filename) {
-	modelData = LoadObjFile("resources/models/GameScene/", filename);
+	modelData = LoadObjFile(kDirectoryPath, filename);
 
 	// --- 頂点リソース生成 ---
 	vertexResource = particleCommon->GetDxCommon()->CreateBufferResource(sizeof(VertexData) * modelData.vertices.size());

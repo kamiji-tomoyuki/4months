@@ -64,13 +64,15 @@ void TitleScene::Initialize()
 
 	audio_->PlayWave(0, 0.1f, true);
 
-	editor_ = std::make_unique<ParticleEditor>();
-
-	editor_->Initialize(&vp_);
-
-	editor_->CreateEmitter();
-
 	particleManager_ = ParticleManager::GetInstance();
+
+	starEmitter_ = std::make_unique<ParticleEmitter>();
+
+	starEmitter_->Initialize();
+
+	starEmitter_->LoadEmitterData("Star.json");
+
+	starEmitter_->Start();
 }
 
 void TitleScene::Finalize()
@@ -107,7 +109,7 @@ void TitleScene::Update()
 	//}
 	//UI_->SetAlpha(timer_);
 
-	editor_->Update();
+	starEmitter_->Update();
 
 	particleManager_->Update(vp_);
 }
@@ -142,8 +144,6 @@ void TitleScene::Draw()
 	/// Particleの描画準備
 	ptCommon_->DrawCommonSetting();
 	//------Particleの描画開始-------
-
-	editor_->Draw();
 
 	particleManager_->Draw();
 
@@ -213,8 +213,6 @@ void TitleScene::Debug()
 	//}
 
 	ImGui::End();
-
-	editor_->ImGui();
 
 }
 

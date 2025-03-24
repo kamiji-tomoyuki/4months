@@ -1,6 +1,7 @@
 #include "ParticleEditor.h"
 #include "imgui.h"
-
+#include "fstream"
+#include "filesystem"
 void ParticleEditor::Initialize(ViewProjection* vp) {
 
 	viewProjection_ = vp;
@@ -14,6 +15,12 @@ void ParticleEditor::Initialize(ViewProjection* vp) {
 	isStart_ = false;
 
 	isLoop_ = false;
+
+	for (const auto& entry : std::filesystem::directory_iterator(kDirectoryPath_)) {
+		if (entry.path().extension() == ".json") {
+			emitterFiles_.push_back(entry.path().filename().string());
+		}
+	}
 }
 
 void ParticleEditor::Update() {
@@ -36,15 +43,11 @@ void ParticleEditor::Update() {
 
 	for (const auto& emitter : emitters_) {
 
+		//emitter->SetTime(timer_);
+
 		emitter->Update();
 
-		if (timer_ - preTimer_ >= 0.0f) {
-
-			emitter->AddTime(timer_ - preTimer_);
-		}
 	}
-
-	preTimer_ = timer_;
 }
 
 void ParticleEditor::Draw() {
@@ -80,6 +83,33 @@ void ParticleEditor::ImGui() {
 	ImGui::Begin("ParticleEditor");
 
 	if (ImGui::BeginTabBar("ParticleEditorTabBer")) {
+
+		if (ImGui::BeginTabItem("Create Emitter")) {
+
+			std::vector<const char*> items;
+
+			int currentItem = 0;
+
+			for (const auto& file : emitterFiles_) {
+				items.push_back(file.c_str());
+			}
+
+			items.insert(items.begin(), "ファイルを選択");
+
+			ImGui::Text("新規データを生成");
+			if (ImGui::Button("新規作成")) {
+				CreateEmitter();
+			}
+
+			ImGui::Separator();
+
+			ImGui::Text("既存データから生成");
+			if (ImGui::Combo("##既存データから生成", &currentItem, items.data(), static_cast<int>(items.size()))) {
+				LoadEmitter(items[currentItem]);
+			}
+
+			ImGui::EndTabItem();
+		}
 
 		for (const auto& emitter : emitters_) {
 

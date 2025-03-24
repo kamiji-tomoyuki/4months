@@ -85,12 +85,15 @@ void GameScene::Initialize()
 	enemyHpBar_->SetSize(Vector2(70.0f, 500.0f)); // 横幅を少し太く
 	enemyHpBar_->SetAnchorPoint({ 0.0f,0.0f });
 
-	for (int i = 0; i < 1; ++i) {
-		std::unique_ptr<ParticleEmitter> emitter_;
-		emitter_ = std::make_unique<ParticleEmitter>();
-		emitters_.push_back(std::move(emitter_));
-	}
-	emitters_[0]->Initialize();
+	particleManager_ = ParticleManager::GetInstance();
+
+	starEmitter_ = std::make_unique<ParticleEmitter>();
+
+	starEmitter_->Initialize();
+
+	starEmitter_->LoadEmitterData("Star.json");
+
+	starEmitter_->Start();
 
 	/*audio_->StopWave(0);
 	audio_->StopWave(1);
@@ -157,10 +160,12 @@ void GameScene::Update()
 
 	// シーン切り替え
 	ChangeScene();
-	for (std::unique_ptr<ParticleEmitter>& emitter_ : emitters_) {
-		emitter_->Update();
-	}
 
+	starEmitter_->SetPosition(players_[0]->GetCenterPosition());
+
+	starEmitter_->Update();
+
+	particleManager_->Update(vp_);
 }
 
 void GameScene::Draw()
@@ -206,10 +211,9 @@ void GameScene::Draw()
 	/// Particleの描画準備
 	ptCommon_->DrawCommonSetting();
 	//------Particleの描画開始-------
-	for (std::unique_ptr<ParticleEmitter>& emitter_ : emitters_) {
-		emitter_->Draw();
-		/*emitter_->DrawEmitter();*/
-	}
+
+	particleManager_->Draw();
+
 	for (std::unique_ptr<Player>& player : players_) {
 		player->DrawParticle(vp_);
 	}
@@ -267,13 +271,6 @@ void GameScene::Debug()
 		player->ImGui();
 	}
 
-	int emitterId = 0;
-	for (std::unique_ptr<ParticleEmitter>& emitter_ : emitters_) {
-		ImGui::PushID(emitterId);
-		emitter_->ImGui();
-		ImGui::PopID();
-		++emitterId;
-	}
 	ImGui::End();
 }
 

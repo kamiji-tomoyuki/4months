@@ -9,33 +9,40 @@ ParticleEmitter::ParticleEmitter() {}
 
 void ParticleEmitter::Initialize() {
 
+	//マネージャーを取得
 	Manager_ = ParticleManager::GetInstance();
 
-	startTime_ = 0.0f;
-	endTime_ = 100.0f;
-	isLoop_ = true;
-	isStart_ = false;
+	emitTimer = 0.0f;
+
+	/// === エミッター設定 === ///
 
 	name_ = "newEmitter";
 	count_ = 100;
 	frequency_ = 0.01f;
 	lifeTime_ = 1.0f;
 	lifeTimeRandomRange_ = 0.0f;
-	isActive_ = true;
+	startTime_ = 0.0f;
+	endTime_ = 3.0f;
+	isActive_ = false;
+	isLoop_ = false;
 	isDrawEmitter_ = true;
-	isBillboard_ = true;
+
 	transform_.Initialize();
 
-	positionState_ = START;
+	/// === 座標設定 === ///
+
+	positionState_ = VELOCITY;
 	positionEasingState_ = LERP;
 	position_.startNum = { 0.0f, 0.0f, 0.0f };
-	position_.startRandomRange = { 0.0f,0.0f,0.0f };
+	position_.startRandomRange = { 0.0f,5.0f,0.0f };
 	position_.endNum = { 0.0f, 0.0f, 0.0f };
 	position_.endRandomRange = { 0.0f, 0.0f, 0.0f };
-	position_.velocity = { 0.0f, 0.0f, 0.0f };
+	position_.velocity = { 0.1f, 0.0f, 0.0f };
 	position_.velocityRandomRange = { 0.0f, 0.0f, 0.0f };
-	position_.acceleration = { 0.0f, 0.0f, 0.0f };
+	position_.acceleration = { 0.0f, -0.01f, 0.0f };
 	position_.accelerationRandomRange = { 0.0f, 0.0f, 0.0f };
+
+	/// === 角度設定 === ///
 
 	rotationState_ = START;
 	rotationEasingState_ = LERP;
@@ -48,6 +55,8 @@ void ParticleEmitter::Initialize() {
 	rotation_.acceleration = { 0.0f, 0.0f, 0.0f };
 	rotation_.accelerationRandomRange = { 0.0f, 0.0f, 0.0f };
 
+	/// === 拡縮設定 === ///
+
 	scaleState_ = START;
 	scaleEasingState_ = LERP;
 	scale_.startNum = { 1.0f, 1.0f, 1.0f };
@@ -59,49 +68,45 @@ void ParticleEmitter::Initialize() {
 	scale_.acceleration = { 0.0f, 0.0f, 0.0f };
 	scale_.accelerationRandomRange = { 0.0f, 0.0f, 0.0f };
 
+	/// === モデル設定 === ///
+
 	modelName_ = "star.obj";
 	startColor_ = { 1.0f, 1.0f, 1.0f, 1.0f };
 	endColor_ = { 1.0f, 1.0f, 1.0f, 1.0f };
 	colorRandomRange_ = { 0.0f, 0.0f, 0.0f, 0.0f };
+	isBillboard_ = true;
 
+	//設定を基にパーティクルグループを生成
 	Manager_->CreateParticleGroup(name_, modelName_);
 }
 
 // Update関数
 void ParticleEmitter::Update() {
 
-	if (isStart_) {
-
-		// 時間を進める
-		emitTimer += 1.0f / 60.0f;
+	// アクティブなら
+	if (isActive_) {
 
 		totalTimer_ += 1.0f / 60.0f;
 	}
 
-	if (totalTimer_ >= startTime_) {
-		isActive_ = true;
+	if (totalTimer_ >= endTime_) {
+
+		isActive_ = false;
+
+		if (isLoop_) {
+
+			Start();
+		}
 	}
 
-	// アクティブなら
-	if (isActive_) {
+	if (totalTimer_ >= startTime_) {
 
-		if (totalTimer_ >= endTime_) {
-
-			isActive_ = false;
-		}
-
-		if (emitTimer >= frequency_) {
+		if (totalTimer_ - emitTimer >= frequency_) {
 
 			// パーティクルを発生させる
 			Emit();
 
-			if (emitTimer >= frequency_) {
-
-				emitTimer = 0.0f;
-			} else {
-
-				emitTimer -= frequency_;
-			}
+			emitTimer = totalTimer_;
 		}
 	}
 
@@ -494,7 +499,7 @@ void ParticleEmitter::ImGui() {
 
 		std::vector<const char*> items = Manager_->GetModelFiles();
 
-		items.insert(items.begin(), "");
+		items.insert(items.begin(), "モデルを選択");
 
 		int currentItem = 0;
 
@@ -521,6 +526,10 @@ void ParticleEmitter::ImGui() {
 		ImGui::NextColumn();
 
 		ImGui::Columns(1); // 列終了
+	}
+
+	if (ImGui::Button("Start")) {
+		Start();
 	}
 
 	if (ImGui::Button("Save")) {
@@ -696,4 +705,13 @@ void ParticleEmitter::LoadEmitterData(const std::string& fileName) {
 	if (jsonData.contains("endColor")) endColor_ = { jsonData["endColor"][0],jsonData["endColor"][1],jsonData["endColor"][2],jsonData["endColor"][3] };
 	if (jsonData.contains("colorRandomRange")) colorRandomRange_ = { jsonData["colorRandomRange"][0],jsonData["colorRandomRange"][1],jsonData["colorRandomRange"][2],jsonData["colorRandomRange"][3] };
 	if (jsonData.contains("isBillboard")) isBillboard_ = jsonData["isBillboard"];
+}
+
+void ParticleEmitter::Start() {
+
+	isActive_ = true;
+
+	emitTimer = 0.0f;
+
+	totalTimer_ = 0.0f;
 }

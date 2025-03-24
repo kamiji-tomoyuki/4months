@@ -40,7 +40,7 @@ public:
 	/// </summary>
 	/// <param name="name"></param>
 	/// <param name="textureFilePath"></param>
-	void CreateParticleGroup(const std::string name, const std::string& filename);
+	void CreateParticleGroup(std::string& name, const std::string& filename);
 
 	void ChangeGroupName(const std::string& newName,const std::string& preName);
 
@@ -139,7 +139,7 @@ private:
 	std::random_device seedGenerator;
 	std::mt19937 randomEngine;
 
-	int id_;
+	const std::string kDirectoryPath = "resources/models/GameScene/";
 
 public:
 
