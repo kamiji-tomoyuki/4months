@@ -1,18 +1,33 @@
 #include "ParticleManager.h"
 #include "TextureManager.h"
 #include "fstream"
+#include "filesystem"
+#include "Vector3.h"
 
 std::unordered_map<std::string, ParticleManager::ModelData> ParticleManager::modelCache;
 
-void ParticleManager::Initialize(SrvManager* srvManager)
-{
+ParticleManager* ParticleManager::instance = nullptr;
+
+ParticleManager* ParticleManager::GetInstance() {
+	if (instance == nullptr) {
+		instance = new ParticleManager();
+	}
+	return instance;
+}
+
+void ParticleManager::Initialize(SrvManager* srvManager) {
 	particleCommon = ParticleCommon::GetInstance();
 	srvManager_ = srvManager;
 	randomEngine.seed(seedGenerator());
+
+	for (const auto& entry : std::filesystem::directory_iterator(kDirectoryPath)) {
+		if (entry.path().extension() == ".obj") {
+			modelFiles.push_back(entry.path().filename().string());
+		}
+	}
 }
 
-void ParticleManager::Update(const ViewProjection& viewProjection)
-{
+void ParticleManager::Update(const ViewProjection& viewProjection) {
 	// --- 各行列の初期化・計算 ---
 	Matrix4x4 viewProjectionMatrix = viewProjection.matView_ * viewProjection.matProjection_;
 
@@ -32,66 +47,200 @@ void ParticleManager::Update(const ViewProjection& viewProjection)
 		for (auto particleIterator = particleGroup.particles.begin();
 			particleIterator != particleGroup.particles.end();) {
 
-			if ((*particleIterator).lifeTime <= (*particleIterator).currentTime) {
+			/// === 削除処理 === ///
+
+			if (particleIterator->lifeTime <= particleIterator->currentTime) {
 				particleIterator = particleGroup.particles.erase(particleIterator);
 				continue;
 			}
-			// パーティクルの生存時間 t の計算
-			float t = (*particleIterator).currentTime / (*particleIterator).lifeTime;
+
+			// パーティクルの進行度
+			float t = particleIterator->currentTime / particleIterator->lifeTime;
+
+			//0~1の範囲内に収める
 			t = std::clamp(t, 0.0f, 1.0f);
 
-			// --- 拡縮処理 ---
-			if (isSinMove_) {
-				// Sin波の周波数制御 (速度調整)
-				float waveScale = 0.5f * (sin(t * DirectX::XM_PI * 18.0f) + 1.0f);  // 0 ~ 1
+			/// === 移動処理 === ///
 
-				// 最大スケールが寿命に応じて縮小し、最終的に0になる
-				float maxScale = (1.0f - t); 
+			Vector3 startPos;
 
-				// Sin波スケールと最大スケールの積を適用
-				(*particleIterator).transform.scale_ =
-					(*particleIterator).startScale * waveScale * maxScale;
+			Vector3 endPos;
 
-			} else {
-				// 通常の線形補間
-				(*particleIterator).transform.scale_ =
-					(1.0f - t) * (*particleIterator).startScale + t * (*particleIterator).endScale;
-				
-				// アルファ値の計算
-				(*particleIterator).color.w = (*particleIterator).initialAlpha - ((*particleIterator).currentTime / (*particleIterator).lifeTime);
+			switch (particleIterator->positionState) {
+
+			case START:
+
+				startPos = particleIterator->positionPara.startNum;
+
+				endPos = particleIterator->positionPara.startNum;
+
+				particleIterator->transform.translation_ =
+					Lerp(
+						startPos,
+						endPos,
+						t
+					);
+
+				break;
+
+			case VELOCITY:
+
+				particleIterator->positionPara.velocity += particleIterator->positionPara.acceleration;
+
+				startPos = particleIterator->positionPara.startNum;
+
+				endPos = particleIterator->positionPara.startNum +
+					particleIterator->positionPara.velocity *
+					(particleIterator->lifeTime / kDeltaTime);
+
+				particleIterator->transform.translation_ =
+					Lerp(
+						startPos,
+						endPos,
+						t
+					);
+
+				break;
+
+			case EASING:
+
+				switch (particleIterator->positionEasingState) {
+
+				case LERP:
+
+					particleIterator->transform.translation_ =
+						Lerp(
+							particleIterator->positionPara.startNum,
+							particleIterator->positionPara.endNum,
+							t
+						);
+
+					break;
+
+				case EASEIN:
+					break;
+
+				case EASEOUT:
+					break;
+				}
+
+				break;
 			}
 
-			(*particleIterator).Acce = (1.0f - t) * (*particleIterator).startAcce + t * (*particleIterator).endAcce;
+			/// === 回転処理 === ///
 
-			if (isRandomRotate_) {
-				(*particleIterator).transform.rotation_ += (*particleIterator).rotateVelocity;
-			} else {
-				(*particleIterator).transform.rotation_ = (1.0f - t) * (*particleIterator).startRote + t * (*particleIterator).endRote;
+			switch (particleIterator->rotationState) {
+
+			case START:
+
+				particleIterator->transform.rotation_ = particleIterator->rotationPara.startNum;
+
+				break;
+
+			case VELOCITY:
+
+				particleIterator->transform.rotation_ += particleIterator->rotationPara.velocity;
+
+				particleIterator->rotationPara.velocity += particleIterator->rotationPara.acceleration;
+
+				break;
+
+			case EASING:
+
+				switch (particleIterator->positionEasingState) {
+
+				case LERP:
+
+					particleIterator->transform.rotation_ =
+						Lerp(
+							particleIterator->rotationPara.startNum,
+							particleIterator->rotationPara.endNum,
+							t
+						);
+
+					break;
+
+				case EASEIN:
+					break;
+
+				case EASEOUT:
+					break;
+				}
+
+				break;
 			}
 
-			if (isAcceMultipy_) {
-				(*particleIterator).velocity *= (*particleIterator).Acce;
-			} else {
-				(*particleIterator).velocity += (*particleIterator).Acce;
+			/// === 拡縮処理 === ///
+
+			switch (particleIterator->scaleState) {
+
+			case START:
+
+				particleIterator->transform.scale_ = particleIterator->scalePara.startNum;
+
+				break;
+
+			case VELOCITY:
+
+				particleIterator->transform.scale_ += particleIterator->scalePara.velocity;
+
+				particleIterator->scalePara.velocity += particleIterator->scalePara.acceleration;
+
+				break;
+
+			case EASING:
+
+				switch (particleIterator->positionEasingState) {
+
+				case LERP:
+
+					particleIterator->transform.scale_ =
+						Lerp(
+							particleIterator->scalePara.startNum,
+							particleIterator->scalePara.endNum,
+							t
+						);
+
+					break;
+
+				case EASEIN:
+					break;
+
+				case EASEOUT:
+					break;
+				}
+
+				break;
 			}
 
-			// パーティクルの移動
-			(*particleIterator).transform.translation_ +=
-				(*particleIterator).velocity * kDeltaTime;
-			(*particleIterator).currentTime += kDeltaTime;
+			particleIterator->color = Lerp(particleIterator->startColor, particleIterator->endColor, t);
+
+			// ワールドトランスフォームの更新
+			particleIterator->transform.UpdateMatrix();
+
+			particleIterator->transform.matWorld_ *= particleIterator->emitterTransform.matWorld_;
+
+			particleIterator->transform.TransferMatrix();
 
 			// ワールド行列の計算
 			Matrix4x4 worldMatrix{};
 
-			if (isBillboard) {
-				// ビルボード
-				worldMatrix = MakeScaleMatrix((*particleIterator).transform.scale_) * billboardMatrix *
-					MakeTranslateMatrix((*particleIterator).transform.translation_);
+			if (particleIterator->isBillboard) {
+
+				Vector3 objPos = {
+					particleIterator->transform.matWorld_.m[3][0],
+					particleIterator->transform.matWorld_.m[3][1],
+					particleIterator->transform.matWorld_.m[3][2]
+				};
+
+				worldMatrix =
+					MakeScaleMatrix(particleIterator->transform.scale_) *
+					billboardMatrix *
+					MakeTranslateMatrix(objPos);
+
 			} else {
 				// 通常
-				worldMatrix = MakeAffineMatrix((*particleIterator).transform.scale_,
-					(*particleIterator).transform.rotation_,
-					(*particleIterator).transform.translation_);
+				worldMatrix = particleIterator->transform.matWorld_;
 			}
 
 			// ワールド・ビュー・プロジェクション行列計算
@@ -106,6 +255,8 @@ void ParticleManager::Update(const ViewProjection& viewProjection)
 				++numInstance;
 			}
 
+			particleIterator->currentTime += kDeltaTime;
+
 			++particleIterator;
 		}
 
@@ -114,8 +265,7 @@ void ParticleManager::Update(const ViewProjection& viewProjection)
 	}
 }
 
-void ParticleManager::Draw()
-{
+void ParticleManager::Draw() {
 	particleCommon->GetDxCommon()->GetCommandList()->IASetVertexBuffers(0, 1, &vertexBufferView);
 
 	for (auto& [groupName, particleGroup] : particleGroups) {
@@ -130,15 +280,179 @@ void ParticleManager::Draw()
 	}
 }
 
-void ParticleManager::CreateParticleGroup(const std::string name, const std::string& filename)
-{
-	// --- パーティクルグループ生成 ---
-	if (particleGroups.contains(name)) {
-		return;
+std::list<ParticleManager::Particle> ParticleManager::Emit(
+	const std::string name,
+	const WorldTransform& parent,
+	const int count,
+	const float lifeTime,
+	const float lifeTimeRandomRange,
+	const ParameterState& positionState,
+	const EasingState& positionEasingState,
+	const Parameter& position,
+	const ParameterState& rotationState,
+	const EasingState& rotationEasingState,
+	const Parameter& rotation,
+	const ParameterState& scaleState,
+	const EasingState& scaleEasingState,
+	const Parameter& scale,
+	const Vector4& startColor,
+	const Vector4& endColor,
+	const Vector4& randomColor,
+	const bool& isBillboard
+) {
+
+	assert(particleGroups.find(name) != particleGroups.end() && "Error: パーティクルグループが存在しません。");
+
+	ParticleGroup& particleGroup = particleGroups[name];
+
+	std::list<Particle> newParticles;
+
+	if (particleGroup.instanceCount <= static_cast<uint32_t>(count)) {
+
+		Particle particle = MakeNewParticle(
+			randomEngine,
+			parent,
+			positionState,
+			positionEasingState,
+			position,
+			rotationState,
+			rotationEasingState,
+			rotation,
+			scaleState,
+			scaleEasingState,
+			scale,
+			startColor,
+			endColor,
+			randomColor,
+			lifeTime,
+			isBillboard
+		);
+
+		newParticles.push_back(particle);
 	}
 
-	particleGroups[name] = ParticleGroup();
-	ParticleGroup& particleGroup = particleGroups[name];
+	particleGroup.particles.splice(particleGroup.particles.end(), newParticles);
+
+	return newParticles;
+}
+
+ParticleManager::Particle ParticleManager::MakeNewParticle(
+	std::mt19937& randomEngine,
+	const WorldTransform& emitterTransform,
+	const ParameterState& positionState,
+	const EasingState& positionEasingState,
+	const Parameter& position,
+	const ParameterState& rotationState,
+	const EasingState& rotationEasingState,
+	const Parameter& rotation,
+	const ParameterState& scaleState,
+	const EasingState& scaleEasingState,
+	const Parameter& scale,
+	const Vector4& startColor,
+	const Vector4& endColor,
+	const Vector4& randomRangeColor,
+	const float& lifeTime,
+	const bool& isBillboard
+) {
+
+	//新しく作成するパーティクル
+	Particle newParticle;
+
+	/// === 座標設定 === ///
+
+	newParticle.positionPara.startNum = DistributionVector3(position.startNum, position.startRandomRange);
+
+	newParticle.positionPara.endNum = DistributionVector3(position.endNum, position.endRandomRange);
+
+	newParticle.positionPara.velocity = DistributionVector3(position.velocity, position.velocityRandomRange);
+
+	newParticle.positionPara.acceleration = DistributionVector3(position.acceleration, position.accelerationRandomRange);
+
+	newParticle.positionState = positionState;
+
+	newParticle.positionEasingState = positionEasingState;
+
+	/// === 角度設定 === ///
+
+	newParticle.rotationPara.startNum = DistributionVector3(rotation.startNum, rotation.startRandomRange);
+
+	newParticle.rotationPara.endNum = DistributionVector3(rotation.endNum, rotation.endRandomRange);
+
+	newParticle.rotationPara.velocity = DistributionVector3(rotation.velocity, rotation.velocityRandomRange);
+
+	newParticle.rotationPara.acceleration = DistributionVector3(rotation.acceleration, rotation.accelerationRandomRange);
+
+	newParticle.rotationState = rotationState;
+
+	newParticle.rotationEasingState = rotationEasingState;
+
+	/// === 大きさ設定 === ///
+
+	newParticle.scalePara.startNum = DistributionVector3(scale.startNum, scale.startRandomRange);
+
+	newParticle.scalePara.endNum = DistributionVector3(scale.endNum, scale.endRandomRange);
+
+	newParticle.scalePara.velocity = DistributionVector3(scale.velocity, scale.velocityRandomRange);
+
+	newParticle.scalePara.acceleration = DistributionVector3(scale.acceleration, scale.accelerationRandomRange);
+
+	newParticle.scaleState = scaleState;
+
+	newParticle.scaleEasingState = scaleEasingState;
+
+	/// === 色設定 === ///
+
+	newParticle.startColor = DistributionVector4(startColor, randomRangeColor);
+
+	newParticle.endColor = endColor;
+
+	newParticle.color = newParticle.startColor;
+
+	/// === ワールドトランスフォーム設定 === ///
+
+	newParticle.emitterTransform = emitterTransform;
+
+	newParticle.emitterTransform.UpdateMatrix();
+
+	newParticle.transform.Initialize();
+
+	newParticle.transform.translation_ = newParticle.positionPara.startNum;
+
+	newParticle.transform.rotation_ = newParticle.rotationPara.startNum;
+
+	newParticle.transform.scale_ = newParticle.scalePara.startNum;
+
+	newParticle.transform.UpdateMatrix();
+
+	/// === タイマー設定 === ///
+
+	newParticle.lifeTime = lifeTime;
+
+	newParticle.currentTime = 0.0f;
+
+	newParticle.isBillboard = isBillboard;
+
+	return newParticle;
+}
+
+void ParticleManager::CreateParticleGroup(std::string& name, const std::string& filename) {
+	// --- パーティクルグループ生成 ---
+
+	int id = 0;
+
+	std::string groupName = name;
+
+	while (particleGroups.contains(groupName)) {
+
+		id++;
+
+		groupName = name + std::to_string(id);
+	}
+
+	name = groupName;
+
+	particleGroups[groupName] = ParticleGroup();
+	ParticleGroup& particleGroup = particleGroups[groupName];
 	CreateVartexData(filename);
 
 	particleGroup.material.textureFilePath = modelData.material.textureFilePath;
@@ -154,9 +468,46 @@ void ParticleManager::CreateParticleGroup(const std::string name, const std::str
 	particleGroup.instanceCount = 0;
 }
 
-void ParticleManager::CreateVartexData(const std::string& filename)
-{
-	modelData = LoadObjFile("resources/models/", filename);
+void ParticleManager::ChangeGroupName(const std::string& newName, const std::string& preName) {
+
+	if (!particleGroups.contains(preName)) {
+		return;
+	}
+
+	particleGroups[newName] = particleGroups[preName];
+
+	particleGroups.erase(preName);
+}
+
+void ParticleManager::ChangeModel(const std::string name, const std::string& filename) {
+
+	if (!particleGroups.contains(name)) {
+		return;
+	}
+
+	modelData = LoadObjFile(kDirectoryPath, filename);
+
+	vertexResource->Map(0, nullptr, reinterpret_cast<void**>(&vertexData));
+	std::memcpy(vertexData, modelData.vertices.data(), sizeof(VertexData) * modelData.vertices.size());
+
+	particleGroups[name].material.textureFilePath = modelData.material.textureFilePath;
+
+	TextureManager::GetInstance()->LoadTexture(modelData.material.textureFilePath);
+}
+
+std::vector<const char*> ParticleManager::GetModelFiles() {
+
+	std::vector<const char*> items;
+
+	for (const auto& file : modelFiles) {
+		items.push_back(file.c_str());
+	}
+
+	return items;
+}
+
+void ParticleManager::CreateVartexData(const std::string& filename) {
+	modelData = LoadObjFile(kDirectoryPath, filename);
 
 	// --- 頂点リソース生成 ---
 	vertexResource = particleCommon->GetDxCommon()->CreateBufferResource(sizeof(VertexData) * modelData.vertices.size());
@@ -170,122 +521,7 @@ void ParticleManager::CreateVartexData(const std::string& filename)
 	std::memcpy(vertexData, modelData.vertices.data(), sizeof(VertexData) * modelData.vertices.size());
 }
 
-ParticleManager::Particle ParticleManager::MakeNewParticle(
-	std::mt19937& randomEngine,
-	const Vector3& translate,
-	const Vector3& rotation,
-	const Vector3& scale,
-	const Vector3& velocityMin, const Vector3& velocityMax,
-	float lifeTimeMin, float lifeTimeMax,
-	const Vector3& particleStartScale, const Vector3& particleEndScale,
-	const Vector3& startAcce, const Vector3& endAcce,
-	const Vector3& startRote, const Vector3& endRote,
-	bool isRamdomColor, float alphaMin, float alphaMax,
-	const Vector3& rotateVelocityMin, const Vector3& rotateVelocityMax,
-	const Vector3& allScaleMax, const Vector3& allScaleMin,
-	const float& scaleMin, const float& scaleMax
-)
-{
-	std::uniform_real_distribution<float> distribution(-1.0f, 1.0f);
-	std::uniform_real_distribution<float> distVelocityX(velocityMin.x, velocityMax.x);
-	std::uniform_real_distribution<float> distVelocityY(velocityMin.y, velocityMax.y);
-	std::uniform_real_distribution<float> distVelocityZ(velocityMin.z, velocityMax.z);
-	std::uniform_real_distribution<float> distLifeTime(lifeTimeMin, lifeTimeMax);
-	std::uniform_real_distribution<float> distAlpha(alphaMin, alphaMax);
-
-	Particle particle;
-
-	// スケールを考慮して位置を生成
-	Vector3 randomTranslate = {
-		distribution(randomEngine) * scale.x,
-		distribution(randomEngine) * scale.y,
-		distribution(randomEngine) * scale.z
-	};
-
-	// 回転行列を適用しランダムに回転
-	Matrix4x4 rotationMatrix = MakeRotateXYZMatrix(rotation);
-
-	// ランダム位置を回転行列で変換
-	Vector3 rotatedPosition = {
-		randomTranslate.x * rotationMatrix.m[0][0] + randomTranslate.y * rotationMatrix.m[1][0] + randomTranslate.z * rotationMatrix.m[2][0],
-		randomTranslate.x * rotationMatrix.m[0][1] + randomTranslate.y * rotationMatrix.m[1][1] + randomTranslate.z * rotationMatrix.m[2][1],
-		randomTranslate.x * rotationMatrix.m[0][2] + randomTranslate.y * rotationMatrix.m[1][2] + randomTranslate.z * rotationMatrix.m[2][2]
-	};
-
-	// 回転されたランダムな位置をトランスレーションに加算
-	particle.transform.translation_ = translate + rotatedPosition;
-
-	if (isRandomAllSize_) {
-		std::uniform_real_distribution<float> distScaleX(allScaleMin.x, allScaleMax.x);
-		std::uniform_real_distribution<float> distScaleY(allScaleMin.y, allScaleMax.y);
-		std::uniform_real_distribution<float> distScaleZ(allScaleMin.z, allScaleMax.z);
-
-		particle.startScale = { distScaleX(randomEngine),distScaleY(randomEngine),distScaleZ(randomEngine) };
-	} else if (isRandomSize_) {
-		std::uniform_real_distribution<float> distScale(scaleMin, scaleMax);
-		particle.startScale.x = distScale(randomEngine);
-		particle.startScale.y = particle.startScale.x;
-		particle.startScale.z = particle.startScale.x;
-
-	} else {
-		particle.startScale = particleStartScale;
-	}
-
-	particle.endScale = particleEndScale;
-
-	particle.startAcce = startAcce;
-	particle.endAcce = endAcce;
-
-	// パーティクルの速度をランダムに設定
-	Vector3 randomVelocity = {
-		distVelocityX(randomEngine),
-		distVelocityY(randomEngine),
-		distVelocityZ(randomEngine)
-	};
-
-	// エミッターの回転を速度ベクトルに適用
-	particle.velocity = {
-		randomVelocity.x * rotationMatrix.m[0][0] + randomVelocity.y * rotationMatrix.m[1][0] + randomVelocity.z * rotationMatrix.m[2][0],
-		randomVelocity.x * rotationMatrix.m[0][1] + randomVelocity.y * rotationMatrix.m[1][1] + randomVelocity.z * rotationMatrix.m[2][1],
-		randomVelocity.x * rotationMatrix.m[0][2] + randomVelocity.y * rotationMatrix.m[1][2] + randomVelocity.z * rotationMatrix.m[2][2]
-	};
-
-
-	if (isRandomRotate_) {
-		// 回転速度をランダムに設定
-		std::uniform_real_distribution<float> distRotateXVelocity(rotateVelocityMin.x, rotateVelocityMax.x);
-		std::uniform_real_distribution<float> distRotateYVelocity(rotateVelocityMin.y, rotateVelocityMax.y);
-		std::uniform_real_distribution<float> distRotateZVelocity(rotateVelocityMin.z, rotateVelocityMax.z);
-		std::uniform_real_distribution<float> distRotateX(0.0f, 2.0f);
-		std::uniform_real_distribution<float> distRotateY(0.0f, 2.0f);
-		std::uniform_real_distribution<float> distRotateZ(0.0f, 2.0f);
-		particle.rotateVelocity.x = distRotateXVelocity(randomEngine);
-		particle.rotateVelocity.y = distRotateYVelocity(randomEngine);
-		particle.rotateVelocity.z = distRotateZVelocity(randomEngine);
-		particle.transform.rotation_.x = distRotateX(randomEngine);
-		particle.transform.rotation_.y = distRotateY(randomEngine);
-		particle.transform.rotation_.z = distRotateZ(randomEngine);
-	} else {
-		particle.startRote = startRote;
-		particle.endRote = endRote;
-	}
-
-	if (isRamdomColor) {
-		std::uniform_real_distribution<float> distColor(0.0f, 1.0f);
-		particle.color = { distColor(randomEngine), distColor(randomEngine), distColor(randomEngine), distAlpha(randomEngine) };
-	} else {
-		particle.color = { 1.0f,1.0f,1.0f, distAlpha(randomEngine) };
-	}
-
-	particle.initialAlpha = distAlpha(randomEngine);
-	particle.lifeTime = distLifeTime(randomEngine);
-	particle.currentTime = 0.0f;
-
-	return particle;
-}
-
-ParticleManager::MaterialData ParticleManager::LoadMaterialTemplateFile(const std::string& directoryPath, const std::string& filename)
-{
+ParticleManager::MaterialData ParticleManager::LoadMaterialTemplateFile(const std::string& directoryPath, const std::string& filename) {
 	MaterialData materialData;
 	std::string line;
 
@@ -346,14 +582,12 @@ ParticleManager::ModelData ParticleManager::LoadObjFile(const std::string& direc
 			position.x *= -1.0f;
 			position.w = 1.0f;
 			positions.push_back(position);
-		}
-		else if (identifier == "vt") {
+		} else if (identifier == "vt") {
 			Vector2 texcoord;
 			s >> texcoord.x >> texcoord.y;
 			texcoord.y = 1.0f - texcoord.y;
 			texcoords.push_back(texcoord);
-		}
-		else if (identifier == "f") {
+		} else if (identifier == "f") {
 			VertexData triangle[3];
 			for (int32_t faceVertex = 0; faceVertex < 3; ++faceVertex) {
 				std::string vertexDefinition;
@@ -371,14 +605,12 @@ ParticleManager::ModelData ParticleManager::LoadObjFile(const std::string& direc
 				modelData.vertices.push_back(vertex);
 				triangle[faceVertex] = { position, texcoord };
 			}
-		}
-		else if (identifier == "mtllib") {
+		} else if (identifier == "mtllib") {
 			std::string materialFilename;
 			s >> materialFilename;
 			if (!folderPath.empty()) {
 				modelData.material = LoadMaterialTemplateFile(directoryPath + folderPath, materialFilename);
-			}
-			else {
+			} else {
 				modelData.material = LoadMaterialTemplateFile(directoryPath, materialFilename);
 			}
 		}
@@ -390,8 +622,7 @@ ParticleManager::ModelData ParticleManager::LoadObjFile(const std::string& direc
 }
 
 
-void ParticleManager::CreateMaterial()
-{
+void ParticleManager::CreateMaterial() {
 	// --- マテリアルリソース生成 ---
 	materialResource = particleCommon->GetDxCommon()->CreateBufferResource(sizeof(Material));
 	materialResource->Map(0, nullptr, reinterpret_cast<void**>(&materialData));
@@ -399,54 +630,51 @@ void ParticleManager::CreateMaterial()
 	materialData->uvTransform = MakeIdentity4x4();
 }
 
-std::list<ParticleManager::Particle> ParticleManager::Emit(
-	const std::string name,
-	const Vector3& position,
-	uint32_t count,
-	const Vector3& scale,
-	const Vector3& velocityMin, const Vector3& velocityMax,
-	float lifeTimeMin, float lifeTimeMax,
-	const Vector3& particleStartScale, const Vector3& particleEndScale,
-	const Vector3& startAcce, const Vector3& endAcce,
-	const Vector3& startRote, const Vector3& endRote,
-	bool isRandomColor, float alphaMin, float alphaMax,
-	const Vector3& rotateVelocityMin, const Vector3& rotateVelocityMax,
-	const Vector3& allScaleMax, const Vector3& allScaleMin,
-	const float& scaleMin, const float& scaleMax, const Vector3& rotation)
-{
-	assert(particleGroups.find(name) != particleGroups.end() && "Error: パーティクルグループが存在しません。");
+Vector4 ParticleManager::DistributionVector4(Vector4 num, Vector4 range) {
 
-	ParticleGroup& particleGroup = particleGroups[name];
+	Vector4 result;
 
-	std::list<Particle> newParticles;
-	for (uint32_t nowCount = 0; nowCount < count; ++nowCount) {
-		Particle particle = MakeNewParticle(
-			randomEngine,
-			position,
-			rotation,
-			scale,
-			velocityMin,
-			velocityMax,
-			lifeTimeMin,
-			lifeTimeMax,
-			particleStartScale,
-			particleEndScale,
-			startAcce,
-			endAcce,
-			startRote,
-			endRote,
-			isRandomColor,
-			alphaMin,
-			alphaMax,
-			rotateVelocityMin,
-			rotateVelocityMax,
-			allScaleMax, allScaleMin,
-			scaleMin, scaleMax
-		);
-		newParticles.push_back(particle);
-	}
+	std::uniform_real_distribution<float> distNumX(num.x - range.x, num.x + range.x);
+	std::uniform_real_distribution<float> distNumY(num.y - range.y, num.y + range.y);
+	std::uniform_real_distribution<float> distNumZ(num.z - range.z, num.z + range.z);
+	std::uniform_real_distribution<float> distNumW(num.w - range.w, num.w + range.w);
 
-	particleGroup.particles.splice(particleGroup.particles.end(), newParticles);
+	result.x = distNumX(randomEngine);
+	result.y = distNumY(randomEngine);
+	result.z = distNumZ(randomEngine);
+	result.w = distNumW(randomEngine);
 
-	return newParticles;
+	return result;
+}
+
+Vector3 ParticleManager::DistributionVector3(Vector3 num, Vector3 range) {
+
+	Vector3 result;
+
+	Vector3 num1 = num - range;
+	Vector3 num2 = num + range;
+
+	Vector3 min;
+	Vector3 max;
+
+	std::uniform_real_distribution<float> distNumX(num.x - range.x, num.x + range.x);
+	std::uniform_real_distribution<float> distNumY(num.y - range.y, num.y + range.y);
+	std::uniform_real_distribution<float> distNumZ(num.z - range.z, num.z + range.z);
+
+	result.x = distNumX(randomEngine);
+	result.y = distNumY(randomEngine);
+	result.z = distNumZ(randomEngine);
+
+	return result;
+}
+
+float ParticleManager::DistributionFloat(float num, float range) {
+
+	std::uniform_real_distribution<float> distNum(num - range, num + range);
+
+	float result;
+
+	result = distNum(randomEngine);
+
+	return result;
 }

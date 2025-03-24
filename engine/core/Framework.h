@@ -12,6 +12,7 @@
 #include "ModelManager.h"
 #include "TextureManager.h"
 #include "AnimationManager.h"
+#include "ParticleManager.h"
 #include "engine/offscreen/OffScreen.h"
 #include <line/DrawLine3D.h>
 
@@ -82,6 +83,7 @@ protected:
 	TextureManager* textureManager_ = nullptr;
 	ModelManager* modelManager_ = nullptr;
 	AnimationManager* animationManager_ = nullptr;
+	ParticleManager* particleManager_ = nullptr;
 
 	SpriteCommon* spriteCommon = nullptr;
 	Object3dCommon* object3dCommon = nullptr;

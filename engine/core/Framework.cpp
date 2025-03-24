@@ -122,6 +122,11 @@ void Framework::Initialize()
 	line3d_->Initialize();
 	///------------------------
 
+	///-------ParticleManager-------
+	particleManager_ = ParticleManager::GetInstance();
+	particleManager_->Initialize(SrvManager::GetInstance());
+	///------------------------
+
 	LightGroup::GetInstance()->Initialize();
 
 	GlobalVariables::GetInstance()->LoadFiles();

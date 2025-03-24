@@ -121,6 +121,7 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="application\Enemy\Boss.cpp" />
     <ClCompile Include="application\Enemy\EnemyStateAttack.cpp" />
     <ClCompile Include="application\Enemy\EnemyStateDefense.cpp" />
+    <ClCompile Include="scene\EditorScene.cpp" />
     <ClCompile Include="application\Player\PlayerSword.cpp" />
     <ClCompile Include="application\Enemy\EnemySword.cpp" />
     <ClCompile Include="engine\3d\model\animation\ModelAnimation.cpp" />
@@ -183,6 +184,7 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\3d\line\LineManager.cpp" />
     <ClCompile Include="engine\utility\scene\SceneTransition.cpp" />
     <ClCompile Include="engine\offscreen\OffScreen.cpp" />
+    <ClCompile Include="ParticleEditor.cpp" />
     <ClCompile Include="scene\BaseScene.cpp" />
     <ClCompile Include="scene\ClearScene.cpp" />
     <ClCompile Include="scene\GameOverScene.cpp" />
@@ -230,9 +232,11 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="application\Enemy\Boss.h" />
     <ClInclude Include="application\Enemy\EnemyStateAttack.h" />
     <ClInclude Include="application\Enemy\EnemyStateDefense.h" />
+    <ClInclude Include="scene\EditorScene.h" />
     <ClInclude Include="application\Player\PlayerSword.h" />
     <ClInclude Include="application\Enemy\EnemySword.h" />
     <ClInclude Include="engine\3d\model\animation\ModelAnimation.h" />
+    <ClInclude Include="engine\3d\particle\ParticleParamater.h" />
     <ClInclude Include="engine\utility\graphics\AnimationManager.h" />
     <ClInclude Include="engine\3d\model\animation\Bone.h" />
     <ClInclude Include="engine\3d\model\animation\Animator.h" />
@@ -299,6 +303,7 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\3d\line\LineManager.h" />
     <ClInclude Include="engine\utility\scene\SceneTransition.h" />
     <ClInclude Include="engine\offscreen\OffScreen.h" />
+    <ClInclude Include="ParticleEditor.h" />
     <ClInclude Include="scene\BaseScene.h" />
     <ClInclude Include="scene\ClearScene.h" />
     <ClInclude Include="scene\GameOverScene.h" />
