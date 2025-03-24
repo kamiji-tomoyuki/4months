@@ -805,12 +805,13 @@ void Player::ImGui()
 		ImGui::End();
 	}
 	int emitterId = 0;
-	/*for (std::unique_ptr<ParticleEmitter>& emitter_ : emitters_) {
+	for (std::unique_ptr<ParticleEmitter>& emitter_ : emitters_) {
 		ImGui::PushID(emitterId);
 		emitter_->imgui();
 		ImGui::PopID();
 		++emitterId;
-	}*/
+	}
+	sword_->ImGui();
 }
 
 Vector3 Player::GetWorldPosition()

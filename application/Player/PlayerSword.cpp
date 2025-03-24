@@ -181,6 +181,19 @@ Vector3 PlayerSword::GetCenterRotation() const{
 	return  transform_.rotation_;
 }
 
+
+void PlayerSword::ImGui()
+{
+	int emitterId = 0;
+	for (std::unique_ptr<ParticleEmitter>& emitter_ : emitters_) {
+		ImGui::PushID(emitterId);
+		emitter_->imgui();
+		ImGui::PopID();
+		++emitterId;
+	}
+}
+
+
 /// モデルセット
 void PlayerSword::SetModel(const std::string& filePath)
 {
