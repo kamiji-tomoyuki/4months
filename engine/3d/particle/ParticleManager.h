@@ -20,6 +20,8 @@ public:
 
 	static ParticleManager* GetInstance();
 
+	void Finalize();
+
 	/// <summary>
 	/// 初期化
 	/// </summary>

@@ -804,13 +804,7 @@ void Player::ImGui()
 		ImGui::PopID();
 		ImGui::End();
 	}
-	int emitterId = 0;
-	for (std::unique_ptr<ParticleEmitter>& emitter_ : emitters_) {
-		ImGui::PushID(emitterId);
-		emitter_->imgui();
-		ImGui::PopID();
-		++emitterId;
-	}
+
 	sword_->ImGui();
 }
 

@@ -165,6 +165,7 @@ void Framework::Finalize()
 	object3dCommon->Finalize();
 	spriteCommon->Finalize();
 	particleCommon->Finalize();
+	particleManager_->Finalize();
 	dxCommon->Finalize();
 	delete sceneFactory_;
 }

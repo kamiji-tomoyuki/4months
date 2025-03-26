@@ -15,6 +15,11 @@ ParticleManager* ParticleManager::GetInstance() {
 	return instance;
 }
 
+void ParticleManager::Finalize() {
+	delete instance;
+	instance = nullptr;
+}
+
 void ParticleManager::Initialize(SrvManager* srvManager) {
 	particleCommon = ParticleCommon::GetInstance();
 	srvManager_ = srvManager;
