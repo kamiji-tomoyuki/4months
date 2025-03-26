@@ -11,7 +11,7 @@ void EnemyStateAttack::Update(){
 	Player* player = enemy_->GetPlayer();
 	TimeManager* timeManager = enemy_->GetTimeManager();
 
-	float kAttack = 1.5f;
+	float kAttack = 1.4f;
 
 	if (!timeManager->GetTimer("AttackCoolTime" + std::to_string(enemy_->GetSerialNumber())).isStart) {
 		enemy_->AttackInitialize();
@@ -23,8 +23,8 @@ void EnemyStateAttack::Update(){
 		if (timeManager->GetTimer("AttackCoolTime" + std::to_string(enemy_->GetSerialNumber())).isStart) {
 			enemy_->AttackUpdate();
 		} else {
-			enemy_->ChangeState(std::make_unique<EnemyStateRoot>(enemy_));
 			enemy_->RootInitialize();
+			enemy_->ChangeState(std::make_unique<EnemyStateRoot>(enemy_));
 		}
 	} else if (Vector3(player->GetCenterPosition() - enemy_->GetCenterPosition()).Length() < enemy_->GetMiddleDistance()) {
 		enemy_->ChangeState(std::make_unique<EnemyStateApproach>(enemy_));

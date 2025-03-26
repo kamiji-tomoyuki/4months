@@ -129,7 +129,9 @@ void Soldier::RootInitialize(){
 	Enemy::RootInitialize();
 	sword_->SetIsAttack(false);
 	sword_->SetIsDefense(false);
+	attack_.isAttack = false;
 	sword_->SetTranslation({ 1.7f, 0.0f, 1.3f });
+	attackTypeRequest_ = AttackType::kNullType;
 }
 
 void Soldier::RootUpdate(){
@@ -138,7 +140,6 @@ void Soldier::RootUpdate(){
 
 void Soldier::AttackInitialize(){
 	Enemy::AttackInitialize();
-	attackTypeRequest_ = AttackType::kNullType;
 	// 方向取得
 	DirectionPreliminaryAction();
 }
@@ -164,8 +165,8 @@ void Soldier::AttackUpdate(){
 
 	if (attack_.time / attack_.kLimitTime >= 1.0f) {
 		attack_.time = attack_.kLimitTime;
-		attack_.isAttack = false;
 		sword_->SetTranslation({ 1.7f, 0.0f, 1.3f });
+		sword_->SetRotation({ 0.0f, 0.0f, 0.0f });
 	}
 }
 
@@ -278,7 +279,8 @@ void Soldier::AttackTypeDownSwingInitialize(){
 
 // 振り下ろし(上入力攻撃)の更新
 void Soldier::AttackTypeDownSwingUpdate(){
-	if (!timeManager_->GetTimer("PostureAttackCoolTime" + std::to_string(GetSerialNumber())).isStart) {
+	if (timeManager_->GetTimer("PostureAttackCoolTime" + std::to_string(GetSerialNumber())).isStart) {
+		attack_.time = 0.0f;
 		return;
 	}
 	// 座標の計算
@@ -308,7 +310,8 @@ void Soldier::AttackTypeThrustInitialize(){
 
 // 突き(下入力攻撃)の更新
 void Soldier::AttackTypeThrustUpdate(){
-	if (!timeManager_->GetTimer("PostureAttackCoolTime" + std::to_string(GetSerialNumber())).isStart) {
+	if (timeManager_->GetTimer("PostureAttackCoolTime" + std::to_string(GetSerialNumber())).isStart) {
+		attack_.time = 0.0f;
 		return;
 	}
 	Vector3 newPos = EaseInOutExpo(attack_.swordStartTransform, attack_.swordEndTransform, attack_.time, attack_.kLimitTime);
@@ -332,7 +335,8 @@ void Soldier::AttackTypeLeftSwingInitialize(){
 
 // 右振り抜き(左入力攻撃)の更新
 void Soldier::AttackTypeLeftSwingUpdate(){
-	if (!timeManager_->GetTimer("PostureAttackCoolTime" + std::to_string(GetSerialNumber())).isStart) {
+	if (timeManager_->GetTimer("PostureAttackCoolTime" + std::to_string(GetSerialNumber())).isStart) {
+		attack_.time = 0.0f;
 		return;
 	}
 	// 座標の計算
@@ -367,7 +371,8 @@ void Soldier::AttackTypeRightSwingInitialize(){
 
 // 左振り抜き(右入力攻撃)の更新
 void Soldier::AttackTypeRightSwingUpdate(){
-	if (!timeManager_->GetTimer("PostureAttackCoolTime" + std::to_string(GetSerialNumber())).isStart) {
+	if (timeManager_->GetTimer("PostureAttackCoolTime" + std::to_string(GetSerialNumber())).isStart) {
+		attack_.time = 0.0f;
 		return;
 	}
 	// 座標の計算
@@ -399,36 +404,45 @@ void Soldier::AttackTypeNullUpdate(){
 	float cosTheta = atan2f(aimingDirection_.z, aimingDirection_.x);
 	// 上
 	if (cosTheta > 0.25f * pi && cosTheta < 0.75f * pi) {
-		sword_->SetTranslationX(aimingDirection_.x);
-		sword_->SetTranslationY(aimingDirection_.z);
-		sword_->SetTranslationZ(0.0f);
+		// 座標
+		sword_->SetTranslation({ aimingDirection_.x, aimingDirection_.z , 0.0f });
+
+		// 角度
+		sword_->SetRotation({ 0.0f, 0.5f * pi_v<float> -cosTheta, 0.0f });
+
 		attackTypeRequest_ = AttackType::kDownSwing;
-		timeManager_->SetTimer("PostureAttackCoolTime" + std::to_string(GetSerialNumber()), 1.0f);
 	}
 	// 下
 	else if (cosTheta < -0.25f * pi && cosTheta > -0.75f * pi) {
-		sword_->SetTranslationX(1.2f);
-		sword_->SetTranslationY(0.0f);
-		sword_->SetTranslationZ(-0.75f);
+		// 座標
+		sword_->SetTranslation({ 1.5f, 0.0f , -1.5f });
+
+		// 角度
+		sword_->SetRotation({ pi_v<float> *0.5f, -(0.5f * pi_v<float> +cosTheta), 0.0f });
+
 		attackTypeRequest_ = AttackType::kThrust;
-		timeManager_->SetTimer("PostureAttackCoolTime" + std::to_string(GetSerialNumber()), 1.0f);
 	}
 	// 左
 	else if (cosTheta >= 0.75f * pi || cosTheta <= -0.75f * pi) {
-		sword_->SetTranslationX(aimingDirection_.x);
-		sword_->SetTranslationY(0.0f);
-		sword_->SetTranslationZ(aimingDirection_.z);
+		// 座標
+		sword_->SetTranslation({ aimingDirection_.x, 0.0f , aimingDirection_.z });
+
+		// 角度
+		sword_->SetRotation({ cosTheta >= 0.75f * pi ? pi_v<float> *1.0f - cosTheta : pi_v<float> *1.0f - cosTheta, 0.0f, pi_v<float> *0.5f });
+
 		attackTypeRequest_ = AttackType::kRightSlash;
-		timeManager_->SetTimer("PostureAttackCoolTime" + std::to_string(GetSerialNumber()), 1.0f);
 	}
 	// 右
 	else {
-		sword_->SetTranslationX(aimingDirection_.x);
-		sword_->SetTranslationY(0.0f);
-		sword_->SetTranslationZ(aimingDirection_.z);
+		// 座標
+		sword_->SetTranslation({ aimingDirection_.x, 0.0f , aimingDirection_.z });
+
+		// 角度
+		sword_->SetRotation({ cosTheta >= 0.0f ? pi_v<float> *1.0f - cosTheta : pi_v < float> *1.0f + -cosTheta, 0.0f, pi_v<float> *0.5f });
+
 		attackTypeRequest_ = AttackType::kLeftSlash;
-		timeManager_->SetTimer("PostureAttackCoolTime" + std::to_string(GetSerialNumber()), 1.0f);
 	}
+	timeManager_->SetTimer("PostureAttackCoolTime" + std::to_string(GetSerialNumber()), 1.0f);
 }
 
 void(Soldier::* Soldier::AttackTypeInitFuncTable[])() = {

@@ -8,7 +8,7 @@
         "middleDistance": 100.0,
         "middleDistanceProbability_.kAttack": 0.5,
         "middleDistanceProbability_.kDefense": 0.05000000074505806,
-        "shortDistance": 14.40000057220459,
+        "shortDistance": 20.0,
         "shortDistanceProbability_.kAttack": 0.4000000059604645,
         "shortDistanceProbability_.kDefense": 0.4000000059604645
     }

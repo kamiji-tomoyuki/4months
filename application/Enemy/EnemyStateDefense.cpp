@@ -23,8 +23,8 @@ void EnemyStateDefense::Update(){
 		if (timeManager->GetTimer("DefenseCoolTime" + std::to_string(enemy_->GetSerialNumber())).isStart) {
 			enemy_->ProtectionUpdate();
 		} else {
-			enemy_->ChangeState(std::make_unique<EnemyStateRoot>(enemy_));
 			enemy_->RootInitialize();
+			enemy_->ChangeState(std::make_unique<EnemyStateRoot>(enemy_));
 		}
 	} else if (Vector3(player->GetCenterPosition() - enemy_->GetCenterPosition()).Length() < enemy_->GetMiddleDistance()) {
 		enemy_->ChangeState(std::make_unique<EnemyStateApproach>(enemy_));
