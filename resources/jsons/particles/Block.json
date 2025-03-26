@@ -19,7 +19,7 @@
     "lifeTime": 0.30000001192092896,
     "lifeTimeRandomRange": 0.0,
     "modelName": "planeSpark.obj",
-    "name": "Hit",
+    "name": "Block",
     "position": {
         "acceleration": [
             0.0,

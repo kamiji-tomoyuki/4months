@@ -42,11 +42,11 @@ public:
 	/// </summary>
 	/// <param name="name"></param>
 	/// <param name="textureFilePath"></param>
-	void CreateParticleGroup(std::string name, const std::string& filename);
+	void CreateParticleGroup(std::string& name, const std::string& filename);
 
-	void ChangeGroupName(const std::string& newName, const std::string& preName);
+	void ChangeGroupName(const std::string& name, const std::string& preName);
 
-	void ChangeModel(std::string name, const std::string& filename);
+	void ReloadGroup(std::string& name, const std::string& preName, const std::string& filename);
 
 	std::vector<const char*> GetModelFiles();
 

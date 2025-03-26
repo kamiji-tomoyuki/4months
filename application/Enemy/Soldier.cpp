@@ -36,8 +36,7 @@ void Soldier::Init(){
 		emitters_.push_back(std::move(emitter_));
 	}
 
-	emitters_[0]->LoadEmitterData("Hit.json");
-	emitters_[1]->LoadEmitterData("Smoke.json");
+	emitters_[0]->LoadEmitterData("Damage.json");
 
 	//imgui
 	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
@@ -89,7 +88,7 @@ void Soldier::UpdateParticle(const ViewProjection& viewProjection){
 	Enemy::UpdateParticle(viewProjection);
 	if (timeManager_->GetTimer("Smoke" + std::to_string(GetSerialNumber())).isStart &&
 		!timeManager_->GetTimer("SmokeCoolTime" + std::to_string(GetSerialNumber())).isStart) {
-		emitters_[1]->Start();
+		//emitters_[1]->Start();
 		timeManager_->SetTimer("SmokeCoolTime" + std::to_string(GetSerialNumber()), 0.1f);
 	}
 	for (std::unique_ptr<ParticleEmitter>& emitter_ : emitters_) {

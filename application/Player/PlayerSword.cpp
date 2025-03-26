@@ -34,8 +34,8 @@ void PlayerSword::Initialize(std::string filePath, std::string palmFilePath)
 		emitters_.push_back(std::move(emitter_));
 	}
 
-	emitters_[0]->LoadEmitterData("Hit.json");
-	emitters_[1]->LoadEmitterData("Smoke.json");
+	emitters_[0]->LoadEmitterData("Block.json");
+	emitters_[1]->LoadEmitterData("Damage.json");
 }
 
 /// 更新
@@ -59,7 +59,7 @@ void PlayerSword::Update()
 void PlayerSword::UpdateParticle(const ViewProjection& viewProjection){
 	if (timeManager_->GetTimer("PlayerDefence" + std::to_string(id_)).isStart &&
 		!timeManager_->GetTimer("PlayerDefenceCoolTime" + std::to_string(id_)).isStart) {
-		emitters_[1]->Start();
+		//emitters_[1]->Start();
 		timeManager_->SetTimer("PlayerDefenceCoolTime" + std::to_string(id_), 0.1f);
 	}
 	for (std::unique_ptr<ParticleEmitter>& emitter_ : emitters_) {
@@ -152,6 +152,8 @@ void PlayerSword::OnCollisionEnter(Collider* other)
 		}
 		if (GetIsAttack()) {
 			Vector3 newVelocity = enemy->GetCenterPosition() - player_->GetCenterPosition();
+
+			enemy->Damage();
 
 			enemy->SetVelocity(enemy->GetVelocity() + newVelocity.Normalize() * 30.0f);
 			enemy->SetHP(enemy->GetHP() - int(1000));

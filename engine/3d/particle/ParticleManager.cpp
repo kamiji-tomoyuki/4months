@@ -123,9 +123,25 @@ void ParticleManager::Update(const ViewProjection& viewProjection) {
 					break;
 
 				case EASEIN:
+
+					particleIterator->transform.translation_ =
+						EaseIn(
+							particleIterator->positionPara.startNum,
+							particleIterator->positionPara.endNum,
+							t
+						);
+
 					break;
 
 				case EASEOUT:
+
+					particleIterator->transform.translation_ =
+						EaseOut(
+							particleIterator->positionPara.startNum,
+							particleIterator->positionPara.endNum,
+							t
+						);
+
 					break;
 				}
 
@@ -152,7 +168,7 @@ void ParticleManager::Update(const ViewProjection& viewProjection) {
 
 			case EASING:
 
-				switch (particleIterator->positionEasingState) {
+				switch (particleIterator->rotationEasingState) {
 
 				case LERP:
 
@@ -166,9 +182,25 @@ void ParticleManager::Update(const ViewProjection& viewProjection) {
 					break;
 
 				case EASEIN:
+
+					particleIterator->transform.rotation_ =
+						EaseIn(
+							particleIterator->rotationPara.startNum,
+							particleIterator->rotationPara.endNum,
+							t
+						);
+
 					break;
 
 				case EASEOUT:
+
+					particleIterator->transform.rotation_ =
+						EaseOut(
+							particleIterator->rotationPara.startNum,
+							particleIterator->rotationPara.endNum,
+							t
+						);
+
 					break;
 				}
 
@@ -195,7 +227,7 @@ void ParticleManager::Update(const ViewProjection& viewProjection) {
 
 			case EASING:
 
-				switch (particleIterator->positionEasingState) {
+				switch (particleIterator->scaleEasingState) {
 
 				case LERP:
 
@@ -209,9 +241,25 @@ void ParticleManager::Update(const ViewProjection& viewProjection) {
 					break;
 
 				case EASEIN:
+
+					particleIterator->transform.scale_ =
+						EaseIn(
+							particleIterator->scalePara.startNum,
+							particleIterator->scalePara.endNum,
+							t
+						);
+
 					break;
 
 				case EASEOUT:
+
+					particleIterator->transform.scale_ =
+						EaseOut(
+							particleIterator->scalePara.startNum,
+							particleIterator->scalePara.endNum,
+							t
+						);
+
 					break;
 				}
 
@@ -441,7 +489,7 @@ ParticleManager::Particle ParticleManager::MakeNewParticle(
 	return newParticle;
 }
 
-void ParticleManager::CreateParticleGroup(std::string name, const std::string& filename) {
+void ParticleManager::CreateParticleGroup(std::string& name, const std::string& filename) {
 	// --- パーティクルグループ生成 ---
 
 	int id = 0;
@@ -463,7 +511,7 @@ void ParticleManager::CreateParticleGroup(std::string name, const std::string& f
 	particleGroup.modelData = LoadObjFile(kDirectoryPath, filename);
 
 	// --- 頂点リソース生成 ---
-	particleGroup.vertexResource  = particleCommon->GetDxCommon()->CreateBufferResource(sizeof(VertexData) * particleGroup.modelData.vertices.size());
+	particleGroup.vertexResource = particleCommon->GetDxCommon()->CreateBufferResource(sizeof(VertexData) * particleGroup.modelData.vertices.size());
 
 	// --- 頂点バッファビュー生成 ---
 	particleGroup.vertexBufferView.BufferLocation = particleGroup.vertexResource->GetGPUVirtualAddress();
@@ -492,24 +540,24 @@ void ParticleManager::CreateParticleGroup(std::string name, const std::string& f
 	particleGroup.instanceCount = 0;
 }
 
-void ParticleManager::ChangeGroupName(const std::string& newName, const std::string& preName) {
+void ParticleManager::ChangeGroupName(const std::string& name, const std::string& preName) {
 
 	if (!particleGroups.contains(preName)) {
 		return;
 	}
 
-	particleGroups[newName] = particleGroups[preName];
+	particleGroups[name] = particleGroups[preName];
 
 	particleGroups.erase(preName);
 }
 
-void ParticleManager::ChangeModel(std::string name, const std::string& filename) {
+void ParticleManager::ReloadGroup(std::string& name, const std::string& preName, const std::string& filename) {
 
-	if (!particleGroups.contains(name)) {
+	if (!particleGroups.contains(preName)) {
 		return;
 	}
 
-	particleGroups.erase(name);
+	particleGroups.erase(preName);
 
 	CreateParticleGroup(name, filename);
 }

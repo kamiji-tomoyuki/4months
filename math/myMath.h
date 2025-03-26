@@ -17,6 +17,8 @@ float Lerp(float _start, float _end, float _t);
 Vector3 Lerp(const Vector3& _start, const Vector3& _end, float _t);
 Vector4 Lerp(const Vector4& _start, const Vector4& _end, float _t);
 
+Vector3 EaseIn(const Vector3& _start, const Vector3& _end, float _t);
+Vector3 EaseOut(const Vector3& _start, const Vector3& _end, float _t);
 
 //float Lerp(float _start, float _end, float _t);
 //Vector3 Lerp(const Vector3& _start, const Vector3& _end, float _t);

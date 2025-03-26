@@ -216,9 +216,9 @@ void ParticleEmitter::Emit() {
 
 }
 
-void ParticleEmitter::ChangeModel(const std::string& fileName) {
+void ParticleEmitter::ReloadGroup(const std::string& fileName) {
 
-	Manager_->ChangeModel(name_, fileName);
+	Manager_->ReloadGroup(name_, name_, fileName);
 }
 
 // ImGuiで値を動かす関数
@@ -353,6 +353,8 @@ void ParticleEmitter::ImGui() {
 
 			const char* easingItems[] = { "Lerp","EaseIn","EaseOut" };
 
+			int currentItem = static_cast<int>(positionEasingState_);
+
 			ImGui::Text("終了座標"); ImGui::NextColumn();
 			ImGui::DragFloat3("##終了座標", &position_.endNum.x, 0.1f);
 			ImGui::NextColumn();
@@ -364,7 +366,9 @@ void ParticleEmitter::ImGui() {
 			ImGui::Separator();
 
 			ImGui::Text("座標のイージング種類"); ImGui::NextColumn();
-			ImGui::Combo("##座標のイージング種類", (int*)&positionEasingState_, easingItems, sizeof(easingItems));
+			if (ImGui::Combo("##座標のイージング種類", &currentItem, easingItems, sizeof(easingItems))) {
+				positionEasingState_ = static_cast<EasingState>(currentItem);
+			}
 			ImGui::NextColumn();
 
 			break;
@@ -424,6 +428,8 @@ void ParticleEmitter::ImGui() {
 
 			const char* easingItems[] = { "Lerp","EaseIn","EaseOut" };
 
+			int currentItem = static_cast<int>(rotationEasingState_);
+
 			ImGui::Text("終了角度"); ImGui::NextColumn();
 			ImGui::DragFloat3("##終了角度", &rotation_.endNum.x, 0.01f, 0.0f, 3.14f);
 			ImGui::NextColumn();
@@ -435,7 +441,9 @@ void ParticleEmitter::ImGui() {
 			ImGui::Separator();
 
 			ImGui::Text("角度のイージング種類"); ImGui::NextColumn();
-			ImGui::Combo("##角度のイージング種類", (int*)&rotationEasingState_, easingItems, sizeof(easingItems));
+			if (ImGui::Combo("##角度のイージング種類", &currentItem, easingItems, IM_ARRAYSIZE(easingItems))) {
+				rotationEasingState_ = static_cast<EasingState>(currentItem);
+			}
 			ImGui::NextColumn();
 
 			break;
@@ -495,6 +503,8 @@ void ParticleEmitter::ImGui() {
 
 			const char* easingItems[] = { "Lerp","EaseIn","EaseOut" };
 
+			int currentItem = static_cast<int>(scaleEasingState_);
+
 			ImGui::Text("終了拡大"); ImGui::NextColumn();
 			ImGui::DragFloat3("##終了拡大", &scale_.endNum.x, 0.1f);
 			ImGui::NextColumn();
@@ -506,7 +516,9 @@ void ParticleEmitter::ImGui() {
 			ImGui::Separator();
 
 			ImGui::Text("拡大のイージング種類"); ImGui::NextColumn();
-			ImGui::Combo("##拡大のイージング種類", (int*)&scaleEasingState_, easingItems, sizeof(easingItems));
+			if (ImGui::Combo("##拡大のイージング種類", &currentItem, easingItems, IM_ARRAYSIZE(easingItems))) {
+				scaleEasingState_ = static_cast<EasingState>(currentItem);
+			}
 			ImGui::NextColumn();
 
 			break;
@@ -526,7 +538,7 @@ void ParticleEmitter::ImGui() {
 
 		ImGui::Text("モデルデータ"); ImGui::NextColumn();
 		if (ImGui::Combo("##モデルデータ", &currentItem, items.data(), static_cast<int>(items.size()))) {
-			Manager_->ChangeModel(name_, items[currentItem]);
+			Manager_->ReloadGroup(name_, name_, items[currentItem]);
 			modelName_ = items[currentItem];
 		}
 		ImGui::NextColumn();
@@ -668,10 +680,12 @@ void ParticleEmitter::LoadEmitterData(const std::string& fileName) {
 
 	file.close();
 
-	Manager_->ChangeGroupName(jsonData["name"], name_);
-	Manager_->ChangeModel(jsonData["name"], jsonData["modelName"]);
+	std::string newName = jsonData["name"];
 
-	if (jsonData.contains("name")) name_ = jsonData["name"];
+	Manager_->ReloadGroup(newName, name_, jsonData["modelName"]);
+
+	name_ = newName;
+
 	if (jsonData.contains("count")) maxEmitNum_ = jsonData["count"];
 	if (jsonData.contains("frequency")) frequency_ = jsonData["frequency"];
 	if (jsonData.contains("lifeTime")) lifeTime_ = jsonData["lifeTime"];

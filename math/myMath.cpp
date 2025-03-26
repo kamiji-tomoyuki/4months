@@ -25,6 +25,25 @@ Vector4 Lerp(const Vector4& _start, const Vector4& _end, float _t)
 	result.w = (1.0f - _t) * _start.w + _end.w * _t;
 	return result;
 }
+
+Vector3 EaseIn(const Vector3& _start, const Vector3& _end, float _t) {
+
+	float easeT = powf(_t, 2.0f);
+
+	Vector3 result = Lerp(_start,_end,easeT);
+
+	return result;
+}
+
+Vector3 EaseOut(const Vector3& _start, const Vector3& _end, float _t) {
+
+	float easeT = 1.0f - powf(1.0f - _t, 2.0f);
+
+	Vector3 result = Lerp(_start, _end, easeT);
+
+	return result;
+}
+
 Matrix4x4 MakeTranslateMatrix(const Vector3& translate) { return { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, translate.x, translate.y, translate.z, 1 }; }
 
 Matrix4x4 MakeScaleMatrix(const Vector3& scale) { return { scale.x, 0, 0, 0, 0, scale.y, 0, 0, 0, 0, scale.z, 0, 0, 0, 0, 1 }; }

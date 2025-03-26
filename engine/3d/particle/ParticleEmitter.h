@@ -35,7 +35,7 @@ public:
 	void DrawEmitter();
 
 	// モデルを変更
-	void ChangeModel(const std::string& fileName);
+	void ReloadGroup(const std::string& fileName);
 
 	// ImGui用の関数を追加
 	void ImGui(); 

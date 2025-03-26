@@ -74,6 +74,8 @@ public:
 	// 防御動作
 	virtual void ProtectionInitialize();
 	virtual void ProtectionUpdate();
+
+	void Damage();
 protected:
 	//ポインタ
 	Player* player_ = nullptr;
@@ -104,6 +106,8 @@ protected:
 
 	// パーティクルエミッタ
 	std::vector<std::unique_ptr<ParticleEmitter>> emitters_;
+
+	std::unique_ptr<ParticleEmitter> damageEmitter_;
 public:
 	static void SetEnemyID(int ID) { nextSerialNumber_ = ID; }
 	void SetPlayer(Player* player) { player_ = player; }
