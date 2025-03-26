@@ -178,6 +178,7 @@ Vector3 PlayerSword::GetCenterPosition() const
 
 // 中心座標を取得
 Vector3 PlayerSword::GetCenterRotation() const{
+	//OBBのローカルローテーション
 	return  transform_.rotation_;
 }
 
