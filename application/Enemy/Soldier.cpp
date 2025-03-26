@@ -36,6 +36,9 @@ void Soldier::Init(){
 		emitters_.push_back(std::move(emitter_));
 	}
 
+	emitters_[0]->LoadEmitterData("Hit.json");
+	emitters_[1]->LoadEmitterData("Smoke.json");
+
 	//imgui
 	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
 	// グループを追加

@@ -83,6 +83,8 @@ private:
 	std::string name_;
 
 	//生成数
+	int maxEmitNum_;
+
 	int count_;
 
 	//発生頻度

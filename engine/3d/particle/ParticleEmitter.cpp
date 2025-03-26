@@ -17,7 +17,8 @@ void ParticleEmitter::Initialize() {
 	/// === エミッター設定 === ///
 
 	name_ = "newEmitter";
-	count_ = 100;
+	maxEmitNum_ = 1;
+	count_ = 0;
 	frequency_ = 0.01f;
 	lifeTime_ = 1.0f;
 	lifeTimeRandomRange_ = 0.0f;
@@ -31,15 +32,15 @@ void ParticleEmitter::Initialize() {
 
 	/// === 座標設定 === ///
 
-	positionState_ = VELOCITY;
+	positionState_ = START;
 	positionEasingState_ = LERP;
 	position_.startNum = { 0.0f, 0.0f, 0.0f };
-	position_.startRandomRange = { 0.0f,5.0f,0.0f };
+	position_.startRandomRange = { 0.0f,0.0f,0.0f };
 	position_.endNum = { 0.0f, 0.0f, 0.0f };
 	position_.endRandomRange = { 0.0f, 0.0f, 0.0f };
-	position_.velocity = { 0.1f, 0.0f, 0.0f };
+	position_.velocity = { 0.0f, 0.0f, 0.0f };
 	position_.velocityRandomRange = { 0.0f, 0.0f, 0.0f };
-	position_.acceleration = { 0.0f, -0.01f, 0.0f };
+	position_.acceleration = { 0.0f, 0.0f, 0.0f };
 	position_.accelerationRandomRange = { 0.0f, 0.0f, 0.0f };
 
 	/// === 角度設定 === ///
@@ -172,27 +173,47 @@ void ParticleEmitter::DrawEmitter() {
 
 // Emit関数
 void ParticleEmitter::Emit() {
-	// ParticleManagerのEmit関数を呼び出す
-	Manager_->Emit(
-		name_,
-		transform_,
-		count_,
-		lifeTime_,
-		lifeTimeRandomRange_,
-		positionState_,
-		positionEasingState_,
-		position_,
-		rotationState_,
-		rotationEasingState_,
-		rotation_,
-		scaleState_,
-		scaleEasingState_,
-		scale_,
-		startColor_,
-		endColor_,
-		colorRandomRange_,
-		isBillboard_
-	);
+
+	if (isLoop_) {
+		count_ = 0;
+	}
+
+	while (1) {
+
+		if (maxEmitNum_ <= count_) {
+			return;
+		}
+
+		if (totalTimer_ <= emitTimer) {
+			return;
+		}
+
+		Manager_->Emit(
+			name_,
+			transform_,
+			maxEmitNum_,
+			lifeTime_,
+			lifeTimeRandomRange_,
+			positionState_,
+			positionEasingState_,
+			position_,
+			rotationState_,
+			rotationEasingState_,
+			rotation_,
+			scaleState_,
+			scaleEasingState_,
+			scale_,
+			startColor_,
+			endColor_,
+			colorRandomRange_,
+			isBillboard_
+		);
+
+		count_++;
+
+		emitTimer += frequency_;
+	}
+
 }
 
 void ParticleEmitter::ChangeModel(const std::string& fileName) {
@@ -248,7 +269,7 @@ void ParticleEmitter::ImGui() {
 		ImGui::Separator();
 
 		ImGui::Text("生成数"); ImGui::NextColumn();
-		ImGui::DragInt("##生成数", &count_, 1, 1, 100);
+		ImGui::DragInt("##生成数", &maxEmitNum_, 1, 1, 100);
 		ImGui::NextColumn();
 
 		ImGui::Text("発生頻度"); ImGui::NextColumn();
@@ -506,6 +527,7 @@ void ParticleEmitter::ImGui() {
 		ImGui::Text("モデルデータ"); ImGui::NextColumn();
 		if (ImGui::Combo("##モデルデータ", &currentItem, items.data(), static_cast<int>(items.size()))) {
 			Manager_->ChangeModel(name_, items[currentItem]);
+			modelName_ = items[currentItem];
 		}
 		ImGui::NextColumn();
 
@@ -551,7 +573,7 @@ void ParticleEmitter::SaveEmitterData() {
 
 	jsonData["name"] = name_;
 
-	jsonData["count"] = count_;
+	jsonData["count"] = maxEmitNum_;
 	jsonData["frequency"] = frequency_;
 	jsonData["lifeTime"] = lifeTime_;
 	jsonData["lifeTimeRandomRange"] = lifeTimeRandomRange_;
@@ -650,7 +672,7 @@ void ParticleEmitter::LoadEmitterData(const std::string& fileName) {
 	Manager_->ChangeModel(jsonData["name"], jsonData["modelName"]);
 
 	if (jsonData.contains("name")) name_ = jsonData["name"];
-	if (jsonData.contains("count")) count_ = jsonData["count"];
+	if (jsonData.contains("count")) maxEmitNum_ = jsonData["count"];
 	if (jsonData.contains("frequency")) frequency_ = jsonData["frequency"];
 	if (jsonData.contains("lifeTime")) lifeTime_ = jsonData["lifeTime"];
 	if (jsonData.contains("lifeTimeRandomRange")) lifeTimeRandomRange_ = jsonData["lifeTimeRandomRange"];
@@ -714,4 +736,6 @@ void ParticleEmitter::Start() {
 	emitTimer = 0.0f;
 
 	totalTimer_ = 0.0f;
+
+	count_ = 0;
 }

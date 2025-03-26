@@ -271,16 +271,17 @@ void ParticleManager::Update(const ViewProjection& viewProjection) {
 }
 
 void ParticleManager::Draw() {
-	particleCommon->GetDxCommon()->GetCommandList()->IASetVertexBuffers(0, 1, &vertexBufferView);
 
 	for (auto& [groupName, particleGroup] : particleGroups) {
 		if (particleGroup.instanceCount > 0) {
-			particleCommon->GetDxCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(0, materialResource->GetGPUVirtualAddress());
+			particleCommon->GetDxCommon()->GetCommandList()->IASetVertexBuffers(0, 1, &particleGroup.vertexBufferView);
+
+			particleCommon->GetDxCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(0, particleGroup.materialResource->GetGPUVirtualAddress());
 
 			srvManager_->SetGraphicsRootDescriptorTable(1, particleGroup.instancingSRVIndex);
-			srvManager_->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance()->GetTextureIndexByFilePath(particleGroup.material.textureFilePath));
+			srvManager_->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance()->GetTextureIndexByFilePath(particleGroup.modelData.material.textureFilePath));
 
-			particleCommon->GetDxCommon()->GetCommandList()->DrawInstanced(UINT(modelData.vertices.size()), particleGroup.instanceCount, 0, 0);
+			particleCommon->GetDxCommon()->GetCommandList()->DrawInstanced(UINT(particleGroup.modelData.vertices.size()), particleGroup.instanceCount, 0, 0);
 		}
 	}
 }
@@ -440,7 +441,7 @@ ParticleManager::Particle ParticleManager::MakeNewParticle(
 	return newParticle;
 }
 
-void ParticleManager::CreateParticleGroup(std::string& name, const std::string& filename) {
+void ParticleManager::CreateParticleGroup(std::string name, const std::string& filename) {
 	// --- パーティクルグループ生成 ---
 
 	int id = 0;
@@ -458,10 +459,23 @@ void ParticleManager::CreateParticleGroup(std::string& name, const std::string& 
 
 	particleGroups[groupName] = ParticleGroup();
 	ParticleGroup& particleGroup = particleGroups[groupName];
-	CreateVartexData(filename);
 
-	particleGroup.material.textureFilePath = modelData.material.textureFilePath;
-	TextureManager::GetInstance()->LoadTexture(modelData.material.textureFilePath);
+	particleGroup.modelData = LoadObjFile(kDirectoryPath, filename);
+
+	// --- 頂点リソース生成 ---
+	particleGroup.vertexResource  = particleCommon->GetDxCommon()->CreateBufferResource(sizeof(VertexData) * particleGroup.modelData.vertices.size());
+
+	// --- 頂点バッファビュー生成 ---
+	particleGroup.vertexBufferView.BufferLocation = particleGroup.vertexResource->GetGPUVirtualAddress();
+	particleGroup.vertexBufferView.SizeInBytes = UINT(sizeof(VertexData) * particleGroup.modelData.vertices.size());
+	particleGroup.vertexBufferView.StrideInBytes = sizeof(VertexData);
+
+	// --- 書き込み ---
+	particleGroup.vertexResource->Map(0, nullptr, reinterpret_cast<void**>(&particleGroup.vertexData));
+	std::memcpy(particleGroup.vertexData, particleGroup.modelData.vertices.data(), sizeof(VertexData) * particleGroup.modelData.vertices.size());
+
+	TextureManager::GetInstance()->LoadTexture(particleGroup.modelData.material.textureFilePath);
+
 	particleGroup.instancingResource = particleCommon->GetDxCommon()->CreateBufferResource(sizeof(ParticleForGPU) * kNumMaxInstance);
 
 	particleGroup.instancingSRVIndex = srvManager_->Allocate() + 1;
@@ -469,7 +483,12 @@ void ParticleManager::CreateParticleGroup(std::string& name, const std::string& 
 
 	srvManager_->CreateSRVforStructuredBuffer(particleGroup.instancingSRVIndex, particleGroup.instancingResource.Get(), kNumMaxInstance, sizeof(ParticleForGPU));
 
-	CreateMaterial();
+	// --- マテリアルリソース生成 ---
+	particleGroup.materialResource = particleCommon->GetDxCommon()->CreateBufferResource(sizeof(Material));
+	particleGroup.materialResource->Map(0, nullptr, reinterpret_cast<void**>(&particleGroup.materialData));
+	particleGroup.materialData->color = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
+	particleGroup.materialData->uvTransform = MakeIdentity4x4();
+
 	particleGroup.instanceCount = 0;
 }
 
@@ -484,20 +503,15 @@ void ParticleManager::ChangeGroupName(const std::string& newName, const std::str
 	particleGroups.erase(preName);
 }
 
-void ParticleManager::ChangeModel(const std::string name, const std::string& filename) {
+void ParticleManager::ChangeModel(std::string name, const std::string& filename) {
 
 	if (!particleGroups.contains(name)) {
 		return;
 	}
 
-	modelData = LoadObjFile(kDirectoryPath, filename);
+	particleGroups.erase(name);
 
-	vertexResource->Map(0, nullptr, reinterpret_cast<void**>(&vertexData));
-	std::memcpy(vertexData, modelData.vertices.data(), sizeof(VertexData) * modelData.vertices.size());
-
-	particleGroups[name].material.textureFilePath = modelData.material.textureFilePath;
-
-	TextureManager::GetInstance()->LoadTexture(modelData.material.textureFilePath);
+	CreateParticleGroup(name, filename);
 }
 
 std::vector<const char*> ParticleManager::GetModelFiles() {
@@ -512,18 +526,18 @@ std::vector<const char*> ParticleManager::GetModelFiles() {
 }
 
 void ParticleManager::CreateVartexData(const std::string& filename) {
-	modelData = LoadObjFile(kDirectoryPath, filename);
+	//modelData = LoadObjFile(kDirectoryPath, filename);
 
-	// --- 頂点リソース生成 ---
-	vertexResource = particleCommon->GetDxCommon()->CreateBufferResource(sizeof(VertexData) * modelData.vertices.size());
-	// --- 頂点バッファビュー生成 ---
-	vertexBufferView.BufferLocation = vertexResource->GetGPUVirtualAddress();
-	vertexBufferView.SizeInBytes = UINT(sizeof(VertexData) * modelData.vertices.size());
-	vertexBufferView.StrideInBytes = sizeof(VertexData);
+	//// --- 頂点リソース生成 ---
+	//vertexResource = particleCommon->GetDxCommon()->CreateBufferResource(sizeof(VertexData) * modelData.vertices.size());
+	//// --- 頂点バッファビュー生成 ---
+	//vertexBufferView.BufferLocation = vertexResource->GetGPUVirtualAddress();
+	//vertexBufferView.SizeInBytes = UINT(sizeof(VertexData) * modelData.vertices.size());
+	//vertexBufferView.StrideInBytes = sizeof(VertexData);
 
-	// --- 書き込み ---
-	vertexResource->Map(0, nullptr, reinterpret_cast<void**>(&vertexData));
-	std::memcpy(vertexData, modelData.vertices.data(), sizeof(VertexData) * modelData.vertices.size());
+	//// --- 書き込み ---
+	//vertexResource->Map(0, nullptr, reinterpret_cast<void**>(&vertexData));
+	//std::memcpy(vertexData, modelData.vertices.data(), sizeof(VertexData) * modelData.vertices.size());
 }
 
 ParticleManager::MaterialData ParticleManager::LoadMaterialTemplateFile(const std::string& directoryPath, const std::string& filename) {
@@ -629,10 +643,10 @@ ParticleManager::ModelData ParticleManager::LoadObjFile(const std::string& direc
 
 void ParticleManager::CreateMaterial() {
 	// --- マテリアルリソース生成 ---
-	materialResource = particleCommon->GetDxCommon()->CreateBufferResource(sizeof(Material));
-	materialResource->Map(0, nullptr, reinterpret_cast<void**>(&materialData));
-	materialData->color = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
-	materialData->uvTransform = MakeIdentity4x4();
+	//materialResource = particleCommon->GetDxCommon()->CreateBufferResource(sizeof(Material));
+	//materialResource->Map(0, nullptr, reinterpret_cast<void**>(&materialData));
+	//materialData->color = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
+	//materialData->uvTransform = MakeIdentity4x4();
 }
 
 Vector4 ParticleManager::DistributionVector4(Vector4 num, Vector4 range) {

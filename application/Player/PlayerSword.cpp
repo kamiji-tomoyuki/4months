@@ -33,6 +33,9 @@ void PlayerSword::Initialize(std::string filePath, std::string palmFilePath)
 		emitter_->Initialize();
 		emitters_.push_back(std::move(emitter_));
 	}
+
+	emitters_[0]->LoadEmitterData("Hit.json");
+	emitters_[1]->LoadEmitterData("Smoke.json");
 }
 
 /// 更新
@@ -72,7 +75,7 @@ void PlayerSword::Draw(const ViewProjection& viewProjection)
 }
 void PlayerSword::DrawParticle(const ViewProjection& viewProjection) {
 	for (std::unique_ptr<ParticleEmitter>& emitter_ : emitters_) {
-		emitter_->Draw();
+		//emitter_->Draw();
 		//emitter_->DrawEmitter();
 	}
 }

@@ -1,29 +1,29 @@
 {
     "colorRandomRange": [
+        1.0,
         0.0,
-        0.0,
-        0.0,
-        0.0
-    ],
-    "count": 100,
-    "endColor": [
-        0.0,
-        0.0,
-        0.0,
+        1.0,
         1.0
     ],
+    "count": 16,
+    "endColor": [
+        1.0,
+        1.0,
+        1.0,
+        0.0
+    ],
     "endTime": 3.0,
-    "frequency": 0.009999999776482582,
-    "isBillboard": false,
-    "isLoop": true,
-    "lifeTime": 1.0,
+    "frequency": 0.0,
+    "isBillboard": true,
+    "isLoop": false,
+    "lifeTime": 0.30000001192092896,
     "lifeTimeRandomRange": 0.0,
-    "modelName": "star.obj",
-    "name": "Star",
+    "modelName": "planeSpark.obj",
+    "name": "Hit",
     "position": {
         "acceleration": [
             0.0,
-            0.0,
+            -0.019999999552965164,
             0.0
         ],
         "accelerationRandomRange": [
@@ -47,19 +47,19 @@
             0.0
         ],
         "startRandomRange": [
-            100.0,
-            50.0,
-            100.0
+            1.0,
+            1.0,
+            1.0
         ],
         "velocity": [
             0.0,
-            -0.05000000074505806,
+            0.5,
             0.0
         ],
         "velocityRandomRange": [
-            0.0,
-            0.0,
-            0.0
+            1.0,
+            1.0,
+            1.0
         ]
     },
     "positionEasingState": 0,
@@ -101,13 +101,13 @@
             0.0
         ],
         "velocityRandomRange": [
-            0.10000000149011612,
-            0.10000000149011612,
-            0.10000000149011612
+            0.0,
+            0.0,
+            0.0
         ]
     },
     "rotationEasingState": 0,
-    "rotationState": 1,
+    "rotationState": 0,
     "scale": {
         "acceleration": [
             0.0,
@@ -130,9 +130,9 @@
             0.0
         ],
         "startNum": [
-            1.5,
-            1.5,
-            1.5
+            2.0,
+            2.0,
+            2.0
         ],
         "startRandomRange": [
             0.0,
@@ -156,7 +156,7 @@
         1.0,
         1.0,
         1.0,
-        0.0
+        1.0
     ],
     "startTime": 0.0
 }

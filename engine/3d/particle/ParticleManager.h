@@ -42,11 +42,11 @@ public:
 	/// </summary>
 	/// <param name="name"></param>
 	/// <param name="textureFilePath"></param>
-	void CreateParticleGroup(std::string& name, const std::string& filename);
+	void CreateParticleGroup(std::string name, const std::string& filename);
 
-	void ChangeGroupName(const std::string& newName,const std::string& preName);
+	void ChangeGroupName(const std::string& newName, const std::string& preName);
 
-	void ChangeModel(const std::string name, const std::string& filename);
+	void ChangeModel(std::string name, const std::string& filename);
 
 	std::vector<const char*> GetModelFiles();
 
@@ -58,6 +58,29 @@ private:
 	void CreateVartexData(const std::string& filename);
 
 private:
+
+	// --- 頂点データ ---
+	struct VertexData {
+		Vector4 position;
+		Vector2 texcoord;
+	};
+
+	// --- マテリアルデータ ---
+	struct Material {
+		Vector4 color;
+		Matrix4x4 uvTransform;
+		float padding[3];
+	};
+
+	struct MaterialData {
+		std::string textureFilePath;
+	};
+
+	// --- モデルデータ ---
+	struct ModelData {
+		std::vector<VertexData> vertices;
+		MaterialData material;
+	};
 
 	struct ParticleForGPU {
 		Matrix4x4 WVP;
@@ -86,47 +109,40 @@ private:
 		bool isBillboard;
 	};
 
-	struct MaterialData {
-		std::string textureFilePath;
-	};
+	//struct ParticleGroup {
+	//	MaterialData material;
+	//	std::list<Particle> particles;
+	//	uint32_t instancingSRVIndex = 0;
+	//	Microsoft::WRL::ComPtr<ID3D12Resource> instancingResource = nullptr;
+	//	uint32_t instanceCount = 0;
+	//	ParticleForGPU* instancingData = nullptr;
+	//};
 
 	struct ParticleGroup {
-		MaterialData material;
 		std::list<Particle> particles;
-		uint32_t instancingSRVIndex = 0;
 		Microsoft::WRL::ComPtr<ID3D12Resource> instancingResource = nullptr;
-		uint32_t instanceCount = 0;
 		ParticleForGPU* instancingData = nullptr;
+		uint32_t instancingSRVIndex = 0;
+		uint32_t instanceCount = 0;
+		Microsoft::WRL::ComPtr<ID3D12Resource> vertexResource = nullptr;
+		VertexData* vertexData = nullptr;
+		D3D12_VERTEX_BUFFER_VIEW vertexBufferView;
+		Microsoft::WRL::ComPtr<ID3D12Resource> materialResource = nullptr;
+		Material* materialData = nullptr;
+		ModelData modelData;
 	};
 
 	ParticleCommon* particleCommon = nullptr;
 	SrvManager* srvManager_;
 
-	// --- 頂点データ ---
-	struct VertexData {
-		Vector4 position;
-		Vector2 texcoord;
-	};
-	Microsoft::WRL::ComPtr<ID3D12Resource> vertexResource = nullptr;
-	VertexData* vertexData = nullptr;
-	D3D12_VERTEX_BUFFER_VIEW vertexBufferView;
+	//Microsoft::WRL::ComPtr<ID3D12Resource> vertexResource = nullptr;
+	//VertexData* vertexData = nullptr;
+	//D3D12_VERTEX_BUFFER_VIEW vertexBufferView;
 
-	// --- マテリアルデータ ---
-	struct Material {
-		Vector4 color;
-		Matrix4x4 uvTransform;
-		float padding[3];
-	};
-	Microsoft::WRL::ComPtr<ID3D12Resource> materialResource = nullptr;
-	Material* materialData = nullptr;
+	//Microsoft::WRL::ComPtr<ID3D12Resource> materialResource = nullptr;
+	//Material* materialData = nullptr;
 
-	// --- モデルデータ ---
-	struct ModelData {
-		std::vector<VertexData> vertices;
-		MaterialData material;
-	};
-
-	ModelData modelData;
+	//ModelData modelData;
 
 	static std::unordered_map<std::string, ModelData> modelCache;
 
