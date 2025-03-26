@@ -48,6 +48,8 @@ public:
 	Vector3 GetCenterPosition() const override;
 	Vector3 GetCenterRotation() const override;
 
+	void ImGui();
+
 private:
 	Player* player_ = nullptr;
 	TimeManager* timeManager_ = nullptr;

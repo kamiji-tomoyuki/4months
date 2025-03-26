@@ -1,5 +1,5 @@
 {
-    "Attack0": {
+    "PlayerDefence0": {
         "AllScale Max": [
             0.0,
             0.0,
@@ -21,9 +21,9 @@
             1.0
         ],
         "Emit translation": [
-            39.54999923706055,
+            -121.71585845947266,
             9.800000190734863,
-            -849.402099609375
+            -228.16473388671875
         ],
         "Particle EndAcce": [
             0.0,
@@ -36,9 +36,9 @@
             0.0
         ],
         "Particle EndScale": [
-            3.0,
-            3.0,
-            3.0
+            1.0,
+            1.0,
+            1.0
         ],
         "Particle StartAcce": [
             0.0,
@@ -69,7 +69,7 @@
         "Scale Min": 0.0,
         "alphaMax": 1.0,
         "alphaMin": 1.0,
-        "count": 10,
+        "count": 3,
         "emitFrequency": 0.10000000149011612,
         "isAcceMultiply": false,
         "isAllRamdomScale": false,
@@ -82,14 +82,14 @@
         "lifeTimeMax": 3.0,
         "lifeTimeMin": 1.0,
         "maxVelocity": [
-            5.0,
-            5.0,
-            5.0
+            1.0,
+            1.0,
+            1.0
         ],
         "minVelocity": [
-            -5.0,
-            -5.0,
-            -5.0
+            -1.0,
+            -1.0,
+            -1.0
         ]
     }
 }
