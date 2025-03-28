@@ -67,204 +67,35 @@ void ParticleManager::Update(const ViewProjection& viewProjection) {
 
 			/// === 移動処理 === ///
 
-			Vector3 startPos;
-
-			Vector3 endPos;
-
-			switch (particleIterator->positionState) {
-
-			case START:
-
-				startPos = particleIterator->positionPara.startNum;
-
-				endPos = particleIterator->positionPara.startNum;
-
-				particleIterator->transform.translation_ =
-					Lerp(
-						startPos,
-						endPos,
-						t
-					);
-
-				break;
-
-			case VELOCITY:
-
-				particleIterator->positionPara.velocity += particleIterator->positionPara.acceleration;
-
-				startPos = particleIterator->positionPara.startNum;
-
-				endPos = particleIterator->positionPara.startNum +
-					particleIterator->positionPara.velocity *
-					(particleIterator->lifeTime / kDeltaTime);
-
-				particleIterator->transform.translation_ =
-					Lerp(
-						startPos,
-						endPos,
-						t
-					);
-
-				break;
-
-			case EASING:
-
-				switch (particleIterator->positionEasingState) {
-
-				case LERP:
-
-					particleIterator->transform.translation_ =
-						Lerp(
-							particleIterator->positionPara.startNum,
-							particleIterator->positionPara.endNum,
-							t
-						);
-
-					break;
-
-				case EASEIN:
-
-					particleIterator->transform.translation_ =
-						EaseIn(
-							particleIterator->positionPara.startNum,
-							particleIterator->positionPara.endNum,
-							t
-						);
-
-					break;
-
-				case EASEOUT:
-
-					particleIterator->transform.translation_ =
-						EaseOut(
-							particleIterator->positionPara.startNum,
-							particleIterator->positionPara.endNum,
-							t
-						);
-
-					break;
-				}
-
-				break;
-			}
+			particleIterator->transform.translation_ = UpdateParameter(
+				particleIterator->positionPara,
+				particleIterator->positionState,
+				particleIterator->positionEasingState,
+				particleIterator->lifeTime,
+				t
+			);
 
 			/// === 回転処理 === ///
 
-			switch (particleIterator->rotationState) {
-
-			case START:
-
-				particleIterator->transform.rotation_ = particleIterator->rotationPara.startNum;
-
-				break;
-
-			case VELOCITY:
-
-				particleIterator->transform.rotation_ += particleIterator->rotationPara.velocity;
-
-				particleIterator->rotationPara.velocity += particleIterator->rotationPara.acceleration;
-
-				break;
-
-			case EASING:
-
-				switch (particleIterator->rotationEasingState) {
-
-				case LERP:
-
-					particleIterator->transform.rotation_ =
-						Lerp(
-							particleIterator->rotationPara.startNum,
-							particleIterator->rotationPara.endNum,
-							t
-						);
-
-					break;
-
-				case EASEIN:
-
-					particleIterator->transform.rotation_ =
-						EaseIn(
-							particleIterator->rotationPara.startNum,
-							particleIterator->rotationPara.endNum,
-							t
-						);
-
-					break;
-
-				case EASEOUT:
-
-					particleIterator->transform.rotation_ =
-						EaseOut(
-							particleIterator->rotationPara.startNum,
-							particleIterator->rotationPara.endNum,
-							t
-						);
-
-					break;
-				}
-
-				break;
-			}
+			particleIterator->transform.rotation_ = UpdateParameter(
+				particleIterator->rotationPara,
+				particleIterator->rotationState,
+				particleIterator->rotationEasingState,
+				particleIterator->lifeTime,
+				t
+			);
 
 			/// === 拡縮処理 === ///
 
-			switch (particleIterator->scaleState) {
+			particleIterator->transform.scale_ = UpdateParameter(
+				particleIterator->scalePara,
+				particleIterator->scaleState,
+				particleIterator->scaleEasingState,
+				particleIterator->lifeTime,
+				t
+			);
 
-			case START:
-
-				particleIterator->transform.scale_ = particleIterator->scalePara.startNum;
-
-				break;
-
-			case VELOCITY:
-
-				particleIterator->transform.scale_ += particleIterator->scalePara.velocity;
-
-				particleIterator->scalePara.velocity += particleIterator->scalePara.acceleration;
-
-				break;
-
-			case EASING:
-
-				switch (particleIterator->scaleEasingState) {
-
-				case LERP:
-
-					particleIterator->transform.scale_ =
-						Lerp(
-							particleIterator->scalePara.startNum,
-							particleIterator->scalePara.endNum,
-							t
-						);
-
-					break;
-
-				case EASEIN:
-
-					particleIterator->transform.scale_ =
-						EaseIn(
-							particleIterator->scalePara.startNum,
-							particleIterator->scalePara.endNum,
-							t
-						);
-
-					break;
-
-				case EASEOUT:
-
-					particleIterator->transform.scale_ =
-						EaseOut(
-							particleIterator->scalePara.startNum,
-							particleIterator->scalePara.endNum,
-							t
-						);
-
-					break;
-				}
-
-				break;
-			}
+			/// === 色 === ///
 
 			particleIterator->color = Lerp(particleIterator->startColor, particleIterator->endColor, t);
 
@@ -487,6 +318,208 @@ ParticleManager::Particle ParticleManager::MakeNewParticle(
 	newParticle.isBillboard = isBillboard;
 
 	return newParticle;
+}
+
+Vector3 ParticleManager::UpdateParameter(Parameter& parameter, ParameterState& state, EasingState& easingState, float lifeTime, float t) {
+
+	Vector3 startPos;
+
+	Vector3 endPos;
+
+	Vector3 result;
+
+	switch (state) {
+
+	case START:
+
+		result = parameter.startNum;
+
+		break;
+
+	case VELOCITY:
+
+		parameter.velocity += parameter.acceleration;
+
+		startPos = parameter.startNum;
+
+		endPos = parameter.startNum +
+			parameter.velocity *
+			(lifeTime / kDeltaTime);
+
+		result =
+			Lerp(
+				startPos,
+				endPos,
+				t
+			);
+
+		break;
+
+	case EASING:
+
+		switch (easingState) {
+
+		case LERP:
+
+			result =
+				Lerp(
+					parameter.startNum,
+					parameter.endNum,
+					t
+				);
+
+			break;
+
+		case EASEINSINE:
+
+			result =
+				EaseIn(
+					parameter.startNum,
+					parameter.endNum,
+					t,
+					1.0f
+				);
+
+			break;
+
+		case EASEINQUAD:
+
+			result =
+				EaseIn(
+					parameter.startNum,
+					parameter.endNum,
+					t,
+					2.0f
+				);
+
+			break;
+
+		case EASEINCUBIC:
+
+			result =
+				EaseIn(
+					parameter.startNum,
+					parameter.endNum,
+					t,
+					3.0f
+				);
+
+			break;
+
+		case EASEINQUART:
+
+			result =
+				EaseIn(
+					parameter.startNum,
+					parameter.endNum,
+					t,
+					4.0f
+				);
+
+			break;
+
+		case EASEOUTSINE:
+
+			result =
+				EaseOut(
+					parameter.startNum,
+					parameter.endNum,
+					t,
+					1.0f
+				);
+
+			break;
+
+		case EASEOUTQUAD:
+
+			result =
+				EaseOut(
+					parameter.startNum,
+					parameter.endNum,
+					t,
+					2.0f
+				);
+
+			break;
+
+		case EASEOUTCUBIC:
+
+			result =
+				EaseOut(
+					parameter.startNum,
+					parameter.endNum,
+					t,
+					3.0f
+				);
+
+			break;
+
+		case EASEOUTQUART:
+
+			result =
+				EaseOut(
+					parameter.startNum,
+					parameter.endNum,
+					t,
+					4.0f
+				);
+
+			break;
+
+		case EASEINOUTSINE:
+
+			result =
+				EaseInOut(
+					parameter.startNum,
+					parameter.endNum,
+					t,
+					1.0f
+				);
+
+			break;
+
+		case EASEINOUTQUAD:
+
+			result =
+				EaseInOut(
+					parameter.startNum,
+					parameter.endNum,
+					t,
+					2.0f
+				);
+
+			break;
+
+		case EASEINOUTCUBIC:
+
+			result =
+				EaseInOut(
+					parameter.startNum,
+					parameter.endNum,
+					t,
+					3.0f
+				);
+
+			break;
+
+		case EASEINOUTQUART:
+
+			result =
+				EaseInOut(
+					parameter.startNum,
+					parameter.endNum,
+					t,
+					4.0f
+				);
+
+			break;
+
+		}
+
+		break;
+	}
+
+	return result;
 }
 
 void ParticleManager::CreateParticleGroup(std::string& name, const std::string& filename) {

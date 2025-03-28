@@ -363,7 +363,21 @@ void ParticleEmitter::ImGui() {
 			break;
 		case EASING:
 
-			const char* easingItems[] = { "Lerp","EaseIn","EaseOut" };
+			const char* easingItems[] = {
+				"Lerp",
+				"EaseInSine",
+				"EaseInQuad",
+				"EaseInCubic",
+				"EaseInQuart",
+				"EaseOutSine",
+				"EaseOutQuad",
+				"EaseOutCubic",
+				"EaseOutQuart",
+				"EaseInOutSine",
+				"EaseInOutQuad",
+				"EaseInOutCubic",
+				"EaseInOutQuart"
+			};
 
 			int currentItem = static_cast<int>(positionEasingState_);
 
@@ -438,7 +452,21 @@ void ParticleEmitter::ImGui() {
 			break;
 		case EASING:
 
-			const char* easingItems[] = { "Lerp","EaseIn","EaseOut" };
+			const char* easingItems[] = {
+				"Lerp",
+				"EaseInSine",
+				"EaseInQuad",
+				"EaseInCubic",
+				"EaseInQuart",
+				"EaseOutSine",
+				"EaseOutQuad",
+				"EaseOutCubic",
+				"EaseOutQuart",
+				"EaseInOutSine",
+				"EaseInOutQuad",
+				"EaseInOutCubic",
+				"EaseInOutQuart"
+			};
 
 			int currentItem = static_cast<int>(rotationEasingState_);
 
@@ -513,7 +541,21 @@ void ParticleEmitter::ImGui() {
 			break;
 		case EASING:
 
-			const char* easingItems[] = { "Lerp","EaseIn","EaseOut" };
+			const char* easingItems[] = {
+				"Lerp",
+				"EaseInSine",
+				"EaseInQuad",
+				"EaseInCubic",
+				"EaseInQuart",
+				"EaseOutSine",
+				"EaseOutQuad",
+				"EaseOutCubic",
+				"EaseOutQuart",
+				"EaseInOutSine",
+				"EaseInOutQuad",
+				"EaseInOutCubic",
+				"EaseInOutQuart"
+			};
 
 			int currentItem = static_cast<int>(scaleEasingState_);
 

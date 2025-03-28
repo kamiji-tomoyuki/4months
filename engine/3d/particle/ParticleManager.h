@@ -225,6 +225,8 @@ private:
 		const bool& isBillboard
 	);
 
+	Vector3 UpdateParameter(Parameter& para, ParameterState& state, EasingState& easingState, float lifeTime, float t);
+
 	Vector4 DistributionVector4(Vector4 num, Vector4 range);
 
 	Vector3 DistributionVector3(Vector3 num, Vector3 range);
