@@ -90,9 +90,7 @@ void GameScene::Initialize()
 
 	starEmitter_ = std::make_unique<ParticleEmitter>();
 
-	starEmitter_->Initialize();
-
-	starEmitter_->LoadEmitterData("Star.json");
+	starEmitter_->Initialize("Star.json");
 
 	starEmitter_->Start();
 

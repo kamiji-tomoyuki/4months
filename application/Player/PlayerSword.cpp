@@ -30,12 +30,11 @@ void PlayerSword::Initialize(std::string filePath, std::string palmFilePath)
 	for (int i = 0; i < 2; ++i) {
 		std::unique_ptr<ParticleEmitter> emitter_;
 		emitter_ = std::make_unique<ParticleEmitter>();
-		emitter_->Initialize();
 		emitters_.push_back(std::move(emitter_));
 	}
 
-	emitters_[0]->LoadEmitterData("Block.json");
-	emitters_[1]->LoadEmitterData("Damage.json");
+	emitters_[0]->Initialize("Block.json");
+	emitters_[1]->Initialize("Damage.json");
 }
 
 /// 更新

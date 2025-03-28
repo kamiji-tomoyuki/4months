@@ -16,12 +16,13 @@ void Enemy::Init(){
 	Collider::SetTypeID(static_cast<uint32_t>(CollisionTypeIdDef::kEnemy));
 
 	damageEmitter_ = std::make_unique<ParticleEmitter>();
-	damageEmitter_->Initialize();
-	damageEmitter_->LoadEmitterData("Damage.json");
+	damageEmitter_->Initialize("Damage.json");
 }
 
 void Enemy::Update() {
 	BaseObject::Update();
+
+	damageEmitter_->Update();
 }
 
 void Enemy::UpdateParticle(const ViewProjection& viewProjection){

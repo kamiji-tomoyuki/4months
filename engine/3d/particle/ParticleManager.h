@@ -48,6 +48,8 @@ public:
 
 	void ReloadGroup(std::string& name, const std::string& preName, const std::string& filename);
 
+	void ClearParticles();
+
 	std::vector<const char*> GetModelFiles();
 
 private:

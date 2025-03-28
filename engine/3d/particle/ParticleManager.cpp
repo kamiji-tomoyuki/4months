@@ -562,6 +562,11 @@ void ParticleManager::ReloadGroup(std::string& name, const std::string& preName,
 	CreateParticleGroup(name, filename);
 }
 
+void ParticleManager::ClearParticles() {
+
+	particleGroups.clear();
+}
+
 std::vector<const char*> ParticleManager::GetModelFiles() {
 
 	std::vector<const char*> items;

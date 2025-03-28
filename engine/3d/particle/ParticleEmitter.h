@@ -22,6 +22,8 @@ public:
 	// メンバ変数の初期化を行うInitialize関数
 	void Initialize();
 
+	void Initialize(const std::string& fileName);
+
 	// 更新処理を行うUpdate関数
 	void Update();
 

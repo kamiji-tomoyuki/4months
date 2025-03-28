@@ -10,15 +10,15 @@
         1.0,
         1.0,
         1.0,
-        0.0235294122248888
+        0.125490203499794
     ],
-    "endTime": 3.0,
+    "endTime": 1.0,
     "frequency": 0.009999999776482582,
     "isBillboard": true,
     "isLoop": false,
-    "lifeTime": 1.0,
+    "lifeTime": 0.25,
     "lifeTimeRandomRange": 0.0,
-    "modelName": "planeSpark.obj",
+    "modelName": "ball.obj",
     "name": "Damage",
     "position": {
         "acceleration": [
@@ -120,9 +120,9 @@
             0.0
         ],
         "endNum": [
-            1.0,
-            1.0,
-            1.0
+            0.0,
+            0.0,
+            0.0
         ],
         "endRandomRange": [
             0.0,
@@ -156,7 +156,7 @@
         1.0,
         1.0,
         1.0,
-        1.0
+        0.0
     ],
     "startTime": 0.0
 }

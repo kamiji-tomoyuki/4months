@@ -29,15 +29,6 @@ void Soldier::Init(){
 	sword_->Initialize("player/playerArm.gltf", "sword/sword.obj");
 	sword_->SetTranslation(Vector3(1.7f, 0.0f, 1.3f));
 
-	for (int i = 0; i < 2; ++i) {
-		std::unique_ptr<ParticleEmitter> emitter_;
-		emitter_ = std::make_unique<ParticleEmitter>();
-		emitter_->Initialize();
-		emitters_.push_back(std::move(emitter_));
-	}
-
-	emitters_[0]->LoadEmitterData("Damage.json");
-
 	//imgui
 	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
 	// グループを追加

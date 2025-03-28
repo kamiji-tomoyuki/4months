@@ -81,6 +81,18 @@ void ParticleEmitter::Initialize() {
 	Manager_->CreateParticleGroup(name_, modelName_);
 }
 
+void ParticleEmitter::Initialize(const std::string& fileName) {
+
+	//マネージャーを取得
+	Manager_ = ParticleManager::GetInstance();
+
+	emitTimer = 0.0f;
+
+	count_ = 0;
+
+	LoadEmitterData(fileName);
+}
+
 // Update関数
 void ParticleEmitter::Update() {
 
@@ -366,7 +378,7 @@ void ParticleEmitter::ImGui() {
 			ImGui::Separator();
 
 			ImGui::Text("座標のイージング種類"); ImGui::NextColumn();
-			if (ImGui::Combo("##座標のイージング種類", &currentItem, easingItems, sizeof(easingItems))) {
+			if (ImGui::Combo("##座標のイージング種類", &currentItem, easingItems, IM_ARRAYSIZE(easingItems))) {
 				positionEasingState_ = static_cast<EasingState>(currentItem);
 			}
 			ImGui::NextColumn();
@@ -680,11 +692,11 @@ void ParticleEmitter::LoadEmitterData(const std::string& fileName) {
 
 	file.close();
 
-	std::string newName = jsonData["name"];
+	name_ = jsonData["name"];
 
-	Manager_->ReloadGroup(newName, name_, jsonData["modelName"]);
+	modelName_ = jsonData["modelName"];
 
-	name_ = newName;
+	Manager_->CreateParticleGroup(name_, modelName_);
 
 	if (jsonData.contains("count")) maxEmitNum_ = jsonData["count"];
 	if (jsonData.contains("frequency")) frequency_ = jsonData["frequency"];
