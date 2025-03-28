@@ -108,6 +108,8 @@ protected:
 	std::vector<std::unique_ptr<ParticleEmitter>> emitters_;
 
 	std::unique_ptr<ParticleEmitter> damageEmitter_;
+
+	std::unique_ptr<ParticleEmitter> dustEmitter_;
 public:
 	static void SetEnemyID(int ID) { nextSerialNumber_ = ID; }
 	void SetPlayer(Player* player) { player_ = player; }

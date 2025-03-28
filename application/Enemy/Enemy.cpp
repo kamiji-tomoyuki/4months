@@ -17,12 +17,20 @@ void Enemy::Init(){
 
 	damageEmitter_ = std::make_unique<ParticleEmitter>();
 	damageEmitter_->Initialize("Damage.json");
+
+	dustEmitter_ = std::make_unique<ParticleEmitter>();
+	dustEmitter_->Initialize("Dust.json");
+	dustEmitter_->Start();
 }
 
 void Enemy::Update() {
 	BaseObject::Update();
 
 	damageEmitter_->Update();
+
+	dustEmitter_->SetPosition(GetCenterPosition());
+
+	dustEmitter_->Update();
 }
 
 void Enemy::UpdateParticle(const ViewProjection& viewProjection){

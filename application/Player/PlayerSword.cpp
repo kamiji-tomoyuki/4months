@@ -34,7 +34,6 @@ void PlayerSword::Initialize(std::string filePath, std::string palmFilePath)
 	}
 
 	emitters_[0]->Initialize("Block.json");
-	emitters_[1]->Initialize("Damage.json");
 }
 
 /// 更新
