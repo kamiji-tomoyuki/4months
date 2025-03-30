@@ -64,12 +64,13 @@ void TitleScene::Initialize()
 
 	audio_->PlayWave(0, 0.1f, true);
 
-	for (int i = 0; i < 1; ++i) {
-		std::unique_ptr<ParticleEmitter> emitter_;
-		emitter_ = std::make_unique<ParticleEmitter>();
-		emitters_.push_back(std::move(emitter_));
-	}
-	emitters_[0]->Initialize("star", "GameScene/star.obj");
+	particleManager_ = ParticleManager::GetInstance();
+
+	starEmitter_ = std::make_unique<ParticleEmitter>();
+
+	starEmitter_->Initialize("Star.json");
+
+	starEmitter_->Start();
 }
 
 void TitleScene::Finalize()
@@ -105,9 +106,10 @@ void TitleScene::Update()
 	//	speed_ *= -1.0f;
 	//}
 	//UI_->SetAlpha(timer_);
-	for (std::unique_ptr<ParticleEmitter>& emitter_ : emitters_) {
-		emitter_->Update(vp_);
-	}
+
+	starEmitter_->Update();
+
+	particleManager_->Update(vp_);
 }
 
 void TitleScene::Draw()
@@ -141,10 +143,7 @@ void TitleScene::Draw()
 	ptCommon_->DrawCommonSetting();
 	//------Particleの描画開始-------
 
-	for (std::unique_ptr<ParticleEmitter>& emitter_ : emitters_) {
-		emitter_->Draw();
-		//emitter_->DrawEmitter();
-	}
+	particleManager_->Draw();
 
 	//-----------------------------
 
@@ -203,15 +202,16 @@ void TitleScene::Debug()
 	debugCamera_->imgui();
 	LightGroup::GetInstance()->imgui();
 
-	int emitterId = 0;
-	for (std::unique_ptr<ParticleEmitter>& emitter_ : emitters_) {
-		ImGui::PushID(emitterId);
-		emitter_->imgui();
-		ImGui::PopID();
-		++emitterId;
-	}
-	
+	//int emitterId = 0;
+	//for (std::unique_ptr<ParticleEmitter>& emitter_ : emitters_) {
+	//	ImGui::PushID(emitterId);
+	//	emitter_->ImGui();
+	//	ImGui::PopID();
+	//	++emitterId;
+	//}
+
 	ImGui::End();
+
 }
 
 void TitleScene::CameraUpdate()

@@ -29,14 +29,6 @@ void Soldier::Init(){
 	sword_->Initialize("player/playerArm.gltf", "sword/sword.obj");
 	sword_->SetTranslation(Vector3(1.7f, 0.0f, 1.3f));
 
-	for (int i = 0; i < 2; ++i) {
-		std::unique_ptr<ParticleEmitter> emitter_;
-		emitter_ = std::make_unique<ParticleEmitter>();
-		emitters_.push_back(std::move(emitter_));
-	}
-	emitters_[0]->Initialize("Attack" + std::to_string(GetSerialNumber()), "GameScene/planeSpark.obj");
-	emitters_[1]->Initialize("Smoke" + std::to_string(GetSerialNumber()), "GameScene/planeSmoke.obj");
-
 	//imgui
 	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
 	// グループを追加
@@ -87,12 +79,12 @@ void Soldier::UpdateParticle(const ViewProjection& viewProjection){
 	Enemy::UpdateParticle(viewProjection);
 	if (timeManager_->GetTimer("Smoke" + std::to_string(GetSerialNumber())).isStart &&
 		!timeManager_->GetTimer("SmokeCoolTime" + std::to_string(GetSerialNumber())).isStart) {
-		emitters_[1]->SetEmitActive(true);
+		//emitters_[1]->Start();
 		timeManager_->SetTimer("SmokeCoolTime" + std::to_string(GetSerialNumber()), 0.1f);
 	}
 	for (std::unique_ptr<ParticleEmitter>& emitter_ : emitters_) {
-		emitter_->SetEmitPosition(GetCenterPosition());
-		emitter_->UpdateOnce(viewProjection);
+		emitter_->SetPosition(GetCenterPosition());
+		emitter_->Update();
 	}
 }
 void Soldier::Draw(const ViewProjection& viewProjection){

@@ -2,6 +2,7 @@
 #include <cassert>
 #include <ImGuiManager.h>
 #include"GlobalVariables.h"
+#include "ParticleManager.h"
 
 SceneManager* SceneManager::instance = nullptr;
 
@@ -35,6 +36,11 @@ void SceneManager::Update()
 #ifdef _DEBUG
 
 	ImGui::Begin("scene");
+	if (ImGui::Button("EditorScene") && (transition_->IsEnd() && !transition_->FadeInStart())) {
+		transition_->Reset();
+		nextScene_ = sceneFactory_->CreateScene("EDITOR");
+		transition_->SetFadeInStart(true);
+	}
 	if (ImGui::Button("TitleScene") && (transition_->IsEnd() && !transition_->FadeInStart())) {
 		transition_->Reset();
 		nextScene_ = sceneFactory_->CreateScene("TITLE");
@@ -119,6 +125,9 @@ void SceneManager::SceneChange()
 	if (transition_->FadeInFinish()) {
 		// 旧シーンの終了
 		if (scene_) {
+
+			ParticleManager::GetInstance()->ClearParticles();
+
 			scene_->Finalize();
 			delete scene_;
 		}

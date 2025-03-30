@@ -14,10 +14,23 @@ Enemy::Enemy() {
 void Enemy::Init(){
 	BaseObject::Init();
 	Collider::SetTypeID(static_cast<uint32_t>(CollisionTypeIdDef::kEnemy));
+
+	damageEmitter_ = std::make_unique<ParticleEmitter>();
+	damageEmitter_->Initialize("Damage.json");
+
+	dustEmitter_ = std::make_unique<ParticleEmitter>();
+	dustEmitter_->Initialize("Dust.json");
+	dustEmitter_->Start();
 }
 
 void Enemy::Update() {
 	BaseObject::Update();
+
+	damageEmitter_->Update();
+
+	dustEmitter_->SetPosition(GetCenterPosition());
+
+	dustEmitter_->Update();
 }
 
 void Enemy::UpdateParticle(const ViewProjection& viewProjection){
@@ -138,6 +151,12 @@ void Enemy::ProtectionInitialize(){
 }
 void Enemy::ProtectionUpdate(){
 
+}
+void Enemy::Damage() {
+
+	damageEmitter_->SetPosition(GetCenterPosition());
+
+	damageEmitter_->Start();
 }
 void Enemy::SetTranslation(const Vector3& translation) {
 	transform_.translation_ = translation;

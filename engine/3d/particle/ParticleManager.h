@@ -10,10 +10,17 @@
 #include "Vector4.h"
 #include "Matrix4x4.h"
 
+#include "ParticleParamater.h"
+
 // パーティクル管理
-class ParticleManager
-{
+class ParticleManager {
 public:
+
+	static ParticleManager* instance;
+
+	static ParticleManager* GetInstance();
+
+	void Finalize();
 
 	/// <summary>
 	/// 初期化
@@ -35,18 +42,15 @@ public:
 	/// </summary>
 	/// <param name="name"></param>
 	/// <param name="textureFilePath"></param>
-	void CreateParticleGroup(const std::string name, const std::string& filename);
+	void CreateParticleGroup(std::string& name, const std::string& filename);
 
-public:
+	void ChangeGroupName(const std::string& name, const std::string& preName);
 
-	/// 各ステータス設定関数
-	/// <returns></returns>
-	void SetBillBorad(bool isBillBoard) { isBillboard = isBillBoard; }
-	void SetRandomRotate(bool isRandomRotate) { isRandomRotate_ = isRandomRotate; }
-	void SetAcceMultipy(bool isAcceMultipy) { isAcceMultipy_ = isAcceMultipy; }
-	void SetRandomSize(bool isRandomSize) { isRandomSize_ = isRandomSize; }
-	void SetAllRandomSize(bool isAllRandomSize) { isRandomAllSize_ = isAllRandomSize; }
-	void SetSinMove(bool isSinMove) { isSinMove_ = isSinMove; }
+	void ReloadGroup(std::string& name, const std::string& preName, const std::string& filename);
+
+	void ClearParticles();
+
+	std::vector<const char*> GetModelFiles();
 
 private:
 
@@ -57,6 +61,29 @@ private:
 
 private:
 
+	// --- 頂点データ ---
+	struct VertexData {
+		Vector4 position;
+		Vector2 texcoord;
+	};
+
+	// --- マテリアルデータ ---
+	struct Material {
+		Vector4 color;
+		Matrix4x4 uvTransform;
+		float padding[3];
+	};
+
+	struct MaterialData {
+		std::string textureFilePath;
+	};
+
+	// --- モデルデータ ---
+	struct ModelData {
+		std::vector<VertexData> vertices;
+		MaterialData material;
+	};
+
 	struct ParticleForGPU {
 		Matrix4x4 WVP;
 		Matrix4x4 World;
@@ -65,64 +92,64 @@ private:
 
 	struct Particle {
 		WorldTransform transform;
-		Vector3 velocity;
-		Vector3 Acce;
-		Vector4 color; 
+		WorldTransform emitterTransform;
+		ParameterState positionState;
+		EasingState positionEasingState;
+		Parameter positionPara;
+		ParameterState rotationState;
+		EasingState rotationEasingState;
+		Parameter rotationPara;
+		ParameterState scaleState;
+		EasingState scaleEasingState;
+		Parameter scalePara;
+		Vector4 color;
+		Vector4 startColor;
+		Vector4 endColor;
+		Vector4 randomRangeColor;
 		float lifeTime;
 		float currentTime;
-		Vector3 startScale;
-		Vector3 endScale;
-		Vector3 startAcce;
-		Vector3 endAcce;
-		Vector3 startRote;
-		Vector3 endRote;
-		Vector3 rotateVelocity;
-		float initialAlpha;
+		bool isBillboard;
 	};
 
-	struct MaterialData
-	{
-		std::string textureFilePath;
-	};
+	//struct ParticleGroup {
+	//	MaterialData material;
+	//	std::list<Particle> particles;
+	//	uint32_t instancingSRVIndex = 0;
+	//	Microsoft::WRL::ComPtr<ID3D12Resource> instancingResource = nullptr;
+	//	uint32_t instanceCount = 0;
+	//	ParticleForGPU* instancingData = nullptr;
+	//};
 
 	struct ParticleGroup {
-		MaterialData material;
 		std::list<Particle> particles;
-		uint32_t instancingSRVIndex = 0;
 		Microsoft::WRL::ComPtr<ID3D12Resource> instancingResource = nullptr;
-		uint32_t instanceCount = 0;
 		ParticleForGPU* instancingData = nullptr;
+		uint32_t instancingSRVIndex = 0;
+		uint32_t instanceCount = 0;
+		Microsoft::WRL::ComPtr<ID3D12Resource> vertexResource = nullptr;
+		VertexData* vertexData = nullptr;
+		D3D12_VERTEX_BUFFER_VIEW vertexBufferView;
+		Microsoft::WRL::ComPtr<ID3D12Resource> materialResource = nullptr;
+		Material* materialData = nullptr;
+		ModelData modelData;
 	};
 
 	ParticleCommon* particleCommon = nullptr;
 	SrvManager* srvManager_;
 
-	// --- 頂点データ ---
-	struct VertexData {
-		Vector4 position;
-		Vector2 texcoord;
-	};
-	Microsoft::WRL::ComPtr<ID3D12Resource> vertexResource = nullptr;
-	VertexData* vertexData = nullptr;
-	D3D12_VERTEX_BUFFER_VIEW vertexBufferView;
+	//Microsoft::WRL::ComPtr<ID3D12Resource> vertexResource = nullptr;
+	//VertexData* vertexData = nullptr;
+	//D3D12_VERTEX_BUFFER_VIEW vertexBufferView;
 
-	// --- マテリアルデータ ---
-	struct Material {
-		Vector4 color;
-		Matrix4x4 uvTransform;
-		float padding[3];
-	};
-	Microsoft::WRL::ComPtr<ID3D12Resource> materialResource = nullptr;
-	Material* materialData = nullptr;
+	//Microsoft::WRL::ComPtr<ID3D12Resource> materialResource = nullptr;
+	//Material* materialData = nullptr;
 
+	//ModelData modelData;
 
-	struct ModelData
-	{
-		std::vector<VertexData> vertices;
-		MaterialData material;
-	};
-	ModelData modelData;
 	static std::unordered_map<std::string, ModelData> modelCache;
+
+	std::vector<std::string> modelFiles;
+
 	std::unordered_map<std::string, ParticleGroup>particleGroups;
 
 	// デルタタイム
@@ -132,25 +159,30 @@ private:
 	std::random_device seedGenerator;
 	std::mt19937 randomEngine;
 
-	bool isBillboard = false;
-	bool isRandomRotate_ = false;
-	bool isAcceMultipy_ = false;
-	bool isRandomSize_ = false;
-	bool isRandomAllSize_ = false;
-	bool isSinMove_ = false;
+	const std::string kDirectoryPath = "resources/models/GameScene/";
 
 public:
-	
-	/// <summary>
-	/// 指定した名前のパーティクルグループにパーティクルを発生させる
-	/// </summary>
-	std::list<Particle> Emit(const std::string name, const Vector3& position, uint32_t count, const Vector3& scale,
-		const Vector3& velocityMin, const Vector3& velocityMax, float lifeTimeMin, float lifeTimeMax,
-		const Vector3& particleStartScale, const Vector3& particleEndScale, const Vector3& startAcce, const Vector3& endAcce,
-		const Vector3& startRote, const Vector3& endRote, bool isRandomColor, float alphaMin, float alphaMax,
-		const Vector3& rotateVelocityMin, const Vector3& rotateVelocityMax,
-		const Vector3& allScaleMax, const Vector3& allScaleMin,
-		const float& scaleMin, const float& scaleMax, const Vector3& rotation);
+
+	std::list<Particle> Emit(
+		const std::string name,
+		const WorldTransform& parent,
+		const int count,
+		const float lifeTime,
+		const float lifeTimeRandomRange,
+		const ParameterState& positionState,
+		const EasingState& positionEasingState,
+		const Parameter& position,
+		const ParameterState& rotationState,
+		const EasingState& rotationEasingState,
+		const Parameter& rotation,
+		const ParameterState& scaleState,
+		const EasingState& scaleEasingState,
+		const Parameter& scale,
+		const Vector4& startColor,
+		const Vector4& endColor,
+		const Vector4& randomColor,
+		const bool& isBillboard
+	);
 
 private:
 	/// <summary>
@@ -174,15 +206,30 @@ private:
 	/// </summary>
 	void CreateMaterial();
 
-	Particle MakeNewParticle(std::mt19937& randomEngine,
-		const Vector3& translate,
-		const Vector3& rotation,
-		const Vector3& scale,
-		const Vector3& velocityMin, const Vector3& velocityMax,
-		float lifeTimeMin, float lifeTimeMax, const Vector3& particleStartScale, const Vector3& particleEndScale,
-		const Vector3& startAcce, const Vector3& endAcce, const Vector3& startRote, const Vector3& endRote
-		, bool isRamdomColor, float alphaMin, float alphaMax, const Vector3& rotateVelocityMin, const Vector3& rotateVelocityMax,
-		const Vector3& allScaleMax, const Vector3& allScaleMin,
-		const float& scaleMin, const float& scaleMax);
-};
+	Particle MakeNewParticle(
+		std::mt19937& randomEngine,
+		const WorldTransform& parent,
+		const ParameterState& positionState,
+		const EasingState& positionEasingState,
+		const Parameter& position,
+		const ParameterState& rotationState,
+		const EasingState& rotationEasingState,
+		const Parameter& rotation,
+		const ParameterState& scaleState,
+		const EasingState& scaleEasingState,
+		const Parameter& scale,
+		const Vector4& startColor,
+		const Vector4& endColor,
+		const Vector4& randomRangeColor,
+		const float& lifeTime,
+		const bool& isBillboard
+	);
 
+	Vector3 UpdateParameter(Parameter& para, ParameterState& state, EasingState& easingState, float lifeTime, float t);
+
+	Vector4 DistributionVector4(Vector4 num, Vector4 range);
+
+	Vector3 DistributionVector3(Vector3 num, Vector3 range);
+
+	float DistributionFloat(float num, float range);
+};

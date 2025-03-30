@@ -1,6 +1,6 @@
 #pragma once
-#include "Audio.h"
 #include"BaseScene.h"
+#include "Audio.h"
 #include "Input.h"
 #include"Object3dCommon.h"
 #include "SpriteCommon.h"
@@ -9,12 +9,11 @@
 #include"Object3d.h"
 #include"WorldTransform.h"
 #include"ParticleEmitter.h"
-#include <Skydome.h>
-#include <Sprite.h>
+#include "ParticleEditor.h"
 
-class TitleScene :public BaseScene
-{
-public: // メンバ関数
+class EditorScene : public BaseScene {
+
+public:
 
 	/// <summary>
 	/// 初期化
@@ -60,19 +59,9 @@ private:
 	ViewProjection vp_;
 	std::unique_ptr<DebugCamera> debugCamera_;
 
-	//WorldTransform wtTitle_;
-	//std::unique_ptr<Object3d> title_;
-	//std::unique_ptr<Sprite> UI_;
-	//float timer_ = 0.0f;
-	//float speed_ = 0.02f;
-
-	//std::unique_ptr<Sprite> UIPad_;
-
-	std::unique_ptr<Skydome> skydome_ = nullptr;// 天球
-
-	std::unique_ptr<ParticleEmitter> starEmitter_ = nullptr;
-
 	bool loop = true;
+
+	std::unique_ptr<ParticleEditor> editor_;
 
 	ParticleManager* particleManager_;
 

@@ -394,6 +394,12 @@
     <ClCompile Include="application\Player\PlayerSword.cpp">
       <Filter>ソースファイル\application\Player\Weapon</Filter>
     </ClCompile>
+    <ClCompile Include="ParticleEditor.cpp">
+      <Filter>ソースファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="scene\EditorScene.cpp">
+      <Filter>ソースファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
@@ -667,6 +673,9 @@
     </ClInclude>
     <ClInclude Include="application\Ground.h" />
     <ClInclude Include="EnemySword.h" />
+    <ClInclude Include="engine\3d\particle\ParticleParamater.h" />
+    <ClInclude Include="ParticleEditor.h" />
+    <ClInclude Include="scene\EditorScene.h" />
     <ClInclude Include="scene\GameOverScene.h">
       <Filter>ソースファイル\scene</Filter>
     </ClInclude>

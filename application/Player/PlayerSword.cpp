@@ -32,8 +32,8 @@ void PlayerSword::Initialize(std::string filePath, std::string palmFilePath)
 		emitter_ = std::make_unique<ParticleEmitter>();
 		emitters_.push_back(std::move(emitter_));
 	}
-	emitters_[0]->Initialize("Attack" + std::to_string(id_), "GameScene/planeSpark.obj");
-	emitters_[1]->Initialize("PlayerDefence" + std::to_string(id_), "GameScene/planeSmoke.obj");
+
+	emitters_[0]->Initialize("Block.json");
 }
 
 /// 更新
@@ -57,12 +57,12 @@ void PlayerSword::Update()
 void PlayerSword::UpdateParticle(const ViewProjection& viewProjection){
 	if (timeManager_->GetTimer("PlayerDefence" + std::to_string(id_)).isStart &&
 		!timeManager_->GetTimer("PlayerDefenceCoolTime" + std::to_string(id_)).isStart) {
-		emitters_[1]->SetEmitActive(true);
+		//emitters_[1]->Start();
 		timeManager_->SetTimer("PlayerDefenceCoolTime" + std::to_string(id_), 0.1f);
 	}
 	for (std::unique_ptr<ParticleEmitter>& emitter_ : emitters_) {
-		emitter_->SetEmitPosition(GetCenterPosition());
-		emitter_->UpdateOnce(viewProjection);
+		emitter_->SetPosition(GetCenterPosition());
+		emitter_->Update();
 	}
 }
 
@@ -73,7 +73,7 @@ void PlayerSword::Draw(const ViewProjection& viewProjection)
 }
 void PlayerSword::DrawParticle(const ViewProjection& viewProjection) {
 	for (std::unique_ptr<ParticleEmitter>& emitter_ : emitters_) {
-		emitter_->Draw();
+		//emitter_->Draw();
 		//emitter_->DrawEmitter();
 	}
 }
@@ -98,7 +98,7 @@ void PlayerSword::OnCollision(Collider* other)
 			SetIsAttack(false);
 			//player_->SetObjColor({ 0.0f,0.0f,1.0f,1.0f });
 			//防御された時のエフェクト
-			emitters_[0]->SetEmitActive(true);
+			emitters_[0]->Start();
 			Vector3 newVelocity = enemySwod->GetEnemy()->GetCenterPosition() - player_->GetCenterPosition();
 
 			enemySwod->GetEnemy()->SetVelocity(enemySwod->GetEnemy()->GetVelocity() + newVelocity.Normalize() * 30.0f);
@@ -136,7 +136,7 @@ void PlayerSword::OnCollisionEnter(Collider* other)
 		EnemySword* enemySwod = static_cast<EnemySword*>(other);
 		if (GetIsAttack() && enemySwod->GetIsDefense()) {
 			SetIsAttack(false);
-			emitters_[0]->SetEmitActive(true);
+			emitters_[0]->Start();
 			Vector3 newVelocity = enemySwod->GetEnemy()->GetCenterPosition() - player_->GetCenterPosition();
 
 			enemySwod->GetEnemy()->SetVelocity(enemySwod->GetEnemy()->GetVelocity() + newVelocity.Normalize() * 30.0f);
@@ -150,6 +150,8 @@ void PlayerSword::OnCollisionEnter(Collider* other)
 		}
 		if (GetIsAttack()) {
 			Vector3 newVelocity = enemy->GetCenterPosition() - player_->GetCenterPosition();
+
+			enemy->Damage();
 
 			enemy->SetVelocity(enemy->GetVelocity() + newVelocity.Normalize() * 30.0f);
 			enemy->SetHP(enemy->GetHP() - int(1000));
@@ -185,13 +187,7 @@ Vector3 PlayerSword::GetCenterRotation() const{
 
 void PlayerSword::ImGui()
 {
-	int emitterId = 0;
-	for (std::unique_ptr<ParticleEmitter>& emitter_ : emitters_) {
-		ImGui::PushID(emitterId);
-		emitter_->imgui();
-		ImGui::PopID();
-		++emitterId;
-	}
+	
 }
 
 
