@@ -34,12 +34,12 @@ void TitleScene::Initialize()
 	skydome_->Init();
 	skydome_->SetViewProjection(&vp_);
 
-	/*UI_ = std::make_unique<Sprite>();
-	UI_->Initialize("titleUI.png", { 640,360 }, { 1,1,1,1 }, { 0.5f,0.5f });
+	UI_ = std::make_unique<Sprite>();
+	UI_->Initialize("titleUI.png", { 0,0 }, { 1,1,1,1 }, { 0.5f,0.5f });
 
 	UIPad_ = std::make_unique<Sprite>();
-	UIPad_->Initialize("TitlePad.png", { 1230,30 }, { 1,1,1,1 }, { 1.0f,0.0f });
-	UIPad_->SetSize(UIPad_->GetSize() * 0.5f);*/
+	UIPad_->Initialize("TitlePad.png", { 880,30 }, { 1,1,1,1 }, { 1.0f,0.0f });
+	UIPad_->SetSize(UIPad_->GetSize() * 0.5f);
 
 	// BGM
 	audio_->StopWave(0);
@@ -101,11 +101,11 @@ void TitleScene::Update()
 	skydome_->Update();
 
 	//// UI点滅
-	//timer_ += speed_;
-	//if (timer_ >= 1.0f || timer_ < 0.0f) {
-	//	speed_ *= -1.0f;
-	//}
-	//UI_->SetAlpha(timer_);
+	timer_ += speed_;
+	if (timer_ >= 1.0f || timer_ < 0.0f) {
+		speed_ *= -1.0f;
+	}
+	UI_->SetAlpha(timer_);
 
 	starEmitter_->Update();
 
@@ -150,8 +150,8 @@ void TitleScene::Draw()
 	/// Spriteの描画準備
 	spCommon_->DrawCommonSetting();
 	//-----Spriteの描画開始-----
-	/*UI_->Draw();
-	UIPad_->Draw();*/
+	UI_->Draw();
+	UIPad_->Draw();
 	//------------------------
 
 	//-----線描画-----
