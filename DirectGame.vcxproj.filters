@@ -672,7 +672,6 @@
       <Filter>ソースファイル\application\Enemy</Filter>
     </ClInclude>
     <ClInclude Include="application\Ground.h" />
-    <ClInclude Include="EnemySword.h" />
     <ClInclude Include="engine\3d\particle\ParticleParamater.h" />
     <ClInclude Include="ParticleEditor.h" />
     <ClInclude Include="scene\EditorScene.h" />
