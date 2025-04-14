@@ -94,14 +94,14 @@ void GameScene::Initialize()
 
 	starEmitter_->Start();
 
-	/*audio_->StopWave(0);
+	audio_->StopWave(0);
 	audio_->StopWave(1);
 	audio_->StopWave(2);
 	audio_->StopWave(3);
 	audio_->StopWave(4);
 	audio_->PlayWave(1, 0.1f, true);
 
-	audio_->PlayWave(7, 1.0f, false);*/
+	audio_->PlayWave(7, 1.0f, false);
 }
 
 void GameScene::Update()
