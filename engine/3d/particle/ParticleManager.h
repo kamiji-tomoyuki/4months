@@ -47,7 +47,7 @@ public:
 	/// </summary>
 	/// <param name="name">グループ名</param>
 	/// <param name="modelFileName">モデルのファイル名</param>
-	void CreateParticleGroup(std::string& name, const std::string& modelFileName);
+	void CreateEmitter(std::string& groupName, const std::string& modelFileName);
 
 	/// <summary>
 	/// パーティクルグループの名前変更
@@ -137,8 +137,8 @@ private:
 		bool isBillboard;
 	};
 
-	// --- パーティクルグループ ---
-	struct ParticleGroup {
+	// --- エミッター ---
+	struct Emitter {
 		/// === パーティクル === ///
 		std::list<Particle> particles;
 		/// === インスタンスデータ === ///
@@ -169,7 +169,7 @@ private:
 	std::vector<std::string> modelFiles;
 
 	// パーティクルグループ
-	std::unordered_map<std::string, ParticleGroup> particleGroups;
+	std::unordered_map<std::string, Emitter> emitters;
 
 	// デルタタイム
 	const float kDeltaTime = 1.0f / 60.0f;

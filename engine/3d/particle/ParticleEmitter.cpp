@@ -78,7 +78,7 @@ void ParticleEmitter::Initialize() {
 	isBillboard_ = true;
 
 	//設定を基にパーティクルグループを生成
-	Manager_->CreateParticleGroup(name_, modelName_);
+	Manager_->CreateEmitter(name_, modelName_);
 }
 
 void ParticleEmitter::Initialize(const std::string& fileName) {
@@ -738,7 +738,7 @@ void ParticleEmitter::LoadEmitterData(const std::string& fileName) {
 
 	modelName_ = jsonData["modelName"];
 
-	Manager_->CreateParticleGroup(name_, modelName_);
+	Manager_->CreateEmitter(name_, modelName_);
 
 	if (jsonData.contains("count")) maxEmitNum_ = jsonData["count"];
 	if (jsonData.contains("frequency")) frequency_ = jsonData["frequency"];

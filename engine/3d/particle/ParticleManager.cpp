@@ -74,14 +74,14 @@ void ParticleManager::Update(const ViewProjection& viewProjection) {
 	/// === パーティクルの更新 === ///
 
 	// パーティクルグループごとに更新
-	for (auto& [groupName, particleGroup] : particleGroups) {
+	for (auto& [groupName, emitter] : emitters) {
 
 		// パーティクルの合計生成数
 		uint32_t numInstance = 0;
 
 		// パーティクルごとに更新
-		for (auto particleIterator = particleGroup.particles.begin();
-			particleIterator != particleGroup.particles.end();) {
+		for (auto particleIterator = emitter.particles.begin();
+			particleIterator != emitter.particles.end();) {
 
 			/// === 削除処理 === ///
 
@@ -89,7 +89,7 @@ void ParticleManager::Update(const ViewProjection& viewProjection) {
 			if (particleIterator->lifeTime <= particleIterator->currentTime) {
 
 				// パーティクルの削除
-				particleIterator = particleGroup.particles.erase(particleIterator);
+				particleIterator = emitter.particles.erase(particleIterator);
 				continue;
 			}
 
@@ -182,16 +182,16 @@ void ParticleManager::Update(const ViewProjection& viewProjection) {
 			if (numInstance < kNumMaxInstance) {
 
 				// WVPの設定
-				particleGroup.instancingData[numInstance].WVP = worldViewProjectionMatrix;
+				emitter.instancingData[numInstance].WVP = worldViewProjectionMatrix;
 
 				// ワールド座標の設定
-				particleGroup.instancingData[numInstance].World = worldMatrix;
+				emitter.instancingData[numInstance].World = worldMatrix;
 
 				// 色の設定
-				particleGroup.instancingData[numInstance].color = (*particleIterator).color;
+				emitter.instancingData[numInstance].color = (*particleIterator).color;
 
 				// アルファ値の設定
-				particleGroup.instancingData[numInstance].color.w = (*particleIterator).color.w;
+				emitter.instancingData[numInstance].color.w = (*particleIterator).color.w;
 
 				// 生成数の更新
 				++numInstance;
@@ -205,26 +205,26 @@ void ParticleManager::Update(const ViewProjection& viewProjection) {
 		}
 
 		// インスタンス数更新
-		particleGroup.instanceCount = numInstance;
+		emitter.instanceCount = numInstance;
 	}
 }
 
 void ParticleManager::Draw() {
 
 	// パーティクルグループごとに描画
-	for (auto& [groupName, particleGroup] : particleGroups) {
+	for (auto& [groupName, emitter] : emitters) {
 
 		// インスタンス数が0より大きい場合
-		if (particleGroup.instanceCount > 0) {
+		if (emitter.instanceCount > 0) {
 
-			particleCommon->GetDxCommon()->GetCommandList()->IASetVertexBuffers(0, 1, &particleGroup.vertexBufferView);
+			particleCommon->GetDxCommon()->GetCommandList()->IASetVertexBuffers(0, 1, &emitter.vertexBufferView);
 
-			particleCommon->GetDxCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(0, particleGroup.materialResource->GetGPUVirtualAddress());
+			particleCommon->GetDxCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(0, emitter.materialResource->GetGPUVirtualAddress());
 
-			srvManager_->SetGraphicsRootDescriptorTable(1, particleGroup.instancingSRVIndex);
-			srvManager_->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance()->GetTextureIndexByFilePath(particleGroup.modelData.material.textureFilePath));
+			srvManager_->SetGraphicsRootDescriptorTable(1, emitter.instancingSRVIndex);
+			srvManager_->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance()->GetTextureIndexByFilePath(emitter.modelData.material.textureFilePath));
 
-			particleCommon->GetDxCommon()->GetCommandList()->DrawInstanced(UINT(particleGroup.modelData.vertices.size()), particleGroup.instanceCount, 0, 0);
+			particleCommon->GetDxCommon()->GetCommandList()->DrawInstanced(UINT(emitter.modelData.vertices.size()), emitter.instanceCount, 0, 0);
 		}
 	}
 }
@@ -251,16 +251,16 @@ std::list<ParticleManager::Particle> ParticleManager::Emit(
 ) {
 
 	// 指定された名前のパーティクルグループが存在するか確認
-	assert(particleGroups.find(name) != particleGroups.end() && "Error: パーティクルグループが存在しません。");
+	assert(emitters.find(name) != emitters.end() && "Error: パーティクルグループが存在しません。");
 
 	// パーティクルグループの取得
-	ParticleGroup& particleGroup = particleGroups[name];
+	Emitter& emitter = emitters[name];
 
 	// 新しいパーティクルのリスト
 	std::list<Particle> newParticles;
 
 	// 新しいパーティクルの生成
-	if (particleGroup.instanceCount <= static_cast<uint32_t>(count)) {
+	if (emitter.instanceCount <= static_cast<uint32_t>(count)) {
 
 		// パーティクルの生成
 		Particle particle = MakeNewParticle(
@@ -287,7 +287,7 @@ std::list<ParticleManager::Particle> ParticleManager::Emit(
 	}
 
 	// パーティクルグループのパーティクルリストに追加
-	particleGroup.particles.splice(particleGroup.particles.end(), newParticles);
+	emitter.particles.splice(emitter.particles.end(), newParticles);
 
 	return newParticles;
 }
@@ -615,97 +615,97 @@ Vector3 ParticleManager::UpdateParameter(Parameter& parameter, ParameterState& s
 	return result;
 }
 
-void ParticleManager::CreateParticleGroup(std::string& name, const std::string& modelFileName) {
+void ParticleManager::CreateEmitter(std::string& groupName, const std::string& modelFileName) {
 
 	// グループ名重複時のID
 	int id = 0;
 
 	// グループ名を取得
-	std::string groupName = name;
+	std::string newName = groupName;
 
 	// グループ名が重複している場合
-	while (particleGroups.contains(groupName)) {
+	while (emitters.contains(newName)) {
 
 		// IDをインクリメント
 		id++;
 
 		// グループ名を再設定
-		groupName = name + std::to_string(id);
+		newName = groupName + std::to_string(id);
 	}
 
 	// 再設定した名前をグループ名として設定
-	name = groupName;
+	groupName = newName;
 
 	// パーティクルグループの生成
-	particleGroups[groupName] = ParticleGroup();
-	ParticleGroup& particleGroup = particleGroups[groupName];
+	emitters[newName] = Emitter();
+	Emitter& emitter = emitters[newName];
 
 	// --- モデルデータ生成 ---
-	particleGroup.modelData = LoadObjFile(kDirectoryPath, modelFileName);
+	emitter.modelData = LoadObjFile(kDirectoryPath, modelFileName);
 
 	// --- 頂点リソース生成 ---
-	particleGroup.vertexResource = particleCommon->GetDxCommon()->CreateBufferResource(sizeof(VertexData) * particleGroup.modelData.vertices.size());
+	emitter.vertexResource = particleCommon->GetDxCommon()->CreateBufferResource(sizeof(VertexData) * emitter.modelData.vertices.size());
 
 	// --- 頂点バッファビュー生成 ---
-	particleGroup.vertexBufferView.BufferLocation = particleGroup.vertexResource->GetGPUVirtualAddress();
-	particleGroup.vertexBufferView.SizeInBytes = UINT(sizeof(VertexData) * particleGroup.modelData.vertices.size());
-	particleGroup.vertexBufferView.StrideInBytes = sizeof(VertexData);
+	emitter.vertexBufferView.BufferLocation = emitter.vertexResource->GetGPUVirtualAddress();
+	emitter.vertexBufferView.SizeInBytes = UINT(sizeof(VertexData) * emitter.modelData.vertices.size());
+	emitter.vertexBufferView.StrideInBytes = sizeof(VertexData);
 
 	// --- 書き込み ---
-	particleGroup.vertexResource->Map(0, nullptr, reinterpret_cast<void**>(&particleGroup.vertexData));
-	std::memcpy(particleGroup.vertexData, particleGroup.modelData.vertices.data(), sizeof(VertexData) * particleGroup.modelData.vertices.size());
+	emitter.vertexResource->Map(0, nullptr, reinterpret_cast<void**>(&emitter.vertexData));
+	std::memcpy(emitter.vertexData, emitter.modelData.vertices.data(), sizeof(VertexData) * emitter.modelData.vertices.size());
 
 	// --- テクスチャ読み込み ---
-	TextureManager::GetInstance()->LoadTexture(particleGroup.modelData.material.textureFilePath);
+	TextureManager::GetInstance()->LoadTexture(emitter.modelData.material.textureFilePath);
 
 	// --- インスタンスリソース生成 ---
-	particleGroup.instancingResource = particleCommon->GetDxCommon()->CreateBufferResource(sizeof(ParticleForGPU) * kNumMaxInstance);
-	particleGroup.instancingSRVIndex = srvManager_->Allocate() + 1;
-	particleGroup.instancingResource->Map(0, nullptr, reinterpret_cast<void**>(&particleGroup.instancingData));
-	srvManager_->CreateSRVforStructuredBuffer(particleGroup.instancingSRVIndex, particleGroup.instancingResource.Get(), kNumMaxInstance, sizeof(ParticleForGPU));
+	emitter.instancingResource = particleCommon->GetDxCommon()->CreateBufferResource(sizeof(ParticleForGPU) * kNumMaxInstance);
+	emitter.instancingSRVIndex = srvManager_->Allocate() + 1;
+	emitter.instancingResource->Map(0, nullptr, reinterpret_cast<void**>(&emitter.instancingData));
+	srvManager_->CreateSRVforStructuredBuffer(emitter.instancingSRVIndex, emitter.instancingResource.Get(), kNumMaxInstance, sizeof(ParticleForGPU));
 
 	// --- マテリアルリソース生成 ---
-	particleGroup.materialResource = particleCommon->GetDxCommon()->CreateBufferResource(sizeof(Material));
-	particleGroup.materialResource->Map(0, nullptr, reinterpret_cast<void**>(&particleGroup.materialData));
-	particleGroup.materialData->color = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
-	particleGroup.materialData->uvTransform = MakeIdentity4x4();
+	emitter.materialResource = particleCommon->GetDxCommon()->CreateBufferResource(sizeof(Material));
+	emitter.materialResource->Map(0, nullptr, reinterpret_cast<void**>(&emitter.materialData));
+	emitter.materialData->color = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
+	emitter.materialData->uvTransform = MakeIdentity4x4();
 
 	// --- インスタンス数初期化 ---
-	particleGroup.instanceCount = 0;
+	emitter.instanceCount = 0;
 }
 
 void ParticleManager::ChangeGroupName(const std::string& name, const std::string& preName) {
 
 	// 旧名が存在しない場合
-	if (!particleGroups.contains(preName)) {
+	if (!emitters.contains(preName)) {
 		return;
 	}
 
 	// 新名のパーティクルグループに旧名のパーティクルグループを移動
-	particleGroups[name] = particleGroups[preName];
+	emitters[name] = emitters[preName];
 
 	// 旧名のパーティクルグループを削除
-	particleGroups.erase(preName);
+	emitters.erase(preName);
 }
 
 void ParticleManager::ReloadGroup(std::string& name, const std::string& preName, const std::string& modelFileName) {
 
 	// 旧名が存在しない場合
-	if (!particleGroups.contains(preName)) {
+	if (!emitters.contains(preName)) {
 		return;
 	}
 
 	// 旧名のパーティクルグループを削除
-	particleGroups.erase(preName);
+	emitters.erase(preName);
 
 	// パーティクルグループの生成
-	CreateParticleGroup(name, modelFileName);
+	CreateEmitter(name, modelFileName);
 }
 
 void ParticleManager::ClearParticles() {
 
 	// パーティクルグループの全削除
-	particleGroups.clear();
+	emitters.clear();
 }
 
 std::vector<const char*> ParticleManager::GetModelFiles() {
