@@ -115,6 +115,7 @@ void Enemy::OnCollisionOut(Collider* other){
 
 void Enemy::ChangeState(std::unique_ptr<BaseEnemyState> state){
 	state_ = std::move(state);
+	state_->Initialize();
 }
 bool Enemy::GetProbabilities(float probabilities)
 {
@@ -134,24 +135,7 @@ void Enemy::VectorRotation(const Vector3& direction) {
 	Vector3 velocityZ = Transformation(move, MakeRotateYMatrix(-transform_.rotation_.y));
 	transform_.rotation_.x = std::atan2f(-velocityZ.y, velocityZ.z);
 }
-void Enemy::RootInitialize(){
 
-}
-void Enemy::RootUpdate(){
-
-}
-void Enemy::AttackInitialize(){
-
-}
-void Enemy::AttackUpdate(){
-
-}
-void Enemy::ProtectionInitialize(){
-
-}
-void Enemy::ProtectionUpdate(){
-
-}
 void Enemy::Damage() {
 
 	damageEmitter_->SetPosition(GetCenterPosition());

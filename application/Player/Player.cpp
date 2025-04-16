@@ -56,6 +56,7 @@ void Player::Init() {
 	emitters_[0]->Initialize("Dust.json");
 	emitters_[0]->Start();
 
+
 	// グループを追加
 	GlobalVariables::GetInstance()->CreateGroup(groupName);
 	globalVariables->AddItem(groupName, "kAcceleration", kAcceleration_);
