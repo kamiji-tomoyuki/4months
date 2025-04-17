@@ -3,11 +3,26 @@
 #include <iostream> // デバッグ用
 
 void Skydome::Init() {
+
 	BaseObject::Init(); // 基底クラスの初期化
-	CreateModel("debug/Skydome.obj"); // モデルをロード
+}
+
+void Skydome::Init(const std::string& fileName) {
+
+	const std::string kDirectoryPath = "skyDome/"; // ディレクトリパス
+
+	std::string filePath = kDirectoryPath + fileName; // ファイルパス
+
+	BaseObject::Init(); // 基底クラスの初期化
+
+	CreateModel(filePath); // モデルをロード
+
 	transform_.scale_ = { 100.0f,100.0f,100.0f };
+
 	transform_.scale_ = { 10.0f, 10.0f, 10.0f }; // スケールを設定
+
 	transform_.UpdateMatrix();
+
 	//transform_.translation_ = { 0.0f, 10.0f, -80.0f }; // 位置を設定
 }
 

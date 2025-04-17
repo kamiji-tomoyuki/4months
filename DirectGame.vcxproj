@@ -194,6 +194,7 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Skydome.cpp" />
     <ClCompile Include="application\Enemy\Soldier.cpp" />
     <ClCompile Include="TimeManager.cpp" />
+    <ClCompile Include="TitleEvent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
@@ -313,6 +314,7 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Skydome.h" />
     <ClInclude Include="application\Enemy\Soldier.h" />
     <ClInclude Include="TimeManager.h" />
+    <ClInclude Include="TitleEvent.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\shaders\OffScreen\BoxFilter.PS.hlsl">

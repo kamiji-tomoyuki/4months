@@ -12,13 +12,18 @@
 
 void TitleScene::Initialize()
 {
+	/// === シングルトンインスタンスの取得 === ///
+
 	audio_ = Audio::GetInstance();
 	objCommon_ = Object3dCommon::GetInstance();
 	spCommon_ = SpriteCommon::GetInstance();
 	ptCommon_ = ParticleCommon::GetInstance();
 	input_ = Input::GetInstance();
+
+	/// === カメラの初期化 === ///
+
 	vp_.Initialize();
-	vp_.translation_ = { 0.0f,0.0f,-30.0f };
+	vp_.translation_ = { 0.0f,100.0f,0.0f };
 
 	debugCamera_ = std::make_unique<DebugCamera>();
 	debugCamera_->Initialize(&vp_);
@@ -31,8 +36,13 @@ void TitleScene::Initialize()
 
 	//天球
 	skydome_ = std::make_unique<Skydome>();
-	skydome_->Init();
+	skydome_->Init("WildsSkyDome.obj");
 	skydome_->SetViewProjection(&vp_);
+	skydome_->SetScale({ 1000.0f,1000.0f,1000.0f });// 天球のScale
+
+	ground_ = std::make_unique<Ground>();
+	ground_->Init("testMap.obj");
+	ground_->SetScale({ 1000.0f,1000.0f,1000.0f });
 
 	UI_ = std::make_unique<Sprite>();
 	UI_->Initialize("titleUI.png", { 0,0 }, { 1,1,1,1 }, { 0.5f,0.5f });
@@ -71,6 +81,14 @@ void TitleScene::Initialize()
 	starEmitter_->Initialize("Star.json");
 
 	starEmitter_->Start();
+
+	titleEvent_ = std::make_unique<TitleEvent>();
+
+	titleEvent_->Initialize();
+
+	titleEvent_->SetViewProjection(&vp_);
+
+	titleEvent_->AddGround(ground_.get());
 }
 
 void TitleScene::Finalize()
@@ -97,8 +115,11 @@ void TitleScene::Update()
 	// 
 	//wtTitle_.UpdateMatrix();
 
-	skydome_->SetScale({ 1000.0f,1000.0f,1000.0f });// 天球のScale
+	titleEvent_->Update();
+
 	skydome_->Update();
+
+	ground_->Update();
 
 	//// UI点滅
 	timer_ += speed_;
@@ -135,8 +156,12 @@ void TitleScene::Draw()
 	if (Input::GetInstance()->IsAnyJoystickConnected()) {
 
 	}
+
 	/*title_->Draw(wtTitle_, vp_);*/
+
 	skydome_->Draw(vp_);
+
+	ground_->Draw(vp_);
 	//--------------------------
 
 	/// Particleの描画準備
@@ -155,7 +180,7 @@ void TitleScene::Draw()
 	//------------------------
 
 	//-----線描画-----
-	DrawLine3D::GetInstance()->Draw(vp_);
+	//DrawLine3D::GetInstance()->Draw(vp_);
 	//---------------
 
 	/// ----------------------------------
@@ -201,6 +226,8 @@ void TitleScene::Debug()
 	ImGui::Begin("TitleScene:Debug");
 	debugCamera_->imgui();
 	LightGroup::GetInstance()->imgui();
+
+	titleEvent_->ImGui();
 
 	//int emitterId = 0;
 	//for (std::unique_ptr<ParticleEmitter>& emitter_ : emitters_) {
