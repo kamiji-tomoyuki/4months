@@ -176,6 +176,9 @@ void Player::OnCollision([[maybe_unused]] Collider* other) {
 	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kEnemy) ||
 		typeID == static_cast<uint32_t>(CollisionTypeIdDef::kBoss)) {
 		Enemy* enemy = static_cast<Enemy*>(other);
+		if (enemy->GetSerialNumber() == enemy->GetNextSerialNumber() - 1) {
+			return;
+		}
 		// 衝突後の新しい速度を計算
 		auto [newVelocity1, newVelocity2] = ComputeCollisionVelocities(
 			1.0f, GetVelocity(), 1.0f, enemy->GetVelocity(), 1.0f, Vector3(GetCenterPosition() - enemy->GetCenterPosition()).Normalize()
@@ -204,6 +207,9 @@ void Player::OnCollisionEnter([[maybe_unused]] Collider* other) {
 	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kEnemy) ||
 		typeID == static_cast<uint32_t>(CollisionTypeIdDef::kBoss)) {
 		Enemy* enemy = static_cast<Enemy*>(other);
+		if (enemy->GetSerialNumber() == enemy->GetNextSerialNumber() - 1) {
+			return;
+		}
 		if (timeManager_->GetTimer("start").isStart || timeManager_->GetTimer("collision").isStart) {
 			return;
 		}
