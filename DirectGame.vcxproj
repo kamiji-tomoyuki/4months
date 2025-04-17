@@ -65,7 +65,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)application\;$(ProjectDir)application\Base;$(ProjectDir)application\Enemy\Soldier;$(ProjectDir)application\Enemy;$(ProjectDir)application\Player;$(ProjectDir)engine\2d;$(ProjectDir)engine\3d;$(ProjectDir)engine\3d\light;$(ProjectDir)engine\3d\particle;$(ProjectDir)engine\3d\model;$(ProjectDir)engine\3d\transform;$(ProjectDir)engine\3d\camera;$(ProjectDir)engine\base;$(ProjectDir)engine\input;$(ProjectDir)engine\utility;$(ProjectDir)engine\utility\graphics;$(ProjectDir)engine\utility\debug;$(ProjectDir)engine\utility\string;$(ProjectDir)scene;$(ProjectDir)engine\core;$(ProjectDir)engine\utility\edit;$(ProjectDir)engine\utility\collider;$(ProjectDir)engine\utility\scene;$(ProjectDir)particle;$(ProjectDir)math;$(ProjectDir)externals\assimp\include;$(ProjectDir)engine\Frame;$(ProjectDir)engine\Audio;$(ProjectDir)externals\imgui;$(ProjectDir)externals\DirectXTex</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)application\;$(ProjectDir)application\Base;$(ProjectDir)application\Enemy\Boss;$(ProjectDir)application\Enemy\Soldier;$(ProjectDir)application\Enemy;$(ProjectDir)application\Player;$(ProjectDir)engine\2d;$(ProjectDir)engine\3d;$(ProjectDir)engine\3d\light;$(ProjectDir)engine\3d\particle;$(ProjectDir)engine\3d\model;$(ProjectDir)engine\3d\transform;$(ProjectDir)engine\3d\camera;$(ProjectDir)engine\base;$(ProjectDir)engine\input;$(ProjectDir)engine\utility;$(ProjectDir)engine\utility\graphics;$(ProjectDir)engine\utility\debug;$(ProjectDir)engine\utility\string;$(ProjectDir)scene;$(ProjectDir)engine\core;$(ProjectDir)engine\utility\edit;$(ProjectDir)engine\utility\collider;$(ProjectDir)engine\utility\scene;$(ProjectDir)particle;$(ProjectDir)math;$(ProjectDir)externals\assimp\include;$(ProjectDir)engine\Frame;$(ProjectDir)engine\Audio;$(ProjectDir)externals\imgui;$(ProjectDir)externals\DirectXTex</AdditionalIncludeDirectories>
       <Optimization>Custom</Optimization>
     </ClCompile>
     <Link>
@@ -92,7 +92,7 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
       <AdditionalOptions>/utf-8</AdditionalOptions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)application\;$(ProjectDir)application\Base;$(ProjectDir)application\Enemy\Soldier;$(ProjectDir)application\Enemy;$(ProjectDir)application\Player;$(ProjectDir)engine\2d;$(ProjectDir)engine\3d;$(ProjectDir)engine\3d\light;$(ProjectDir)engine\3d\particle;$(ProjectDir)engine\3d\model;$(ProjectDir)engine\3d\transform;$(ProjectDir)engine\3d\camera;$(ProjectDir)engine\base;$(ProjectDir)engine\input;$(ProjectDir)engine\utility;$(ProjectDir)engine\utility\graphics;$(ProjectDir)engine\utility\debug;$(ProjectDir)engine\utility\string;$(ProjectDir)scene;$(ProjectDir)engine\core;$(ProjectDir)engine\utility\edit;$(ProjectDir)engine\utility\collider;$(ProjectDir)engine\utility\scene;$(ProjectDir)particle;$(ProjectDir)math;$(ProjectDir)externals\assimp\include;$(ProjectDir)engine\Frame;$(ProjectDir)engine\Audio;$(ProjectDir)externals\imgui;$(ProjectDir)externals\DirectXTex</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)application\;$(ProjectDir)application\Base;$(ProjectDir)application\Enemy\Boss;$(ProjectDir)application\Enemy\Soldier;$(ProjectDir)application\Enemy;$(ProjectDir)application\Player;$(ProjectDir)engine\2d;$(ProjectDir)engine\3d;$(ProjectDir)engine\3d\light;$(ProjectDir)engine\3d\particle;$(ProjectDir)engine\3d\model;$(ProjectDir)engine\3d\transform;$(ProjectDir)engine\3d\camera;$(ProjectDir)engine\base;$(ProjectDir)engine\input;$(ProjectDir)engine\utility;$(ProjectDir)engine\utility\graphics;$(ProjectDir)engine\utility\debug;$(ProjectDir)engine\utility\string;$(ProjectDir)scene;$(ProjectDir)engine\core;$(ProjectDir)engine\utility\edit;$(ProjectDir)engine\utility\collider;$(ProjectDir)engine\utility\scene;$(ProjectDir)particle;$(ProjectDir)math;$(ProjectDir)externals\assimp\include;$(ProjectDir)engine\Frame;$(ProjectDir)engine\Audio;$(ProjectDir)externals\imgui;$(ProjectDir)externals\DirectXTex</AdditionalIncludeDirectories>
       <Optimization>Custom</Optimization>
     </ClCompile>
     <Link>
@@ -111,6 +111,7 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
   <ItemGroup>
     <ClCompile Include="application\ContactRecord.cpp" />
     <ClCompile Include="application\Enemy\BaseEnemyState.cpp" />
+    <ClCompile Include="application\Enemy\Boss\BossStateRoot.cpp" />
     <ClCompile Include="application\Enemy\Soldier\SoldierStateApproach.cpp" />
     <ClCompile Include="application\Enemy\Soldier\SoldierStateAttack.cpp" />
     <ClCompile Include="application\Enemy\Soldier\SoldierStateDefense.cpp" />
@@ -223,6 +224,7 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="application\CollisionTypeIdDef.h" />
     <ClInclude Include="application\ContactRecord.h" />
     <ClInclude Include="application\Enemy\BaseEnemyState.h" />
+    <ClInclude Include="application\Enemy\Boss\BossStateRoot.h" />
     <ClInclude Include="application\Enemy\Soldier\SoldierStateApproach.h" />
     <ClInclude Include="application\Enemy\Soldier\SoldierStateAttack.h" />
     <ClInclude Include="application\Enemy\Soldier\SoldierStateDefense.h" />

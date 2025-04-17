@@ -132,6 +132,9 @@
     <Filter Include="ソースファイル\application\Enemy\Soldier">
       <UniqueIdentifier>{41901624-d3aa-46c5-8116-a0bbeb7c97d2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ソースファイル\application\Enemy\Boss">
+      <UniqueIdentifier>{b7bc2370-d0a4-4189-be1a-6321aa72b8a5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="externals\imgui\imgui.cpp">
@@ -405,6 +408,9 @@
     </ClCompile>
     <ClCompile Include="application\ContactRecord.cpp">
       <Filter>ソースファイル\application</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Enemy\Boss\BossStateRoot.cpp">
+      <Filter>ソースファイル\application\Enemy\Boss</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -695,6 +701,9 @@
     </ClInclude>
     <ClInclude Include="application\ContactRecord.h">
       <Filter>ソースファイル\application</Filter>
+    </ClInclude>
+    <ClInclude Include="application\Enemy\Boss\BossStateRoot.h">
+      <Filter>ソースファイル\application\Enemy\Boss</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
