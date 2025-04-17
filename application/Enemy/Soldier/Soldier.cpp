@@ -88,10 +88,16 @@ void Soldier::UpdateParticle(const ViewProjection& viewProjection){
 	}
 }
 void Soldier::Draw(const ViewProjection& viewProjection){
+	if (GetSerialNumber() == GetNextSerialNumber() - 1) {
+		return;
+	}
 	Enemy::Draw(viewProjection);
 	sword_->Draw(viewProjection);
 }
 void Soldier::DrawParticle(const ViewProjection& viewProjection){
+	if (GetSerialNumber() == GetNextSerialNumber() - 1) {
+		return;
+	}
 	Enemy::DrawParticle(viewProjection);
 	for (std::unique_ptr<ParticleEmitter>& emitter_ : emitters_) {
 		emitter_->Draw();

@@ -94,6 +94,9 @@ void PlayerSword::OnCollision(Collider* other)
 	//衝突相手
 	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kEnemyWeapon)) {
 		EnemySword* enemySwod = static_cast<EnemySword*>(other);
+		if (enemySwod->GetEnemy()->GetSerialNumber() == enemySwod->GetEnemy()->GetNextSerialNumber() - 1) {
+			return;
+		}
 		if (GetIsAttack() && enemySwod->GetIsDefense()) {
 			SetIsAttack(false);
 			//player_->SetObjColor({ 0.0f,0.0f,1.0f,1.0f });
@@ -134,6 +137,9 @@ void PlayerSword::OnCollisionEnter(Collider* other)
 	//衝突相手
 	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kEnemyWeapon)) {
 		EnemySword* enemySwod = static_cast<EnemySword*>(other);
+		if (enemySwod->GetEnemy()->GetSerialNumber() == enemySwod->GetEnemy()->GetNextSerialNumber() - 1) {
+			return;
+		}
 		if (GetIsAttack() && enemySwod->GetIsDefense()) {
 			SetIsAttack(false);
 			emitters_[0]->Start();

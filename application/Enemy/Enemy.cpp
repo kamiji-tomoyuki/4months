@@ -25,7 +25,9 @@ void Enemy::Init(){
 
 void Enemy::Update() {
 	BaseObject::Update();
-
+	if (GetSerialNumber() == GetNextSerialNumber() - 1) {
+		return;
+	}
 	damageEmitter_->Update();
 
 	dustEmitter_->SetPosition(GetCenterPosition());
@@ -48,6 +50,9 @@ void Enemy::DrawAnimation(const ViewProjection& viewProjection){
 }
 
 void Enemy::OnCollision(Collider* other) {
+	if (GetSerialNumber() == GetNextSerialNumber() - 1) {
+		return;
+	}
 	// 衝突相手の種別IDを取得
 	uint32_t typeID = other->GetTypeID();
 	//衝突相手
@@ -79,6 +84,9 @@ void Enemy::OnCollision(Collider* other) {
 }
 
 void Enemy::OnCollisionEnter(Collider* other){
+	if (GetSerialNumber() == GetNextSerialNumber() - 1) {
+		return;
+	}
 	// 衝突相手の種別IDを取得
 	uint32_t typeID = other->GetTypeID();
 	//衝突相手

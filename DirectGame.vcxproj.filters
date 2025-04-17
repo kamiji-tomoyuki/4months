@@ -352,9 +352,6 @@
     <ClCompile Include="application\Enemy\Enemy.cpp">
       <Filter>ソースファイル\application\Enemy</Filter>
     </ClCompile>
-    <ClCompile Include="application\Enemy\Soldier\Soldier.cpp">
-      <Filter>ソースファイル\application\Enemy</Filter>
-    </ClCompile>
     <ClCompile Include="application\Enemy\BaseEnemyState.cpp">
       <Filter>ソースファイル\application\Enemy</Filter>
     </ClCompile>
@@ -401,6 +398,9 @@
       <Filter>ソースファイル\application\Enemy\Soldier</Filter>
     </ClCompile>
     <ClCompile Include="application\Enemy\Soldier\SoldierStateRoot.cpp">
+      <Filter>ソースファイル\application\Enemy\Soldier</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Enemy\Soldier\Soldier.cpp">
       <Filter>ソースファイル\application\Enemy\Soldier</Filter>
     </ClCompile>
   </ItemGroup>
@@ -650,9 +650,6 @@
     <ClInclude Include="application\Enemy\Enemy.h">
       <Filter>ソースファイル\application\Enemy</Filter>
     </ClInclude>
-    <ClInclude Include="application\Enemy\Soldier\Soldier.h">
-      <Filter>ソースファイル\application\Enemy</Filter>
-    </ClInclude>
     <ClInclude Include="application\Enemy\BaseEnemyState.h">
       <Filter>ソースファイル\application\Enemy</Filter>
     </ClInclude>
@@ -688,6 +685,9 @@
       <Filter>ソースファイル\application\Enemy\Soldier</Filter>
     </ClInclude>
     <ClInclude Include="application\Enemy\Soldier\SoldierStateRoot.h">
+      <Filter>ソースファイル\application\Enemy\Soldier</Filter>
+    </ClInclude>
+    <ClInclude Include="application\Enemy\Soldier\Soldier.h">
       <Filter>ソースファイル\application\Enemy\Soldier</Filter>
     </ClInclude>
   </ItemGroup>
