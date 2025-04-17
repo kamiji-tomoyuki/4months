@@ -109,6 +109,7 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="application\ContactRecord.cpp" />
     <ClCompile Include="application\Enemy\BaseEnemyState.cpp" />
     <ClCompile Include="application\Enemy\Soldier\SoldierStateApproach.cpp" />
     <ClCompile Include="application\Enemy\Soldier\SoldierStateAttack.cpp" />
@@ -220,6 +221,7 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application\CollisionTypeIdDef.h" />
+    <ClInclude Include="application\ContactRecord.h" />
     <ClInclude Include="application\Enemy\BaseEnemyState.h" />
     <ClInclude Include="application\Enemy\Soldier\SoldierStateApproach.h" />
     <ClInclude Include="application\Enemy\Soldier\SoldierStateAttack.h" />

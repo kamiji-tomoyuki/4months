@@ -114,6 +114,10 @@ void PlayerSword::OnCollision(Collider* other)
 			return;
 		}
 		if (GetIsAttack()) {
+			//接触履歴があれば何もせず
+			if (contactRecord_.CheckRecord(enemy->GetSerialNumber())) { return; }
+			//接触履歴に登録
+			contactRecord_.AddRecord(enemy->GetSerialNumber());
 			Vector3 newVelocity = enemy->GetCenterPosition() - player_->GetCenterPosition();
 
 			enemy->SetVelocity(enemy->GetVelocity() + newVelocity.Normalize() * 30.0f);
@@ -155,6 +159,10 @@ void PlayerSword::OnCollisionEnter(Collider* other)
 			return;
 		}
 		if (GetIsAttack()) {
+			//接触履歴があれば何もせず
+			if (contactRecord_.CheckRecord(enemy->GetSerialNumber())) { return; }
+			//接触履歴に登録
+			contactRecord_.AddRecord(enemy->GetSerialNumber());
 			Vector3 newVelocity = enemy->GetCenterPosition() - player_->GetCenterPosition();
 
 			enemy->Damage();
@@ -196,6 +204,10 @@ Vector3 PlayerSword::GetCenterRotation() const{
 void PlayerSword::ImGui()
 {
 	
+}
+
+void PlayerSword::ContactRecordClear(){
+	contactRecord_.Clear();
 }
 
 

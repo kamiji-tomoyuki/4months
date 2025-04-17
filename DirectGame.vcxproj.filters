@@ -403,6 +403,9 @@
     <ClCompile Include="application\Enemy\Soldier\Soldier.cpp">
       <Filter>ソースファイル\application\Enemy\Soldier</Filter>
     </ClCompile>
+    <ClCompile Include="application\ContactRecord.cpp">
+      <Filter>ソースファイル\application</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
@@ -689,6 +692,9 @@
     </ClInclude>
     <ClInclude Include="application\Enemy\Soldier\Soldier.h">
       <Filter>ソースファイル\application\Enemy\Soldier</Filter>
+    </ClInclude>
+    <ClInclude Include="application\ContactRecord.h">
+      <Filter>ソースファイル\application</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
