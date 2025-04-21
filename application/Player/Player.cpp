@@ -256,12 +256,9 @@ void Player::UpdateFloatingGimmick() {
 
 // 通常動作の初期化
 void Player::BehaviorRootInitialize() {
-	attack_.isAttack = false;
 	sword_->SetIsAttack(false);
-	//arms_[kRArm]->SetIsAttack(false);
 	defence_.isDefence = false;
 	sword_->SetIsDefence(false);
-	//arms_[kRArm]->SetIsGrab(false);
 	sword_->SetRotation(Vector3(0.0f, 0.0f, 0.0f));
 	sword_->SetTranslation(Vector3(1.5f, 0.0f, 0.0f));
 	sword_->ContactRecordClear();
@@ -279,13 +276,16 @@ void Player::BehaviorRootUpdate() {
 
 	// ゲームパッド入力処理
 	XINPUT_STATE joyState;
+	// 攻撃入力がされていない時
+	if (Input::GetInstance()->GetJoystickState(0, joyState) && !(joyState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER)) {
+		attack_.isAttack = false;
+	}
 	// 予備動作(攻撃防御方向入力)
 	if (IsAttackDirectionInput()) {
 		behaviorRequest_ = Behavior::kPreliminary;
 	}
 	// ダッシュ処理
-	if (Input::GetInstance()->GetJoystickState(0, joyState) && joyState.Gamepad.wButtons & XINPUT_GAMEPAD_X ||
-		Input::GetInstance()->TriggerKey(DIK_L)) {
+	if (Input::GetInstance()->GetJoystickState(0, joyState) && joyState.Gamepad.wButtons & XINPUT_GAMEPAD_X) {
 		behaviorRequest_ = Behavior::kDash;
 	}
 }
@@ -307,7 +307,6 @@ void Player::BehaviorDashUpdate(){
 	if (workDash_.DashTime_ / workDash_.kDashTime_ >= 1.0f) {
 		behaviorRequest_ = Behavior::kRoot;
 	}
-	/*armTheta = EaseOutExpo(armStartTheta, armEndTheta,workDash_.DashTime_ , workDash_.kDashTime_);*/
 	move.z = EaseOutExpo(startSpeed, endSpeed,workDash_.DashTime_ , workDash_.kDashTime_);
 	Matrix4x4 rotateMatrix = MakeRotateYMatrix(transform_.rotation_.y);
 	move = Transformation(move, rotateMatrix);
@@ -321,7 +320,6 @@ void Player::BehaviorPostureAttackInitialize()
 {
 	transform_.UpdateMatrix();
 	attack_.time = 0;
-	attack_.isAttack = false;
 	attack_.swordStartTransform = sword_->GetTranslation().z;
 	sword_->SetIsAttack(false);
 }
@@ -338,11 +336,11 @@ void Player::BehaviorPostureAttackUpdate()
 	}
 
 	// 武器を入力方向に移動
-	float cosTheta = atan2f(aimingDirection_.y, aimingDirection_.x);
+	float cosTheta = atan2f(attackDirection_.y, attackDirection_.x);
 	// 上
 	if (cosTheta > 0.25f * pi && cosTheta < 0.75f * pi) {
 		// 座標
-		sword_->SetTranslation({ aimingDirection_.x, aimingDirection_.y , 0.0f });
+		sword_->SetTranslation({ attackDirection_.x, attackDirection_.y , 0.0f });
 
 		// 角度
 		//Quaternion q = Quaternion::MakeRotateAxisAngleQuaternion({ 0.0f, 1.0f, 0.0f }, 0.5f * pi_v<float> -cosTheta);
@@ -365,7 +363,7 @@ void Player::BehaviorPostureAttackUpdate()
 	// 左
 	else if (cosTheta >= 0.75f * pi || cosTheta <= -0.75f * pi) {
 		// 座標
-		sword_->SetTranslation({ aimingDirection_.x, 0.0f , aimingDirection_.y });
+		sword_->SetTranslation({ attackDirection_.x, 0.0f , attackDirection_.y });
 
 		// 角度
 		sword_->SetRotation({ cosTheta >= 0.75f * pi ? pi_v<float> * 1.0f - cosTheta : pi_v<float> * 1.0f - cosTheta, 0.0f, pi_v<float> * 0.5f });
@@ -375,7 +373,7 @@ void Player::BehaviorPostureAttackUpdate()
 	// 右
 	else {
 		// 座標
-		sword_->SetTranslation({ aimingDirection_.x, 0.0f , aimingDirection_.y });
+		sword_->SetTranslation({ attackDirection_.x, 0.0f , attackDirection_.y });
 
 		// 角度
 		sword_->SetRotation({ cosTheta >= 0.0f ? pi_v<float> * 1.0f - cosTheta : pi_v < float> * 1.0f + -cosTheta, 0.0f, pi_v<float> * 0.5f });
@@ -385,8 +383,13 @@ void Player::BehaviorPostureAttackUpdate()
 
 	// ゲームパッド入力処理
 	XINPUT_STATE joyState;
+	// 攻撃入力がされていない時
+	if (Input::GetInstance()->GetJoystickState(0, joyState) && !(joyState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER)) {
+		attack_.isAttack = false;
+	}
 	// 攻撃の処理
-	if (Input::GetInstance()->GetJoystickState(0, joyState) && joyState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) {
+	if ((Input::GetInstance()->GetJoystickState(0, joyState) && joyState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) &&
+		!attack_.isAttack) {
 		behaviorRequest_ = Behavior::kAttack;
 		aimingDirection_ = attackDirection_;
 	}
@@ -400,16 +403,13 @@ void Player::BehaviorPostureAttackUpdate()
 void Player::BehaviorAttackInitialize() {
 	transform_.UpdateMatrix();
 	attack_.time = 0;
-	attack_.isAttack = false;
+	attack_.isAttack = true;
 	attack_.swordStartTransform = sword_->GetTranslation().z;
 	sword_->SetIsAttack(true);
 }
 
 // 攻撃動作の更新
 void Player::BehaviorAttackUpdate() {
-	// 移動処理
-	//Move();
-
 	// アームの開始角度
 	float speed = kAcceleration_ * 2.0f;
 	Vector3 move{};
@@ -417,12 +417,9 @@ void Player::BehaviorAttackUpdate() {
 
 	if (attack_.time / attack_.kLimitTime > 1.0f) {
 		behaviorRequest_ = Behavior::kRoot;
-
-		//arms_[kSword]->SetTranslation({ 1.5f, 0.0f, 0.0f });
 	}
 
 	if (attackTypeRequest_) {
-
 		//振るまいを変更する
 		attackType_ = attackTypeRequest_.value();
 
@@ -432,33 +429,6 @@ void Player::BehaviorAttackUpdate() {
 	}
 
 	(this->*AttackTypeUpdateFuncTable[static_cast<size_t>(attackType_)])();
-
-	// 攻撃モーション
-	
-	/*if (attack_.time / attack_.kLimitTime < 0.5f) {
-		attack_.armEnd = aimingDirection_.x;
-		armNow.x = EaseInSine(1.7f, 1.7f + attack_.armEnd, attack_.time * 2.0f, attack_.kLimitTime);
-		attack_.armEnd = aimingDirection_.y;
-		armNow.z = EaseInSine(attack_.armStart, attack_.armStart + attack_.armEnd, attack_.time * 2.0f, attack_.kLimitTime);
-	} else {
-		attack_.armEnd = aimingDirection_.x;
-		armNow.x = EaseOutSine(1.7f + attack_.armEnd, 1.7f, attack_.time * 2.0f - attack_.kLimitTime, attack_.kLimitTime);
-		attack_.armEnd = aimingDirection_.y;
-		armNow.z = EaseOutSine(attack_.armStart + attack_.armEnd, attack_.armStart, attack_.time * 2.0f - attack_.kLimitTime, attack_.kLimitTime);
-	}*/
-
-	// 攻撃モーションが終わり次第攻撃方向をリセット
-	//if (attack_.time / attack_.kLimitTime >= 1.0f) {
-	//	aimingDirection_ = { 0.0f, 0.0f, 0.0f };
-	//}
-
-	//if (attack_.isLeft) {
-	//	arms_[kSword]->SetTranslationX(armNow.x);
-	//	arms_[kSword]->SetTranslationZ(armNow.z);
-	//} else {
-	//	//arms_[kRArm]->SetTranslationX(armNow.x);
-	//	//arms_[kRArm]->SetTranslationZ(armNow.z);
-	//}
 
 	//ロックオン中
 	//if (lockOn_ && lockOn_->ExistTarget()) {
@@ -555,7 +525,6 @@ void Player::BehaviorCelebrateUpdate()
 	// 腕を振る動作 (sin波を使って上下)
 	float wave = std::sin(timeManager_->GetCurrentTime() * 10.0f) * 0.5f; // -0.5 〜 0.5 の範囲
 	sword_->SetRotationX(wave);
-	//arms_[kRArm]->SetRotationX(-wave); // 反対方向
 }
 
 // 調整項目の適用
