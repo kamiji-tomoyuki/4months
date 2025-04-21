@@ -245,9 +245,6 @@ void Player::UpdateFloatingGimmick() {
 
 	//浮遊を座標に反映
 	transform_.translation_.y = std::sin(root_.floatingParameter) * root_.floatingAmplitude;
-	//
-	/*arms_[kLArm]->SetRotationX(std::sin(root_.floatingParameter) * root_.armAmplitude);
-	arms_[kRArm]->SetRotationX(std::sin(root_.floatingParameter) * root_.armAmplitude);*/
 }
 
 // 通常動作の初期化
@@ -276,23 +273,7 @@ void Player::BehaviorRootUpdate() {
 	XINPUT_STATE joyState;
 	// 予備動作(攻撃防御方向入力)
 	if (IsAttackDirectionInput()) {
-		// 攻撃の構え処理
-		if ((Input::GetInstance()->GetJoystickState(0, joyState) && joyState.Gamepad.bRightTrigger & XINPUT_GAMEPAD_RIGHT_SHOULDER) ||
-			Input::GetInstance()->TriggerKey(DIK_SPACE)) {
-			behaviorRequest_ = Behavior::kPreliminary;
-			aimingDirection_ = attackDirection_;
-		}
-
-		// 防御処理
-		// 　フェイク可能時間内の条件追加
-		if (Input::GetInstance()->GetJoystickState(0, joyState) && joyState.Gamepad.bRightTrigger & XINPUT_GAMEPAD_LEFT_SHOULDER ||
-			Input::GetInstance()->TriggerKey(DIK_LSHIFT)) {
-			behaviorRequest_ = Behavior::kProtection;
-			aimingDirection_ = attackDirection_;
-		}
-
 		behaviorRequest_ = Behavior::kPreliminary;
-		aimingDirection_ = attackDirection_;
 	}
 	// ダッシュ処理
 	if (Input::GetInstance()->GetJoystickState(0, joyState) && joyState.Gamepad.wButtons & XINPUT_GAMEPAD_X ||
@@ -397,8 +378,13 @@ void Player::BehaviorPostureAttackUpdate()
 	// ゲームパッド入力処理
 	XINPUT_STATE joyState;
 	// 攻撃の処理
-	if (Input::GetInstance()->GetJoystickState(0, joyState) && !(joyState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER)) {
+	if (Input::GetInstance()->GetJoystickState(0, joyState) && joyState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) {
 		behaviorRequest_ = Behavior::kAttack;
+		aimingDirection_ = attackDirection_;
+	}
+	// 防御の処理
+	if (Input::GetInstance()->GetJoystickState(0, joyState) && joyState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) {
+		behaviorRequest_ = Behavior::kProtection;
 	}
 }
 
@@ -502,8 +488,9 @@ void Player::BehaviorProtectionUpdate() {
 	// 移動処理
 	Move();
 	// 方向取得
-	//SetInputDirection();
-	if (attackDirection_.x == 0 && attackDirection_.y == 0) {
+	SetInputDirection();
+	aimingDirection_ = attackDirection_;
+	if (aimingDirection_.x == 0 && aimingDirection_.y == 0) {
 		behaviorRequest_ = Behavior::kRoot;
 	}
 
@@ -552,9 +539,6 @@ void Player::BehaviorProtectionUpdate() {
 void Player::BehaviorCelebrateInitialize()
 {
 	sword_->SetRotationX(0.0f);
-	//arms_[kRArm]->SetRotationX(0.0f);
-
-	//celebrateTime_ = 0.0f;
 }
 
 // 勝利(喜ぶ)動作更新
@@ -848,7 +832,8 @@ void Player::ImGui()
 		ImGui::Text("HP:");
 		ImGui::DragInt("HP", &hp_);
 		XINPUT_STATE joyState;
-		if (Input::GetInstance()->GetJoystickState(0, joyState) && joyState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) {
+		if (/*Input::GetInstance()->GetJoystickState(0, joyState) && joyState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER*/
+			Input::GetInstance()->GetJoystickState(0, joyState) && joyState.Gamepad.bRightTrigger/* & XINPUT_GAMEPAD_RIGHT_SHOULDER*/) {
 			ImGui::Text("RB:true");
 			ImGui::Text("RStick:(%4.2f, %4.2f)", aimingDirection_.x, aimingDirection_.y);
 			float cosTheta = atan2f(aimingDirection_.y, aimingDirection_.x);
