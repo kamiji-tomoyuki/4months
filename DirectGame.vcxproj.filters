@@ -358,9 +358,6 @@
     <ClCompile Include="application\Enemy\BaseEnemyState.cpp">
       <Filter>ソースファイル\application\Enemy</Filter>
     </ClCompile>
-    <ClCompile Include="application\Enemy\Boss.cpp">
-      <Filter>ソースファイル\application\Enemy</Filter>
-    </ClCompile>
     <ClCompile Include="application\Ground.cpp">
       <Filter>ソースファイル</Filter>
     </ClCompile>
@@ -410,6 +407,12 @@
       <Filter>ソースファイル\application</Filter>
     </ClCompile>
     <ClCompile Include="application\Enemy\Boss\BossStateRoot.cpp">
+      <Filter>ソースファイル\application\Enemy\Boss</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Enemy\Boss\Boss.cpp">
+      <Filter>ソースファイル\application\Enemy\Boss</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Enemy\Boss\BossStateAttack.cpp">
       <Filter>ソースファイル\application\Enemy\Boss</Filter>
     </ClCompile>
   </ItemGroup>
@@ -662,9 +665,6 @@
     <ClInclude Include="application\Enemy\BaseEnemyState.h">
       <Filter>ソースファイル\application\Enemy</Filter>
     </ClInclude>
-    <ClInclude Include="application\Enemy\Boss.h">
-      <Filter>ソースファイル\application\Enemy</Filter>
-    </ClInclude>
     <ClInclude Include="application\Ground.h" />
     <ClInclude Include="engine\3d\particle\ParticleParamater.h" />
     <ClInclude Include="ParticleEditor.h" />
@@ -703,6 +703,12 @@
       <Filter>ソースファイル\application</Filter>
     </ClInclude>
     <ClInclude Include="application\Enemy\Boss\BossStateRoot.h">
+      <Filter>ソースファイル\application\Enemy\Boss</Filter>
+    </ClInclude>
+    <ClInclude Include="application\Enemy\Boss\Boss.h">
+      <Filter>ソースファイル\application\Enemy\Boss</Filter>
+    </ClInclude>
+    <ClInclude Include="application\Enemy\Boss\BossStateAttack.h">
       <Filter>ソースファイル\application\Enemy\Boss</Filter>
     </ClInclude>
   </ItemGroup>
