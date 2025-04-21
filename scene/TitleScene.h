@@ -72,7 +72,9 @@ private:
 
 	std::unique_ptr<Skydome> skydome_ = nullptr;// 天球
 
-	std::unique_ptr<Ground> ground_ = nullptr;// 地面
+	std::unique_ptr<Ground> tutorialGround_ = nullptr;// 地面
+
+	std::unique_ptr<Ground> stage1Ground_ = nullptr;// 地面
 
 	std::unique_ptr<ParticleEmitter> starEmitter_ = nullptr;
 

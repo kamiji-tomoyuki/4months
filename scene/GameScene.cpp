@@ -26,7 +26,7 @@ void GameScene::Initialize()
 
 	//天球
 	skydome_ = std::make_unique<Skydome>();
-	skydome_->Init();
+	skydome_->Init("WildsSkyDome.obj");
 	skydome_->SetViewProjection(&vp_);
 
 	//地面

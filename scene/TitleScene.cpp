@@ -10,8 +10,7 @@
 #include"line/DrawLine3D.h"
 #include <Easing.h>
 
-void TitleScene::Initialize()
-{
+void TitleScene::Initialize() {
 	/// === シングルトンインスタンスの取得 === ///
 
 	audio_ = Audio::GetInstance();
@@ -40,9 +39,13 @@ void TitleScene::Initialize()
 	skydome_->SetViewProjection(&vp_);
 	skydome_->SetScale({ 1000.0f,1000.0f,1000.0f });// 天球のScale
 
-	ground_ = std::make_unique<Ground>();
-	ground_->Init("testMap.obj");
-	ground_->SetScale({ 1000.0f,1000.0f,1000.0f });
+	tutorialGround_ = std::make_unique<Ground>();
+	tutorialGround_->Init("testMap.obj");
+	tutorialGround_->SetScale({ 1000.0f,1000.0f,1000.0f });
+
+	stage1Ground_ = std::make_unique<Ground>();
+	stage1Ground_->Init("testMap.obj");
+	stage1Ground_->SetScale({ 1000.0f,1000.0f,1000.0f });
 
 	UI_ = std::make_unique<Sprite>();
 	UI_->Initialize("titleUI.png", { 0,0 }, { 1,1,1,1 }, { 0.5f,0.5f });
@@ -88,16 +91,15 @@ void TitleScene::Initialize()
 
 	titleEvent_->SetViewProjection(&vp_);
 
-	titleEvent_->AddGround(ground_.get());
+	titleEvent_->AddGround(tutorialGround_.get());
+	titleEvent_->AddGround(stage1Ground_.get());
 }
 
-void TitleScene::Finalize()
-{
+void TitleScene::Finalize() {
 
 }
 
-void TitleScene::Update()
-{
+void TitleScene::Update() {
 #ifdef _DEBUG
 	// デバッグ
 	Debug();
@@ -106,8 +108,13 @@ void TitleScene::Update()
 	// カメラ更新
 	CameraUpdate();
 
-	// シーン切り替え　
-	ChangeScene();
+	if (titleEvent_->IsSceneChange()) {
+
+		if (isChangeScene) {
+			// シーン切り替え　
+			ChangeScene();
+		}
+	}
 
 	//wtTitle_.scale_ = { 1.3f,1.3f,1.3f };
 	//// 3.0fを中心に上下に揺らす
@@ -119,7 +126,8 @@ void TitleScene::Update()
 
 	skydome_->Update();
 
-	ground_->Update();
+	tutorialGround_->Update();
+	stage1Ground_->Update();
 
 	//// UI点滅
 	timer_ += speed_;
@@ -133,8 +141,7 @@ void TitleScene::Update()
 	particleManager_->Update(vp_);
 }
 
-void TitleScene::Draw()
-{
+void TitleScene::Draw() {
 	/// -------描画処理開始-------
 
 	//emitter_->DrawEmitter();
@@ -161,7 +168,8 @@ void TitleScene::Draw()
 
 	skydome_->Draw(vp_);
 
-	ground_->Draw(vp_);
+	tutorialGround_->Draw(vp_);
+	stage1Ground_->Draw(vp_);
 	//--------------------------
 
 	/// Particleの描画準備
@@ -188,8 +196,7 @@ void TitleScene::Draw()
 	/// -------描画処理終了-------
 }
 
-void TitleScene::DrawForOffScreen()
-{
+void TitleScene::DrawForOffScreen() {
 	/// -------描画処理開始-------
 
 	/// Spriteの描画準備
@@ -221,8 +228,7 @@ void TitleScene::DrawForOffScreen()
 }
 
 
-void TitleScene::Debug()
-{
+void TitleScene::Debug() {
 	ImGui::Begin("TitleScene:Debug");
 	debugCamera_->imgui();
 	LightGroup::GetInstance()->imgui();
@@ -241,24 +247,22 @@ void TitleScene::Debug()
 
 }
 
-void TitleScene::CameraUpdate()
-{
+void TitleScene::CameraUpdate() {
 	if (debugCamera_->GetActive()) {
 		debugCamera_->Update();
-	}
-	else {
+	} else {
 		vp_.UpdateMatrix();
 	}
 }
 
-void TitleScene::ChangeScene()
-{
-	XINPUT_STATE joyState;
-	if (Input::GetInstance()->GetJoystickState(0, joyState) && joyState.Gamepad.wButtons & XINPUT_GAMEPAD_A || input_->TriggerKey(DIK_SPACE)) {
+void TitleScene::ChangeScene() {
+
+	if (titleEvent_->GetStageSelect() == TitleEvent::StageSelect::TUTORIAL) {
 		sceneManager_->NextSceneReservation("GAME");
-		if (isChangeScene) {
-			audio_->PlayWave(5, 1.0f, false);
-			isChangeScene = false;
-		}
+	} else if (titleEvent_->GetStageSelect() == TitleEvent::StageSelect::STAGE1) {
+		sceneManager_->NextSceneReservation("GAME");
 	}
+
+	audio_->PlayWave(5, 1.0f, false);
+	isChangeScene = false;
 }

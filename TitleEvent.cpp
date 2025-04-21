@@ -2,11 +2,19 @@
 
 #include "Easing.h"
 
+#include "Input.h"
+
 void TitleEvent::Initialize() {
 
 	state_ = TITLE;
 
-	maxTime_ = 2.0f;
+	stageSelectState_ = TUTORIAL;
+
+	isEventEnd_ = true;
+
+	isSceneChange_ = false;
+
+	maxTime_ = 1.0f;
 
 	timer_ = 0.0f;
 
@@ -18,12 +26,47 @@ void TitleEvent::Initialize() {
 
 	gameStartTranslation_ = { 0.0f, 1.0f, 0.0f };
 	gameStartRotation_ = { 0.7f, 0.0f, 0.0f };
+
+	stageDistance_ = 3000.0f;
 }
 
 void TitleEvent::Update() {
 
+	XINPUT_STATE joyState;
+
+	size_t groundCount = 0;
+
+	isEventEnd_ = true;
+
 	if (timer_ <= maxTime_) {
 		timer_ += 1.0f / 60.0f;
+
+		isEventEnd_ = false;
+	}
+
+	if (isEventEnd_) {
+
+		if (Input::GetInstance()->GetJoystickState(0, joyState) && joyState.Gamepad.wButtons & XINPUT_GAMEPAD_B) {
+
+			state_ = static_cast<State>(static_cast<int>(state_) - 1);
+
+			timer_ = 0.0f;
+		}
+
+		if (Input::GetInstance()->GetJoystickState(0, joyState) && joyState.Gamepad.wButtons & XINPUT_GAMEPAD_A) {
+
+			state_ = static_cast<State>(static_cast<int>(state_) + 1);
+
+			timer_ = 0.0f;
+		}
+	}
+
+	if (state_ <= 0) {
+		state_ = static_cast<State>(0);
+	}
+
+	if (state_ >= static_cast<State>(State::STATEEND)) {
+		state_ = static_cast<State>(State::STATEEND - 1);
 	}
 
 	switch (state_) {
@@ -35,6 +78,17 @@ void TitleEvent::Update() {
 
 		for (auto& ground : grounds_) {
 			ground->SetRotation(EaseOutQuad(ground->GetCenterRotation(), { 0.0f,0.0f,0.0f }, timer_, maxTime_));
+
+			ground->SetWorldPosition(
+				EaseInCubic(
+					ground->GetCenterPosition(),
+					Vector3(stageDistance_ * static_cast<float>(static_cast<int>(groundCount) - static_cast<int>(stageSelectState_)), 0.0f, 0.0f),
+					timer_,
+					maxTime_
+				)
+			);
+
+			groundCount++;
 		}
 
 		break;
@@ -46,6 +100,42 @@ void TitleEvent::Update() {
 
 		for (auto& ground : grounds_) {
 			ground->SetRotation(ground->GetCenterRotation() + Vector3(0.0f, 0.01f, 0.0f));
+
+			ground->SetWorldPosition(
+				EaseInCubic(
+					ground->GetCenterPosition(),
+					Vector3(stageDistance_ * static_cast<float>(static_cast<int>(groundCount) - static_cast<int>(stageSelectState_)), 0.0f, 0.0f),
+					timer_,
+					maxTime_
+				)
+			);
+
+			groundCount++;
+		}
+
+		if (isEventEnd_) {
+
+			if (Input::GetInstance()->GetJoystickState(0, joyState) && joyState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT) {
+
+				stageSelectState_ = static_cast<StageSelect>(static_cast<int>(stageSelectState_) - 1);
+
+				timer_ = 0.0f;
+			}
+
+			if (Input::GetInstance()->GetJoystickState(0, joyState) && joyState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT) {
+
+				stageSelectState_ = static_cast<StageSelect>(static_cast<int>(stageSelectState_) + 1);
+
+				timer_ = 0.0f;
+			}
+		}
+
+		if (stageSelectState_ <= 0) {
+			stageSelectState_ = static_cast<StageSelect>(0);
+		}
+
+		if (stageSelectState_ >= static_cast<StageSelect>(StageSelect::STAGEEND)) {
+			stageSelectState_ = static_cast<StageSelect>(StageSelect::STAGEEND - 1);
 		}
 
 		break;
@@ -58,6 +148,9 @@ void TitleEvent::Update() {
 		for (auto& ground : grounds_) {
 			ground->SetRotation(ground->GetCenterRotation() + Vector3(0.0f, 0.01f, 0.0f));
 		}
+
+		isSceneChange_ = true;
+
 		break;
 	}
 }
@@ -85,6 +178,8 @@ void TitleEvent::ImGui() {
 
 			ImGui::Text("State : %s", GetStateString());
 
+			ImGui::Text("StageSelect : %s", GetStageSelectString());
+
 			ImGui::Text("timer_ : %f", timer_);
 
 			ImGui::Text("maxTime_ : %f", maxTime_);
@@ -104,6 +199,10 @@ void TitleEvent::ImGui() {
 			ImGui::DragFloat3("GameStart Translation", &gameStartTranslation_.x, 0.1f);
 
 			ImGui::DragFloat3("GameStart Rotation", &gameStartRotation_.x, 0.1f);
+
+			ImGui::Text("TutorialGroundTranslation : %f,%f,%f", grounds_[0]->GetWorldPosition().x, grounds_[0]->GetWorldPosition().y, grounds_[0]->GetWorldPosition().z);
+
+			ImGui::Text("Stage1GroundTranslation : %f,%f,%f", grounds_[1]->GetWorldPosition().x, grounds_[1]->GetWorldPosition().y, grounds_[1]->GetWorldPosition().z);
 
 			ImGui::EndTabItem();
 		}

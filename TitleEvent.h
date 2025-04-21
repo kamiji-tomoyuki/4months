@@ -5,13 +5,22 @@
 
 #include "vector"
 
+class SceneManager;
+
 class TitleEvent {
 
 public:
 	enum State {
 		TITLE,
 		STAGESELECT,
-		GAMESTART
+		GAMESTART,
+		STATEEND
+	};
+
+	enum StageSelect {
+		TUTORIAL,
+		STAGE1,
+		STAGEEND
 	};
 
 public:
@@ -44,36 +53,57 @@ public:
 		}
 	}
 
+	const char* GetStageSelectString() const {
+		switch (stageSelectState_) {
+		case TUTORIAL: return "TUTORIAL";
+		case STAGE1: return "STAGE1";
+		case STAGEEND: return "STAGEEND";
+		default: return "UNKNOWN";
+		}
+	}
+
+	StageSelect GetStageSelect() const { return stageSelectState_; }
+
 	void AddGround(Ground* ground) {
 		grounds_.push_back(ground);
 	}
 
-	bool IsStandby() const {
-		if (timer_ >= maxTime_) {
-			return true;
-		} else {
-			return false;
-		}
+	bool IsEventEnd() const {
+		return isEventEnd_;
+	}
+
+	bool IsSceneChange() const {
+		return isSceneChange_;
 	}
 
 private:
 
 	ViewProjection* vp_ = nullptr; 
 
+	SceneManager* sceneManager_ = nullptr;
+
 	std::vector<Ground*> grounds_;
 
 	State state_;
+
+	StageSelect stageSelectState_;
+
+	bool isEventEnd_ = false;
+
+	bool isSceneChange_ = false;
 
 	float timer_ = 0.0f;
 
 	float maxTime_ = 2.0f;
 
-	Vector3 titleTranslation_ = { 0.0f, 1.0f, 0.0f };
-	Vector3 titleRotation_ = { -0.1f, 0.0f, 0.0f };
+	Vector3 titleTranslation_;
+	Vector3 titleRotation_;
 
-	Vector3 stageSelectTranslation_ = { 0.0f, 7000.0f, -7000.0f };
-	Vector3 stageSelectRotation_ = { 0.7f, 0.0f, 0.0f };
+	Vector3 stageSelectTranslation_;
+	Vector3 stageSelectRotation_;
 
-	Vector3 gameStartTranslation_ = { 0.0f, 0.0f, 0.0f };
-	Vector3 gameStartRotation_ = { 0.0f, 0.0f, 0.0f };
+	Vector3 gameStartTranslation_;
+	Vector3 gameStartRotation_;
+
+	float stageDistance_;
 };

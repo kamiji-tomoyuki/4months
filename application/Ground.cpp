@@ -31,7 +31,7 @@ void Ground::Draw(const ViewProjection& viewProjection){
 }
 
 Vector3 Ground::GetCenterPosition() const{
-	return Vector3();
+	return transform_.translation_;
 }
 
 Vector3 Ground::GetCenterRotation() const{
