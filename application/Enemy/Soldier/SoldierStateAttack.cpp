@@ -47,17 +47,16 @@ void SoldierStateAttack::Update(){
 		soldier_->GetSword()->SetRotation({ 0.0f, 0.0f, 0.0f });
 	}
 	soldier_->SetAttack(attack_);
-
-	//プレイヤーの位置によって行動を変える
-	if (Vector3(player_->GetCenterPosition() - enemy_->GetCenterPosition()).Length() < enemy_->GetShortDistance()) {
-		if (!timeManager_->GetTimer("AttackCoolTime" + std::to_string(enemy_->GetSerialNumber())).isStart) {
+	if (!timeManager_->GetTimer("AttackCoolTime" + std::to_string(enemy_->GetSerialNumber())).isStart) {
+		//プレイヤーの位置によって行動を変える
+		if (Vector3(player_->GetCenterPosition() - enemy_->GetCenterPosition()).Length() < enemy_->GetShortDistance()) {
 			attackTypeRequest_ = AttackType::kNullType;
 			enemy_->ChangeState(std::make_unique<SoldierStateRoot>(enemy_));
-		} 
-	} else if (Vector3(player_->GetCenterPosition() - enemy_->GetCenterPosition()).Length() < enemy_->GetMiddleDistance()) {
-		enemy_->ChangeState(std::make_unique<SoldierStateApproach>(enemy_));
-	} else {
-		enemy_->ChangeState(std::make_unique<SoldierStateApproach>(enemy_));
+		} else if (Vector3(player_->GetCenterPosition() - enemy_->GetCenterPosition()).Length() < enemy_->GetMiddleDistance()) {
+			enemy_->ChangeState(std::make_unique<SoldierStateApproach>(enemy_));
+		} else {
+			enemy_->ChangeState(std::make_unique<SoldierStateApproach>(enemy_));
+		}
 	}
 }
 // 振り下ろし(上入力攻撃)の初期化
