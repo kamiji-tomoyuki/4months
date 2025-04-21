@@ -53,6 +53,9 @@ void Soldier::Init(){
 	hp_ = kHp_;
 }
 void Soldier::Update(){
+	if (GetSerialNumber() == GetNextSerialNumber() - 1) {
+		return;
+	}
 	ApplyGlobalVariables();
 	Enemy::VectorRotation(player_->GetCenterPosition() - GetCenterPosition());
 	Enemy::Update();

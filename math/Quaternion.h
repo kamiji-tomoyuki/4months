@@ -51,7 +51,11 @@ public:
     // 逆クォータニオンを返す
     Quaternion Inverse() const;
 
+    // 任意軸回転を表すQuaternionの生成
     static Quaternion MakeRotateAxisAngleQuaternion(const Vector3& axis, float angle);
+
+    // ベクトルをQuaternionで回転させた結果のベクトルを求める
+    static Vector3 RotateVector(const Vector3& vector, const Quaternion& quaternion);
 
     // Sleap補間（Slerp）を計算
     static Quaternion Sleap(Quaternion q1, Quaternion q2, float t);
