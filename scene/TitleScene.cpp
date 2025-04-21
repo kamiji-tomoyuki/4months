@@ -23,11 +23,11 @@ void TitleScene::Initialize()
 	debugCamera_ = std::make_unique<DebugCamera>();
 	debugCamera_->Initialize(&vp_);
 
-	/*wtTitle_.Initialize();
+	wtTitle_.Initialize();
 	wtTitle_.translation_ = { 0.0f,3.0f,0.0f };
 	wtTitle_.rotation_ = { 0.0f,0.0f,0.0f };
 	title_ = std::make_unique<Object3d>();
-	title_->Initialize("TitleScene/Title.obj");*/
+	title_->Initialize("TitleScene/Title.obj");
 
 	//天球
 	skydome_ = std::make_unique<Skydome>();
@@ -91,11 +91,11 @@ void TitleScene::Update()
 	// シーン切り替え　
 	ChangeScene();
 
-	//wtTitle_.scale_ = { 1.3f,1.3f,1.3f };
-	//// 3.0fを中心に上下に揺らす
-	//wtTitle_.translation_.y = EaseInOutQuint(2.5f, 3.5f, timer_, 1.0f);
-	// 
-	//wtTitle_.UpdateMatrix();
+	wtTitle_.scale_ = { 1.3f,1.3f,1.3f };
+	// 3.0fを中心に上下に揺らす
+	wtTitle_.translation_.y = EaseInOutQuint(2.5f, 3.5f, timer_, 1.0f);
+	 
+	wtTitle_.UpdateMatrix();
 
 	skydome_->SetScale({ 1000.0f,1000.0f,1000.0f });// 天球のScale
 	skydome_->Update();
@@ -135,7 +135,7 @@ void TitleScene::Draw()
 	if (Input::GetInstance()->IsAnyJoystickConnected()) {
 
 	}
-	/*title_->Draw(wtTitle_, vp_);*/
+	title_->Draw(wtTitle_, vp_);
 	skydome_->Draw(vp_);
 	//--------------------------
 
