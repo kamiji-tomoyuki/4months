@@ -373,6 +373,7 @@ void GameScene::AddEnemy(const Vector3& position) {
 	for (const std::unique_ptr<Enemy>& enemy : enemies_) {
 		if (enemy->GetSerialNumber() == enemy->GetNextSerialNumber() -1) {
 			enemy->SetTranslation(position);
+			enemy->Update();
 		}
 	}
 	std::unique_ptr<Enemy> newEnemy = std::make_unique<Soldier>();
