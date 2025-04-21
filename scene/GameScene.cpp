@@ -49,8 +49,6 @@ void GameScene::Initialize()
 
 	//敵
 	Enemy::SetEnemyID(0);
-	LoadEnemyPopData();
-
 	for (size_t i = 0; i < 1; i++) {
 		std::unique_ptr<Enemy> newEnemy = std::make_unique<Boss>();
 		newEnemy->SetPlayer(players_[0].get());
@@ -59,6 +57,13 @@ void GameScene::Initialize()
 		newEnemy->SetTranslation({0.0f,0.0f,100.0f});
 		enemies_.push_back(std::move(newEnemy));
 	}
+	std::unique_ptr<Enemy> newEnemy = std::make_unique<Soldier>();
+	newEnemy->SetPlayer(players_[0].get());
+	newEnemy->SetTimeManager(timeManager_.get());
+	newEnemy->Init();
+	newEnemy->SetTranslation({0,0,0});
+	enemies_.push_back(std::move(newEnemy));
+	LoadEnemyPopData();
 
 	//カメラ
 	followCamera_ = std::make_unique<FollowCamera>();
@@ -200,9 +205,6 @@ void GameScene::Draw()
 		player->Draw(vp_);
 	}
 	for (const std::unique_ptr<Enemy>& enemy : enemies_) {
-		if (enemy->GetSerialNumber() == enemy->GetNextSerialNumber() - 1) {
-			break;
-		}
 		enemy->Draw(vp_);
 	}
 	skydome_->Draw(vp_);
@@ -368,10 +370,16 @@ void GameScene::UpdateEnemyPopCommands() {
 }
 
 void GameScene::AddEnemy(const Vector3& position) {
+	for (const std::unique_ptr<Enemy>& enemy : enemies_) {
+		if (enemy->GetSerialNumber() == enemy->GetNextSerialNumber() -1) {
+			enemy->SetTranslation(position);
+			enemy->Update();
+		}
+	}
 	std::unique_ptr<Enemy> newEnemy = std::make_unique<Soldier>();
 	newEnemy->SetPlayer(players_[0].get());
 	newEnemy->SetTimeManager(timeManager_.get());
 	newEnemy->Init();
-	newEnemy->SetTranslation(position);
+	newEnemy->SetTranslation({0,0,0});
 	enemies_.push_back(std::move(newEnemy));
 }

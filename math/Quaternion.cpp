@@ -159,6 +159,17 @@ Quaternion Quaternion::MakeRotateAxisAngleQuaternion(const Vector3& axis, float 
 	return result;
 }
 
+Vector3 Quaternion::RotateVector(const Vector3& vector, const Quaternion& quaternion)
+{
+	Quaternion ans(0.0f, 0.0f, 0.0f, 0.0f);
+	Quaternion r(vector.x, vector.y, vector.z, 0.0f);
+
+	ans = quaternion * r;
+	ans = ans * quaternion.Conjugate();
+
+	return Vector3{ ans.x, ans.y, ans.z };
+}
+
 //Quaternion Quaternion::MakeRotateAxisAngleQuaternion(const Vector3& axis, float angle)
 //{
 //	Quaternion result;

@@ -129,6 +129,12 @@
     <Filter Include="リソース ファイル\OffScreen">
       <UniqueIdentifier>{9ad29c48-6718-4748-b2ff-1126d4c8443b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ソースファイル\application\Enemy\Soldier">
+      <UniqueIdentifier>{41901624-d3aa-46c5-8116-a0bbeb7c97d2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソースファイル\application\Enemy\Boss">
+      <UniqueIdentifier>{b7bc2370-d0a4-4189-be1a-6321aa72b8a5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="externals\imgui\imgui.cpp">
@@ -349,28 +355,10 @@
     <ClCompile Include="application\Enemy\Enemy.cpp">
       <Filter>ソースファイル\application\Enemy</Filter>
     </ClCompile>
-    <ClCompile Include="application\Enemy\Soldier.cpp">
-      <Filter>ソースファイル\application\Enemy</Filter>
-    </ClCompile>
     <ClCompile Include="application\Enemy\BaseEnemyState.cpp">
       <Filter>ソースファイル\application\Enemy</Filter>
     </ClCompile>
-    <ClCompile Include="application\Enemy\EnemyStateApproach.cpp">
-      <Filter>ソースファイル\application\Enemy</Filter>
-    </ClCompile>
-    <ClCompile Include="application\Enemy\EnemyStateLeave.cpp">
-      <Filter>ソースファイル\application\Enemy</Filter>
-    </ClCompile>
-    <ClCompile Include="application\Enemy\EnemyStateRoot.cpp">
-      <Filter>ソースファイル\application\Enemy</Filter>
-    </ClCompile>
     <ClCompile Include="application\Enemy\Boss.cpp">
-      <Filter>ソースファイル\application\Enemy</Filter>
-    </ClCompile>
-    <ClCompile Include="application\Enemy\EnemyStateAttack.cpp">
-      <Filter>ソースファイル\application\Enemy</Filter>
-    </ClCompile>
-    <ClCompile Include="application\Enemy\EnemyStateDefense.cpp">
       <Filter>ソースファイル\application\Enemy</Filter>
     </ClCompile>
     <ClCompile Include="application\Ground.cpp">
@@ -402,6 +390,29 @@
     </ClCompile>
     <ClCompile Include="application\TitleEvent.cpp">
       <Filter>ソースファイル</Filter>
+    <ClCompile Include="application\Enemy\Soldier\SoldierStateApproach.cpp">
+      <Filter>ソースファイル\application\Enemy\Soldier</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Enemy\Soldier\SoldierStateAttack.cpp">
+      <Filter>ソースファイル\application\Enemy\Soldier</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Enemy\Soldier\SoldierStateDefense.cpp">
+      <Filter>ソースファイル\application\Enemy\Soldier</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Enemy\Soldier\SoldierStateLeave.cpp">
+      <Filter>ソースファイル\application\Enemy\Soldier</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Enemy\Soldier\SoldierStateRoot.cpp">
+      <Filter>ソースファイル\application\Enemy\Soldier</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Enemy\Soldier\Soldier.cpp">
+      <Filter>ソースファイル\application\Enemy\Soldier</Filter>
+    </ClCompile>
+    <ClCompile Include="application\ContactRecord.cpp">
+      <Filter>ソースファイル\application</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Enemy\Boss\BossStateRoot.cpp">
+      <Filter>ソースファイル\application\Enemy\Boss</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -650,28 +661,10 @@
     <ClInclude Include="application\Enemy\Enemy.h">
       <Filter>ソースファイル\application\Enemy</Filter>
     </ClInclude>
-    <ClInclude Include="application\Enemy\Soldier.h">
-      <Filter>ソースファイル\application\Enemy</Filter>
-    </ClInclude>
-    <ClInclude Include="application\Enemy\EnemyStateLeave.h">
-      <Filter>ソースファイル\application\Enemy</Filter>
-    </ClInclude>
-    <ClInclude Include="application\Enemy\EnemyStateApproach.h">
-      <Filter>ソースファイル\application\Enemy</Filter>
-    </ClInclude>
     <ClInclude Include="application\Enemy\BaseEnemyState.h">
       <Filter>ソースファイル\application\Enemy</Filter>
     </ClInclude>
-    <ClInclude Include="application\Enemy\EnemyStateRoot.h">
-      <Filter>ソースファイル\application\Enemy</Filter>
-    </ClInclude>
     <ClInclude Include="application\Enemy\Boss.h">
-      <Filter>ソースファイル\application\Enemy</Filter>
-    </ClInclude>
-    <ClInclude Include="application\Enemy\EnemyStateDefense.h">
-      <Filter>ソースファイル\application\Enemy</Filter>
-    </ClInclude>
-    <ClInclude Include="application\Enemy\EnemyStateAttack.h">
       <Filter>ソースファイル\application\Enemy</Filter>
     </ClInclude>
     <ClInclude Include="application\Ground.h" />
@@ -691,6 +684,30 @@
       <Filter>ソースファイル\application\Enemy</Filter>
     </ClInclude>
     <ClInclude Include="application\TitleEvent.h" />
+    <ClInclude Include="application\Enemy\Soldier\SoldierStateApproach.h">
+      <Filter>ソースファイル\application\Enemy\Soldier</Filter>
+    </ClInclude>
+    <ClInclude Include="application\Enemy\Soldier\SoldierStateAttack.h">
+      <Filter>ソースファイル\application\Enemy\Soldier</Filter>
+    </ClInclude>
+    <ClInclude Include="application\Enemy\Soldier\SoldierStateDefense.h">
+      <Filter>ソースファイル\application\Enemy\Soldier</Filter>
+    </ClInclude>
+    <ClInclude Include="application\Enemy\Soldier\SoldierStateLeave.h">
+      <Filter>ソースファイル\application\Enemy\Soldier</Filter>
+    </ClInclude>
+    <ClInclude Include="application\Enemy\Soldier\SoldierStateRoot.h">
+      <Filter>ソースファイル\application\Enemy\Soldier</Filter>
+    </ClInclude>
+    <ClInclude Include="application\Enemy\Soldier\Soldier.h">
+      <Filter>ソースファイル\application\Enemy\Soldier</Filter>
+    </ClInclude>
+    <ClInclude Include="application\ContactRecord.h">
+      <Filter>ソースファイル\application</Filter>
+    </ClInclude>
+    <ClInclude Include="application\Enemy\Boss\BossStateRoot.h">
+      <Filter>ソースファイル\application\Enemy\Boss</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\shaders\Particle\Particle.PS.hlsl">

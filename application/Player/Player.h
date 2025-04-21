@@ -139,11 +139,7 @@ private:	// 動作パターン
 	// 調整項目の適用
 	void ApplyGlobalVariables();
 
-	// 移動
-	void Move();
-
-	// 予備動作の方向
-	void DirectionPreliminaryAction();
+	
 
 private:	// 攻撃方向タイプ
 	// 振り下ろし(上入力攻撃)
@@ -165,6 +161,16 @@ private:	// 攻撃方向タイプ
 	// 未入力
 	void AttackTypeNullInitialize();
 	void AttackTypeNullUpdate();
+
+private:	// メンバ関数
+	// 移動
+	void Move();
+
+	// 入力方向の設定
+	void SetInputDirection();
+	
+	// 攻撃方向入力されたか
+	bool IsAttackDirectionInput();
 
 private:	// メンバ変数
 	// 動作パターン
@@ -208,6 +214,7 @@ private:	// メンバ変数
 	Vector3 acceleration_{};
 
 	// 狙う方向
+	Vector3 attackDirection_{};
 	Vector3 aimingDirection_{};
 
 	// HP

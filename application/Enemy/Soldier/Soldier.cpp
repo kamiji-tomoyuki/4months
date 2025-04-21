@@ -1,28 +1,40 @@
-#include "Boss.h"
+#include "Soldier.h"
 #include <CollisionTypeIdDef.h>
 #include "myMath.h"
-#include "BossStateRoot.h"
+#include "SoldierStateRoot.h"
 #include "Player.h"
+#include "TimeManager.h"
+#include <Easing.h>
+using namespace std::numbers;
 
-Boss::Boss() {
+Soldier::Soldier(){
 
 }
-void Boss::Init() {
+void Soldier::Init(){
 	Enemy::Init();
-	Collider::SetTypeID(static_cast<uint32_t>(CollisionTypeIdDef::kBoss));
-	BaseObject::CreateModel("enemy/enemyBody.obj");
-	Enemy::ChangeState(std::make_unique<BossStateRoot>(this));
-	Collider::SetRadius(10.0f);
+	Collider::SetRadius(3.0f);
 	Collider::SetAABBScale({ 0.0f,0.0f,0.0f });
-	Enemy::SetScale({ 10.0f,10.0f,10.0f });
-	shortDistance_ = (player_->GetRadius() + GetRadius()) * 200.0f;
-	middleDistance_ = (player_->GetRadius() + GetRadius()) * 400.0f;
+	Enemy::SetScale({ 1.0f,1.0f,1.0f });
+	Enemy::SetScale({ GetRadius(),GetRadius(),GetRadius() });
+	shortDistance_ = (player_->GetRadius() + GetRadius()) * 2.0f;
+	middleDistance_ = (player_->GetRadius() + GetRadius()) * 4.0f;
+
+	//エネミーの剣
+	sword_ = std::make_unique<EnemySword>();
+	sword_->SetEnemy(this);
+	sword_->SetTimeManager(timeManager_);
+
+	BaseObject::CreateModel("player/playerBody.obj");
+	sword_->Initialize("player/playerArm.gltf", "sword/sword.obj");
+	sword_->SetTranslation(Vector3(1.7f, 0.0f, 1.3f));
+
+	Enemy::ChangeState(std::make_unique<SoldierStateRoot>(this));
 	//imgui
 	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
 	// グループを追加
 	GlobalVariables::GetInstance()->CreateGroup(groupName);
 	globalVariables->AddItem(groupName, "kHp_", kHp_);
-
+	
 	globalVariables->AddItem(groupName, "shortDistanceProbability_.kAttack", shortDistanceProbability_.kAttack);
 	globalVariables->AddItem(groupName, "shortDistanceProbability_.kDefense", shortDistanceProbability_.kDefense);
 	globalVariables->AddItem(groupName, "middleDistanceProbability_.kAttack", middleDistanceProbability_.kAttack);
@@ -36,46 +48,85 @@ void Boss::Init() {
 	globalVariables->AddItem(groupName, "CoolTime", kCoolTime_);
 	//確認用
 	globalVariables->AddItem(groupName, "isMove_", isMove_);
-	//更新
 	ApplyGlobalVariables();
+
 	hp_ = kHp_;
 }
-void Boss::Update() {
+void Soldier::Update(){
+	if (GetSerialNumber() == GetNextSerialNumber() - 1) {
+		return;
+	}
 	ApplyGlobalVariables();
 	Enemy::VectorRotation(player_->GetCenterPosition() - GetCenterPosition());
 	Enemy::Update();
+	if (aimingDirection_.x == 0 && aimingDirection_.z == 0) {
+		sword_->SetTranslation({ 1.7f, 0.0f, 1.3f });
+
+	}
 	if (!isMove_) {
 		return;
 	}
 	// キャラ移動
 	state_->Update();
-
+	
 	velocity_ *= 1.0f - kAttenuation_;
 
 	transform_.translation_ += velocity_ * timeManager_->deltaTime_;
 
 	transform_.translation_.y = GetRadius();
+
 	Enemy::Update();
+	sword_->Update();
 }
-void Boss::Draw(const ViewProjection& viewProjection) {
+void Soldier::UpdateParticle(const ViewProjection& viewProjection){
+	Enemy::UpdateParticle(viewProjection);
+	if (timeManager_->GetTimer("Smoke" + std::to_string(GetSerialNumber())).isStart &&
+		!timeManager_->GetTimer("SmokeCoolTime" + std::to_string(GetSerialNumber())).isStart) {
+		//emitters_[1]->Start();
+		timeManager_->SetTimer("SmokeCoolTime" + std::to_string(GetSerialNumber()), 0.1f);
+	}
+	for (std::unique_ptr<ParticleEmitter>& emitter_ : emitters_) {
+		emitter_->SetPosition(GetCenterPosition());
+		emitter_->Update();
+	}
+}
+void Soldier::Draw(const ViewProjection& viewProjection){
+	if (GetSerialNumber() == GetNextSerialNumber() - 1) {
+		return;
+	}
 	Enemy::Draw(viewProjection);
+	sword_->Draw(viewProjection);
 }
-void Boss::OnCollision(Collider* other) {
+void Soldier::DrawParticle(const ViewProjection& viewProjection){
+	if (GetSerialNumber() == GetNextSerialNumber() - 1) {
+		return;
+	}
+	Enemy::DrawParticle(viewProjection);
+	for (std::unique_ptr<ParticleEmitter>& emitter_ : emitters_) {
+		emitter_->Draw();
+		//emitter_->DrawEmitter();
+	}
+}
+void Soldier::DrawAnimation(const ViewProjection& viewProjection){
+	//sword_->DrawAnimation(viewProjection);
+}
+void Soldier::OnCollision(Collider* other){
 	Enemy::OnCollision(other);
 	// 衝突相手の種別IDを取得
 	uint32_t typeID = other->GetTypeID();
-	// 衝突相手が敵なら
+	//衝突相手
 	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kPlayerWeapon)) {
+
 	}
 }
-void Boss::OnCollisionEnter(Collider* other) {
+void Soldier::OnCollisionEnter(Collider* other){
 	Enemy::OnCollisionEnter(other);
 }
-void Boss::OnCollisionOut(Collider* other) {
+void Soldier::OnCollisionOut(Collider* other){
 	Enemy::OnCollisionOut(other);
 }
 
-void Boss::ApplyGlobalVariables() {
+void Soldier::ApplyGlobalVariables() {
 	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
 	kHp_ = globalVariables->GetIntValue(groupName, "kHp_");
 
@@ -92,8 +143,27 @@ void Boss::ApplyGlobalVariables() {
 	kCoolTime_ = globalVariables->GetFloatValue(groupName, "CoolTime");
 	isMove_ = globalVariables->GetBoolValue(groupName, "isMove_");
 }
+// 予備動作の方向
+void Soldier::DirectionPreliminaryAction(){
+	aimingDirection_ = { 0.0f, 0.0f, 0.0f };
+	// 方向をセット
+	if (GetProbabilities(0.25f)){
+		aimingDirection_ = { 1.0f, 0.0f, 0.0f };
+	} 
+	if (GetProbabilities(0.25f)) {
+		aimingDirection_ = { -1.0f, 0.0f, 0.0f };
+	}
+	if (GetProbabilities(0.25f)) {
+		aimingDirection_ = { 0.0f, 0.0f, 1.0f };
+	}
+	if (GetProbabilities(0.25f)) {
+		aimingDirection_ = { 0.0f, 0.0f, -1.0f };
+	}
 
-Vector3 Boss::GetCenterPosition() const {
+	aimingDirection_ *= 5.0f;
+}
+
+Vector3 Soldier::GetCenterPosition() const{
 	//ローカル座標でのオフセット
 	const Vector3 offset = { 0.0f, 0.0f, 0.0f };
 	// ワールド座標に変換
@@ -101,6 +171,6 @@ Vector3 Boss::GetCenterPosition() const {
 	return worldPos;
 }
 
-Vector3 Boss::GetCenterRotation() const {
+Vector3 Soldier::GetCenterRotation() const{
 	return transform_.rotation_;
 }
