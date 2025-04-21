@@ -94,6 +94,9 @@ void PlayerSword::OnCollision(Collider* other)
 	//衝突相手
 	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kEnemyWeapon)) {
 		EnemySword* enemySwod = static_cast<EnemySword*>(other);
+		if (enemySwod->GetEnemy()->GetSerialNumber() == enemySwod->GetEnemy()->GetNextSerialNumber() - 1) {
+			return;
+		}
 		if (GetIsAttack() && enemySwod->GetIsDefense()) {
 			SetIsAttack(false);
 			//player_->SetObjColor({ 0.0f,0.0f,1.0f,1.0f });
@@ -111,6 +114,10 @@ void PlayerSword::OnCollision(Collider* other)
 			return;
 		}
 		if (GetIsAttack()) {
+			//接触履歴があれば何もせず
+			if (contactRecord_.CheckRecord(enemy->GetSerialNumber())) { return; }
+			//接触履歴に登録
+			contactRecord_.AddRecord(enemy->GetSerialNumber());
 			Vector3 newVelocity = enemy->GetCenterPosition() - player_->GetCenterPosition();
 
 			enemy->SetVelocity(enemy->GetVelocity() + newVelocity.Normalize() * 30.0f);
@@ -134,6 +141,9 @@ void PlayerSword::OnCollisionEnter(Collider* other)
 	//衝突相手
 	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kEnemyWeapon)) {
 		EnemySword* enemySwod = static_cast<EnemySword*>(other);
+		if (enemySwod->GetEnemy()->GetSerialNumber() == enemySwod->GetEnemy()->GetNextSerialNumber() - 1) {
+			return;
+		}
 		if (GetIsAttack() && enemySwod->GetIsDefense()) {
 			SetIsAttack(false);
 			emitters_[0]->Start();
@@ -149,6 +159,10 @@ void PlayerSword::OnCollisionEnter(Collider* other)
 			return;
 		}
 		if (GetIsAttack()) {
+			//接触履歴があれば何もせず
+			if (contactRecord_.CheckRecord(enemy->GetSerialNumber())) { return; }
+			//接触履歴に登録
+			contactRecord_.AddRecord(enemy->GetSerialNumber());
 			Vector3 newVelocity = enemy->GetCenterPosition() - player_->GetCenterPosition();
 
 			enemy->Damage();
@@ -190,6 +204,10 @@ Vector3 PlayerSword::GetCenterRotation() const{
 void PlayerSword::ImGui()
 {
 	
+}
+
+void PlayerSword::ContactRecordClear(){
+	contactRecord_.Clear();
 }
 
 

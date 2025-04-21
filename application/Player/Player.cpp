@@ -54,6 +54,7 @@ void Player::Init() {
 	emitters_[0]->Initialize("Dust.json");
 	emitters_[0]->Start();
 
+
 	// グループを追加
 	GlobalVariables::GetInstance()->CreateGroup(groupName);
 	globalVariables->AddItem(groupName, "kAcceleration", kAcceleration_);
@@ -173,6 +174,9 @@ void Player::OnCollision([[maybe_unused]] Collider* other) {
 	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kEnemy) ||
 		typeID == static_cast<uint32_t>(CollisionTypeIdDef::kBoss)) {
 		Enemy* enemy = static_cast<Enemy*>(other);
+		if (enemy->GetSerialNumber() == enemy->GetNextSerialNumber() - 1) {
+			return;
+		}
 		// 衝突後の新しい速度を計算
 		auto [newVelocity1, newVelocity2] = ComputeCollisionVelocities(
 			1.0f, GetVelocity(), 1.0f, enemy->GetVelocity(), 1.0f, Vector3(GetCenterPosition() - enemy->GetCenterPosition()).Normalize()
@@ -184,7 +188,7 @@ void Player::OnCollision([[maybe_unused]] Collider* other) {
 
 		float distance = Vector3(GetCenterPosition() - enemy->GetCenterPosition()).Length();
 
-		Vector3 correction = Vector3(GetCenterPosition() - enemy->GetCenterPosition()).Normalize() * (GetRadius() + enemy->GetRadius() - distance) * 0.55f;
+		Vector3 correction = Vector3(GetCenterPosition() - enemy->GetCenterPosition()).Normalize() * (GetRadius() + enemy->GetRadius() - distance) * 0.50f;
 		transform_.translation_ += correction;
 		enemy->SetTranslation(enemy->GetTransform().translation_ - correction);
 
@@ -201,6 +205,9 @@ void Player::OnCollisionEnter([[maybe_unused]] Collider* other) {
 	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kEnemy) ||
 		typeID == static_cast<uint32_t>(CollisionTypeIdDef::kBoss)) {
 		Enemy* enemy = static_cast<Enemy*>(other);
+		if (enemy->GetSerialNumber() == enemy->GetNextSerialNumber() - 1) {
+			return;
+		}
 		if (timeManager_->GetTimer("start").isStart || timeManager_->GetTimer("collision").isStart) {
 			return;
 		}
@@ -215,7 +222,7 @@ void Player::OnCollisionEnter([[maybe_unused]] Collider* other) {
 
 		float distance = Vector3(GetCenterPosition() - enemy->GetCenterPosition()).Length();
 
-		Vector3 correction = Vector3(GetCenterPosition() - enemy->GetCenterPosition()).Normalize() * (GetRadius() + enemy->GetRadius() - distance) * 0.55f;
+		Vector3 correction = Vector3(GetCenterPosition() - enemy->GetCenterPosition()).Normalize() * (GetRadius() + enemy->GetRadius() - distance) * 0.50f;
 		transform_.translation_ += correction;
 		enemy->SetTranslation(enemy->GetTransform().translation_ - correction);
 
@@ -257,6 +264,7 @@ void Player::BehaviorRootInitialize() {
 	//arms_[kRArm]->SetIsGrab(false);
 	sword_->SetRotation(Vector3(0.0f, 0.0f, 0.0f));
 	sword_->SetTranslation(Vector3(1.5f, 0.0f, 0.0f));
+	sword_->ContactRecordClear();
 }
 
 // 通常動作の更新

@@ -1,6 +1,7 @@
 #pragma once
 #include "Collider.h"
 #include "ParticleEmitter.h"
+#include <ContactRecord.h>
 
 class Player;
 class TimeManager;
@@ -50,6 +51,8 @@ public:
 
 	void ImGui();
 
+	//接触履歴を抹消
+	void ContactRecordClear();
 private:
 	Player* player_ = nullptr;
 	TimeManager* timeManager_ = nullptr;
@@ -70,6 +73,8 @@ private:
 	std::vector<std::unique_ptr<ParticleEmitter>> emitters_;
 
 	int id_ = 0;
+
+	ContactRecord contactRecord_;
 public:
 	int GetID() { return id_; }
 	Vector3 GetTranslation() { return transform_.translation_; }

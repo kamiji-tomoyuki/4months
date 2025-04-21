@@ -49,6 +49,9 @@ void EnemySword::OnCollision([[maybe_unused]] Collider* other) {
 	if (timeManager_->GetTimer("start").isStart || timeManager_->GetTimer("collision").isStart) {
 		return;
 	}
+	if (GetEnemy()->GetSerialNumber() == GetEnemy()->GetNextSerialNumber() - 1) {
+		return;
+	}
 	// 衝突相手の種別IDを取得
 	uint32_t typeID = other->GetTypeID();
 	//衝突相手
@@ -82,6 +85,9 @@ void EnemySword::OnCollision([[maybe_unused]] Collider* other) {
 
 void EnemySword::OnCollisionEnter([[maybe_unused]] Collider* other) {
 	if (timeManager_->GetTimer("start").isStart || timeManager_->GetTimer("collision").isStart) {
+		return;
+	}
+	if (GetEnemy()->GetSerialNumber() == GetEnemy()->GetNextSerialNumber() - 1) {
 		return;
 	}
 	// 衝突相手の種別IDを取得

@@ -65,16 +65,6 @@ public:
 	//方向の回転
 	void VectorRotation(const Vector3& direction);
 
-	virtual void RootInitialize();
-	virtual void RootUpdate();
-	// 攻撃動作
-	virtual void AttackInitialize();
-	virtual void AttackUpdate();
-
-	// 防御動作
-	virtual void ProtectionInitialize();
-	virtual void ProtectionUpdate();
-
 	void Damage();
 protected:
 	//ポインタ
