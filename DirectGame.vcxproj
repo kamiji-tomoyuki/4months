@@ -186,16 +186,17 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\3d\line\LineManager.cpp" />
     <ClCompile Include="engine\utility\scene\SceneTransition.cpp" />
     <ClCompile Include="engine\offscreen\OffScreen.cpp" />
-    <ClCompile Include="ParticleEditor.cpp" />
+    <ClCompile Include="application\ParticleEditor.cpp" />
     <ClCompile Include="scene\BaseScene.cpp" />
     <ClCompile Include="scene\ClearScene.cpp" />
     <ClCompile Include="scene\GameOverScene.cpp" />
     <ClCompile Include="scene\GameScene.cpp" />
     <ClCompile Include="scene\TitleScene.cpp" />
     <ClCompile Include="engine\3d\model\animation\Skin.cpp" />
-    <ClCompile Include="Skydome.cpp" />
+    <ClCompile Include="application\Skydome.cpp" />
     <ClCompile Include="application\Enemy\Soldier\Soldier.cpp" />
     <ClCompile Include="TimeManager.cpp" />
+    <ClCompile Include="application\TitleEvent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
@@ -307,16 +308,17 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\3d\line\LineManager.h" />
     <ClInclude Include="engine\utility\scene\SceneTransition.h" />
     <ClInclude Include="engine\offscreen\OffScreen.h" />
-    <ClInclude Include="ParticleEditor.h" />
+    <ClInclude Include="application\ParticleEditor.h" />
     <ClInclude Include="scene\BaseScene.h" />
     <ClInclude Include="scene\ClearScene.h" />
     <ClInclude Include="scene\GameOverScene.h" />
     <ClInclude Include="scene\GameScene.h" />
     <ClInclude Include="scene\TitleScene.h" />
     <ClInclude Include="engine\3d\model\animation\Skin.h" />
-    <ClInclude Include="Skydome.h" />
+    <ClInclude Include="application\Skydome.h" />
     <ClInclude Include="application\Enemy\Soldier\Soldier.h" />
     <ClInclude Include="TimeManager.h" />
+    <ClInclude Include="application\TitleEvent.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\shaders\OffScreen\BoxFilter.PS.hlsl">

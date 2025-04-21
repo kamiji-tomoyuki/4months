@@ -338,7 +338,7 @@
     <ClCompile Include="TimeManager.cpp">
       <Filter>ソースファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Skydome.cpp">
+    <ClCompile Include="application\Skydome.cpp">
       <Filter>ソースファイル</Filter>
     </ClCompile>
     <ClCompile Include="math\Quaternion.cpp">
@@ -382,12 +382,14 @@
     <ClCompile Include="application\Player\PlayerSword.cpp">
       <Filter>ソースファイル\application\Player\Weapon</Filter>
     </ClCompile>
-    <ClCompile Include="ParticleEditor.cpp">
+    <ClCompile Include="application\ParticleEditor.cpp">
       <Filter>ソースファイル</Filter>
     </ClCompile>
     <ClCompile Include="scene\EditorScene.cpp">
       <Filter>ソースファイル</Filter>
     </ClCompile>
+    <ClCompile Include="application\TitleEvent.cpp">
+      <Filter>ソースファイル</Filter>
     <ClCompile Include="application\Enemy\Soldier\SoldierStateApproach.cpp">
       <Filter>ソースファイル\application\Enemy\Soldier</Filter>
     </ClCompile>
@@ -649,7 +651,7 @@
       <Filter>ソースファイル\application\Player</Filter>
     </ClInclude>
     <ClInclude Include="TimeManager.h" />
-    <ClInclude Include="Skydome.h" />
+    <ClInclude Include="application\Skydome.h" />
     <ClInclude Include="math\Quaternion.h">
       <Filter>ソースファイル\math</Filter>
     </ClInclude>
@@ -667,7 +669,7 @@
     </ClInclude>
     <ClInclude Include="application\Ground.h" />
     <ClInclude Include="engine\3d\particle\ParticleParamater.h" />
-    <ClInclude Include="ParticleEditor.h" />
+    <ClInclude Include="application\ParticleEditor.h" />
     <ClInclude Include="scene\EditorScene.h" />
     <ClInclude Include="scene\GameOverScene.h">
       <Filter>ソースファイル\scene</Filter>
@@ -681,6 +683,7 @@
     <ClInclude Include="application\Enemy\EnemySword.h">
       <Filter>ソースファイル\application\Enemy</Filter>
     </ClInclude>
+    <ClInclude Include="application\TitleEvent.h" />
     <ClInclude Include="application\Enemy\Soldier\SoldierStateApproach.h">
       <Filter>ソースファイル\application\Enemy\Soldier</Filter>
     </ClInclude>

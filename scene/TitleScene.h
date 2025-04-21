@@ -10,7 +10,9 @@
 #include"WorldTransform.h"
 #include"ParticleEmitter.h"
 #include <Skydome.h>
+#include "Ground.h"
 #include <Sprite.h>
+#include "TitleEvent.h"
 
 class TitleScene :public BaseScene
 {
@@ -70,11 +72,17 @@ private:
 
 	std::unique_ptr<Skydome> skydome_ = nullptr;// 天球
 
+	std::unique_ptr<Ground> tutorialGround_ = nullptr;// 地面
+
+	std::unique_ptr<Ground> stage1Ground_ = nullptr;// 地面
+
 	std::unique_ptr<ParticleEmitter> starEmitter_ = nullptr;
 
 	bool loop = true;
 
 	ParticleManager* particleManager_;
+
+	std::unique_ptr<TitleEvent> titleEvent_ = nullptr;
 
 	bool isChangeScene = true;
 };
