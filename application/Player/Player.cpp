@@ -343,10 +343,9 @@ void Player::BehaviorPostureAttackUpdate()
 		sword_->SetTranslation({ attackDirection_.x, attackDirection_.y , 0.0f });
 
 		// 角度
-		//Quaternion q = Quaternion::MakeRotateAxisAngleQuaternion({ 0.0f, 1.0f, 0.0f }, 0.5f * pi_v<float> -cosTheta);
-		//Vector3 rotate = Quaternion::RotateVector({ 0.0f, 0.0f, 0.0f }, q);
-		sword_->SetRotation({ 0.0f, 0.5f * pi_v<float> -cosTheta, 0.0f });
-		//sword_->SetRotation(rotate);
+		Quaternion q = Quaternion::MakeRotateAxisAngleQuaternion({ 0.0f, 1.0f, 0.0f }, 0.5f * pi_v<float>);
+		Vector3 rotate = Quaternion::RotateVector({0.0f, 1.0f, 0.0f }, q);
+		sword_->SetRotation(rotate);
 
 		attackTypeRequest_ = AttackType::kDownSwing;
 	}
@@ -356,7 +355,11 @@ void Player::BehaviorPostureAttackUpdate()
 		sword_->SetTranslation({ 1.5f, 0.0f , -1.5f });
 
 		// 角度
-		sword_->SetRotation({ pi_v<float> *0.5f, -(0.5f * pi_v<float> +cosTheta), 0.0f });
+		Quaternion q1 = Quaternion::MakeRotateAxisAngleQuaternion({ 1.0f, 0.0f, 0.0f }, 0.5f * pi_v<float>);
+		//Quaternion q2 = Quaternion::MakeRotateAxisAngleQuaternion({ 0.0f, 0.0f, 0.0f }, -(0.5f * pi_v<float> + cosTheta));
+		Vector3 rotate = Quaternion::RotateVector({ 0.0f, 1.0f, 0.0f }, q1);
+		sword_->SetRotation(rotate);
+		//sword_->SetRotation({ pi_v<float> *0.5f, -(0.5f * pi_v<float> +cosTheta), 0.0f });
 
 		attackTypeRequest_ = AttackType::kThrust;
 	}
