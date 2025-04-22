@@ -95,7 +95,7 @@ void FollowCamera::Update() {
 		destinationAngleY_ = std::atan2(sub.x, sub.z);
 	}
 
-	destinationAngle = Quaternion::Sleap(destinationAngle, Quaternion::MakeRotateAxisAngleQuaternion({ 0,0,-1 }, destinationAngleX_) * Quaternion::MakeRotateAxisAngleQuaternion({ 0,-1,0 }, destinationAngleY_), 0.1f);
+	destinationAngle = Quaternion::Sleap(destinationAngle, Quaternion::MakeRotateAxisAngleQuaternion({ 1,0,0 }, destinationAngleX_) * Quaternion::MakeRotateAxisAngleQuaternion({ 0,-1,0 }, destinationAngleY_), 0.1f);
 	viewProjection_.rotation_ = destinationAngle.ToEulerAngles();
 	// 追従対象がいれば
 	if (target_) {

@@ -276,18 +276,38 @@ void Player::BehaviorRootUpdate() {
 
 	// ゲームパッド入力処理
 	XINPUT_STATE joyState;
-	// 攻撃入力がされていない時
-	if (Input::GetInstance()->GetJoystickState(0, joyState) && !(joyState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER)) {
-		attack_.isAttack = false;
+	if (Input::GetInstance()->GetJoystickState(0, joyState))
+	{
+		// 攻撃入力がされていない時
+		if (!(joyState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER)) {
+			attack_.isAttack = false;
+		}
+		// 予備動作(攻撃防御方向入力)
+		if (IsAttackDirectionInput()) {
+			behaviorRequest_ = Behavior::kPreliminary;
+		}
+		// ダッシュ処理
+		if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_X) {
+			behaviorRequest_ = Behavior::kDash;
+		}
 	}
-	// 予備動作(攻撃防御方向入力)
-	if (IsAttackDirectionInput()) {
-		behaviorRequest_ = Behavior::kPreliminary;
+#ifdef _DEBUG
+	else {
+		// 攻撃入力がされていない時
+		if (Input::GetInstance()->ReleaseKey(DIK_SPACE)) {
+			attack_.isAttack = false;
+		}
+		// 予備動作(攻撃防御方向入力)
+		if (IsAttackDirectionInput()) {
+			behaviorRequest_ = Behavior::kPreliminary;
+		}
+		// ダッシュ処理
+		if (Input::GetInstance()->TriggerKey(DIK_RSHIFT)) {
+			behaviorRequest_ = Behavior::kDash;
+		}
 	}
-	// ダッシュ処理
-	if (Input::GetInstance()->GetJoystickState(0, joyState) && joyState.Gamepad.wButtons & XINPUT_GAMEPAD_X) {
-		behaviorRequest_ = Behavior::kDash;
-	}
+#endif // _DEBUG
+
 }
 
 // ダッシュ動作の初期化
@@ -331,55 +351,53 @@ void Player::BehaviorPostureAttackUpdate()
 	Move();
 	// 方向取得
 	SetInputDirection();
-	if (attackDirection_.x == 0 && attackDirection_.y == 0) {
-		behaviorRequest_ = Behavior::kRoot;
-	}
-
 	// 武器を入力方向に移動
 	float cosTheta = atan2f(attackDirection_.y, attackDirection_.x);
+	if (InputDirection() == Nothing) {
+		aimingDirection_ = { 0.0f, 0.0f, 0.0f };
+		behaviorRequest_ = Behavior::kRoot;
+	}
+	
 	// 上
-	if (cosTheta > 0.25f * pi && cosTheta < 0.75f * pi) {
+	if (InputDirection() == TOP) {
 		// 座標
 		sword_->SetTranslation({ attackDirection_.x, attackDirection_.y , 0.0f });
 
 		// 角度
-		Quaternion q = Quaternion::MakeRotateAxisAngleQuaternion({ 0.0f, 1.0f, 0.0f }, 0.5f * pi_v<float>);
-		Vector3 rotate = Quaternion::RotateVector({0.0f, 1.0f, 0.0f }, q);
-		sword_->SetRotation(rotate);
+		sword_->SetRotation({ 0.0f, 0.0f, 0.0f });
 
 		attackTypeRequest_ = AttackType::kDownSwing;
 	}
 	// 下
-	else if (cosTheta < -0.25f * pi && cosTheta > -0.75f * pi) {
+	if (InputDirection() == DOWN) {
 		// 座標
 		sword_->SetTranslation({ 1.5f, 0.0f , -1.5f });
 
 		// 角度
-		Quaternion q1 = Quaternion::MakeRotateAxisAngleQuaternion({ 1.0f, 0.0f, 0.0f }, 0.5f * pi_v<float>);
-		//Quaternion q2 = Quaternion::MakeRotateAxisAngleQuaternion({ 0.0f, 0.0f, 0.0f }, -(0.5f * pi_v<float> + cosTheta));
-		Vector3 rotate = Quaternion::RotateVector({ 0.0f, 1.0f, 0.0f }, q1);
-		sword_->SetRotation(rotate);
-		//sword_->SetRotation({ pi_v<float> *0.5f, -(0.5f * pi_v<float> +cosTheta), 0.0f });
+		Quaternion q = Quaternion::MakeRotateAxisAngleQuaternion({ 1.0f, 0.0f, 0.0f }, 0.5f * pi_v<float>);
+		sword_->SetRotation(q.ToEulerAngles());
 
 		attackTypeRequest_ = AttackType::kThrust;
 	}
 	// 左
-	else if (cosTheta >= 0.75f * pi || cosTheta <= -0.75f * pi) {
+	if (InputDirection() == LEFT) {
 		// 座標
 		sword_->SetTranslation({ attackDirection_.x, 0.0f , attackDirection_.y });
 
 		// 角度
-		sword_->SetRotation({ cosTheta >= 0.75f * pi ? pi_v<float> * 1.0f - cosTheta : pi_v<float> * 1.0f - cosTheta, 0.0f, pi_v<float> * 0.5f });
+		Quaternion q = Quaternion::MakeRotateAxisAngleQuaternion({ 0.0f, 0.0f, 1.0f }, 0.5f * pi_v<float>);
+		sword_->SetRotation(q.ToEulerAngles());
 
 		attackTypeRequest_ = AttackType::kRightSlash;
 	}
 	// 右
-	else {
+	if (InputDirection() == RIGHT) {
 		// 座標
 		sword_->SetTranslation({ attackDirection_.x, 0.0f , attackDirection_.y });
 
 		// 角度
-		sword_->SetRotation({ cosTheta >= 0.0f ? pi_v<float> * 1.0f - cosTheta : pi_v < float> * 1.0f + -cosTheta, 0.0f, pi_v<float> * 0.5f });
+		Quaternion q = Quaternion::MakeRotateAxisAngleQuaternion({ 0.0f, 0.0f, 1.0f }, -0.5f * pi_v<float>);
+		sword_->SetRotation(q.ToEulerAngles());
 
 		attackTypeRequest_ = AttackType::kLeftSlash;
 	}
@@ -471,32 +489,32 @@ void Player::BehaviorProtectionUpdate() {
 	// 方向取得
 	SetInputDirection();
 	aimingDirection_ = attackDirection_;
-	if (aimingDirection_.x == 0 && aimingDirection_.y == 0) {
-		behaviorRequest_ = Behavior::kRoot;
-	}
-
-	// 入力方向にセット
-	
 	// 入力方向によって角度をセット
 	float cosTheta = atan2f(aimingDirection_.y, aimingDirection_.x);
+	if (InputDirection() == Nothing) {
+		behaviorRequest_ = Behavior::kRoot;
+	}
+	
 	// 上
-	if (cosTheta > 0.25f * pi && cosTheta < 0.75f * pi) {
+	if (InputDirection() == TOP) {
 		// 座標
 		sword_->SetTranslation({ aimingDirection_.x * 0.6f + 2.0f, aimingDirection_.y * 0.4f , 0.25f });
 		
 		// 角度
-		sword_->SetRotation({ 0.0f, pi_v<float> * 0.5f, pi_v<float> *0.5f });
+		Quaternion q = Quaternion::MakeRotateAxisAngleQuaternion({ 0.0f, 0.0f, 1.0f }, pi_v<float> * 0.5f);
+		sword_->SetRotation(q.ToEulerAngles());
 	}
 	// 下
-	else if (cosTheta < -0.25f * pi && cosTheta > -0.75f * pi) {
+	if (InputDirection() == DOWN) {
 		// 座標
 		sword_->SetTranslation({ aimingDirection_.x * 0.6f + 2.0f, 0.0f , 1.5f });
 		
 		// 角度
-		sword_->SetRotation({ 0.0f, pi_v<float> * 0.5f, pi_v<float> *0.5f });
+		Quaternion q = Quaternion::MakeRotateAxisAngleQuaternion({ 0.0f, 0.0f, 1.0f }, pi_v<float> * 0.5f);
+		sword_->SetRotation(q.ToEulerAngles());
 	}
 	// 左右
-	else {
+	if (InputDirection() == LEFT || InputDirection() == RIGHT) {
 		// 座標
 		sword_->SetTranslation({ aimingDirection_.x * 0.25f, aimingDirection_.y * 0.25f , 0.0f });
 
@@ -510,9 +528,6 @@ void Player::BehaviorProtectionUpdate() {
 	// 防御解除の処理
 	if (Input::GetInstance()->GetJoystickState(0, joyState) && !(joyState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER)) {
 		behaviorRequest_ = Behavior::kRoot;
-
-		// フェイク可能時間をセット
-
 	}
 }
 
@@ -548,6 +563,8 @@ void Player::ApplyGlobalVariables() {
 void Player::Move() {
 	Matrix4x4 rotateMatrix;
 	Vector3 move{};
+	
+	// ゲームパッド入力処理
 	XINPUT_STATE joyState;
 	if (Input::GetInstance()->GetJoystickState(0, joyState)) {
 		Input::GetInstance()->SetJoystickDeadZone(0, 3000, 3000);
@@ -555,6 +572,8 @@ void Player::Move() {
 		move = { (float)joyState.Gamepad.sThumbLX / SHRT_MAX, 0.0f, (float)joyState.Gamepad.sThumbLY / SHRT_MAX };
 		move = kAcceleration_ * move;
 	}
+#ifdef _DEBUG
+	// キーボード入力処理
 	if (move.Length() == 0) {
 		if (Input::GetInstance()->PushKey(DIK_D)) {
 			move.x += kAcceleration_;
@@ -569,6 +588,7 @@ void Player::Move() {
 			move.z -= kAcceleration_;
 		}
 	}
+#endif // _DEBUG
 
 	if (move.Length() != 0) {
 		// 入力がある場合の処理
@@ -590,6 +610,37 @@ void Player::Move() {
 	}
 }
 
+// 入力方向
+int Player::InputDirection()
+{
+	// 使用する変数
+	Vector3 joyStickDireciton{};
+	float cosTheta = 0.0f;
+
+	// 方向をセット
+	joyStickDireciton = { InputDirectionGampad().x, InputDirectionGampad().y, 0.0f };
+	// ゲームパッドの入力角度を算出
+	cosTheta = atan2f(joyStickDireciton.y, joyStickDireciton.x);
+
+	// 上
+	if (cosTheta > 0.25f * pi_v<float> && cosTheta < 0.75f * pi_v<float>) {
+		return TOP;
+	}
+	// 下
+	if (cosTheta < -0.25f * pi_v<float> && cosTheta > -0.75f * pi_v<float>) {
+		return DOWN;
+	}
+	// 左
+	if (cosTheta >= 0.75f * pi_v<float> || cosTheta <= -0.75f * pi_v<float>) {
+		return LEFT;
+	}
+	// 右
+	if ((cosTheta <= 0.25f * pi_v<float> && cosTheta >= -0.25f * pi_v<float>) && !(joyStickDireciton.x == 0.0f && joyStickDireciton.y == 0.0f)) {
+		return RIGHT;
+	}
+	return Nothing;
+}
+
 // 振り下ろし(上入力攻撃)の初期化
 void Player::AttackTypeDownSwingInitialize()
 {
@@ -609,19 +660,18 @@ void Player::AttackTypeDownSwingUpdate()
 {
 	// 座標の計算
 	Vector3 newPos = 0.0f;
-	float theta = float(pi * 0.5f * (attack_.time / attack_.kLimitTime));
+	float theta = float(pi_v<float> * 0.5f * (attack_.time / attack_.kLimitTime));
 
 	newPos = { Lerp(attack_.swordStartTransform.x, attack_.swordEndTransform.x, attack_.time / attack_.kLimitTime), attack_.swordStartTransform.y * cosf(theta) - attack_.swordStartTransform.z * sinf(theta), attack_.swordStartTransform.y * sinf(theta) + attack_.swordStartTransform.z * cosf(theta)};
 
 	sword_->SetTranslation(newPos);
 
 	// 角度の計算
-	Vector3 newRotate = 0.0f;
-	theta = float(pi * 0.5f * (attack_.time / attack_.kLimitTime));
+	Quaternion q1 = Quaternion::MakeRotateAxisAngleQuaternion({ 0.0f, 0.0f, 1.0f }, pi_v<float> *0.5f);
+	Quaternion q2 = Quaternion::Sleap(Quaternion{ 0.0f, 0.0f, 0.0f, 1.0f }, q1, attack_.time / attack_.kLimitTime);
+	sword_->SetRotation(q2.ToEulerAngles());
 
-	newRotate = { Lerp(attack_.swordStartRotate.x, attack_.swordEndRotate.x, attack_.time / attack_.kLimitTime), attack_.swordEndRotate.y, attack_.swordEndRotate.z };
-
-	sword_->SetRotation(newRotate);
+	//sword_->SetRotation(newRotate);
 }
 
 // 突き(下入力攻撃)の初期化
@@ -659,7 +709,7 @@ void Player::AttackTypeLeftSwingUpdate()
 {
 	// 座標の計算
 	Vector3 newPos = 0.0f;
-	float theta = float(pi * (attack_.time / attack_.kLimitTime));
+	float theta = float(pi_v<float> * (attack_.time / attack_.kLimitTime));
 	
 	newPos = { attack_.swordStartTransform.x * cosf(-theta) - attack_.swordStartTransform.z * sinf(-theta), attack_.swordStartTransform.y, attack_.swordStartTransform.x * sinf(-theta) + attack_.swordStartTransform.z * cosf(-theta) };
 
@@ -692,7 +742,7 @@ void Player::AttackTypeRightSwingUpdate()
 {
 	// 座標の計算
 	Vector3 newPos = 0.0f;
-	float theta = float(pi * (attack_.time / attack_.kLimitTime));
+	float theta = float(pi_v<float> * (attack_.time / attack_.kLimitTime));
 
 	newPos = { attack_.swordStartTransform.x * cosf(theta) - attack_.swordStartTransform.z * sinf(theta), attack_.swordStartTransform.y, attack_.swordStartTransform.x * sinf(theta) + attack_.swordStartTransform.z * cosf(theta) };
 
@@ -717,42 +767,57 @@ void Player::AttackTypeNullUpdate()
 // 入力方向の設定
 void Player::SetInputDirection()
 {
-	// 使用する変数
-	Vector3 joyStickDireciton{};
-	float cosTheta = 0.0f;
+	attackDirection_ = { 0.0f, 0.0f, 0.0f };
 	// ゲームパッド接続されているか
 	bool isGamPadConnect = Input::GetInstance()->IsAnyJoystickConnected();
 
+	// ゲームパッド入力処理
 	if (isGamPadConnect) {
-		// 方向をセット
-		joyStickDireciton = { InputDirection().x, InputDirection().y, 0.0f };
-		// ゲームパッドの入力角度を算出
-		cosTheta = atan2f(joyStickDireciton.y, joyStickDireciton.x);
+		// 上
+		if (InputDirection() == TOP) {
+			attackDirection_.y += 1.0f;
+		}
+		// 下
+		if (InputDirection() == DOWN) {
+			attackDirection_.y -= 1.0f;
+		}
+		// 左
+		if (InputDirection() == LEFT) {
+			attackDirection_.x -= 1.0f;
+			attackDirection_.y = 0.0f;
+		}
+		// 右
+		if (InputDirection() == RIGHT) {
+			attackDirection_.x += 1.0f;
+			attackDirection_.y = 0.0f;
+		}
 	}
 
-	attackDirection_ = { 0.0f, 0.0f, 0.0f };
-	// 上
-	if (((cosTheta > 0.25f * pi && cosTheta < 0.75f * pi) && isGamPadConnect) ||
-		Input::GetInstance()->PushKey(DIK_UP)) {
-		attackDirection_.y += 1.0f;
+#ifdef _DEBUG
+	// キーボード入力処理
+	if (attackDirection_.Length() == 0)
+	{
+		// 上
+		if (Input::GetInstance()->PushKey(DIK_UP)) {
+			attackDirection_.y += 1.0f;
+		}
+		// 下
+		if (Input::GetInstance()->PushKey(DIK_DOWN)) {
+			attackDirection_.y -= 1.0f;
+		}
+		// 左
+		if (Input::GetInstance()->PushKey(DIK_LEFT)) {
+			attackDirection_.x -= 1.0f;
+			attackDirection_.y = 0.0f;
+		}
+		// 右
+		if (Input::GetInstance()->PushKey(DIK_RIGHT)) {
+			attackDirection_.x += 1.0f;
+			attackDirection_.y = 0.0f;
+		}
 	}
-	// 下
-	if (((cosTheta < -0.25f * pi && cosTheta > -0.75f * pi) && isGamPadConnect) ||
-		Input::GetInstance()->PushKey(DIK_DOWN)) {
-		attackDirection_.y -= 1.0f;
-	}
-	// 左
-	if (((cosTheta >= 0.75f * pi || cosTheta <= -0.75f * pi) && isGamPadConnect) ||
-		Input::GetInstance()->PushKey(DIK_LEFT)) {
-		attackDirection_.x -= 1.0f;
-		attackDirection_.y = 0.0f;
-	}
-	// 右
-	if (((cosTheta <= 0.25f * pi && cosTheta >= -0.25f * pi) && !(joyStickDireciton.x == 0.0f && joyStickDireciton.y == 0.0f) && isGamPadConnect) ||
-		Input::GetInstance()->PushKey(DIK_RIGHT)) {
-		attackDirection_.x += 1.0f;
-		attackDirection_.y = 0.0f;
-	}
+#endif // _DEBUG
+
 	attackDirection_ *= 5.0f;
 }
 
@@ -774,7 +839,7 @@ void Player::VectorRotation(const Vector3& direction) {
 }
 
 // 方向を取得
-Vector2 Player::InputDirection()
+Vector2 Player::InputDirectionGampad()
 {
 	XINPUT_STATE joyState;
 	Vector3 input{};

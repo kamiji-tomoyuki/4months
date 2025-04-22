@@ -32,6 +32,13 @@ public:
 		kLeftSlash,		// 左振り抜き(右入力攻撃)
 		kNullType,		// 未入力
 	};
+	enum DirectionInput {
+		TOP,		// 上
+		DOWN,		// 下
+		LEFT,		// 左
+		RIGHT,		// 右
+		Nothing,	// 無入力
+	};
 	struct Root {
 		float floatingParameter = 0.0f;		//浮遊ギミックの媒介変数
 		int32_t period = 60;				// 浮遊移動のサイクル<frame>
@@ -102,7 +109,7 @@ public:
 	// 向きをセット
 	void VectorRotation(const Vector3& direction);
 	// 方向を取得
-	Vector2 InputDirection();
+	Vector2 InputDirectionGampad();
 
 	// 中心座標を取得
 	Vector3 GetCenterPosition() const override;
@@ -165,6 +172,10 @@ private:	// 攻撃方向タイプ
 private:	// メンバ関数
 	// 移動
 	void Move();
+
+	// 入力方向
+	/// <returns>入力方向 0:上 1:下 2:左 3:右 4:無入力</returns>
+	int InputDirection();
 
 	// 入力方向の設定
 	void SetInputDirection();
