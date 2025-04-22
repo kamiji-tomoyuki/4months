@@ -647,10 +647,6 @@ void Player::AttackTypeDownSwingInitialize()
 	// 座標セット
 	attack_.swordStartTransform = sword_->GetTranslation();
 	attack_.swordEndTransform = { sword_->GetTranslation().x + aimingDirection_.x, sword_->GetTranslation().y - aimingDirection_.y, sword_->GetTranslation().z + aimingDirection_.y };
-	
-	// 角度セット
-	attack_.swordStartRotate = sword_->GetRotate();
-	attack_.swordEndRotate = { 0.6f * pi_v<float>, sword_->GetRotate().y, sword_->GetRotate().z };
 
 	attack_.time = 0.0f;
 }
@@ -667,11 +663,9 @@ void Player::AttackTypeDownSwingUpdate()
 	sword_->SetTranslation(newPos);
 
 	// 角度の計算
-	Quaternion q1 = Quaternion::MakeRotateAxisAngleQuaternion({ 0.0f, 0.0f, 1.0f }, pi_v<float> *0.5f);
+	Quaternion q1 = Quaternion::MakeRotateAxisAngleQuaternion({ 1.0f, 0.0f, 0.0f }, pi_v<float> * 0.5f);
 	Quaternion q2 = Quaternion::Sleap(Quaternion{ 0.0f, 0.0f, 0.0f, 1.0f }, q1, attack_.time / attack_.kLimitTime);
 	sword_->SetRotation(q2.ToEulerAngles());
-
-	//sword_->SetRotation(newRotate);
 }
 
 // 突き(下入力攻撃)の初期化
@@ -685,6 +679,7 @@ void Player::AttackTypeThrustInitialize()
 // 突き(下入力攻撃)の更新
 void Player::AttackTypeThrustUpdate()
 {
+	// 座標の計算
 	Vector3 newPos = EaseInOutExpo(attack_.swordStartTransform, attack_.swordEndTransform, attack_.time, attack_.kLimitTime);
 
 	sword_->SetTranslation(newPos);
@@ -697,10 +692,6 @@ void Player::AttackTypeLeftSwingInitialize()
 	attack_.swordStartTransform = sword_->GetTranslation();
 	attack_.swordEndTransform = { -aimingDirection_.x, sword_->GetTranslation().y, sword_->GetTranslation().z };
 	
-	// 角度セット
-	attack_.swordStartRotate = sword_->GetRotate();
-	attack_.swordEndRotate = { sword_->GetRotate().x - pi_v<float>, sword_->GetRotate().y, sword_->GetRotate().z };
-
 	attack_.time = 0.0f;
 }
 
@@ -716,11 +707,11 @@ void Player::AttackTypeLeftSwingUpdate()
 	sword_->SetTranslation(newPos);
 
 	// 角度の計算
-	Vector3 newRotate = 0.0f;
-	
-	newRotate = { attack_.swordStartRotate.x + theta, attack_.swordStartRotate.y, attack_.swordStartRotate.z };
-
-	sword_->SetRotation(newRotate);
+	Quaternion q1 = Quaternion::MakeRotateAxisAngleQuaternion({ 0.0f, 0.0f, 1.0f }, pi_v<float> * 0.5f);
+	Quaternion q2 = Quaternion::MakeRotateAxisAngleQuaternion({ 1.0f, 0.0f, 0.0f }, 0.0f);
+	Quaternion q3 = Quaternion::MakeRotateAxisAngleQuaternion({ 1.0f, 0.0f, 0.0f }, -pi_v<float>);
+	Quaternion q4 = Quaternion::Sleap(q1 * q2, q1 * q3, attack_.time / attack_.kLimitTime);
+	sword_->SetRotation(q4.ToEulerAngles());
 }
 
 // 左振り抜き(右入力攻撃)の初期化
@@ -730,10 +721,6 @@ void Player::AttackTypeRightSwingInitialize()
 	attack_.swordStartTransform = sword_->GetTranslation();
 	attack_.swordEndTransform = { -aimingDirection_.x, sword_->GetTranslation().y, sword_->GetTranslation().z };
 	
-	// 角度セット
-	attack_.swordStartRotate = sword_->GetRotate();
-	attack_.swordEndRotate = { sword_->GetRotate().x + pi_v<float>, sword_->GetRotate().y, sword_->GetRotate().z };
-
 	attack_.time = 0.0f;
 }
 
@@ -749,11 +736,11 @@ void Player::AttackTypeRightSwingUpdate()
 	sword_->SetTranslation(newPos);
 
 	// 角度の計算
-	Vector3 newRotate = 0.0f;
-
-	newRotate = { attack_.swordStartRotate.x - theta, attack_.swordStartRotate.y, attack_.swordStartRotate.z };
-
-	sword_->SetRotation(newRotate);
+	Quaternion q1 = Quaternion::MakeRotateAxisAngleQuaternion({ 0.0f, 0.0f, 1.0f }, pi_v<float> * 0.5f);
+	Quaternion q2 = Quaternion::MakeRotateAxisAngleQuaternion({ 1.0f, 0.0f, 0.0f }, -pi_v<float>);
+	Quaternion q3 = Quaternion::MakeRotateAxisAngleQuaternion({ 1.0f, 0.0f, 0.0f }, 0.0f);
+	Quaternion q4 = Quaternion::Sleap(q1 * q2, q1 * q3, attack_.time / attack_.kLimitTime);
+	sword_->SetRotation(q4.ToEulerAngles());
 }
 
 // 未入力
