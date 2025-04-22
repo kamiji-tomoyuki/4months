@@ -8,6 +8,13 @@
 #include"ViewProjection.h"
 #include"DebugCamera.h"
 
+#include "Skydome.h"
+#include "Ground.h"
+#include "Player.h"
+#include "Enemy.h"
+#include "TimeManager.h"
+#include "ParticleEmitter.h"
+#include "ParticleManager.h"
 
 class ClearScene : public BaseScene
 {
@@ -54,8 +61,27 @@ private:
 	SpriteCommon* spCommon_;
 	ParticleCommon* ptCommon_;
 
+	ParticleManager* particleManager_;
+
 	// ビュープロジェクション
 	ViewProjection vp_;
 	std::unique_ptr<DebugCamera> debugCamera_;
+
+	std::unique_ptr<Skydome> skyDome_;
+
+	std::unique_ptr<Ground> ground_;
+
+	std::unique_ptr<Player> player_;
+
+	std::vector<std::unique_ptr<Enemy>> enemies_;
+
+	//タイム
+	std::unique_ptr<TimeManager> timeManager_;
+
+	std::unique_ptr<ParticleEmitter> emitter_ = nullptr;
+
+	float enemiesDistance_ = 0.0f;
+
+	int enemyMaxColumn_ = 0;
 };
 
