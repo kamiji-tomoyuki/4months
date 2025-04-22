@@ -83,16 +83,17 @@ Quaternion Quaternion::FromLookRotation(const Vector3& direction, const Vector3&
 	float y = (forward.x - right.z) / (4.0f * w);
 	float z = (right.y - newUp.x) / (4.0f * w);
 
-	return Quaternion(w, x, y, z).Normalize();
+	return Quaternion(x, y, z, w).Normalize();
 }
 
 Quaternion Quaternion::operator*(const Quaternion& q) const
 {
 	return Quaternion(
-		w * q.w - x * q.x - y * q.y - z * q.z,                      // スカラー成分
+								// スカラー成分
 		w * q.x + x * q.w + y * q.z - z * q.y,                      // x成分
 		w * q.y - x * q.z + y * q.w + z * q.x,                      // y成分
-		w * q.z + x * q.y - y * q.x + z * q.w                       // z成分
+		w * q.z + x * q.y - y * q.x + z * q.w,                       // z成分
+		w * q.w - x * q.x - y * q.y - z * q.z
 	);
 }
 
@@ -169,21 +170,6 @@ Vector3 Quaternion::RotateVector(const Vector3& vector, const Quaternion& quater
 
 	return Vector3{ ans.x, ans.y, ans.z };
 }
-
-//Quaternion Quaternion::MakeRotateAxisAngleQuaternion(const Vector3& axis, float angle)
-//{
-//	Quaternion result;
-//	float halfAngle = angle / 2.0f;
-//	float sinHalfAngle = sinf(halfAngle);
-//	// 回転軸を正規化
-//	Vector3 axisNormal = axis.Normalize();
-//	//クォータニオンを計算
-//	result.x = axisNormal.x * sinHalfAngle;
-//	result.y = axisNormal.y * sinHalfAngle;
-//	result.z = axisNormal.z * sinHalfAngle;
-//	result.w = cosf(halfAngle);
-//	return result;
-//}
 
 Quaternion Quaternion::Sleap(Quaternion q1, Quaternion q2, float t)
 {
