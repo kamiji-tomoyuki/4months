@@ -59,6 +59,9 @@ void Enemy::OnCollision(Collider* other) {
 	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kEnemy) ||
 		typeID == static_cast<uint32_t>(CollisionTypeIdDef::kBoss)) {
 		Enemy* enemy = static_cast<Enemy*>(other);
+		if (enemy->GetSerialNumber() == enemy->GetNextSerialNumber() - 1) {
+			return;
+		}
 		if (timeManager_->GetTimer("start").isStart || timeManager_->GetTimer("collision").isStart) {
 			return;
 		}
@@ -93,6 +96,9 @@ void Enemy::OnCollisionEnter(Collider* other){
 	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kEnemy) ||
 		typeID == static_cast<uint32_t>(CollisionTypeIdDef::kBoss)) {
 		Enemy* enemy = static_cast<Enemy*>(other);
+		if (enemy->GetSerialNumber() == enemy->GetNextSerialNumber() - 1) {
+			return;
+		}
 		if (timeManager_->GetTimer("start").isStart || timeManager_->GetTimer("collision").isStart) {
 			return;
 		}

@@ -133,7 +133,10 @@ Vector3 EnemySword::GetCenterPosition() const {
 }
 
 Vector3 EnemySword::GetCenterRotation() const {
-	return transform_.rotation_;
+	//OBBのローカルローテーション
+	Vector3 worldRotate = Transformation(Vector3{ 0.0f, 0.0f, 0.0f }, Inverse(enemy_->GetWorldTransform().matWorld_));
+	Vector3 rotate = enemy_->GetCenterRotation() + transform_.rotation_;
+	return  /*worldRotate + transform_.rotation_*/rotate;
 }
 
 void EnemySword::SetModel(const std::string& filePath) {

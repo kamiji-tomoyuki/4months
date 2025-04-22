@@ -33,9 +33,7 @@ void SoldierStateRoot::Update(){
 
 	if (!timeManager->GetTimer("CoolTime" + std::to_string(enemy_->GetSerialNumber())).isStart) {
 		isAttack = enemy_->GetProbabilities(kAttack);
-		if (!isAttack) {
-			isDefense = enemy_->GetProbabilities(kDefense);
-		}
+		isDefense = enemy_->GetProbabilities(kDefense);
 		timeManager->SetTimer("CoolTime" + std::to_string(enemy_->GetSerialNumber()), enemy_->GetCoolTime());
 	}
 	if (isAttack) {
