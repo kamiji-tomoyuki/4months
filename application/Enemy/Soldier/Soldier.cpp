@@ -145,14 +145,18 @@ void Soldier::ApplyGlobalVariables() {
 }
 // 予備動作の方向
 void Soldier::DirectionPreliminaryAction(){
+	aimingDirection_ = { 0.0f, 0.0f, 0.0f };
 	// 方向をセット
 	if (GetProbabilities(0.25f)){
 		aimingDirection_ = { 1.0f, 0.0f, 0.0f };
-	} else if (GetProbabilities(0.25f)) {
+	} 
+	if (GetProbabilities(0.25f)) {
 		aimingDirection_ = { -1.0f, 0.0f, 0.0f };
-	} else if (GetProbabilities(0.25f)) {
+	}
+	if (GetProbabilities(0.25f)) {
 		aimingDirection_ = { 0.0f, 0.0f, 1.0f };
-	} else {
+	}
+	if (GetProbabilities(0.25f)) {
 		aimingDirection_ = { 0.0f, 0.0f, -1.0f };
 	}
 
