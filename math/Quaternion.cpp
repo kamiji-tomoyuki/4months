@@ -32,10 +32,10 @@ Quaternion Quaternion::FromEulerAngles(const Vector3& eulerAngles)
 	float cosRoll = cosf(roll);
 
 	return Quaternion(
-		cosYaw * cosPitch * cosRoll + sinYaw * sinPitch * sinRoll, // w成分
-		sinYaw * cosPitch * cosRoll - cosYaw * sinPitch * sinRoll, // x成分
-		cosYaw * sinPitch * cosRoll + sinYaw * cosPitch * sinRoll, // y成分
-		cosYaw * cosPitch * sinRoll - sinYaw * sinPitch * cosRoll  // z成分
+		sinRoll * cosPitch * cosYaw - cosRoll * sinPitch * sinYaw,	// x成分
+		cosRoll * sinPitch * cosYaw + sinRoll * cosPitch * sinYaw,	// y成分
+		cosRoll * cosPitch * sinYaw - sinRoll * sinPitch * cosYaw,	// z成分
+		cosRoll * cosPitch * cosYaw + sinRoll * sinPitch * sinYaw	// w成分
 	);
 }
 
@@ -89,11 +89,10 @@ Quaternion Quaternion::FromLookRotation(const Vector3& direction, const Vector3&
 Quaternion Quaternion::operator*(const Quaternion& q) const
 {
 	return Quaternion(
-								// スカラー成分
 		w * q.x + x * q.w + y * q.z - z * q.y,                      // x成分
 		w * q.y - x * q.z + y * q.w + z * q.x,                      // y成分
-		w * q.z + x * q.y - y * q.x + z * q.w,                       // z成分
-		w * q.w - x * q.x - y * q.y - z * q.z
+		w * q.z + x * q.y - y * q.x + z * q.w,                      // z成分
+		w * q.w - x * q.x - y * q.y - z * q.z						// スカラー成分
 	);
 }
 

@@ -195,9 +195,14 @@ Vector3 PlayerSword::GetCenterPosition() const
 // 中心座標を取得
 Vector3 PlayerSword::GetCenterRotation() const{
 	//OBBのローカルローテーション
-	Vector3 worldRotate = Transformation(Vector3{ 0.0f, 0.0f, 0.0f }, Inverse(player_->GetWorldTransform().matWorld_));
-	Vector3 rotate = player_->GetRotation() + transform_.rotation_;
-	return  /*worldRotate + transform_.rotation_*/rotate;
+	/*Vector3 worldRotate = Transformation(Vector3{ 0.0f, 0.0f, 0.0f }, Inverse(player_->GetWorldTransform().matWorld_));
+	Vector3 rotate = player_->GetRotation() + transform_.rotation_;*/
+
+	Quaternion playerQuaternion = Quaternion::FromEulerAngles(player_->GetRotation());
+	Quaternion swordQuaternion = Quaternion::FromEulerAngles(transform_.rotation_);
+	Quaternion newQuaternion = playerQuaternion * swordQuaternion;
+
+	return  newQuaternion.ToEulerAngles();
 }
 
 
