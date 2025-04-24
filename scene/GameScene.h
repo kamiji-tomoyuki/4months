@@ -93,6 +93,8 @@ private:
 	std::unique_ptr<Sprite> hpBar_;
 	const int kMaxHp = 10000; // HPの最大値
 	std::unique_ptr<Sprite> enemyHpBar_; // 敵の HP バー
+	// 操作説明
+	std::unique_ptr<Sprite> howToPlay_;
 	//パーティクルエミッタ
 	std::unique_ptr<ParticleEmitter> starEmitter_;
 	// SE 多重再生防止

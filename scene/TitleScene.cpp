@@ -48,7 +48,7 @@ void TitleScene::Initialize() {
 	stage1Ground_->SetScale({ 1000.0f,1000.0f,1000.0f });
 
 	UI_ = std::make_unique<Sprite>();
-	UI_->Initialize("titleUI.png", { 0,0 }, { 1,1,1,1 }, { 0.5f,0.5f });
+	UI_->Initialize("UiA.png", { 0,0 }, { 1,1,1,1 }, { 0.5f,0.5f });
 
 	UIPad_ = std::make_unique<Sprite>();
 	UIPad_->Initialize("TitlePad.png", { 880,30 }, { 1,1,1,1 }, { 1.0f,0.0f });

@@ -81,15 +81,21 @@ void GameScene::Initialize()
 
 	// HPバーのスプライトを作成
 	hpBar_ = std::make_unique<Sprite>();
-	hpBar_->Initialize("hp.png", Vector2(1180.0f, 200.0f)); // 右端に配置
+	hpBar_->Initialize("hp.png", Vector2(400.0f, 700.0f)); // 下に配置
 	hpBar_->SetSize(Vector2(70.0f, 500.0f)); // 横幅を少し太く
-	hpBar_->SetAnchorPoint({ 0.5f,0.0f });
+	hpBar_->SetRotation(-1.57f);
+	hpBar_->SetAnchorPoint({ 0.0f,0.0f });
 
 	// 敵の HP バーのスプライトを作成
 	enemyHpBar_ = std::make_unique<Sprite>();
 	enemyHpBar_->Initialize("enemyHpBar.png", Vector2(50.0f, 200.0f)); // 左端に配置
 	enemyHpBar_->SetSize(Vector2(70.0f, 500.0f)); // 横幅を少し太く
 	enemyHpBar_->SetAnchorPoint({ 0.0f,0.0f });
+
+	// 操作説明のスプライトを作成
+	howToPlay_ = std::make_unique<Sprite>();
+	howToPlay_->Initialize("HowToPlay.png", Vector2(0.0f, 0.0f));
+	howToPlay_->SetAnchorPoint({ 0.0f, 0.0f });
 
 	particleManager_ = ParticleManager::GetInstance();
 
@@ -151,7 +157,7 @@ void GameScene::Update()
 	float hpRatio = static_cast<float>(players_[0]->GetHP()) / kMaxHp;
 	float newHeight = 500.0f * hpRatio; // HPに応じた高さ
 	hpBar_->SetSize(Vector2(100.0f, newHeight)); // 横幅を70pxに変更
-	hpBar_->SetPosition(Vector2(1180.0f, 100 + (500.0f - newHeight))); // 右側に配置
+	//hpBar_->SetPosition(Vector2(0.0f, 0.0f)); // 右側に配置
 
 	// 敵の HPバーのサイズと位置を更新
 	//float enemyHpRatio = static_cast<float>(players_[1]->GetHP()) / kMaxHp;
@@ -179,6 +185,8 @@ void GameScene::Draw()
 	/// Spriteの描画準備
 	spCommon_->DrawCommonSetting();
 	//-----Spriteの描画開始-----
+	// 操作説明の描画
+	howToPlay_->Draw();
 	//ロックオンマーク
 	lockOn_->Draw();
 	// HPバーの描画
