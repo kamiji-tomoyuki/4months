@@ -15,6 +15,7 @@
 #include "TimeManager.h"
 #include "ParticleEmitter.h"
 #include "ParticleManager.h"
+#include <Sprite.h>
 
 class ClearScene : public BaseScene
 {
@@ -74,6 +75,10 @@ private:
 	std::unique_ptr<Player> player_;
 
 	std::vector<std::unique_ptr<Enemy>> enemies_;
+
+	std::unique_ptr<Sprite> UI_;
+	float timer_ = 0.0f;
+	float speed_ = 0.02f;
 
 	//タイム
 	std::unique_ptr<TimeManager> timeManager_;
