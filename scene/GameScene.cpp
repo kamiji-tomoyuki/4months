@@ -294,6 +294,16 @@ void GameScene::CameraUpdate()
 
 void GameScene::ChangeScene()
 {
+#pragma region プレイ会用機能
+	// タイトルシーンへ戻す
+	if (Input::GetInstance()->TriggerKey(DIK_T)) {
+		sceneManager_->NextSceneReservation("TITLE");
+		if (isPlay) {
+			isPlay = false;
+		}
+	}
+#pragma endregion プレイ会用機能
+
 	if (isClear) {
 		sceneManager_->NextSceneReservation("CLEAR");
 		if (isPlay) {
