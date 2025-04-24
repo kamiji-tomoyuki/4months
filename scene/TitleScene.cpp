@@ -40,12 +40,12 @@ void TitleScene::Initialize() {
 	skydome_->SetScale({ 1000.0f,1000.0f,1000.0f });// 天球のScale
 
 	tutorialGround_ = std::make_unique<Ground>();
-	tutorialGround_->Init("testMap.obj");
-	tutorialGround_->SetScale({ 1000.0f,1000.0f,1000.0f });
+	tutorialGround_->Init();
+	tutorialGround_->SetScale({ 5.0f,5.0f,5.0f });
 
 	stage1Ground_ = std::make_unique<Ground>();
-	stage1Ground_->Init("testMap.obj");
-	stage1Ground_->SetScale({ 1000.0f,1000.0f,1000.0f });
+	stage1Ground_->Init();
+	stage1Ground_->SetScale({ 5.0f,5.0f,5.0f });
 
 	UI_ = std::make_unique<Sprite>();
 	UI_->Initialize("UiA.png", { 0,0 }, { 1,1,1,1 }, { 0.5f,0.5f });
