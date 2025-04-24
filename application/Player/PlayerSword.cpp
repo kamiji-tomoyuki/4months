@@ -198,11 +198,14 @@ Vector3 PlayerSword::GetCenterRotation() const{
 	/*Vector3 worldRotate = Transformation(Vector3{ 0.0f, 0.0f, 0.0f }, Inverse(player_->GetWorldTransform().matWorld_));
 	Vector3 rotate = player_->GetRotation() + transform_.rotation_;*/
 
-	Quaternion playerQuaternion = Quaternion::FromEulerAngles(player_->GetRotation());
-	Quaternion swordQuaternion = Quaternion::FromEulerAngles(transform_.rotation_);
-	Quaternion newQuaternion = playerQuaternion * swordQuaternion;
+	//Quaternion playerQuaternion = Quaternion::FromEulerAngles(player_->GetRotation());
+	Quaternion playerQuaternion = Quaternion::MakeRotateAxisAngleQuaternion(Vector3{ 0.0f, 1.0f, 0.0f }, player_->GetRotation().y);
+	Quaternion swordQuaternion = Quaternion::MakeRotateAxisAngleQuaternion(Vector3{ 1.0f, 0.0f, 0.0f }, transform_.rotation_.x);
+	swordQuaternion = swordQuaternion * Quaternion::MakeRotateAxisAngleQuaternion(Vector3{ 0.0f, 1.0f, 0.0f }, transform_.rotation_.y);
+	swordQuaternion = swordQuaternion * playerQuaternion;
+	swordQuaternion = swordQuaternion * Quaternion::MakeRotateAxisAngleQuaternion(Vector3{ 0.0f, 0.0f, 1.0f }, transform_.rotation_.z);
 
-	return  newQuaternion.ToEulerAngles();
+	return  swordQuaternion.ToEulerAngles();
 }
 
 
