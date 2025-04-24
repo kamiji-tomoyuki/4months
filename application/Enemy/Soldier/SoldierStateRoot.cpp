@@ -14,6 +14,7 @@ void SoldierStateRoot::Initialize(){
 	soldier->GetSword()->SetIsDefense(false);
 	soldier->GetSword()->SetTranslation({ 1.7f, 0.0f, 1.3f });
 	soldier->SetIsAttack(false);
+	soldier->SetVelocity({});
 }
 
 void SoldierStateRoot::Update(){
