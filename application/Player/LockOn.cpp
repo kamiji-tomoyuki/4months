@@ -13,7 +13,7 @@ void LockOn::Update(const std::list<std::unique_ptr<Enemy>>& enemies,const ViewP
 	XINPUT_STATE joyState;
 	
 	if (target_) {
-		if (Input::GetInstance()->GetJoystickState(0, joyState) && joyState.Gamepad.bLeftTrigger & XINPUT_GAMEPAD_TRIGGER_THRESHOLD && !preLockOnButton_ ||
+		if (Input::GetInstance()->GetJoystickState(0, joyState) && joyState.Gamepad.wButtons & XINPUT_GAMEPAD_A && !preLockOnButton_ ||
 			Input::GetInstance()->TriggerKey(DIK_R)) {
 			// ロックオンを外す
 			target_ = nullptr;
@@ -25,7 +25,7 @@ void LockOn::Update(const std::list<std::unique_ptr<Enemy>>& enemies,const ViewP
 		}
 	} else {
 		//ロックオンボタンを押したら
-		if (Input::GetInstance()->GetJoystickState(0, joyState) && joyState.Gamepad.bLeftTrigger & XINPUT_GAMEPAD_TRIGGER_THRESHOLD && !preLockOnButton_ || 
+		if (Input::GetInstance()->GetJoystickState(0, joyState) && joyState.Gamepad.bLeftTrigger & XINPUT_GAMEPAD_A && !preLockOnButton_ ||
 			Input::GetInstance()->TriggerKey(DIK_R)) {
 			//ロックオン対象の検索
 			Search(enemies, viewProjection);
