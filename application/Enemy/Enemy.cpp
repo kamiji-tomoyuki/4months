@@ -25,7 +25,9 @@ void Enemy::Init(){
 
 void Enemy::Update() {
 	BaseObject::Update();
-
+	if (GetSerialNumber() == GetNextSerialNumber() - 1) {
+		return;
+	}
 	damageEmitter_->Update();
 
 	dustEmitter_->SetPosition(GetCenterPosition());
@@ -48,12 +50,18 @@ void Enemy::DrawAnimation(const ViewProjection& viewProjection){
 }
 
 void Enemy::OnCollision(Collider* other) {
+	if (GetSerialNumber() == GetNextSerialNumber() - 1) {
+		return;
+	}
 	// 衝突相手の種別IDを取得
 	uint32_t typeID = other->GetTypeID();
 	//衝突相手
 	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kEnemy) ||
 		typeID == static_cast<uint32_t>(CollisionTypeIdDef::kBoss)) {
 		Enemy* enemy = static_cast<Enemy*>(other);
+		if (enemy->GetSerialNumber() == enemy->GetNextSerialNumber() - 1) {
+			return;
+		}
 		if (timeManager_->GetTimer("start").isStart || timeManager_->GetTimer("collision").isStart) {
 			return;
 		}
@@ -68,7 +76,7 @@ void Enemy::OnCollision(Collider* other) {
 
 		float distance = Vector3(GetCenterPosition() - enemy->GetCenterPosition()).Length();
 
-		Vector3 correction = Vector3(GetCenterPosition() - enemy->GetCenterPosition()).Normalize() * (GetRadius() + enemy->GetRadius() - distance) * 0.55f;
+		Vector3 correction = Vector3(GetCenterPosition() - enemy->GetCenterPosition()).Normalize() * (GetRadius() + enemy->GetRadius() - distance) * 0.50f;
 		transform_.translation_ += correction;
 		enemy->SetTranslation(enemy->GetTransform().translation_ - correction);
 
@@ -79,12 +87,18 @@ void Enemy::OnCollision(Collider* other) {
 }
 
 void Enemy::OnCollisionEnter(Collider* other){
+	if (GetSerialNumber() == GetNextSerialNumber() - 1) {
+		return;
+	}
 	// 衝突相手の種別IDを取得
 	uint32_t typeID = other->GetTypeID();
 	//衝突相手
 	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kEnemy) ||
 		typeID == static_cast<uint32_t>(CollisionTypeIdDef::kBoss)) {
 		Enemy* enemy = static_cast<Enemy*>(other);
+		if (enemy->GetSerialNumber() == enemy->GetNextSerialNumber() - 1) {
+			return;
+		}
 		if (timeManager_->GetTimer("start").isStart || timeManager_->GetTimer("collision").isStart) {
 			return;
 		}
@@ -115,6 +129,7 @@ void Enemy::OnCollisionOut(Collider* other){
 
 void Enemy::ChangeState(std::unique_ptr<BaseEnemyState> state){
 	state_ = std::move(state);
+	state_->Initialize();
 }
 bool Enemy::GetProbabilities(float probabilities)
 {
@@ -134,24 +149,7 @@ void Enemy::VectorRotation(const Vector3& direction) {
 	Vector3 velocityZ = Transformation(move, MakeRotateYMatrix(-transform_.rotation_.y));
 	transform_.rotation_.x = std::atan2f(-velocityZ.y, velocityZ.z);
 }
-void Enemy::RootInitialize(){
 
-}
-void Enemy::RootUpdate(){
-
-}
-void Enemy::AttackInitialize(){
-
-}
-void Enemy::AttackUpdate(){
-
-}
-void Enemy::ProtectionInitialize(){
-
-}
-void Enemy::ProtectionUpdate(){
-
-}
 void Enemy::Damage() {
 
 	damageEmitter_->SetPosition(GetCenterPosition());

@@ -10,7 +10,9 @@
 #include"WorldTransform.h"
 #include"ParticleEmitter.h"
 #include <Skydome.h>
+#include "Ground.h"
 #include <Sprite.h>
+#include "TitleEvent.h"
 
 class TitleScene :public BaseScene
 {
@@ -60,21 +62,27 @@ private:
 	ViewProjection vp_;
 	std::unique_ptr<DebugCamera> debugCamera_;
 
-	//WorldTransform wtTitle_;
-	//std::unique_ptr<Object3d> title_;
-	//std::unique_ptr<Sprite> UI_;
-	//float timer_ = 0.0f;
-	//float speed_ = 0.02f;
+	WorldTransform wtTitle_;
+	std::unique_ptr<Object3d> title_;
+	std::unique_ptr<Sprite> UI_;
+	float timer_ = 0.0f;
+	float speed_ = 0.02f;
 
-	//std::unique_ptr<Sprite> UIPad_;
+	std::unique_ptr<Sprite> UIPad_;
 
 	std::unique_ptr<Skydome> skydome_ = nullptr;// 天球
+
+	std::unique_ptr<Ground> tutorialGround_ = nullptr;// 地面
+
+	std::unique_ptr<Ground> stage1Ground_ = nullptr;// 地面
 
 	std::unique_ptr<ParticleEmitter> starEmitter_ = nullptr;
 
 	bool loop = true;
 
 	ParticleManager* particleManager_;
+
+	std::unique_ptr<TitleEvent> titleEvent_ = nullptr;
 
 	bool isChangeScene = true;
 };

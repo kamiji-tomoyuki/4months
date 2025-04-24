@@ -94,6 +94,9 @@ void PlayerSword::OnCollision(Collider* other)
 	//衝突相手
 	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kEnemyWeapon)) {
 		EnemySword* enemySwod = static_cast<EnemySword*>(other);
+		if (enemySwod->GetEnemy()->GetSerialNumber() == enemySwod->GetEnemy()->GetNextSerialNumber() - 1) {
+			return;
+		}
 		if (GetIsAttack() && enemySwod->GetIsDefense()) {
 			SetIsAttack(false);
 			//player_->SetObjColor({ 0.0f,0.0f,1.0f,1.0f });
@@ -111,6 +114,10 @@ void PlayerSword::OnCollision(Collider* other)
 			return;
 		}
 		if (GetIsAttack()) {
+			//接触履歴があれば何もせず
+			if (contactRecord_.CheckRecord(enemy->GetSerialNumber())) { return; }
+			//接触履歴に登録
+			contactRecord_.AddRecord(enemy->GetSerialNumber());
 			Vector3 newVelocity = enemy->GetCenterPosition() - player_->GetCenterPosition();
 
 			enemy->SetVelocity(enemy->GetVelocity() + newVelocity.Normalize() * 30.0f);
@@ -134,6 +141,9 @@ void PlayerSword::OnCollisionEnter(Collider* other)
 	//衝突相手
 	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kEnemyWeapon)) {
 		EnemySword* enemySwod = static_cast<EnemySword*>(other);
+		if (enemySwod->GetEnemy()->GetSerialNumber() == enemySwod->GetEnemy()->GetNextSerialNumber() - 1) {
+			return;
+		}
 		if (GetIsAttack() && enemySwod->GetIsDefense()) {
 			SetIsAttack(false);
 			emitters_[0]->Start();
@@ -149,6 +159,10 @@ void PlayerSword::OnCollisionEnter(Collider* other)
 			return;
 		}
 		if (GetIsAttack()) {
+			//接触履歴があれば何もせず
+			if (contactRecord_.CheckRecord(enemy->GetSerialNumber())) { return; }
+			//接触履歴に登録
+			contactRecord_.AddRecord(enemy->GetSerialNumber());
 			Vector3 newVelocity = enemy->GetCenterPosition() - player_->GetCenterPosition();
 
 			enemy->Damage();
@@ -172,7 +186,7 @@ void PlayerSword::OnCollisionOut(Collider* other)
 Vector3 PlayerSword::GetCenterPosition() const
 {
 	//ローカル座標でのオフセット
-	const Vector3 offset = { 0.0f, 2.0f, 0.0f };
+	const Vector3 offset = { 0.0f, 2.5f, 0.0f };
 	//ワールド座標に変換
 	Vector3 worldPos = Transformation(offset, transform_.matWorld_);
 	return worldPos;
@@ -180,13 +194,28 @@ Vector3 PlayerSword::GetCenterPosition() const
 
 // 中心座標を取得
 Vector3 PlayerSword::GetCenterRotation() const{
-	return  transform_.rotation_;
+	//OBBのローカルローテーション
+	/*Vector3 worldRotate = Transformation(Vector3{ 0.0f, 0.0f, 0.0f }, Inverse(player_->GetWorldTransform().matWorld_));
+	Vector3 rotate = player_->GetRotation() + transform_.rotation_;*/
+
+	//Quaternion playerQuaternion = Quaternion::FromEulerAngles(player_->GetRotation());
+	Quaternion playerQuaternion = Quaternion::MakeRotateAxisAngleQuaternion(Vector3{ 0.0f, 1.0f, 0.0f }, player_->GetRotation().y);
+	Quaternion swordQuaternion = Quaternion::MakeRotateAxisAngleQuaternion(Vector3{ 1.0f, 0.0f, 0.0f }, transform_.rotation_.x);
+	swordQuaternion = swordQuaternion * Quaternion::MakeRotateAxisAngleQuaternion(Vector3{ 0.0f, 1.0f, 0.0f }, transform_.rotation_.y);
+	swordQuaternion = swordQuaternion * playerQuaternion;
+	swordQuaternion = swordQuaternion * Quaternion::MakeRotateAxisAngleQuaternion(Vector3{ 0.0f, 0.0f, 1.0f }, transform_.rotation_.z);
+
+	return  swordQuaternion.ToEulerAngles();
 }
 
 
 void PlayerSword::ImGui()
 {
 	
+}
+
+void PlayerSword::ContactRecordClear(){
+	contactRecord_.Clear();
 }
 
 

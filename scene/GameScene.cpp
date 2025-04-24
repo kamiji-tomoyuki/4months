@@ -26,7 +26,7 @@ void GameScene::Initialize()
 
 	//天球
 	skydome_ = std::make_unique<Skydome>();
-	skydome_->Init();
+	skydome_->Init("WildsSkyDome.obj");
 	skydome_->SetViewProjection(&vp_);
 
 	//地面
@@ -49,8 +49,6 @@ void GameScene::Initialize()
 
 	//敵
 	Enemy::SetEnemyID(0);
-	LoadEnemyPopData();
-
 	for (size_t i = 0; i < 1; i++) {
 		std::unique_ptr<Enemy> newEnemy = std::make_unique<Boss>();
 		newEnemy->SetPlayer(players_[0].get());
@@ -59,6 +57,13 @@ void GameScene::Initialize()
 		newEnemy->SetTranslation({0.0f,0.0f,100.0f});
 		enemies_.push_back(std::move(newEnemy));
 	}
+	std::unique_ptr<Enemy> newEnemy = std::make_unique<Soldier>();
+	newEnemy->SetPlayer(players_[0].get());
+	newEnemy->SetTimeManager(timeManager_.get());
+	newEnemy->Init();
+	newEnemy->SetTranslation({0,0,0});
+	enemies_.push_back(std::move(newEnemy));
+	LoadEnemyPopData();
 
 	//カメラ
 	followCamera_ = std::make_unique<FollowCamera>();
@@ -76,15 +81,21 @@ void GameScene::Initialize()
 
 	// HPバーのスプライトを作成
 	hpBar_ = std::make_unique<Sprite>();
-	hpBar_->Initialize("hp.png", Vector2(1180.0f, 200.0f)); // 右端に配置
+	hpBar_->Initialize("hp.png", Vector2(400.0f, 700.0f)); // 下に配置
 	hpBar_->SetSize(Vector2(70.0f, 500.0f)); // 横幅を少し太く
-	hpBar_->SetAnchorPoint({ 0.5f,0.0f });
+	hpBar_->SetRotation(-1.57f);
+	hpBar_->SetAnchorPoint({ 0.0f,0.0f });
 
 	// 敵の HP バーのスプライトを作成
 	enemyHpBar_ = std::make_unique<Sprite>();
 	enemyHpBar_->Initialize("enemyHpBar.png", Vector2(50.0f, 200.0f)); // 左端に配置
 	enemyHpBar_->SetSize(Vector2(70.0f, 500.0f)); // 横幅を少し太く
 	enemyHpBar_->SetAnchorPoint({ 0.0f,0.0f });
+
+	// 操作説明のスプライトを作成
+	howToPlay_ = std::make_unique<Sprite>();
+	howToPlay_->Initialize("HowToPlay.png", Vector2(0.0f, 0.0f));
+	howToPlay_->SetAnchorPoint({ 0.0f, 0.0f });
 
 	particleManager_ = ParticleManager::GetInstance();
 
@@ -94,14 +105,14 @@ void GameScene::Initialize()
 
 	starEmitter_->Start();
 
-	/*audio_->StopWave(0);
+	audio_->StopWave(0);
 	audio_->StopWave(1);
 	audio_->StopWave(2);
 	audio_->StopWave(3);
 	audio_->StopWave(4);
 	audio_->PlayWave(1, 0.1f, true);
 
-	audio_->PlayWave(7, 1.0f, false);*/
+	audio_->PlayWave(7, 1.0f, false);
 }
 
 void GameScene::Update()
@@ -146,7 +157,7 @@ void GameScene::Update()
 	float hpRatio = static_cast<float>(players_[0]->GetHP()) / kMaxHp;
 	float newHeight = 500.0f * hpRatio; // HPに応じた高さ
 	hpBar_->SetSize(Vector2(100.0f, newHeight)); // 横幅を70pxに変更
-	hpBar_->SetPosition(Vector2(1180.0f, 100 + (500.0f - newHeight))); // 右側に配置
+	//hpBar_->SetPosition(Vector2(0.0f, 0.0f)); // 右側に配置
 
 	// 敵の HPバーのサイズと位置を更新
 	//float enemyHpRatio = static_cast<float>(players_[1]->GetHP()) / kMaxHp;
@@ -174,6 +185,8 @@ void GameScene::Draw()
 	/// Spriteの描画準備
 	spCommon_->DrawCommonSetting();
 	//-----Spriteの描画開始-----
+	// 操作説明の描画
+	howToPlay_->Draw();
 	//ロックオンマーク
 	lockOn_->Draw();
 	// HPバーの描画
@@ -200,9 +213,6 @@ void GameScene::Draw()
 		player->Draw(vp_);
 	}
 	for (const std::unique_ptr<Enemy>& enemy : enemies_) {
-		if (enemy->GetSerialNumber() == enemy->GetNextSerialNumber() - 1) {
-			break;
-		}
 		enemy->Draw(vp_);
 	}
 	skydome_->Draw(vp_);
@@ -292,6 +302,16 @@ void GameScene::CameraUpdate()
 
 void GameScene::ChangeScene()
 {
+#pragma region プレイ会用機能
+	// タイトルシーンへ戻す
+	if (Input::GetInstance()->TriggerKey(DIK_T)) {
+		sceneManager_->NextSceneReservation("TITLE");
+		if (isPlay) {
+			isPlay = false;
+		}
+	}
+#pragma endregion プレイ会用機能
+
 	if (isClear) {
 		sceneManager_->NextSceneReservation("CLEAR");
 		if (isPlay) {
@@ -368,10 +388,16 @@ void GameScene::UpdateEnemyPopCommands() {
 }
 
 void GameScene::AddEnemy(const Vector3& position) {
+	for (const std::unique_ptr<Enemy>& enemy : enemies_) {
+		if (enemy->GetSerialNumber() == enemy->GetNextSerialNumber() -1) {
+			enemy->SetTranslation(position);
+			enemy->Update();
+		}
+	}
 	std::unique_ptr<Enemy> newEnemy = std::make_unique<Soldier>();
 	newEnemy->SetPlayer(players_[0].get());
 	newEnemy->SetTimeManager(timeManager_.get());
 	newEnemy->Init();
-	newEnemy->SetTranslation(position);
+	newEnemy->SetTranslation({0,0,0});
 	enemies_.push_back(std::move(newEnemy));
 }

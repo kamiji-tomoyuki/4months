@@ -36,11 +36,6 @@ void SceneManager::Update()
 #ifdef _DEBUG
 
 	ImGui::Begin("scene");
-	if (ImGui::Button("EditorScene") && (transition_->IsEnd() && !transition_->FadeInStart())) {
-		transition_->Reset();
-		nextScene_ = sceneFactory_->CreateScene("EDITOR");
-		transition_->SetFadeInStart(true);
-	}
 	if (ImGui::Button("TitleScene") && (transition_->IsEnd() && !transition_->FadeInStart())) {
 		transition_->Reset();
 		nextScene_ = sceneFactory_->CreateScene("TITLE");
@@ -52,6 +47,21 @@ void SceneManager::Update()
 		}
 		transition_->Reset();
 		nextScene_ = sceneFactory_->CreateScene("GAME");
+		transition_->SetFadeInStart(true);
+	}
+	if (ImGui::Button("ClearScene") && (transition_->IsEnd() && !transition_->FadeInStart())) {
+		transition_->Reset();
+		nextScene_ = sceneFactory_->CreateScene("CLEAR");
+		transition_->SetFadeInStart(true);
+	}
+	if (ImGui::Button("GameOverScene") && (transition_->IsEnd() && !transition_->FadeInStart())) {
+		transition_->Reset();
+		nextScene_ = sceneFactory_->CreateScene("GAMEOVER");
+		transition_->SetFadeInStart(true);
+	}
+	if (ImGui::Button("EditorScene") && (transition_->IsEnd() && !transition_->FadeInStart())) {
+		transition_->Reset();
+		nextScene_ = sceneFactory_->CreateScene("EDITOR");
 		transition_->SetFadeInStart(true);
 	}
 	ImGui::End();

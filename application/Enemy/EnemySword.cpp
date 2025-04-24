@@ -25,7 +25,9 @@ void EnemySword::Initialize(std::string filePath, std::string palmFilePath) {
 	objColor_.SetColor(Vector4(1, 1, 1, 1));
 }
 void EnemySword::Update() {
-	SetRadius(transform_.scale_.Length());
+	SetRadius(0);
+	SetAABBScale({ 0.0f, 0.0f, 0.0f });
+	SetOBBScale({0.4f,8.0f,1.0f});
 	//元となるワールドトランスフォームの更新
 	transform_.UpdateMatrix();
 	transformPalm_.translation_ = transform_.translation_;
@@ -47,6 +49,9 @@ void EnemySword::DrawAnimation(const ViewProjection& viewProjection){
 
 void EnemySword::OnCollision([[maybe_unused]] Collider* other) {
 	if (timeManager_->GetTimer("start").isStart || timeManager_->GetTimer("collision").isStart) {
+		return;
+	}
+	if (GetEnemy()->GetSerialNumber() == GetEnemy()->GetNextSerialNumber() - 1) {
 		return;
 	}
 	// 衝突相手の種別IDを取得
@@ -82,6 +87,9 @@ void EnemySword::OnCollision([[maybe_unused]] Collider* other) {
 
 void EnemySword::OnCollisionEnter([[maybe_unused]] Collider* other) {
 	if (timeManager_->GetTimer("start").isStart || timeManager_->GetTimer("collision").isStart) {
+		return;
+	}
+	if (GetEnemy()->GetSerialNumber() == GetEnemy()->GetNextSerialNumber() - 1) {
 		return;
 	}
 	// 衝突相手の種別IDを取得
@@ -127,7 +135,9 @@ Vector3 EnemySword::GetCenterPosition() const {
 }
 
 Vector3 EnemySword::GetCenterRotation() const {
-	return transform_.rotation_;
+	//OBBのローカルローテーション
+	Vector3 rotate = transform_.rotation_ + enemy_->GetCenterRotation();
+	return  rotate;
 }
 
 void EnemySword::SetModel(const std::string& filePath) {

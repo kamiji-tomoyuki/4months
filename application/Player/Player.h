@@ -32,6 +32,13 @@ public:
 		kLeftSlash,		// 左振り抜き(右入力攻撃)
 		kNullType,		// 未入力
 	};
+	enum DirectionInput {
+		TOP,		// 上
+		DOWN,		// 下
+		LEFT,		// 左
+		RIGHT,		// 右
+		Nothing,	// 無入力
+	};
 	struct Root {
 		float floatingParameter = 0.0f;		//浮遊ギミックの媒介変数
 		int32_t period = 60;				// 浮遊移動のサイクル<frame>
@@ -42,8 +49,6 @@ public:
 		float kLimitTime = 0.4f;					// 攻撃の時間(モーション)
 		Vector3 swordStartTransform = { 0.0f };		// 剣の始めの位置
 		Vector3 swordEndTransform = { 0.0f };		// 剣の終わりの位置
-		Vector3 swordStartRotate = { 0.0f };		// 剣の始めの角度
-		Vector3 swordEndRotate = { 0.0f };			// 剣の終わりの角度
 		float time = 0;								// 現在の進行度(モーション)
 		bool isAttack = false;						// 攻撃フラグ
 	};
@@ -102,7 +107,7 @@ public:
 	// 向きをセット
 	void VectorRotation(const Vector3& direction);
 	// 方向を取得
-	Vector2 InputDirection();
+	Vector2 InputDirectionGampad();
 
 	// 中心座標を取得
 	Vector3 GetCenterPosition() const override;
@@ -139,11 +144,7 @@ private:	// 動作パターン
 	// 調整項目の適用
 	void ApplyGlobalVariables();
 
-	// 移動
-	void Move();
-
-	// 予備動作の方向
-	void DirectionPreliminaryAction();
+	
 
 private:	// 攻撃方向タイプ
 	// 振り下ろし(上入力攻撃)
@@ -165,6 +166,20 @@ private:	// 攻撃方向タイプ
 	// 未入力
 	void AttackTypeNullInitialize();
 	void AttackTypeNullUpdate();
+
+private:	// メンバ関数
+	// 移動
+	void Move();
+
+	// 入力方向
+	/// <returns>入力方向 0:上 1:下 2:左 3:右 4:無入力</returns>
+	int InputDirection();
+
+	// 入力方向の設定
+	void SetInputDirection();
+	
+	// 攻撃方向入力されたか
+	bool IsAttackDirectionInput();
 
 private:	// メンバ変数
 	// 動作パターン
@@ -208,6 +223,7 @@ private:	// メンバ変数
 	Vector3 acceleration_{};
 
 	// 狙う方向
+	Vector3 attackDirection_{};
 	Vector3 aimingDirection_{};
 
 	// HP

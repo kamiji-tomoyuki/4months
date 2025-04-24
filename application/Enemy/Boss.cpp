@@ -1,7 +1,7 @@
 #include "Boss.h"
 #include <CollisionTypeIdDef.h>
 #include "myMath.h"
-#include "EnemyStateRoot.h"
+#include "BossStateRoot.h"
 #include "Player.h"
 
 Boss::Boss() {
@@ -11,7 +11,7 @@ void Boss::Init() {
 	Enemy::Init();
 	Collider::SetTypeID(static_cast<uint32_t>(CollisionTypeIdDef::kBoss));
 	BaseObject::CreateModel("enemy/enemyBody.obj");
-	Enemy::ChangeState(std::make_unique<EnemyStateRoot>(this));
+	Enemy::ChangeState(std::make_unique<BossStateRoot>(this));
 	Collider::SetRadius(10.0f);
 	Collider::SetAABBScale({ 0.0f,0.0f,0.0f });
 	Enemy::SetScale({ 10.0f,10.0f,10.0f });

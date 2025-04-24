@@ -80,7 +80,7 @@ void Collider::UpdateWorldTransform() {
 	obb.center = GetCenterPosition();
 	obb.center = obb.center + OBBOffset.center;
 	MakeOBBOrientations(obb, GetCenterRotation());
-	obb.size = { 1.0f,1.0f,1.0f };
+	obb.size = obbScale_;
 	obb.size = obb.size + OBBOffset.size;
 
 	OBBwt_.translation_ = obb.center;
