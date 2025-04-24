@@ -95,9 +95,9 @@ public:
 	void SetIsColliding(bool colliding) { wasColliding = isColliding; isColliding = colliding; }
 	void SetCollisionEnabled(bool enabled) { isCollisionEnabled_ = enabled; }
 	void SetAABBScale(Vector3 scale) { scale_ = scale; }
+	void SetOBBScale(Vector3 scale) { obbScale_ = scale; }
 	void SetHitColor() { color_ = { 1.0f,0.0f,0.0f,1.0f }; }
 	void SetDefaultColor() { color_ = { 1.0f,1.0f,1.0f,1.0f }; }
-	
 private:
 	void ApplyVariables();
 	void MakeOBBOrientations(OBB& obb, const Vector3& rotate);
@@ -121,11 +121,12 @@ private:
 	GlobalVariables* variables_;
 	std::string groupName;
 	AABB aabb;
-	OBB obb;
 	Vector3 aabbCenter;
 	Vector3 aabbScale;
 	Vector3 scale_ = { 1.0f,1.0f,1.0f };
 	Vector4 color_ = { 1.0f,1.0f,1.0f,1.0f };
+	OBB obb;
+	Vector3 obbScale_ = { 1.0f,1.0f,1.0f };
 
 	static int counter; // 静的カウンタ
 	Vector3 SphereOffset = { 0.0f,0.0f,0.0f };

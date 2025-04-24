@@ -25,7 +25,9 @@ void EnemySword::Initialize(std::string filePath, std::string palmFilePath) {
 	objColor_.SetColor(Vector4(1, 1, 1, 1));
 }
 void EnemySword::Update() {
-	SetRadius(transform_.scale_.Length());
+	SetRadius(0);
+	SetAABBScale({ 0.0f, 0.0f, 0.0f });
+	SetOBBScale({0.4f,8.0f,1.0f});
 	//元となるワールドトランスフォームの更新
 	transform_.UpdateMatrix();
 	transformPalm_.translation_ = transform_.translation_;
@@ -134,9 +136,8 @@ Vector3 EnemySword::GetCenterPosition() const {
 
 Vector3 EnemySword::GetCenterRotation() const {
 	//OBBのローカルローテーション
-	Vector3 worldRotate = Transformation(Vector3{ 0.0f, 0.0f, 0.0f }, Inverse(enemy_->GetWorldTransform().matWorld_));
-	Vector3 rotate = enemy_->GetCenterRotation() + transform_.rotation_;
-	return  /*worldRotate + transform_.rotation_*/rotate;
+	Vector3 rotate = transform_.rotation_ + enemy_->GetCenterRotation();
+	return  rotate;
 }
 
 void EnemySword::SetModel(const std::string& filePath) {
