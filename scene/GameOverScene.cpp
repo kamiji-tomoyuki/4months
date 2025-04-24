@@ -48,6 +48,9 @@ void GameOverScene::Initialize()
 	ground_ = std::make_unique<Ground>();
 	ground_->Init();
 
+	UI_ = std::make_unique<Sprite>();
+	UI_->Initialize("UiA.png", { 0,0 }, { 1,1,1,1 }, { 0.5f,0.5f });
+
 	//タイム
 	timeManager_ = std::make_unique<TimeManager>();
 	timeManager_->Initialize();
@@ -102,6 +105,13 @@ void GameOverScene::Update()
 	player_->SetRotation({ player_->GetCenterRotation().x,player_->GetCenterRotation().y + 0.01f,player_->GetCenterRotation().z });
 	player_->UpdateTransform();
 
+	//// UI点滅
+	timer_ += speed_;
+	if (timer_ >= 1.0f || timer_ < 0.0f) {
+		speed_ *= -1.0f;
+	}
+	UI_->SetAlpha(timer_);
+
 	gameOverEmitter_->Update();
 
 	particleManager_->Update(vp_);
@@ -122,7 +132,7 @@ void GameOverScene::Draw()
 	/// Spriteの描画準備
 	spCommon_->DrawCommonSetting();
 	//-----Spriteの描画開始-----
-
+	
 	//------------------------
 
 	objCommon_->skinningDrawCommonSetting();
@@ -150,6 +160,12 @@ void GameOverScene::Draw()
 	particleManager_->Draw();
 
 	//-----------------------------
+
+	/// Spriteの描画準備
+	spCommon_->DrawCommonSetting();
+	//-----Spriteの描画開始-----
+	UI_->Draw();
+	//---------------
 
 	//-----線描画-----
 	DrawLine3D::GetInstance()->Draw(vp_);

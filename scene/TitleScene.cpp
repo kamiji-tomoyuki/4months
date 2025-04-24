@@ -27,11 +27,11 @@ void TitleScene::Initialize() {
 	debugCamera_ = std::make_unique<DebugCamera>();
 	debugCamera_->Initialize(&vp_);
 
-	/*wtTitle_.Initialize();
-	wtTitle_.translation_ = { 0.0f,3.0f,0.0f };
+	wtTitle_.Initialize();
+	wtTitle_.translation_ = { 0.0f,7.0f,30.0f };
 	wtTitle_.rotation_ = { 0.0f,0.0f,0.0f };
 	title_ = std::make_unique<Object3d>();
-	title_->Initialize("TitleScene/Title.obj");*/
+	title_->Initialize("TitleScene/Title.obj");
 
 	//天球
 	skydome_ = std::make_unique<Skydome>();
@@ -116,11 +116,11 @@ void TitleScene::Update() {
 		}
 	}
 
-	//wtTitle_.scale_ = { 1.3f,1.3f,1.3f };
-	//// 3.0fを中心に上下に揺らす
-	//wtTitle_.translation_.y = EaseInOutQuint(2.5f, 3.5f, timer_, 1.0f);
-	// 
-	//wtTitle_.UpdateMatrix();
+	wtTitle_.scale_ = { 1.3f,1.3f,1.3f };
+	// 3.0fを中心に上下に揺らす
+	wtTitle_.translation_.y = EaseInOutQuint(4.0f +2.5f, 4.0f+3.5f, timer_, 1.0f);
+	 
+	wtTitle_.UpdateMatrix();
 
 	titleEvent_->Update();
 
@@ -164,7 +164,7 @@ void TitleScene::Draw() {
 
 	}
 
-	/*title_->Draw(wtTitle_, vp_);*/
+	title_->Draw(wtTitle_, vp_);
 
 	skydome_->Draw(vp_);
 
