@@ -258,7 +258,7 @@ void TitleScene::CameraUpdate() {
 void TitleScene::ChangeScene() {
 
 	if (titleEvent_->GetStageSelect() == TitleEvent::StageSelect::TUTORIAL) {
-		sceneManager_->NextSceneReservation("GAME");
+		sceneManager_->NextSceneReservation("TUTORIAL");
 	} else if (titleEvent_->GetStageSelect() == TitleEvent::StageSelect::STAGE1) {
 		sceneManager_->NextSceneReservation("GAME");
 	}
