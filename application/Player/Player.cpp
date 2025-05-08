@@ -37,6 +37,7 @@ void Player::Init() {
 	sword_->SetRotation(Vector3(0.0f, 0.0f, 0.0f));
 	sword_->SetTranslation(Vector3(1.5f, 0.0f, 0.0f));
 	sword_->SetScale(Vector3(0.8f, 0.8f, 0.8f));
+	
 
 	attackDirection_ = { 0.0f, 0.0f, 0.0f };
 

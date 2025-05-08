@@ -40,8 +40,8 @@ void PlayerSword::Initialize(std::string filePath, std::string palmFilePath)
 void PlayerSword::Update()
 {
 	// 半径をセット
-	//SetRadius(0.0f);
-	//SetAABBScale({ 4.0f,4.0f,10.0f });
+	SetRadius(0.0f);
+	SetAABBScale({ 0.0f,0.0f,0.0f });
 
 	//元となるワールドトランスフォームの更新
 	transform_.UpdateMatrix();
