@@ -64,6 +64,11 @@ void SceneManager::Update()
 		nextScene_ = sceneFactory_->CreateScene("EDITOR");
 		transition_->SetFadeInStart(true);
 	}
+	if (ImGui::Button("TutorialScene") && (transition_->IsEnd() && !transition_->FadeInStart())) {
+		transition_->Reset();
+		nextScene_ = sceneFactory_->CreateScene("TUTORIAL");
+		transition_->SetFadeInStart(true);
+	}
 	ImGui::End();
 
 #endif // _DEBUG
