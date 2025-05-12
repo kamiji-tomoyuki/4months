@@ -17,11 +17,22 @@
 
 class Input {
 
+public:
+
+	enum class JoyStickDirection {
+		Up,
+		Down,
+		Left,
+		Right,
+		None
+	};
+
 private:
 	enum class PadType {
 		DirectInput,
 		XInput,
 	};
+
 	using State = std::variant<DIJOYSTATE2, XINPUT_STATE>;
 
 	struct Joystick {
@@ -105,6 +116,8 @@ public:
 	/// </summary>
 	/// <returns>接続されているジョイスティック数</returns>
 	size_t GetNumberOfJoysticks()const;
+
+	JoyStickDirection GetJoyStickDirection(int32_t stickNo);
 
 	///// <summary>
 	///// 全マウス情報取得

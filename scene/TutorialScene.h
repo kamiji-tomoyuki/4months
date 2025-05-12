@@ -22,7 +22,7 @@
 #include "ParticleManager.h"
 #include "Enemy.h"
 #include "Soldier.h"
-#include "TutorialUI.h"
+#include "TutorialEvent.h"
 
 class TutorialScene : public BaseScene 
 {
@@ -93,7 +93,7 @@ private:
 	//タイム
 	std::unique_ptr<TimeManager> timeManager_;
 
-	std::vector<std::unique_ptr<TutorialUI>> tutorialUI_;
+	std::unique_ptr<TutorialEvent> tutorialEvent_;
 
 	// HPバー
 	std::unique_ptr<Sprite> hpBar_;

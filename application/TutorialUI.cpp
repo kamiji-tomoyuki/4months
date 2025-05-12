@@ -1,11 +1,10 @@
 #include "TutorialUI.h"
 
-#include "Player.h"
+#include "Input.h"
 
-void TutorialUI::Initialize(Player* player, Vector2 pos, std::string textSpriteFileName, std::initializer_list<UIType> uiTypes) {
+void TutorialUI::Initialize(Vector2 pos, std::string textSpriteFileName, std::initializer_list<UIType> uiTypes) {
 
-	//プレイヤーのポインタを取得
-	player_ = player;
+	uiTypes_ = uiTypes;
 
 	/// === バッググラウンドスプライトの生成 === ///
 
@@ -39,7 +38,7 @@ void TutorialUI::Initialize(Player* player, Vector2 pos, std::string textSpriteF
 	textSprite_ = std::make_unique<Sprite>();
 
 	//初期化
-	textSprite_->Initialize(textSpriteFileName, Vector2(bgPos.x,bgPos.y - 25.0f));
+	textSprite_->Initialize(textSpriteFileName, Vector2(bgPos.x, bgPos.y - 25.0f));
 
 	//アンカーポイントを設定
 	textSprite_->SetAnchorPoint({ 0.5f, 0.5f });
@@ -117,6 +116,8 @@ void TutorialUI::Initialize(Player* player, Vector2 pos, std::string textSpriteF
 			)
 		);
 
+		newUISprite->SetColor(Vector3(0.2f, 0.2f, 0.2f));
+
 		controllerUI_.push_back(std::move(newUISprite));
 
 		layoutNumber += 2;
@@ -125,9 +126,93 @@ void TutorialUI::Initialize(Player* player, Vector2 pos, std::string textSpriteF
 
 void TutorialUI::Update() {
 
+	for (int i = 0; i < uiTypes_.size(); i++) {
+
+		XINPUT_STATE joyState;
+
+		if (Input::GetInstance()->GetJoystickState(0, joyState)) {
+
+			switch (uiTypes_[i]) {
+			case TutorialUI::UIType::kRStickUp:
+
+				if (Input::GetInstance()->GetJoyStickDirection(0) == Input::JoyStickDirection::Up) {
+
+					controllerUI_[i]->SetColor(Vector3(1.0f, 1.0f, 1.0f));
+				} else {
+
+					controllerUI_[i]->SetColor(Vector3(0.2f, 0.2f, 0.2f));
+				}
+
+				break;
+			case TutorialUI::UIType::kRStickDown:
+
+				if (Input::GetInstance()->GetJoyStickDirection(0) == Input::JoyStickDirection::Down) {
+
+					controllerUI_[i]->SetColor(Vector3(1.0f, 1.0f, 1.0f));
+				} else {
+
+					controllerUI_[i]->SetColor(Vector3(0.2f, 0.2f, 0.2f));
+				}
+				break;
+			case TutorialUI::UIType::kRStickLeft:
+
+				if (Input::GetInstance()->GetJoyStickDirection(0) == Input::JoyStickDirection::Left) {
+
+					controllerUI_[i]->SetColor(Vector3(1.0f, 1.0f, 1.0f));
+				} else {
+
+					controllerUI_[i]->SetColor(Vector3(0.2f, 0.2f, 0.2f));
+				}
+
+				break;
+			case TutorialUI::UIType::kRStickRight:
+
+				if (Input::GetInstance()->GetJoyStickDirection(0) == Input::JoyStickDirection::Right) {
+
+					controllerUI_[i]->SetColor(Vector3(1.0f, 1.0f, 1.0f));
+				} else {
+
+					controllerUI_[i]->SetColor(Vector3(0.2f, 0.2f, 0.2f));
+				}
+
+				break;
+			case TutorialUI::UIType::kLeftStick:
+				break;
+			case TutorialUI::UIType::kAButton:
+				break;
+			case TutorialUI::UIType::kButton:
+				break;
+			case TutorialUI::UIType::kXButton:
+				break;
+			case TutorialUI::UIType::kYButton:
+				break;
+			case TutorialUI::UIType::kRButton:
+
+				if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) {
+
+					controllerUI_[i]->SetColor(Vector3(1.0f, 1.0f, 1.0f));
+				} else {
+
+					controllerUI_[i]->SetColor(Vector3(0.2f, 0.2f, 0.2f));
+				}
+				break;
+			case TutorialUI::UIType::kLButton:
+				break;
+			case TutorialUI::UIType::kRTrigger:
+				break;
+			case TutorialUI::UIType::kLTrigger:
+				break;
+			default:
+
+				break;
+			}
+		}
+	}
+
 	if (isSuccess) {
 
 		textBackGround_->SetColor(Vector3(0.0f, 1.0f, 0.0f));
+
 	}
 }
 

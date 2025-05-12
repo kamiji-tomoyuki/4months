@@ -6,8 +6,6 @@
 #include "initializer_list"
 #include "vector"
 
-class Player;
-
 class TutorialUI {
 
 public:
@@ -30,7 +28,7 @@ public:
 
 public:
 
-	void Initialize(Player* player, Vector2 pos, std::string textSpriteFileName, std::initializer_list<UIType> uiTypes);
+	void Initialize(Vector2 pos, std::string textSpriteFileName, std::initializer_list<UIType> uiTypes);
 
 	void Update();
 
@@ -40,11 +38,11 @@ public:
 
 private:
 
-	Player* player_ = nullptr;
-
 	std::unique_ptr<Sprite> textBackGround_;
 
 	std::unique_ptr<Sprite> textSprite_;
+
+	std::vector<UIType> uiTypes_;
 
 	std::vector<std::unique_ptr<Sprite>> controllerUI_;
 

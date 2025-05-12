@@ -111,6 +111,7 @@
     <ClCompile Include="application\TitleEvent.cpp" />
     <ClCompile Include="scene\TutorialScene.cpp" />
     <ClCompile Include="application\TutorialUI.cpp" />
+    <ClCompile Include="application\TutorialEvent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application\CollisionTypeIdDef.h" />
@@ -212,6 +213,7 @@
     <ClInclude Include="application\TitleEvent.h" />
     <ClInclude Include="scene\TutorialScene.h" />
     <ClInclude Include="application\TutorialUI.h" />
+    <ClInclude Include="application\TutorialEvent.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="myEngine.rc" />
