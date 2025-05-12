@@ -131,19 +131,52 @@ void TutorialScene::Initialize() {
 
 	starEmitter_->Start();
 
-	std::unique_ptr<TutorialUI> newUI = std::make_unique<TutorialUI>();
+	for (int i = 0; i < 4; i++) {
+		std::unique_ptr<TutorialUI> newUI = std::make_unique<TutorialUI>();
+		tutorialUI_.push_back(std::move(newUI));
+	}
 
-	newUI->Initialize(
+	tutorialUI_[0]->Initialize(
 		player_.get(),
-		Vector2(20.0f, 20.0f),
-		"RightAttack.png",
+		Vector2(100.0f, 100.0f),
+		"RightSlash.png",
 		{
-			TutorialUI::UIType::kRightStick,
+			TutorialUI::UIType::kRStickRight,
 			TutorialUI::UIType::kRButton,
 		}
-	);
+		);
 
-	tutorialUI_.push_back(std::move(newUI));
+	tutorialUI_[1]->Initialize(
+		player_.get(),
+		Vector2(100.0f, 270.0f),
+		"LeftSlash.png",
+		{
+			TutorialUI::UIType::kRStickLeft,
+			TutorialUI::UIType::kRButton,
+		}
+		);
+
+	tutorialUI_[2]->Initialize(
+		player_.get(),
+		Vector2(100.0f, 440.0f),
+		"DownSwing.png",
+		{
+			TutorialUI::UIType::kRStickUp,
+			TutorialUI::UIType::kRButton,
+		}
+		);
+
+	tutorialUI_[3]->Initialize(
+		player_.get(),
+		Vector2(100.0f, 610.0f),
+		"Thrust.png",
+		{
+			TutorialUI::UIType::kRStickDown,
+			TutorialUI::UIType::kRButton,
+		}
+		);
+
+
 
 	/// === オーディオの設定 === ///
 
@@ -351,6 +384,27 @@ void TutorialScene::Debug() {
 
 	//ライトのImGui
 	LightGroup::GetInstance()->imgui();
+
+	if (ImGui::BeginTabBar("TutotialUI")) {
+		if (ImGui::BeginTabItem("TutorialUI")) {
+
+			if (ImGui::Button("右薙ぎ払い")) {
+				tutorialUI_[0]->SetIsSuccess(true);
+			}
+			if (ImGui::Button("左薙ぎ払い")) {
+				tutorialUI_[1]->SetIsSuccess(true);
+			}
+			if (ImGui::Button("振り下ろし")) {
+				tutorialUI_[2]->SetIsSuccess(true);
+			}
+			if (ImGui::Button("突き")) {
+				tutorialUI_[3]->SetIsSuccess(true);
+			}
+
+			ImGui::EndTabItem();
+		}
+		ImGui::EndTabBar();
+	}
 
 	//プレイヤーのImGui
 	player_->ImGui();

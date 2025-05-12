@@ -13,7 +13,10 @@ class TutorialUI {
 public:
 
 	enum class UIType {
-		kRightStick,
+		kRStickUp,
+		kRStickDown,
+		kRStickLeft,
+		kRStickRight,
 		kLeftStick,
 		kAButton,
 		kButton,
@@ -32,6 +35,8 @@ public:
 	void Update();
 
 	void Draw();
+
+	void SetIsSuccess(bool flag) { isSuccess = flag; }
 
 private:
 

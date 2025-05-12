@@ -4,29 +4,53 @@
 
 void TutorialUI::Initialize(Player* player, Vector2 pos, std::string textSpriteFileName, std::initializer_list<UIType> uiTypes) {
 
+	//プレイヤーのポインタを取得
 	player_ = player;
 
+	/// === バッググラウンドスプライトの生成 === ///
+
+	//生成
 	textBackGround_ = std::make_unique<Sprite>();
 
+	//初期化
 	textBackGround_->Initialize("white1x1.png", pos);
 
+	//アンカーポイントを設定
+	textBackGround_->SetAnchorPoint({ 0.5f, 0.5f });
+
+	//サイズを設定
 	textBackGround_->SetSize(Vector2(160.0f, 120.0f));
 
+	//色を設定
 	textBackGround_->SetColor(Vector3(0.0f, 0.0f, 0.0f));
 
-	textBackGround_->SetAlpha(0.2f);
-
-	textSprite_ = std::make_unique<Sprite>();
-
-	textSprite_->Initialize(textSpriteFileName, pos);
-
-	int uiCount = static_cast<int>(uiTypes.size());
-
-	int layoutNumber = -uiCount + 1;
+	//アルファ値を設定
+	textBackGround_->SetAlpha(0.5f);
 
 	float bgWidth = textBackGround_->GetSize().x / 2.0f;
 
 	float bgHeight = textBackGround_->GetSize().y / 2.0f;
+
+	Vector2 bgPos = textBackGround_->GetPosition();
+
+	/// === テキストスプライトの生成 === ///
+
+	//生成
+	textSprite_ = std::make_unique<Sprite>();
+
+	//初期化
+	textSprite_->Initialize(textSpriteFileName, Vector2(bgPos.x,bgPos.y - 25.0f));
+
+	//アンカーポイントを設定
+	textSprite_->SetAnchorPoint({ 0.5f, 0.5f });
+
+	/// === アイコンスプライトの生成 === ///
+
+	//アイコンの数
+	int uiCount = static_cast<int>(uiTypes.size());
+
+	//アイコンの配置番号
+	int layoutNumber = -uiCount + 1;
 
 	for (UIType uiType : uiTypes) {
 
@@ -35,10 +59,21 @@ void TutorialUI::Initialize(Player* player, Vector2 pos, std::string textSpriteF
 		newUISprite = std::make_unique<Sprite>();
 
 		switch (uiType) {
-		case TutorialUI::UIType::kRightStick:
+		case TutorialUI::UIType::kRStickUp:
 
-			newUISprite->Initialize("xbox_stick_r.png", pos);
+			newUISprite->Initialize("xbox_stick_r_up.png", pos);
+			break;
+		case TutorialUI::UIType::kRStickDown:
 
+			newUISprite->Initialize("xbox_stick_r_down.png", pos);
+			break;
+		case TutorialUI::UIType::kRStickLeft:
+
+			newUISprite->Initialize("xbox_stick_r_left.png", pos);
+			break;
+		case TutorialUI::UIType::kRStickRight:
+
+			newUISprite->Initialize("xbox_stick_r_right.png", pos);
 			break;
 		case TutorialUI::UIType::kLeftStick:
 
@@ -56,7 +91,6 @@ void TutorialUI::Initialize(Player* player, Vector2 pos, std::string textSpriteF
 		case TutorialUI::UIType::kRButton:
 
 			newUISprite->Initialize("xbox_rb.png", pos);
-
 			break;
 		case TutorialUI::UIType::kLButton:
 			break;
@@ -65,6 +99,8 @@ void TutorialUI::Initialize(Player* player, Vector2 pos, std::string textSpriteF
 		case TutorialUI::UIType::kLTrigger:
 			break;
 		default:
+
+			newUISprite->Initialize("xbox_guide.png", pos);
 			break;
 		}
 
@@ -76,8 +112,8 @@ void TutorialUI::Initialize(Player* player, Vector2 pos, std::string textSpriteF
 
 		newUISprite->SetPosition(
 			Vector2(
-				pos.x + bgWidth + static_cast<float>(layoutNumber) * uiWidth,
-				pos.y + bgHeight + uiHeight
+				bgPos.x + static_cast<float>(layoutNumber) * uiWidth,
+				bgPos.y + uiHeight
 			)
 		);
 
@@ -88,11 +124,6 @@ void TutorialUI::Initialize(Player* player, Vector2 pos, std::string textSpriteF
 }
 
 void TutorialUI::Update() {
-
-	if (player_->GetAttackType() == Player::AttackType::kRightSlash) {
-
-		isSuccess = true;
-	}
 
 	if (isSuccess) {
 
