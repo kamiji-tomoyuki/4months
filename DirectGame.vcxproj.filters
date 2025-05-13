@@ -110,6 +110,9 @@
     <ClCompile Include="TimeManager.cpp" />
     <ClCompile Include="application\TitleEvent.cpp" />
     <ClCompile Include="scene\TutorialScene.cpp" />
+    <ClCompile Include="application\Enemy\Boss\BossStateAttack.cpp" />
+    <ClCompile Include="application\Enemy\Boss\BossSword.cpp" />
+    <ClCompile Include="BaseEnemySword.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application\CollisionTypeIdDef.h" />
@@ -210,6 +213,9 @@
     <ClInclude Include="TimeManager.h" />
     <ClInclude Include="application\TitleEvent.h" />
     <ClInclude Include="scene\TutorialScene.h" />
+    <ClInclude Include="application\Enemy\Boss\BossStateAttack.h" />
+    <ClInclude Include="application\Enemy\Boss\BossSword.h" />
+    <ClInclude Include="BaseEnemySword.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="myEngine.rc" />
