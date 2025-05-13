@@ -117,7 +117,7 @@ public:
 	/// <returns>接続されているジョイスティック数</returns>
 	size_t GetNumberOfJoysticks()const;
 
-	JoyStickDirection GetJoyStickDirection(int32_t stickNo);
+	JoyStickDirection GetJoyStickDirection(int32_t stickNo, bool isRightStick);
 
 	///// <summary>
 	///// 全マウス情報取得

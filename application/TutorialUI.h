@@ -15,7 +15,8 @@ public:
 		kRStickDown,
 		kRStickLeft,
 		kRStickRight,
-		kLeftStick,
+		kRStick,
+		kLStick,
 		kAButton,
 		kButton,
 		kXButton,
@@ -36,6 +37,12 @@ public:
 
 	void SetIsSuccess(bool flag) { isSuccess = flag; }
 
+	bool GetIsSuccess() { return isSuccess; }
+
+	void SetIsActive(bool flag) { isActive = flag; }
+
+	bool GetIsActive() { return isActive; }
+
 private:
 
 	std::unique_ptr<Sprite> textBackGround_;
@@ -46,5 +53,11 @@ private:
 
 	std::vector<std::unique_ptr<Sprite>> controllerUI_;
 
+	float alphaTime_ = 0.0f;
+
+	float alphaTimeMax_ = 1.0f;
+
 	bool isSuccess = false;
+
+	bool isActive = false;
 };

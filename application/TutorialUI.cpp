@@ -1,6 +1,7 @@
 #include "TutorialUI.h"
 
 #include "Input.h"
+#include "Easing.h"
 
 void TutorialUI::Initialize(Vector2 pos, std::string textSpriteFileName, std::initializer_list<UIType> uiTypes) {
 
@@ -12,19 +13,14 @@ void TutorialUI::Initialize(Vector2 pos, std::string textSpriteFileName, std::in
 	textBackGround_ = std::make_unique<Sprite>();
 
 	//初期化
-	textBackGround_->Initialize("white1x1.png", pos);
+	textBackGround_->Initialize("TextBackGround.png", pos);
+
+	textBackGround_->SetColor(Vector3(0.0f, 0.0f, 0.0f));
+
+	textBackGround_->SetAlpha(0.0f);
 
 	//アンカーポイントを設定
 	textBackGround_->SetAnchorPoint({ 0.5f, 0.5f });
-
-	//サイズを設定
-	textBackGround_->SetSize(Vector2(160.0f, 120.0f));
-
-	//色を設定
-	textBackGround_->SetColor(Vector3(0.0f, 0.0f, 0.0f));
-
-	//アルファ値を設定
-	textBackGround_->SetAlpha(0.5f);
 
 	float bgWidth = textBackGround_->GetSize().x / 2.0f;
 
@@ -39,6 +35,8 @@ void TutorialUI::Initialize(Vector2 pos, std::string textSpriteFileName, std::in
 
 	//初期化
 	textSprite_->Initialize(textSpriteFileName, Vector2(bgPos.x, bgPos.y - 25.0f));
+
+	textSprite_->SetAlpha(0.0f);
 
 	//アンカーポイントを設定
 	textSprite_->SetAnchorPoint({ 0.5f, 0.5f });
@@ -74,10 +72,13 @@ void TutorialUI::Initialize(Vector2 pos, std::string textSpriteFileName, std::in
 
 			newUISprite->Initialize("xbox_stick_r_right.png", pos);
 			break;
-		case TutorialUI::UIType::kLeftStick:
+		case TutorialUI::UIType::kRStick:
+
+			newUISprite->Initialize("xbox_stick_r.png", pos);
+			break;
+		case TutorialUI::UIType::kLStick:
 
 			newUISprite->Initialize("xbox_stick_l.png", pos);
-
 			break;
 		case TutorialUI::UIType::kAButton:
 			break;
@@ -92,6 +93,8 @@ void TutorialUI::Initialize(Vector2 pos, std::string textSpriteFileName, std::in
 			newUISprite->Initialize("xbox_rb.png", pos);
 			break;
 		case TutorialUI::UIType::kLButton:
+
+			newUISprite->Initialize("xbox_lb.png", pos);
 			break;
 		case TutorialUI::UIType::kRTrigger:
 			break;
@@ -118,10 +121,20 @@ void TutorialUI::Initialize(Vector2 pos, std::string textSpriteFileName, std::in
 
 		newUISprite->SetColor(Vector3(0.2f, 0.2f, 0.2f));
 
+		newUISprite->SetAlpha(0.0f);
+
 		controllerUI_.push_back(std::move(newUISprite));
 
 		layoutNumber += 2;
 	}
+
+	alphaTime_ = 0.0f;
+
+	alphaTimeMax_ = 0.5f;
+
+	isSuccess = false;
+
+	isActive = false;
 }
 
 void TutorialUI::Update() {
@@ -135,7 +148,7 @@ void TutorialUI::Update() {
 			switch (uiTypes_[i]) {
 			case TutorialUI::UIType::kRStickUp:
 
-				if (Input::GetInstance()->GetJoyStickDirection(0) == Input::JoyStickDirection::Up) {
+				if (Input::GetInstance()->GetJoyStickDirection(0, true) == Input::JoyStickDirection::Up) {
 
 					controllerUI_[i]->SetColor(Vector3(1.0f, 1.0f, 1.0f));
 				} else {
@@ -146,7 +159,7 @@ void TutorialUI::Update() {
 				break;
 			case TutorialUI::UIType::kRStickDown:
 
-				if (Input::GetInstance()->GetJoyStickDirection(0) == Input::JoyStickDirection::Down) {
+				if (Input::GetInstance()->GetJoyStickDirection(0, true) == Input::JoyStickDirection::Down) {
 
 					controllerUI_[i]->SetColor(Vector3(1.0f, 1.0f, 1.0f));
 				} else {
@@ -156,7 +169,7 @@ void TutorialUI::Update() {
 				break;
 			case TutorialUI::UIType::kRStickLeft:
 
-				if (Input::GetInstance()->GetJoyStickDirection(0) == Input::JoyStickDirection::Left) {
+				if (Input::GetInstance()->GetJoyStickDirection(0, true) == Input::JoyStickDirection::Left) {
 
 					controllerUI_[i]->SetColor(Vector3(1.0f, 1.0f, 1.0f));
 				} else {
@@ -167,7 +180,7 @@ void TutorialUI::Update() {
 				break;
 			case TutorialUI::UIType::kRStickRight:
 
-				if (Input::GetInstance()->GetJoyStickDirection(0) == Input::JoyStickDirection::Right) {
+				if (Input::GetInstance()->GetJoyStickDirection(0, true) == Input::JoyStickDirection::Right) {
 
 					controllerUI_[i]->SetColor(Vector3(1.0f, 1.0f, 1.0f));
 				} else {
@@ -176,7 +189,21 @@ void TutorialUI::Update() {
 				}
 
 				break;
-			case TutorialUI::UIType::kLeftStick:
+			case TutorialUI::UIType::kRStick:
+
+				if (Input::GetInstance()->GetJoyStickDirection(0, true) != Input::JoyStickDirection::None) {
+					controllerUI_[i]->SetColor(Vector3(1.0f, 1.0f, 1.0f));
+				} else {
+					controllerUI_[i]->SetColor(Vector3(0.2f, 0.2f, 0.2f));
+				}
+				break;
+			case TutorialUI::UIType::kLStick:
+
+				if (Input::GetInstance()->GetJoyStickDirection(0, false) != Input::JoyStickDirection::None) {
+					controllerUI_[i]->SetColor(Vector3(1.0f, 1.0f, 1.0f));
+				} else {
+					controllerUI_[i]->SetColor(Vector3(0.2f, 0.2f, 0.2f));
+				}
 				break;
 			case TutorialUI::UIType::kAButton:
 				break;
@@ -209,10 +236,40 @@ void TutorialUI::Update() {
 		}
 	}
 
+	if (isActive) {
+
+		alphaTime_ += 1.0f / 60.0f;
+	} else {
+
+		alphaTime_ -= 1.0f / 60.0f;
+	}
+
+	if (alphaTime_ >= alphaTimeMax_) {
+
+		alphaTime_ = alphaTimeMax_;
+	} else if (alphaTime_ <= 0.0f) {
+
+		alphaTime_ = 0.0f;
+	} else {
+
+		if (isSuccess) {
+			isSuccess = false;
+		}
+	}
+
+	float t = alphaTime_ / alphaTimeMax_;
+
+	textBackGround_->SetAlpha(Lerp(0.0f, 1.0f, t));
+
+	textSprite_->SetAlpha(Lerp(0.0f, 1.0f, t));
+
 	if (isSuccess) {
 
 		textBackGround_->SetColor(Vector3(0.0f, 1.0f, 0.0f));
+	}
 
+	for (auto& ui : controllerUI_) {
+		ui->SetAlpha(Lerp(0.0f, 1.0f, t));
 	}
 }
 

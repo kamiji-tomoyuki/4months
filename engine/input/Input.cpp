@@ -195,7 +195,7 @@ size_t Input::GetNumberOfJoysticks()const {
 	return joysticks_.size();
 }
 
-Input::JoyStickDirection Input::GetJoyStickDirection(int32_t stickNo) {
+Input::JoyStickDirection Input::GetJoyStickDirection(int32_t stickNo, bool isRightStick) {
 
 	if (stickNo < 0 || stickNo >= static_cast<int32_t>(joysticks_.size())) {
 		return JoyStickDirection::None;
@@ -207,11 +207,23 @@ Input::JoyStickDirection Input::GetJoyStickDirection(int32_t stickNo) {
 
 		const auto& state = std::get<XINPUT_STATE>(joystick.state_);
 
-		Vector3 joyStickDirection = {
-			static_cast<float>(state.Gamepad.sThumbRX) / SHRT_MAX,
-			static_cast<float>(state.Gamepad.sThumbRY) / SHRT_MAX,
-			0.0f
-		};
+		Vector3 joyStickDirection;
+
+		if (isRightStick) {
+
+			joyStickDirection = {
+				static_cast<float>(state.Gamepad.sThumbRX) / SHRT_MAX,
+				static_cast<float>(state.Gamepad.sThumbRY) / SHRT_MAX,
+				0.0f
+			};
+		} else {
+
+			joyStickDirection = {
+				static_cast<float>(state.Gamepad.sThumbLX) / SHRT_MAX,
+				static_cast<float>(state.Gamepad.sThumbLY) / SHRT_MAX,
+				0.0f
+			};
+		}
 
 		joyStickDirection = joyStickDirection.Normalize();
 
