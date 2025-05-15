@@ -101,6 +101,20 @@ void TutorialEvent::Initialize(Player* player) {
 		}
 		);
 
+	nextUI_ = std::make_unique<Sprite>();
+	nextUI_->Initialize("Next.png", { 640.0f,600.0f }, { 0.2f,0.2f,0.2f,1 }, { 0.5f,0.5f });
+
+	successUI_ = std::make_unique<Sprite>();
+	successUI_->Initialize("Success.png", { 640.0f,100.0f }, { 1,1,1,1 }, { 0.5f,0.5f });
+	successUI_->SetRotation(-0.1f);
+
+	eventCount_ = 1;
+
+	canNext_ = false;
+
+	alphaTimer_ = 0.0f;
+
+	alphaSpeed_ = 0.02f;
 }
 
 void TutorialEvent::Update() {
@@ -111,102 +125,64 @@ void TutorialEvent::Update() {
 		ui->SetIsActive(false);
 	}
 
+	eventList_.clear();
+
+	if (canNext_) {
+
+		// UI点滅
+		alphaTimer_ += alphaSpeed_;
+
+		if (alphaTimer_ >= 1.0f || alphaTimer_ < 0.0f) {
+			alphaSpeed_ *= -1.0f;
+		}
+
+		nextUI_->SetAlpha(alphaTimer_);
+	} else {
+
+		nextUI_->SetAlpha(0.0f);
+
+		successUI_->SetAlpha(0.0f);
+	}
+
 	switch (eventCount_) {
 
 	case 1:
 
-		tutorialUI_[EventType::MOVE]->SetIsActive(true);
-
-		tutorialUI_[EventType::ATTACKDIRECTION]->SetIsActive(true);
-
-		if (tutorialUI_[EventType::MOVE]->GetIsSuccess() &&
-			tutorialUI_[EventType::ATTACKDIRECTION]->GetIsSuccess()) {
-
-			eventCount_++;
-		}
-
-		if (Input::GetInstance()->GetJoyStickDirection(0, false) != Input::JoyStickDirection::None) {
-			tutorialUI_[EventType::MOVE]->SetIsSuccess(true);
-		}
-
-		if (Input::GetInstance()->GetJoyStickDirection(0, true) != Input::JoyStickDirection::None) {
-			tutorialUI_[EventType::ATTACKDIRECTION]->SetIsSuccess(true);
-		}
+		AddEvent(EventType::MOVE);
+		AddEvent(EventType::ATTACKDIRECTION);
 
 		break;
 
 	case 2:
 
-		tutorialUI_[EventType::TOPDEFENSE]->SetIsActive(true);
-
-		tutorialUI_[EventType::BOTTOMDEFENSE]->SetIsActive(true);
-
-		tutorialUI_[EventType::LEFTDEFENSE]->SetIsActive(true);
-
-		tutorialUI_[EventType::RIGHTDEFENSE]->SetIsActive(true);
-
-		tutorialUI_[EventType::DOWNSWING]->SetIsActive(true);
-
-		tutorialUI_[EventType::THRUST]->SetIsActive(true);
-
-		tutorialUI_[EventType::LEFTSLASH]->SetIsActive(true);
-
-		tutorialUI_[EventType::RIGHTSLASH]->SetIsActive(true);
-
-		if (tutorialUI_[EventType::TOPDEFENSE]->GetIsSuccess() &&
-			tutorialUI_[EventType::BOTTOMDEFENSE]->GetIsSuccess() &&
-			tutorialUI_[EventType::LEFTDEFENSE]->GetIsSuccess() &&
-			tutorialUI_[EventType::RIGHTDEFENSE]->GetIsSuccess() &&
-			tutorialUI_[EventType::DOWNSWING]->GetIsSuccess() &&
-			tutorialUI_[EventType::THRUST]->GetIsSuccess() &&
-			tutorialUI_[EventType::LEFTSLASH]->GetIsSuccess() &&
-			tutorialUI_[EventType::RIGHTSLASH]->GetIsSuccess()) {
-
-			eventCount_++;
-		}
-
-		if (Input::GetInstance()->GetJoystickState(0, joyState)) {
-
-			if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) {
-
-				if (Input::GetInstance()->GetJoyStickDirection(0, true) == Input::JoyStickDirection::Up) {
-					tutorialUI_[EventType::TOPDEFENSE]->SetIsSuccess(true);
-				}
-
-				if (Input::GetInstance()->GetJoyStickDirection(0, true) == Input::JoyStickDirection::Down) {
-					tutorialUI_[EventType::BOTTOMDEFENSE]->SetIsSuccess(true);
-				}
-
-				if (Input::GetInstance()->GetJoyStickDirection(0, true) == Input::JoyStickDirection::Left) {
-					tutorialUI_[EventType::LEFTDEFENSE]->SetIsSuccess(true);
-				}
-
-				if (Input::GetInstance()->GetJoyStickDirection(0, true) == Input::JoyStickDirection::Right) {
-					tutorialUI_[EventType::RIGHTDEFENSE]->SetIsSuccess(true);
-				}
-			}
-		}
-
-		if (player_->GetAttackType() == Player::AttackType::kDownSwing) {
-			tutorialUI_[EventType::DOWNSWING]->SetIsSuccess(true);
-		}
-
-		if (player_->GetAttackType() == Player::AttackType::kThrust) {
-			tutorialUI_[EventType::THRUST]->SetIsSuccess(true);
-		}
-
-		if (player_->GetAttackType() == Player::AttackType::kRightSlash) {
-			tutorialUI_[EventType::RIGHTSLASH]->SetIsSuccess(true);
-		}
-
-		if (player_->GetAttackType() == Player::AttackType::kLeftSlash) {
-			tutorialUI_[EventType::LEFTSLASH]->SetIsSuccess(true);
-		}
+		AddEvent(EventType::TOPDEFENSE);
+		AddEvent(EventType::BOTTOMDEFENSE);
+		AddEvent(EventType::LEFTDEFENSE);
+		AddEvent(EventType::RIGHTDEFENSE);
+		AddEvent(EventType::DOWNSWING);
+		AddEvent(EventType::THRUST);
+		AddEvent(EventType::LEFTSLASH);
+		AddEvent(EventType::RIGHTSLASH);
 
 		break;
 
 	default:
 		break;
+	}
+
+	UpdateEvent();
+
+	if (canNext_) {
+
+		if (Input::GetInstance()->GetJoystickState(0, joyState)) {
+
+			if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_A) {
+
+				eventCount_++;
+
+				canNext_ = false;
+			}
+		}
 	}
 
 	for (auto& ui : tutorialUI_) {
@@ -219,4 +195,122 @@ void TutorialEvent::Draw() {
 	for (auto& ui : tutorialUI_) {
 		ui->Draw();
 	}
+
+	if (canNext_) {
+
+		nextUI_->Draw();
+
+		successUI_->Draw();
+	}
+
+}
+
+void TutorialEvent::AddEvent(EventType event) {
+
+	eventList_.push_back(event);
+}
+
+void TutorialEvent::UpdateEvent() {
+
+	for (auto event : eventList_) {
+
+		XINPUT_STATE joyState;
+
+		tutorialUI_[event]->SetIsActive(true);
+
+		if (Input::GetInstance()->GetJoystickState(0, joyState)) {
+
+			switch (event) {
+			case TutorialEvent::MOVE:
+
+				if (Input::GetInstance()->GetJoyStickDirection(0, false) != Input::JoyStickDirection::None) {
+					tutorialUI_[EventType::MOVE]->SetIsSuccess(true);
+				}
+				break;
+			case TutorialEvent::ATTACKDIRECTION:
+
+				if (Input::GetInstance()->GetJoyStickDirection(0, true) != Input::JoyStickDirection::None) {
+					tutorialUI_[EventType::ATTACKDIRECTION]->SetIsSuccess(true);
+				}
+				break;
+			case TutorialEvent::TOPDEFENSE:
+
+				if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) {
+
+					if (Input::GetInstance()->GetJoyStickDirection(0, true) == Input::JoyStickDirection::Up) {
+						tutorialUI_[EventType::TOPDEFENSE]->SetIsSuccess(true);
+					}
+				}
+				break;
+			case TutorialEvent::BOTTOMDEFENSE:
+
+				if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) {
+
+					if (Input::GetInstance()->GetJoyStickDirection(0, true) == Input::JoyStickDirection::Down) {
+						tutorialUI_[EventType::BOTTOMDEFENSE]->SetIsSuccess(true);
+					}
+				}
+				break;
+			case TutorialEvent::LEFTDEFENSE:
+
+				if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) {
+
+					if (Input::GetInstance()->GetJoyStickDirection(0, true) == Input::JoyStickDirection::Left) {
+						tutorialUI_[EventType::LEFTDEFENSE]->SetIsSuccess(true);
+					}
+				}
+				break;
+			case TutorialEvent::RIGHTDEFENSE:
+
+				if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) {
+
+					if (Input::GetInstance()->GetJoyStickDirection(0, true) == Input::JoyStickDirection::Right) {
+						tutorialUI_[EventType::RIGHTDEFENSE]->SetIsSuccess(true);
+					}
+				}
+				break;
+			case TutorialEvent::DOWNSWING:
+
+				if (player_->GetAttackType() == Player::AttackType::kDownSwing) {
+					tutorialUI_[EventType::DOWNSWING]->SetIsSuccess(true);
+				}
+				break;
+			case TutorialEvent::THRUST:
+
+				if (player_->GetAttackType() == Player::AttackType::kThrust) {
+					tutorialUI_[EventType::THRUST]->SetIsSuccess(true);
+				}
+				break;
+			case TutorialEvent::LEFTSLASH:
+
+				if (player_->GetAttackType() == Player::AttackType::kRightSlash) {
+					tutorialUI_[EventType::LEFTSLASH]->SetIsSuccess(true);
+				}
+				break;
+			case TutorialEvent::RIGHTSLASH:
+
+				if (player_->GetAttackType() == Player::AttackType::kLeftSlash) {
+					tutorialUI_[EventType::RIGHTSLASH]->SetIsSuccess(true);
+				}
+				break;
+			}
+		}
+	}
+
+	canNext_ = true;
+
+	for (auto event : eventList_) {
+
+		if (!tutorialUI_[event]->GetIsSuccess()) {
+
+			canNext_ = false;
+
+			alphaTimer_ = 0.0f;
+
+			alphaSpeed_ = 0.02f;
+
+			return;
+		}
+	}
+
 }

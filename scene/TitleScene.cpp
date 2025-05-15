@@ -47,13 +47,6 @@ void TitleScene::Initialize() {
 	stage1Ground_->Init();
 	stage1Ground_->SetScale({ 5.0f,5.0f,5.0f });
 
-	UI_ = std::make_unique<Sprite>();
-	UI_->Initialize("UiA.png", { 0,0 }, { 1,1,1,1 }, { 0.5f,0.5f });
-
-	UIPad_ = std::make_unique<Sprite>();
-	UIPad_->Initialize("TitlePad.png", { 880,30 }, { 1,1,1,1 }, { 1.0f,0.0f });
-	UIPad_->SetSize(UIPad_->GetSize() * 0.5f);
-
 	// BGM
 	audio_->StopWave(0);
 	audio_->StopWave(1);
@@ -115,11 +108,15 @@ void TitleScene::Update() {
 			ChangeScene();
 		}
 	}
+	timer_ += speed_;
+	if (timer_ >= 1.0f || timer_ < 0.0f) {
+		speed_ *= -1.0f;
+	}
 
 	wtTitle_.scale_ = { 1.3f,1.3f,1.3f };
 	// 3.0fを中心に上下に揺らす
-	wtTitle_.translation_.y = EaseInOutQuint(4.0f +2.5f, 4.0f+3.5f, timer_, 1.0f);
-	 
+	wtTitle_.translation_.y = EaseInOutQuint(4.0f + 2.5f, 4.0f + 3.5f, timer_, 1.0f);
+
 	wtTitle_.UpdateMatrix();
 
 	titleEvent_->Update();
@@ -127,14 +124,8 @@ void TitleScene::Update() {
 	skydome_->Update();
 
 	tutorialGround_->Update();
-	stage1Ground_->Update();
 
-	//// UI点滅
-	timer_ += speed_;
-	if (timer_ >= 1.0f || timer_ < 0.0f) {
-		speed_ *= -1.0f;
-	}
-	UI_->SetAlpha(timer_);
+	stage1Ground_->Update();
 
 	starEmitter_->Update();
 
@@ -183,8 +174,9 @@ void TitleScene::Draw() {
 	/// Spriteの描画準備
 	spCommon_->DrawCommonSetting();
 	//-----Spriteの描画開始-----
-	UI_->Draw();
-	UIPad_->Draw();
+
+	titleEvent_->Draw();
+
 	//------------------------
 
 	//-----線描画-----
@@ -258,7 +250,7 @@ void TitleScene::CameraUpdate() {
 void TitleScene::ChangeScene() {
 
 	if (titleEvent_->GetStageSelect() == TitleEvent::StageSelect::TUTORIAL) {
-		sceneManager_->NextSceneReservation("GAME");
+		sceneManager_->NextSceneReservation("TUTORIAL");
 	} else if (titleEvent_->GetStageSelect() == TitleEvent::StageSelect::STAGE1) {
 		sceneManager_->NextSceneReservation("GAME");
 	}

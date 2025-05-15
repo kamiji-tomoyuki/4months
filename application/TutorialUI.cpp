@@ -224,6 +224,14 @@ void TutorialUI::Update() {
 				}
 				break;
 			case TutorialUI::UIType::kLButton:
+
+				if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) {
+
+					controllerUI_[i]->SetColor(Vector3(1.0f, 1.0f, 1.0f));
+				} else {
+
+					controllerUI_[i]->SetColor(Vector3(0.2f, 0.2f, 0.2f));
+				}
 				break;
 			case TutorialUI::UIType::kRTrigger:
 				break;

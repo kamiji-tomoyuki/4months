@@ -64,11 +64,8 @@ private:
 
 	WorldTransform wtTitle_;
 	std::unique_ptr<Object3d> title_;
-	std::unique_ptr<Sprite> UI_;
 	float timer_ = 0.0f;
 	float speed_ = 0.02f;
-
-	std::unique_ptr<Sprite> UIPad_;
 
 	std::unique_ptr<Skydome> skydome_ = nullptr;// 天球
 
