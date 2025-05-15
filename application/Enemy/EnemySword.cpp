@@ -113,6 +113,9 @@ Vector3 EnemySword::GetCenterPosition() const {
 
 Vector3 EnemySword::GetCenterRotation() const {
 	//OBBのローカルローテーション
-	Vector3 rotate = transform_.rotation_ + enemy_->GetCenterRotation();
-	return  rotate;
+	//Vector3 rotate = transform_.rotation_ + enemy_->GetCenterRotation();
+	Quaternion enemyQuaternion = Quaternion::FromEulerAngles(enemy_->GetCenterRotation());
+	Quaternion swordQuaternion = Quaternion::FromEulerAngles(transform_.rotation_);
+	swordQuaternion = enemyQuaternion * swordQuaternion;
+	return  swordQuaternion.ToEulerAngles();
 }

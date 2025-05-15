@@ -12,7 +12,8 @@ void BossSword::Initialize(std::string filePath){
 void BossSword::Update(){
 	SetRadius(0);
 	SetAABBScale({ 0.0f, 0.0f, 0.0f });
-	SetOBBScale({ 0.4f,8.0f,1.0f });
+	Vector3 obbScale = { 0.4f,8.0f,1.0f };
+	SetOBBScale(obbScale * 3.0f);
 
 	BaseEnemySword::Update();
 }
@@ -47,6 +48,8 @@ Vector3 BossSword::GetCenterPosition() const {
 
 Vector3 BossSword::GetCenterRotation() const {
 	//OBBのローカルローテーション
-	Vector3 rotate = transform_.rotation_ + enemy_->GetCenterRotation();
-	return  rotate;
+	Quaternion enemyQuaternion = Quaternion::FromEulerAngles(enemy_->GetCenterRotation());
+	Quaternion swordQuaternion = Quaternion::FromEulerAngles(transform_.rotation_);
+	swordQuaternion = enemyQuaternion * swordQuaternion;
+	return  swordQuaternion.ToEulerAngles();
 }

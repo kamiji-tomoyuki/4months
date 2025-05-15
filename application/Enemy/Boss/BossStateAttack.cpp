@@ -30,10 +30,10 @@ void BossStateAttack::Update(){
 	Vector3 newRotate = boss_->GetSword()->GetRotate();
 	quaternion_ = Quaternion::MakeRotateAxisAngleQuaternion(Vector3(0.0f, 1.0f, 0.0f), theta) * quaternion_;
 	newRotate = quaternion_.ToEulerAngles();
-	boss_->GetSword()->SetRotation(newRotate);
+	//boss_->GetSword()->SetRotation(newRotate);
 	// 回転
 	newPos = Transformation(newPos, MakeRotateYMatrix(theta));
-	boss_->GetSword()->SetTranslation(newPos);
+	//boss_->GetSword()->SetTranslation(newPos);
 
 	////プレイヤーの位置によって行動を変える
 	//if (Vector3(player_->GetCenterPosition() - enemy_->GetCenterPosition()).Length() < enemy_->GetShortDistance()) {
