@@ -91,36 +91,8 @@ void Enemy::OnCollisionEnter(Collider* other){
 		return;
 	}
 	// 衝突相手の種別IDを取得
-	uint32_t typeID = other->GetTypeID();
+	//uint32_t typeID = other->GetTypeID();
 	//衝突相手
-	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kEnemy) ||
-		typeID == static_cast<uint32_t>(CollisionTypeIdDef::kBoss)) {
-		Enemy* enemy = static_cast<Enemy*>(other);
-		if (enemy->GetSerialNumber() == enemy->GetNextSerialNumber() - 1) {
-			return;
-		}
-		if (timeManager_->GetTimer("start").isStart || timeManager_->GetTimer("collision").isStart) {
-			return;
-		}
-		// 衝突後の新しい速度を計算
-		auto [newVelocity1, newVelocity2] = ComputeCollisionVelocities(
-			1.0f, GetVelocity(), 1.0f, enemy->GetVelocity(), 1.0f, Vector3(GetCenterPosition() - enemy->GetCenterPosition()).Normalize()
-		);
-
-		// 計算した速度でボールの速度を更新
-		SetVelocity(newVelocity1);
-		enemy->SetVelocity(newVelocity2);
-
-		float distance = Vector3(GetCenterPosition() - enemy->GetCenterPosition()).Length();
-
-		Vector3 correction = Vector3(GetCenterPosition() - enemy->GetCenterPosition()).Normalize() * (GetRadius() + enemy->GetRadius() - distance) * 0.55f;
-		transform_.translation_ += correction;
-		enemy->SetTranslation(enemy->GetTransform().translation_ - correction);
-
-		//timeManager_->SetTimer("collision", timeManager_->deltaTime_ * 3.0f);
-	}
-
-	transform_.UpdateMatrix();
 }
 
 void Enemy::OnCollisionOut(Collider* other){
