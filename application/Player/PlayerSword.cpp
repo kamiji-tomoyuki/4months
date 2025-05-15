@@ -192,7 +192,7 @@ Vector3 PlayerSword::GetCenterPosition() const
 	return worldPos;
 }
 
-// 中心座標を取得
+// 回転を取得
 Vector3 PlayerSword::GetCenterRotation() const{
 	//OBBのローカルローテーション
 	/*Vector3 worldRotate = Transformation(Vector3{ 0.0f, 0.0f, 0.0f }, Inverse(player_->GetWorldTransform().matWorld_));
@@ -202,16 +202,30 @@ Vector3 PlayerSword::GetCenterRotation() const{
 	Quaternion playerQuaternion = Quaternion::MakeRotateAxisAngleQuaternion(Vector3{ 0.0f, 1.0f, 0.0f }, player_->GetRotation().y);
 	Quaternion swordQuaternion = Quaternion::MakeRotateAxisAngleQuaternion(Vector3{ 1.0f, 0.0f, 0.0f }, transform_.rotation_.x);
 	swordQuaternion = swordQuaternion * Quaternion::MakeRotateAxisAngleQuaternion(Vector3{ 0.0f, 1.0f, 0.0f }, transform_.rotation_.y);
-	swordQuaternion = swordQuaternion * playerQuaternion;
+	swordQuaternion = playerQuaternion * swordQuaternion;
 	swordQuaternion = swordQuaternion * Quaternion::MakeRotateAxisAngleQuaternion(Vector3{ 0.0f, 0.0f, 1.0f }, transform_.rotation_.z);
-
+	
 	return  swordQuaternion.ToEulerAngles();
 }
 
 
 void PlayerSword::ImGui()
 {
-	
+	if (ImGui::Begin("PlayerSword Coordinates")) {
+		ImGui::PushID(id_);
+		// 座標情報を表示し、DragFloat3で編集可能にする
+		ImGui::Text("Position:");
+		ImGui::DragFloat3("Translation", &transform_.translation_.x, 0.1f);
+
+		ImGui::Text("Rotation:");
+		ImGui::DragFloat3("Rotation", &transform_.rotation_.x, 0.1f);
+
+		ImGui::Text("Scale:");
+		ImGui::DragFloat3("Scale", &transform_.scale_.x, 0.1f);
+		
+		ImGui::PopID();
+		ImGui::End();
+	}
 }
 
 void PlayerSword::ContactRecordClear(){

@@ -47,6 +47,7 @@ public:
 
 	// 中心座標を取得
 	Vector3 GetCenterPosition() const override;
+	// 回転を取得
 	Vector3 GetCenterRotation() const override;
 
 	void ImGui();

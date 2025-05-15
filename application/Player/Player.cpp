@@ -38,7 +38,6 @@ void Player::Init() {
 	sword_->SetTranslation(Vector3(1.5f, 0.0f, 0.0f));
 	sword_->SetScale(Vector3(0.8f, 0.8f, 0.8f));
 	
-
 	attackDirection_ = { 0.0f, 0.0f, 0.0f };
 
 	//imgui
@@ -54,7 +53,6 @@ void Player::Init() {
 	}
 	emitters_[0]->Initialize("Dust.json");
 	emitters_[0]->Start();
-
 
 	// グループを追加
 	GlobalVariables::GetInstance()->CreateGroup(groupName);
@@ -81,7 +79,7 @@ void Player::Update() {
 		//振るまいを変更する
 		behavior_ = behaviorRequest_.value();
 
-	(this->*BehaviorInitFuncTable[static_cast<size_t>(behavior_)])();
+		(this->*BehaviorInitFuncTable[static_cast<size_t>(behavior_)])();
 
 		behaviorRequest_ = std::nullopt;
 	}
@@ -709,10 +707,14 @@ void Player::AttackTypeLeftSwingUpdate()
 
 	// 角度の計算
 	Quaternion q1 = Quaternion::MakeRotateAxisAngleQuaternion({ 0.0f, 0.0f, 1.0f }, pi_v<float> * 0.5f);
-	Quaternion q2 = Quaternion::MakeRotateAxisAngleQuaternion({ 1.0f, 0.0f, 0.0f }, 0.0f);
+	Vector3 rotate = EaseInOut({ 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, -pi_v<float> }, attack_.time / attack_.kLimitTime, 4);
+	Quaternion changedRotateQ = Quaternion::FromEulerAngles(rotate);
+	changedRotateQ = changedRotateQ * q1;
+	sword_->SetRotation(changedRotateQ.ToEulerAngles());
+	/*Quaternion q2 = Quaternion::MakeRotateAxisAngleQuaternion({ 1.0f, 0.0f, 0.0f }, 0.0f);
 	Quaternion q3 = Quaternion::MakeRotateAxisAngleQuaternion({ 1.0f, 0.0f, 0.0f }, -pi_v<float>);
 	Quaternion q4 = Quaternion::Sleap(q1 * q2, q1 * q3, attack_.time / attack_.kLimitTime);
-	sword_->SetRotation(q4.ToEulerAngles());
+	sword_->SetRotation(q4.ToEulerAngles());*/
 }
 
 // 左振り抜き(右入力攻撃)の初期化
