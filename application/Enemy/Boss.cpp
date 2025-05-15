@@ -3,6 +3,7 @@
 #include "myMath.h"
 #include "BossStateRoot.h"
 #include "Player.h"
+#include "BossSword.h"
 
 Boss::Boss() {
 
@@ -15,6 +16,13 @@ void Boss::Init() {
 	Collider::SetRadius(10.0f);
 	Collider::SetAABBScale({ 0.0f,0.0f,0.0f });
 	Enemy::SetScale({ 10.0f,10.0f,10.0f });
+	sword_ = std::make_unique<BossSword>();
+	sword_->SetEnemy(this);
+	sword_->SetTimeManager(timeManager_);
+	sword_->Initialize("sword/sword.obj");
+	sword_->SetTranslation(Vector3(0.0f, 0.0f, 2.0f));
+	sword_->SetScale({ 1.0f,1.0f,1.0f });
+
 	shortDistance_ = (player_->GetRadius() + GetRadius()) * 200.0f;
 	middleDistance_ = (player_->GetRadius() + GetRadius()) * 400.0f;
 	//imgui
@@ -56,9 +64,15 @@ void Boss::Update() {
 
 	transform_.translation_.y = GetRadius();
 	Enemy::Update();
+	sword_->Update();
 }
 void Boss::Draw(const ViewProjection& viewProjection) {
 	Enemy::Draw(viewProjection);
+	sword_->Draw(viewProjection);
+}
+void Boss::DrawAnimation(const ViewProjection& viewProjection){
+	/*Enemy::DrawAnimation(viewProjection);
+	sword_->DrawAnimation(viewProjection);*/
 }
 void Boss::OnCollision(Collider* other) {
 	Enemy::OnCollision(other);

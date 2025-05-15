@@ -1,50 +1,27 @@
 #include "EnemySword.h"
 #include "Enemy.h"
-#include "CollisionTypeIdDef.h"
 #include "TimeManager.h"
+#include "CollisionTypeIdDef.h"
 #include "Player.h"
 #include "PlayerSword.h"
 
-void EnemySword::Initialize() {
-	Collider::Initialize();
-	Collider::SetTypeID(static_cast<uint32_t>(CollisionTypeIdDef::kEnemyWeapon));
-	obj3d_ = std::make_unique<Object3d>();
-	palm_ = std::make_unique<Object3d>();
-
-}
-
-void EnemySword::Initialize(std::string filePath, std::string palmFilePath) {
-	Initialize();
-	obj3d_->Initialize(filePath);
-	palm_->Initialize(palmFilePath);
-	/// ワールドトランスフォームの初期化
-	transform_.Initialize();
-	transformPalm_.Initialize();
-	//カラーのセット
-	objColor_.Initialize();
-	objColor_.SetColor(Vector4(1, 1, 1, 1));
+void EnemySword::Initialize(std::string filePath) {
+	BaseEnemySword::Initialize(filePath);
 }
 void EnemySword::Update() {
 	SetRadius(0);
 	SetAABBScale({ 0.0f, 0.0f, 0.0f });
 	SetOBBScale({0.4f,8.0f,1.0f});
-	//元となるワールドトランスフォームの更新
-	transform_.UpdateMatrix();
-	transformPalm_.translation_ = transform_.translation_;
-	transformPalm_.rotation_ = transform_.rotation_;
-	transformPalm_.UpdateMatrix();
-	/// 色転送
-	objColor_.TransferMatrix();
-
-	obj3d_->AnimationUpdate(true);
+	
+	BaseEnemySword::Update();
 }
 
 void EnemySword::Draw(const ViewProjection& viewProjection) {
-	palm_->Draw(transformPalm_, viewProjection);
+	BaseEnemySword::Draw(viewProjection);
 }
 
 void EnemySword::DrawAnimation(const ViewProjection& viewProjection){
-	obj3d_->Draw(transform_, viewProjection, &objColor_);
+	BaseEnemySword::DrawAnimation(viewProjection);
 }
 
 void EnemySword::OnCollision([[maybe_unused]] Collider* other) {
@@ -136,16 +113,9 @@ Vector3 EnemySword::GetCenterPosition() const {
 
 Vector3 EnemySword::GetCenterRotation() const {
 	//OBBのローカルローテーション
-	Vector3 rotate = transform_.rotation_ + enemy_->GetCenterRotation();
-	return  rotate;
-}
-
-void EnemySword::SetModel(const std::string& filePath) {
-	obj3d_->SetModel(filePath);
-}
-
-void EnemySword::SetEnemy(Enemy* enemy) {
-	enemy_ = enemy;
-	transform_.parent_ = &enemy_->GetWorldTransform();
-	transformPalm_.parent_ = transform_.parent_;
+	//Vector3 rotate = transform_.rotation_ + enemy_->GetCenterRotation();
+	Quaternion enemyQuaternion = Quaternion::FromEulerAngles(enemy_->GetCenterRotation());
+	Quaternion swordQuaternion = Quaternion::FromEulerAngles(transform_.rotation_);
+	swordQuaternion = enemyQuaternion * swordQuaternion;
+	return  swordQuaternion.ToEulerAngles();
 }
