@@ -22,9 +22,11 @@
 #include "ParticleManager.h"
 #include "Enemy.h"
 #include "Soldier.h"
+#include "TutorialEvent.h"
 
-class TutorialScene : public BaseScene
+class TutorialScene : public BaseScene 
 {
+
 public: // メンバ関数
 
 	/// <summary>
@@ -53,16 +55,16 @@ public: // メンバ関数
 	void DrawForOffScreen()override;
 
 	ViewProjection* GetViewProjection()override { return &vp_; }
+
 private:
+
+
 	void Debug();
 
 	void CameraUpdate();
 
 	void ChangeScene();
-	//enemyPop
-	void LoadEnemyPopData();
-	void UpdateEnemyPopCommands();
-	void AddEnemy(const Vector3& position);
+
 private:
 
 	Audio* audio_;
@@ -80,27 +82,31 @@ private:
 	std::unique_ptr<Skydome> skydome_ = nullptr;// 天球
 	std::unique_ptr<Ground> ground_ = nullptr;//地面
 
-	std::vector<std::unique_ptr<Player>> players_;
+	std::unique_ptr<Player> player_;
 	//Enemy
 	std::list<std::unique_ptr<Enemy>> enemies_;
+
 	//ロックオン
 	std::unique_ptr<LockOn> lockOn_;
+
 	//カメラ
 	std::unique_ptr<FollowCamera> followCamera_;
+
 	//タイム
 	std::unique_ptr<TimeManager> timeManager_;
+
+	std::unique_ptr<TutorialEvent> tutorialEvent_;
+
 	// HPバー
 	std::unique_ptr<Sprite> hpBar_;
-	const int kMaxHp = 10000; // HPの最大値
-	std::unique_ptr<Sprite> enemyHpBar_; // 敵の HP バー
-	// 操作説明
-	std::unique_ptr<Sprite> howToPlay_;
+
+	// HPの最大値
+	const int kMaxHp = 10000;
+
 	//パーティクルエミッタ
 	std::unique_ptr<ParticleEmitter> starEmitter_;
+
 	// SE 多重再生防止
 	bool isPlay = true;
-	//敵発生コマンド
-	std::stringstream enemyPopCommands;
-	//クリア
-	bool isClear = false;
+
 };

@@ -195,26 +195,61 @@ size_t Input::GetNumberOfJoysticks()const {
 	return joysticks_.size();
 }
 
-//マウス****************************************************************
+Input::JoyStickDirection Input::GetJoyStickDirection(int32_t stickNo, bool isRightStick) {
 
-bool Input::IsPressMouse(int32_t buttonNumber) {
-	return mouse_->IsPressMouse(buttonNumber);
+	if (stickNo < 0 || stickNo >= static_cast<int32_t>(joysticks_.size())) {
+		return JoyStickDirection::None;
+	}
+
+	const Joystick& joystick = joysticks_[stickNo];
+
+	if (joystick.type_ == PadType::XInput) {
+
+		const auto& state = std::get<XINPUT_STATE>(joystick.state_);
+
+		Vector3 joyStickDirection;
+
+		if (isRightStick) {
+
+			joyStickDirection = {
+				static_cast<float>(state.Gamepad.sThumbRX) / SHRT_MAX,
+				static_cast<float>(state.Gamepad.sThumbRY) / SHRT_MAX,
+				0.0f
+			};
+		} else {
+
+			joyStickDirection = {
+				static_cast<float>(state.Gamepad.sThumbLX) / SHRT_MAX,
+				static_cast<float>(state.Gamepad.sThumbLY) / SHRT_MAX,
+				0.0f
+			};
+		}
+
+		joyStickDirection = joyStickDirection.Normalize();
+
+		float cosTheta = atan2f(joyStickDirection.y, joyStickDirection.x);
+		// 上
+		if (cosTheta > 0.25f * std::numbers::pi_v<float> && cosTheta < 0.75f * std::numbers::pi_v<float>) {
+			return JoyStickDirection::Up;
+		}
+		// 下
+		if (cosTheta < -0.25f * std::numbers::pi_v<float> && cosTheta > -0.75f * std::numbers::pi_v<float>) {
+			return JoyStickDirection::Down;
+		}
+		// 左
+		if (cosTheta >= 0.75f * std::numbers::pi_v<float> || cosTheta <= -0.75f * std::numbers::pi_v<float>) {
+			return JoyStickDirection::Left;
+		}
+		// 右
+		if ((cosTheta <= 0.25f * std::numbers::pi_v<float> && cosTheta >= -0.25f * std::numbers::pi_v<float>) && !(joyStickDirection.x == 0.0f && joyStickDirection.y == 0.0f)) {
+			return JoyStickDirection::Right;
+		}
+	}
+
+	return JoyStickDirection::None;
 }
 
-bool Input::IsTriggerMouse(int32_t buttonNumber) {
-	return mouse_->IsTriggerMouse(buttonNumber);
-}
-
-MouseMove Input::GetMouseMove() {
-	return mouse_->GetMouseMove();
-}
-
-Vector3 Input::GetMousePos3D(const ViewProjection& viewprojection, float depthFactor, float blockSpacing) {
-	return mouse_->GetMousePos3D(viewprojection, depthFactor, blockSpacing);
-}
-
-bool Input::IsAnyJoystickConnected() const
-{
+bool Input::IsAnyJoystickConnected() const {
 	for (size_t i = 0; i < joysticks_.size(); ++i) {
 		const auto& joystick = joysticks_[i];
 
@@ -238,6 +273,24 @@ bool Input::IsAnyJoystickConnected() const
 	}
 
 	return false;
+}
+
+//マウス****************************************************************
+
+bool Input::IsPressMouse(int32_t buttonNumber) {
+	return mouse_->IsPressMouse(buttonNumber);
+}
+
+bool Input::IsTriggerMouse(int32_t buttonNumber) {
+	return mouse_->IsTriggerMouse(buttonNumber);
+}
+
+MouseMove Input::GetMouseMove() {
+	return mouse_->GetMouseMove();
+}
+
+Vector3 Input::GetMousePos3D(const ViewProjection& viewprojection, float depthFactor, float blockSpacing) {
+	return mouse_->GetMousePos3D(viewprojection, depthFactor, blockSpacing);
 }
 
 int32_t Input::GetWheel() {

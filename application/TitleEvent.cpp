@@ -28,6 +28,26 @@ void TitleEvent::Initialize() {
 	gameStartRotation_ = { 0.7f, 0.0f, 0.0f };
 
 	stageDistance_ = 3000.0f;
+
+	stageSelectUI_ = std::make_unique<Sprite>();
+	stageSelectUI_->Initialize("StageSelect.png", { 640.0f,600.0f }, { 0.25f,0.25f,0.25f,1.0f }, { 0.5f,0.5f });
+
+	startUI_ = std::make_unique<Sprite>();
+	startUI_->Initialize("Return_Start.png", { 640.0f,650.0f }, { 0.25f,0.25f,0.25f,1.0f }, { 0.5f,0.5f });
+
+	stage1UI_ = std::make_unique<Sprite>();
+	stage1UI_->Initialize("Stage1.png", { 640.0f,60.0f }, { 0.25f,0.25f,0.25f,1.0f }, { 0.5f,0.5f });
+
+	padUI_ = std::make_unique<Sprite>();
+	padUI_->Initialize("TitlePad.png", { 640.0f,60.0f }, { 0.25f,0.25f,0.25f,1.0f }, { 0.5f,0.5f });
+	padUI_->SetSize(padUI_->GetSize() * 0.5f);
+
+	selectUI_ = std::make_unique<Sprite>();
+	selectUI_->Initialize("Select.png", { 640.0f,550.0f }, { 0.25f,0.25f,0.25f,1.0f }, { 0.5f,0.5f });
+
+	tutorialStageUI_ = std::make_unique<Sprite>();
+	tutorialStageUI_->Initialize("TutorialStage.png", { 640.0f,60.0f }, { 0.25f,0.25f,0.25f,1.0f }, { 0.5f,0.5f });
+
 }
 
 void TitleEvent::Update() {
@@ -42,6 +62,13 @@ void TitleEvent::Update() {
 		timer_ += 1.0f / 60.0f;
 
 		isEventEnd_ = false;
+	}
+
+	//// UI点滅
+	alphaTimer_ += alphaSpeed_;
+
+	if (alphaTimer_ >= 1.0f || alphaTimer_ < 0.0f) {
+		alphaSpeed_ *= -1.0f;
 	}
 
 	if (isEventEnd_) {
@@ -91,6 +118,8 @@ void TitleEvent::Update() {
 			groundCount++;
 		}
 
+		stageSelectUI_->SetAlpha(alphaTimer_);
+
 		break;
 	case STAGESELECT:
 
@@ -115,14 +144,14 @@ void TitleEvent::Update() {
 
 		if (isEventEnd_) {
 
-			if (Input::GetInstance()->GetJoystickState(0, joyState) && joyState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT) {
+			if (Input::GetInstance()->GetJoyStickDirection(0, false) == Input::JoyStickDirection::Left) {
 
 				stageSelectState_ = static_cast<StageSelect>(static_cast<int>(stageSelectState_) - 1);
 
 				timer_ = 0.0f;
 			}
 
-			if (Input::GetInstance()->GetJoystickState(0, joyState) && joyState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT) {
+			if (Input::GetInstance()->GetJoyStickDirection(0, false) == Input::JoyStickDirection::Right) {
 
 				stageSelectState_ = static_cast<StageSelect>(static_cast<int>(stageSelectState_) + 1);
 
@@ -138,6 +167,9 @@ void TitleEvent::Update() {
 			stageSelectState_ = static_cast<StageSelect>(StageSelect::STAGEEND - 1);
 		}
 
+		startUI_->SetAlpha(alphaTimer_);
+		selectUI_->SetAlpha(alphaTimer_);
+
 		break;
 	case GAMESTART:
 
@@ -151,6 +183,47 @@ void TitleEvent::Update() {
 
 		isSceneChange_ = true;
 
+		break;
+	}
+
+	padUI_->SetAlpha(timer_);
+	tutorialStageUI_->SetAlpha(timer_);
+	stage1UI_->SetAlpha(timer_);
+}
+
+void TitleEvent::Draw() {
+
+	switch (state_) {
+	case TitleEvent::TITLE:
+
+		padUI_->Draw();
+
+		stageSelectUI_->Draw();
+
+		break;
+	case TitleEvent::STAGESELECT:
+
+		switch (stageSelectState_) {
+		case TitleEvent::TUTORIAL:
+
+			tutorialStageUI_->Draw();
+			break;
+		case TitleEvent::STAGE1:
+
+			stage1UI_->Draw();
+			break;
+		}
+
+		startUI_->Draw();
+
+		selectUI_->Draw();
+
+		break;
+	case TitleEvent::GAMESTART:
+		break;
+	case TitleEvent::STATEEND:
+		break;
+	default:
 		break;
 	}
 }

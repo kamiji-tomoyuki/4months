@@ -266,6 +266,10 @@ public:
 		transform_.scale_ = scale;  // **スケールを適用**
 	}
 
+	Behavior GetBehavior() { return behavior_; }
+
+	AttackType GetAttackType() { return attackType_; }
+
 	// プレイヤーの剣を取得
 	PlayerSword* GetSword() { return sword_.get(); }
 

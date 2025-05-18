@@ -2,6 +2,7 @@
 
 #include "ViewProjection.h"
 #include "Ground.h"
+#include "Sprite.h"
 
 #include "vector"
 
@@ -33,6 +34,10 @@ public:
 	/// 更新
 	/// </summary>
 	void Update();
+	/// <summary>
+	/// 描画
+	/// </summary>
+	void Draw();
 
 	void ImGui();
 
@@ -84,6 +89,18 @@ private:
 
 	std::vector<Ground*> grounds_;
 
+	std::unique_ptr<Sprite> padUI_;
+
+	std::unique_ptr<Sprite> stageSelectUI_;
+
+	std::unique_ptr<Sprite> startUI_;
+
+	std::unique_ptr<Sprite> selectUI_;
+
+	std::unique_ptr<Sprite> tutorialStageUI_;
+
+	std::unique_ptr<Sprite> stage1UI_;
+
 	State state_;
 
 	StageSelect stageSelectState_;
@@ -93,6 +110,10 @@ private:
 	bool isSceneChange_ = false;
 
 	float timer_ = 0.0f;
+
+	float alphaTimer_ = 0.0f;
+
+	float alphaSpeed_ = 0.02f;
 
 	float maxTime_ = 2.0f;
 
