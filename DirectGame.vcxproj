@@ -198,7 +198,6 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\3d\model\animation\Skin.cpp" />
     <ClCompile Include="application\Skydome.cpp" />
     <ClCompile Include="application\Enemy\Soldier\Soldier.cpp" />
-    <ClCompile Include="scene\TutorialScene.cpp" />
     <ClCompile Include="TimeManager.cpp" />
     <ClCompile Include="application\TitleEvent.cpp" />
     <ClCompile Include="scene\TutorialScene.cpp" />
@@ -327,7 +326,6 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\3d\model\animation\Skin.h" />
     <ClInclude Include="application\Skydome.h" />
     <ClInclude Include="application\Enemy\Soldier\Soldier.h" />
-    <ClInclude Include="scene\TutorialScene.h" />
     <ClInclude Include="TimeManager.h" />
     <ClInclude Include="application\TitleEvent.h" />
     <ClInclude Include="scene\TutorialScene.h" />
