@@ -32,6 +32,10 @@ public:
 
 	void Draw();
 
+public:
+
+	bool GetIsSceneChange() { return isSceneChange_; }
+
 private:
 
 	void AddEvent(EventType event);
@@ -57,5 +61,7 @@ private:
 	float alphaTimer_;
 
 	float alphaSpeed_;
+
+	bool isSceneChange_;
 };
 

@@ -376,7 +376,7 @@ void TutorialScene::ChangeScene() {
 #pragma region プレイ会用機能
 
 	// タイトルシーンへ戻す
-	if (Input::GetInstance()->TriggerKey(DIK_T)) {
+	if (tutorialEvent_->GetIsSceneChange()) {
 
 		sceneManager_->NextSceneReservation("TITLE");
 

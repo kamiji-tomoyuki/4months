@@ -115,6 +115,8 @@ void TutorialEvent::Initialize(Player* player) {
 	alphaTimer_ = 0.0f;
 
 	alphaSpeed_ = 0.02f;
+
+	isSceneChange_ = false;
 }
 
 void TutorialEvent::Update() {
@@ -163,6 +165,12 @@ void TutorialEvent::Update() {
 		AddEvent(EventType::THRUST);
 		AddEvent(EventType::LEFTSLASH);
 		AddEvent(EventType::RIGHTSLASH);
+
+		break;
+
+	case 3:
+
+		isSceneChange_ = true;
 
 		break;
 
