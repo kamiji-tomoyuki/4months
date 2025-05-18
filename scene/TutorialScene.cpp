@@ -122,7 +122,7 @@ void TutorialScene::Initialize() {
 	/// === 操作説明UIの初期化 === ///
 
 	/// === エミッターの初期化 === ///
-
+  
 	particleManager_ = ParticleManager::GetInstance();
 
 	starEmitter_ = std::make_unique<ParticleEmitter>();

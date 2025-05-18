@@ -59,8 +59,6 @@ private:
 	const char* groupName = "Soldier";
 	bool isMove_ = true;
 
-	std::unique_ptr<EnemySword> sword_;
-
 	Attack attack_;
 
 	// 狙う方向
@@ -69,7 +67,6 @@ public:
 	Vector3 GetCenterPosition() const override;
 	Vector3 GetCenterRotation() const override;
 
-	EnemySword* GetSword() { return sword_.get(); }
 	const Attack& GetAttack() { return attack_; }
 	Vector3 GetAimingDirection() const { return aimingDirection_; }
 

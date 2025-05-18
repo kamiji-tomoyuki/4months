@@ -2,6 +2,7 @@
 #include "BaseObject.h"
 #include "BaseEnemyState.h"
 #include "ParticleEmitter.h"
+#include "BaseEnemySword.h"
 
 class TimeManager;
 class Player;
@@ -70,6 +71,8 @@ protected:
 	//ポインタ
 	Player* player_ = nullptr;
 	TimeManager* timeManager_ = nullptr;
+	//
+	std::unique_ptr<BaseEnemySword> sword_;
 	//ステート
 	std::unique_ptr<BaseEnemyState> state_;
 	//物理
@@ -114,6 +117,7 @@ public:
 
 	Player* GetPlayer() { return player_; }
 	TimeManager* GetTimeManager() { return timeManager_; }
+	BaseEnemySword* GetSword() { return sword_.get(); }
 	Vector3 GetVelocity() { return velocity_; }
 	uint32_t GetSerialNumber() const { return serialNumber_; }
 	uint32_t GetNextSerialNumber() const { return nextSerialNumber_; }

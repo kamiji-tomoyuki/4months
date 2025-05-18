@@ -2,7 +2,7 @@
 #include "Player.h"
 #include "TimeManager.h"
 //#include "BossStateApproach.h"
-//#include "BossStateAttack.h"
+#include "BossStateAttack.h"
 //#include "BossStateDefense.h"
 
 BossStateRoot::BossStateRoot(Enemy* boss)
@@ -35,7 +35,7 @@ void BossStateRoot::Update(){
 		timeManager->SetTimer("CoolTime" + std::to_string(enemy_->GetSerialNumber()), enemy_->GetCoolTime());
 	}
 	if (isAttack) {
-		//enemy_->ChangeState(std::make_unique<SoldierStateAttack>(enemy_));
+		enemy_->ChangeState(std::make_unique<BossStateAttack>(enemy_));
 		return;
 	}
 	if (isDefense) {

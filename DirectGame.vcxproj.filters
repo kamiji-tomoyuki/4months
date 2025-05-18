@@ -112,6 +112,9 @@
     <ClCompile Include="scene\TutorialScene.cpp" />
     <ClCompile Include="application\TutorialUI.cpp" />
     <ClCompile Include="application\TutorialEvent.cpp" />
+    <ClCompile Include="application\Enemy\Boss\BossStateAttack.cpp" />
+    <ClCompile Include="application\Enemy\Boss\BossSword.cpp" />
+    <ClCompile Include="BaseEnemySword.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application\CollisionTypeIdDef.h" />
@@ -214,6 +217,9 @@
     <ClInclude Include="scene\TutorialScene.h" />
     <ClInclude Include="application\TutorialUI.h" />
     <ClInclude Include="application\TutorialEvent.h" />
+    <ClInclude Include="application\Enemy\Boss\BossStateAttack.h" />
+    <ClInclude Include="application\Enemy\Boss\BossSword.h" />
+    <ClInclude Include="BaseEnemySword.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="myEngine.rc" />

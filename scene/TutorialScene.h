@@ -58,11 +58,13 @@ public: // メンバ関数
 
 private:
 
+
 	void Debug();
 
 	void CameraUpdate();
 
 	void ChangeScene();
+
 private:
 
 	Audio* audio_;
@@ -108,4 +110,3 @@ private:
 	bool isPlay = true;
 
 };
-

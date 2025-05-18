@@ -31,12 +31,13 @@ Quaternion Quaternion::FromEulerAngles(const Vector3& eulerAngles)
 	float sinRoll = sinf(roll);
 	float cosRoll = cosf(roll);
 
-	return Quaternion(
-		sinRoll * cosPitch * cosYaw - cosRoll * sinPitch * sinYaw,	// x成分
-		cosRoll * sinPitch * cosYaw + sinRoll * cosPitch * sinYaw,	// y成分
-		cosRoll * cosPitch * sinYaw - sinRoll * sinPitch * cosYaw,	// z成分
-		cosRoll * cosPitch * cosYaw + sinRoll * sinPitch * sinYaw	// w成分
-	);
+	// クォータニオンの各成分を計算（Z-Y-X順）
+	Quaternion q;
+	q.x = sinPitch * cosYaw * cosRoll - cosPitch * sinYaw * sinRoll;
+	q.y = cosPitch * sinYaw * cosRoll + sinPitch * cosYaw * sinRoll;
+	q.z = cosPitch * cosYaw * sinRoll - sinPitch * sinYaw * cosRoll;
+	q.w = cosPitch * cosYaw * cosRoll + sinPitch * sinYaw * sinRoll;
+	return q;
 }
 
 Vector3 Quaternion::ToEulerAngles() const

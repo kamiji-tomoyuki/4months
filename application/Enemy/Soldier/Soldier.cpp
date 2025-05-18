@@ -25,7 +25,7 @@ void Soldier::Init(){
 	sword_->SetTimeManager(timeManager_);
 
 	BaseObject::CreateModel("player/playerBody.obj");
-	sword_->Initialize("player/playerArm.gltf", "sword/sword.obj");
+	sword_->Initialize("sword/sword.obj");
 	sword_->SetTranslation(Vector3(1.7f, 0.0f, 1.3f));
 
 	Enemy::ChangeState(std::make_unique<SoldierStateRoot>(this));
