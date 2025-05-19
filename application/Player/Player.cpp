@@ -500,8 +500,11 @@ void Player::BehaviorProtectionUpdate() {
 		sword_->SetTranslation({ aimingDirection_.x * 0.6f + 2.0f, aimingDirection_.y * 0.4f , 0.25f });
 		
 		// 角度
-		Quaternion q = Quaternion::MakeRotateAxisAngleQuaternion({ 0.0f, 0.0f, 1.0f }, pi_v<float> * 0.5f);
-		sword_->SetRotation(q.ToEulerAngles());
+		/*Quaternion q = Quaternion::MakeRotateAxisAngleQuaternion({ 0.0f, 1.0f, 0.0f }, -pi_v<float> * 0.5f);
+		Quaternion q2 = q * Quaternion::MakeRotateAxisAngleQuaternion({ 1.0f, 0.0f, 0.0f }, -pi_v<float> *0.5f);*/
+		//Vector3 newRotate = q2.ToEulerAngles();
+		Vector3 newRotate = { 0.0f, pi_v<float> *0.5f, pi_v<float> *0.5f };
+		sword_->SetRotation(newRotate);
 	}
 	// 下
 	if (InputDirection() == DOWN) {
@@ -707,14 +710,10 @@ void Player::AttackTypeLeftSwingUpdate()
 
 	// 角度の計算
 	Quaternion q1 = Quaternion::MakeRotateAxisAngleQuaternion({ 0.0f, 0.0f, 1.0f }, pi_v<float> * 0.5f);
-	Vector3 rotate = EaseInOut({ 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, -pi_v<float> }, attack_.time / attack_.kLimitTime, 4);
-	Quaternion changedRotateQ = Quaternion::FromEulerAngles(rotate);
-	changedRotateQ = changedRotateQ * q1;
-	sword_->SetRotation(changedRotateQ.ToEulerAngles());
-	/*Quaternion q2 = Quaternion::MakeRotateAxisAngleQuaternion({ 1.0f, 0.0f, 0.0f }, 0.0f);
+	Quaternion q2 = Quaternion::MakeRotateAxisAngleQuaternion({ 1.0f, 0.0f, 0.0f }, 0.0f);
 	Quaternion q3 = Quaternion::MakeRotateAxisAngleQuaternion({ 1.0f, 0.0f, 0.0f }, -pi_v<float>);
 	Quaternion q4 = Quaternion::Sleap(q1 * q2, q1 * q3, attack_.time / attack_.kLimitTime);
-	sword_->SetRotation(q4.ToEulerAngles());*/
+	sword_->SetRotation(q4.ToEulerAngles());
 }
 
 // 左振り抜き(右入力攻撃)の初期化
