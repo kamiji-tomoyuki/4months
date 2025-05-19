@@ -4,6 +4,8 @@
 #include "TimeManager.h"
 #include "Player.h"
 #include "PlayerSword.h"
+#include "BossStateRoot.h"
+using namespace std::numbers;
 
 void BossSword::Initialize(std::string filePath){
 	BaseEnemySword::Initialize(filePath);
@@ -27,7 +29,57 @@ void BossSword::DrawAnimation(const ViewProjection& viewProjection){
 }
 
 void BossSword::OnCollision([[maybe_unused]] Collider* other){
+	if (GetEnemy()->GetSerialNumber() == GetEnemy()->GetNextSerialNumber() - 1) {
+		return;
+	}
+	// 衝突相手の種別IDを取得
+	uint32_t typeID = other->GetTypeID();
+	//衝突相手
+	Boss* boss = static_cast<Boss*>(GetEnemy());
+	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kPlayerWeapon)) {
+		PlayerSword* playerSwod = static_cast<PlayerSword*>(other);
+		if (GetIsAttack() && playerSwod->GetIsDefence()) {
+			SetIsAttack(false);
+			Vector3 aimingDirection = boss->GetAimingDirection();
+			aimingDirection.y *= -1.0f;
+			boss->SetAimingDirection(aimingDirection);
+			//enemy_->SetObjColor({ 0.0f,0.0f,1.0f,1.0f });
+			//emitters_[0]->SetEmitActive(true);
+			Vector3 newVelocity = playerSwod->GetPlayer()->GetCenterPosition() - enemy_->GetCenterPosition();
 
+			playerSwod->GetPlayer()->SetVelocity(playerSwod->GetPlayer()->GetVelocity() + newVelocity.Normalize() * 30.0f);
+			float theta = pi_v<float> * 0.10f * aimingDirection.y;
+
+			Vector3 newPos = GetTranslation();
+			Vector3 newRotate = GetRotate();
+			quaternion_ = Quaternion::MakeRotateAxisAngleQuaternion(Vector3(0.0f, 1.0f, 0.0f), theta) * quaternion_;
+
+			// 回転
+			newRotate = quaternion_.ToEulerAngles();
+			SetRotation(newRotate);
+			// 座標の計算
+			newPos = Transformation(newPos, MakeRotateYMatrix(theta));
+			SetTranslation(newPos);
+
+
+			enemy_->ChangeState(std::make_unique<BossStateRoot>(enemy_));
+		}
+	}
+	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kPlayer)) {
+		Player* player = static_cast<Player*>(other);
+
+		if (GetIsAttack()) {
+			Vector3 newVelocity = player->GetCenterPosition() - enemy_->GetCenterPosition();
+
+			player->SetVelocity(player->GetVelocity() + newVelocity.Normalize() * 300.0f);
+
+			player->SetHP(player->GetHP() - int(1000));
+			if (player->GetHP() <= 0) {
+				player->SetGameOver(true);
+			}
+			SetIsAttack(false);
+		}
+	}
 }
 
 void BossSword::OnCollisionEnter([[maybe_unused]] Collider* other){

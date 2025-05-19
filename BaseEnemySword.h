@@ -58,6 +58,8 @@ protected:
 	//カラー
 	ObjColor objColor_;
 
+	Quaternion quaternion_;
+
 	bool isAttack_ = false;
 	bool isDefense_ = false;
 
@@ -69,6 +71,7 @@ public:
 	bool GetIsAttack() { return isAttack_; }
 	bool GetIsDefense() { return isDefense_; }
 	Enemy* GetEnemy() { return enemy_; }
+	Quaternion GetQuaternion() const { return quaternion_; }
 
 	void SetID(int id) { id_ = id; }
 	void SetEnemy(Enemy* enemy);
@@ -86,4 +89,5 @@ public:
 	void SetSize(float size) { Collider::SetRadius(size); }
 	void SetIsAttack(bool isAttack) { isAttack_ = isAttack; }
 	void SetIsDefense(bool isDefense) { isDefense_ = isDefense; }
+	void SetQuaternion(Quaternion quaternion) { quaternion_ = quaternion; }
 };

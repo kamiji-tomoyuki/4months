@@ -120,6 +120,8 @@ void PlayerSword::OnCollision(Collider* other)
 			contactRecord_.AddRecord(enemy->GetSerialNumber());
 			Vector3 newVelocity = enemy->GetCenterPosition() - player_->GetCenterPosition();
 
+			enemy->Damage();
+
 			enemy->SetVelocity(enemy->GetVelocity() + newVelocity.Normalize() * 30.0f);
 			enemy->SetHP(enemy->GetHP() - int(1000));
 			if (enemy->GetHP() <= 0) {
@@ -137,44 +139,9 @@ void PlayerSword::OnCollisionEnter(Collider* other)
 		return;
 	}
 	// 衝突相手の種別IDを取得
-	uint32_t typeID = other->GetTypeID();
+	//uint32_t typeID = other->GetTypeID();
 	//衝突相手
-	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kEnemyWeapon)) {
-		EnemySword* enemySwod = static_cast<EnemySword*>(other);
-		if (enemySwod->GetEnemy()->GetSerialNumber() == enemySwod->GetEnemy()->GetNextSerialNumber() - 1) {
-			return;
-		}
-		if (GetIsAttack() && enemySwod->GetIsDefense()) {
-			SetIsAttack(false);
-			emitters_[0]->Start();
-			Vector3 newVelocity = enemySwod->GetEnemy()->GetCenterPosition() - player_->GetCenterPosition();
-
-			enemySwod->GetEnemy()->SetVelocity(enemySwod->GetEnemy()->GetVelocity() + newVelocity.Normalize() * 30.0f);
-		}
-	}
-	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kEnemy) ||
-		typeID == static_cast<uint32_t>(CollisionTypeIdDef::kBoss)) {
-		Enemy* enemy = static_cast<Enemy*>(other);
-		if (enemy->GetSerialNumber() == enemy->GetNextSerialNumber() - 1) {
-			return;
-		}
-		if (GetIsAttack()) {
-			//接触履歴があれば何もせず
-			if (contactRecord_.CheckRecord(enemy->GetSerialNumber())) { return; }
-			//接触履歴に登録
-			contactRecord_.AddRecord(enemy->GetSerialNumber());
-			Vector3 newVelocity = enemy->GetCenterPosition() - player_->GetCenterPosition();
-
-			enemy->Damage();
-
-			enemy->SetVelocity(enemy->GetVelocity() + newVelocity.Normalize() * 30.0f);
-			enemy->SetHP(enemy->GetHP() - int(1000));
-			if (enemy->GetHP() <= 0) {
-				enemy->SetIsAlive(false);
-			}
-			//SetIsAttack(false);
-		}
-	}
+	
 }
 
 /// 当たり終わった瞬間

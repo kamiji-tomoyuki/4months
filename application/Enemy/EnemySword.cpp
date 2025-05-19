@@ -70,33 +70,8 @@ void EnemySword::OnCollisionEnter([[maybe_unused]] Collider* other) {
 		return;
 	}
 	// 衝突相手の種別IDを取得
-	uint32_t typeID = other->GetTypeID();
+	//uint32_t typeID = other->GetTypeID();
 	//衝突相手
-	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kPlayerWeapon)) {
-		PlayerSword* playerSwod = static_cast<PlayerSword*>(other);
-		if (GetIsAttack() && playerSwod->GetIsDefence()) {
-			SetIsAttack(false);
-			//emitters_[0]->SetEmitActive(true);
-			Vector3 newVelocity = playerSwod->GetPlayer()->GetCenterPosition() - enemy_->GetCenterPosition();
-
-			playerSwod->GetPlayer()->SetVelocity(playerSwod->GetPlayer()->GetVelocity() + newVelocity.Normalize() * 30.0f);
-		}
-	}
-	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kPlayer)) {
-		Player* player = static_cast<Player*>(other);
-
-		if (GetIsAttack()) {
-			Vector3 newVelocity = player->GetCenterPosition() - enemy_->GetCenterPosition();
-
-			player->SetVelocity(player->GetVelocity() + newVelocity.Normalize() * 300.0f);
-
-			player->SetHP(player->GetHP() - int(1000));
-			if (player->GetHP() <= 0) {
-				player->SetGameOver(true);
-			}
-			SetIsAttack(false);
-		}
-	}
 }
 
 void EnemySword::OnCollisionOut([[maybe_unused]] Collider* other) {

@@ -40,5 +40,7 @@ class BossSword : public BaseEnemySword{
 	// 中心座標を取得
 	 Vector3 GetCenterPosition() const override;
 	 Vector3 GetCenterRotation() const override;
+private:
+	
 };
 
