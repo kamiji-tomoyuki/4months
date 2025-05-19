@@ -481,7 +481,7 @@ void Player::BehaviorProtectionUpdate() {
 	// 下
 	if (InputDirection() == DOWN) {
 		// 座標
-		sword_->SetTranslation({ aimingDirection_.x * 0.6f + 2.0f, 0.0f , 1.5f });
+		sword_->SetTranslation({ aimingDirection_.x * 0.6f + 2.0f, -0.50f , 1.5f });
 		
 		// 角度
 		Quaternion q = Quaternion::MakeRotateAxisAngleQuaternion({ 0.0f, 0.0f, 1.0f }, pi_v<float> * 0.5f);
