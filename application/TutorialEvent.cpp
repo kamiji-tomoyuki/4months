@@ -1,6 +1,7 @@
 #include "TutorialEvent.h"
 
 #include "Input.h"
+#include "Easing.h"
 
 void TutorialEvent::Initialize(Player* player) {
 	player_ = player;
@@ -101,12 +102,29 @@ void TutorialEvent::Initialize(Player* player) {
 		}
 		);
 
+	for (size_t i = 0; i < 2; i++) {
+
+		std::unique_ptr<Sprite> newSprite;
+
+		newSprite = std::make_unique<Sprite>();
+
+		tutorialText_.push_back(std::move(newSprite));
+	}
+
 	nextUI_ = std::make_unique<Sprite>();
 	nextUI_->Initialize("Next.png", { 640.0f,600.0f }, { 0.2f,0.2f,0.2f,1 }, { 0.5f,0.5f });
+	nextUI_->SetAlpha(0.0f);
 
 	successUI_ = std::make_unique<Sprite>();
 	successUI_->Initialize("Success.png", { 640.0f,100.0f }, { 1,1,1,1 }, { 0.5f,0.5f });
 	successUI_->SetRotation(-0.1f);
+	successUI_->SetAlpha(0.0f);
+
+	tutorialText_[0]->Initialize("TutorialText01.png", { 640.0f,100.0f }, { 1,1,1,1 }, { 0.5f,0.5f });
+	tutorialText_[0]->SetAlpha(0.0f);
+
+	tutorialText_[1]->Initialize("TutorialText02.png", { 640.0f,100.0f }, { 1,1,1,1 }, { 0.5f,0.5f });
+	tutorialText_[1]->SetAlpha(0.0f);
 
 	eventCount_ = 1;
 
@@ -115,6 +133,10 @@ void TutorialEvent::Initialize(Player* player) {
 	alphaTimer_ = 0.0f;
 
 	alphaSpeed_ = 0.02f;
+
+	successTimer_ = 0.0f;
+
+	successUISize_ = successUI_->GetSize();
 
 	isSceneChange_ = false;
 }
@@ -134,21 +156,61 @@ void TutorialEvent::Update() {
 		// UI点滅
 		alphaTimer_ += alphaSpeed_;
 
+		successTimer_ += 1.0f / 60.0f;
+
 		if (alphaTimer_ >= 1.0f || alphaTimer_ < 0.0f) {
 			alphaSpeed_ *= -1.0f;
 		}
 
+		if (successTimer_ >= 1.0f) {
+
+			successTimer_ = 1.0f;
+		}
+
 		nextUI_->SetAlpha(alphaTimer_);
+
+		successUI_->SetAlpha(1.0f);
+
+		successUI_->SetSize(EaseOutElastic(Vector2(successUISize_.x * 1.5f, successUISize_.y * 1.5f), successUISize_, successTimer_, 1.0f));
 	} else {
 
-		nextUI_->SetAlpha(0.0f);
+		successTimer_ = 0.0f;
 
-		successUI_->SetAlpha(0.0f);
+		nextUI_->SetAlpha(nextUI_->GetColor().w - 1.0f / 60.0f);
+
+		successUI_->SetAlpha(successUI_->GetColor().w - 1.0f / 60.0f);
+
+		if (nextUI_->GetColor().w <= 0.0f) {
+
+			nextUI_->SetAlpha(0.0f);
+		}
+
+		if (successUI_->GetColor().w <= 0.0f) {
+
+			successUI_->SetAlpha(0.0f);
+		}
+
+		successUI_->SetSize(successUISize_);
+	}
+
+	for (auto& text : tutorialText_) {
+
+		text->SetAlpha(text->GetColor().w - 1.0f / 60.0f);
+
+		if (text->GetColor().w <= 0.0f) {
+
+			text->SetAlpha(0.0f);
+		} else if (text->GetColor().w >= 1.0f) {
+
+			text->SetAlpha(1.0f);
+		}
 	}
 
 	switch (eventCount_) {
 
 	case 1:
+
+		tutorialText_[0]->SetAlpha(tutorialText_[0]->GetColor().w + 2.0f / 60.0f);
 
 		AddEvent(EventType::MOVE);
 		AddEvent(EventType::ATTACKDIRECTION);
@@ -156,6 +218,8 @@ void TutorialEvent::Update() {
 		break;
 
 	case 2:
+
+		tutorialText_[1]->SetAlpha(tutorialText_[1]->GetColor().w + 2.0f / 60.0f);
 
 		AddEvent(EventType::TOPDEFENSE);
 		AddEvent(EventType::BOTTOMDEFENSE);
@@ -171,6 +235,8 @@ void TutorialEvent::Update() {
 	case 3:
 
 		isSceneChange_ = true;
+
+		//successUI_->SetAlpha(tutorialText_[1]->GetColor().w);
 
 		break;
 
@@ -204,13 +270,13 @@ void TutorialEvent::Draw() {
 		ui->Draw();
 	}
 
-	if (canNext_) {
-
-		nextUI_->Draw();
-
-		successUI_->Draw();
+	for (auto& text : tutorialText_) {
+		text->Draw();
 	}
 
+	nextUI_->Draw();
+
+	successUI_->Draw();
 }
 
 void TutorialEvent::AddEvent(EventType event) {
@@ -305,9 +371,18 @@ void TutorialEvent::UpdateEvent() {
 		}
 	}
 
-	canNext_ = true;
-
 	for (auto event : eventList_) {
+
+		if (tutorialUI_[event]->GetSprite()->GetColor().w < 1.0f) {
+
+			canNext_ = false;
+
+			alphaTimer_ = 0.0f;
+
+			alphaSpeed_ = 0.02f;
+
+			return;
+		}
 
 		if (!tutorialUI_[event]->GetIsSuccess()) {
 
@@ -319,6 +394,20 @@ void TutorialEvent::UpdateEvent() {
 
 			return;
 		}
+
+		if (eventList_.size() == 0) {
+
+			canNext_ = false;
+
+			alphaTimer_ = 0.0f;
+
+			alphaSpeed_ = 0.02f;
+
+			return;
+		}
+
+		canNext_ = true;
+
 	}
 
 }

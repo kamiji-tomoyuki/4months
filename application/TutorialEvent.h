@@ -48,6 +48,8 @@ private:
 
 	std::vector<std::unique_ptr<TutorialUI>> tutorialUI_;
 
+	std::vector<std::unique_ptr<Sprite>> tutorialText_;
+
 	std::unique_ptr<Sprite> nextUI_;
 
 	std::unique_ptr<Sprite> successUI_;
@@ -61,6 +63,10 @@ private:
 	float alphaTimer_;
 
 	float alphaSpeed_;
+
+	float successTimer_;
+
+	Vector2 successUISize_;
 
 	bool isSceneChange_;
 };

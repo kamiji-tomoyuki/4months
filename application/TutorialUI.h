@@ -43,6 +43,8 @@ public:
 
 	bool GetIsActive() { return isActive; }
 
+	Sprite* GetSprite() { return textBackGround_.get(); }
+
 private:
 
 	std::unique_ptr<Sprite> textBackGround_;
