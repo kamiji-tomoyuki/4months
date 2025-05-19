@@ -25,14 +25,14 @@ void LockOn::Update(const std::list<std::unique_ptr<Enemy>>& enemies,const ViewP
 		}
 	} else {
 		//ロックオンボタンを押したら
-		if (Input::GetInstance()->GetJoystickState(0, joyState) && joyState.Gamepad.bLeftTrigger & XINPUT_GAMEPAD_A && !preLockOnButton_ ||
+		if (Input::GetInstance()->GetJoystickState(0, joyState) && joyState.Gamepad.wButtons & XINPUT_GAMEPAD_A && !preLockOnButton_ ||
 			Input::GetInstance()->TriggerKey(DIK_R)) {
 			//ロックオン対象の検索
 			Search(enemies, viewProjection);
 		}
 	}
 
-	////ロックオン状態ならロックオン継続
+	//ロックオン状態ならロックオン継続
 	//if (target_) {
 	//	//敵のロックオン座標取得
 	//	Vector3 positionWorld = target_->GetCenterPosition();
@@ -44,7 +44,7 @@ void LockOn::Update(const std::list<std::unique_ptr<Enemy>>& enemies,const ViewP
 	//	lockOnMark_->SetPosition(positionScreenV2);
 	//}
 
-	preLockOnButton_ = Input::GetInstance()->GetJoystickState(0, joyState) && joyState.Gamepad.bLeftTrigger & XINPUT_GAMEPAD_TRIGGER_THRESHOLD;
+	preLockOnButton_ = Input::GetInstance()->GetJoystickState(0, joyState) && joyState.Gamepad.wButtons & XINPUT_GAMEPAD_X;
 }
 
 void LockOn::Draw() { 

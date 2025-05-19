@@ -45,7 +45,7 @@ void FollowCamera::Update() {
 			move += Vector3(0.0f, -1.0f, 0.0f);
 		}
 
-		// 右Rスティック
+		// 右Rスティック押し込み
 		if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_THUMB) {
 			//destinationAngleX_ = target_->rotation_.x;
 			destinationAngleY_ = target_->rotation_.y;
@@ -91,11 +91,11 @@ void FollowCamera::Update() {
 		//追従対象からのロックオン対象へのベクトル
 		Vector3 sub = lockOnPos - target_->translation_;
 		//Y軸周りの角度
-		//viewProjection_.rotation_.y = std::atan2(sub.x, sub.z);
+		viewProjection_.rotation_.y = std::atan2(sub.x, sub.z);
 		destinationAngleY_ = std::atan2(sub.x, sub.z);
 	}
 
-	destinationAngle = Quaternion::Sleap(destinationAngle, Quaternion::MakeRotateAxisAngleQuaternion({ 0,-1,0 }, destinationAngleY_), 0.1f);
+	destinationAngle = Quaternion::Sleap(destinationAngle, Quaternion::MakeRotateAxisAngleQuaternion({ 0,1,0 }, destinationAngleY_), 0.1f);
 	Quaternion changeAngle = destinationAngle * Quaternion::MakeRotateAxisAngleQuaternion({ 1,0,0 }, destinationAngleX_);
 	viewProjection_.rotation_ = changeAngle.ToEulerAngles();
 	// 追従対象がいれば
