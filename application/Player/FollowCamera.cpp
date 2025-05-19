@@ -38,11 +38,11 @@ void FollowCamera::Update() {
 
 		// LT
 		if (joyState.Gamepad.bLeftTrigger & XINPUT_GAMEPAD_TRIGGER_THRESHOLD) {
-			move += Vector3(0.0f, 1.0f, 0.0f);
+			move += Vector3(0.0f, -1.0f, 0.0f);
 		}
 		// RT
 		if (joyState.Gamepad.bRightTrigger & XINPUT_GAMEPAD_TRIGGER_THRESHOLD) {
-			move += Vector3(0.0f, -1.0f, 0.0f);
+			move += Vector3(0.0f, 1.0f, 0.0f);
 		}
 
 		// 右Rスティック押し込み
