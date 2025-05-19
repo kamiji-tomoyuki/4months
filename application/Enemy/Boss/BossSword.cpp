@@ -50,17 +50,11 @@ void BossSword::OnCollision([[maybe_unused]] Collider* other){
 			playerSwod->GetPlayer()->SetVelocity(playerSwod->GetPlayer()->GetVelocity() + newVelocity.Normalize() * 30.0f);
 			float theta = pi_v<float> * 0.10f * aimingDirection.y;
 
-			Vector3 newPos = GetTranslation();
-			Vector3 newRotate = GetRotate();
 			quaternion_ = Quaternion::MakeRotateAxisAngleQuaternion(Vector3(0.0f, 1.0f, 0.0f), theta) * quaternion_;
 
 			// 回転
-			newRotate = quaternion_.ToEulerAngles();
-			SetRotation(newRotate);
-			// 座標の計算
-			newPos = Transformation(newPos, MakeRotateYMatrix(theta));
-			SetTranslation(newPos);
-
+			transform_.rotation_ = quaternion_.ToEulerAngles();
+			transform_.translation_ = Transformation(GetTranslation(), MakeRotateYMatrix(theta));
 
 			enemy_->ChangeState(std::make_unique<BossStateRoot>(enemy_));
 		}
