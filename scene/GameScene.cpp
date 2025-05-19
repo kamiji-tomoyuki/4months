@@ -296,6 +296,7 @@ void GameScene::CameraUpdate()
 		vp_.matProjection_ = followCamera_->GetViewProjection().matProjection_;
 		vp_.TransferMatrix();
 		//vp_.UpdateMatrix();
+
 		lockOn_->Update(enemies_, vp_);
 	}
 }

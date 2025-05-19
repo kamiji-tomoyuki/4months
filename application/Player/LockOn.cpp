@@ -60,6 +60,10 @@ void LockOn::Search(const std::list<std::unique_ptr<Enemy>>& enemies, const View
 
 	//全ての敵に対して順にロックオン判定
 	for (const std::unique_ptr<Enemy>& enemy : enemies) {
+		if (enemy->GetSerialNumber() == enemy->GetNextSerialNumber() - 1) {
+			continue;
+		}
+
 		//敵のロックオン座標取得
 		Vector3 positionWorld = enemy->GetCenterPosition();
 
