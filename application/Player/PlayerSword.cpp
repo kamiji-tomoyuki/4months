@@ -40,8 +40,8 @@ void PlayerSword::Initialize(std::string filePath, std::string palmFilePath)
 void PlayerSword::Update()
 {
 	// 半径をセット
-	//SetRadius(0.0f);
-	//SetAABBScale({ 4.0f,4.0f,10.0f });
+	SetRadius(0.0f);
+	SetAABBScale({ 0.0f,0.0f,0.0f });
 
 	//元となるワールドトランスフォームの更新
 	transform_.UpdateMatrix();
@@ -192,7 +192,7 @@ Vector3 PlayerSword::GetCenterPosition() const
 	return worldPos;
 }
 
-// 中心座標を取得
+// 回転を取得
 Vector3 PlayerSword::GetCenterRotation() const{
 	//OBBのローカルローテーション
 	Quaternion playerQuaternion = Quaternion::FromEulerAngles(player_->GetRotation());
@@ -204,7 +204,21 @@ Vector3 PlayerSword::GetCenterRotation() const{
 
 void PlayerSword::ImGui()
 {
-	
+	if (ImGui::Begin("PlayerSword Coordinates")) {
+		ImGui::PushID(id_);
+		// 座標情報を表示し、DragFloat3で編集可能にする
+		ImGui::Text("Position:");
+		ImGui::DragFloat3("Translation", &transform_.translation_.x, 0.1f);
+
+		ImGui::Text("Rotation:");
+		ImGui::DragFloat3("Rotation", &transform_.rotation_.x, 0.1f);
+
+		ImGui::Text("Scale:");
+		ImGui::DragFloat3("Scale", &transform_.scale_.x, 0.1f);
+		
+		ImGui::PopID();
+		ImGui::End();
+	}
 }
 
 void PlayerSword::ContactRecordClear(){

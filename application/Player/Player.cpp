@@ -37,7 +37,7 @@ void Player::Init() {
 	sword_->SetRotation(Vector3(0.0f, 0.0f, 0.0f));
 	sword_->SetTranslation(Vector3(1.5f, 0.0f, 0.0f));
 	sword_->SetScale(Vector3(0.8f, 0.8f, 0.8f));
-
+	
 	attackDirection_ = { 0.0f, 0.0f, 0.0f };
 
 	//imgui
@@ -53,7 +53,6 @@ void Player::Init() {
 	}
 	emitters_[0]->Initialize("Dust.json");
 	emitters_[0]->Start();
-
 
 	// グループを追加
 	GlobalVariables::GetInstance()->CreateGroup(groupName);
@@ -80,7 +79,7 @@ void Player::Update() {
 		//振るまいを変更する
 		behavior_ = behaviorRequest_.value();
 
-	(this->*BehaviorInitFuncTable[static_cast<size_t>(behavior_)])();
+		(this->*BehaviorInitFuncTable[static_cast<size_t>(behavior_)])();
 
 		behaviorRequest_ = std::nullopt;
 	}
@@ -501,8 +500,11 @@ void Player::BehaviorProtectionUpdate() {
 		sword_->SetTranslation({ aimingDirection_.x * 0.6f + 2.0f, aimingDirection_.y * 0.4f , 0.25f });
 		
 		// 角度
-		Quaternion q = Quaternion::MakeRotateAxisAngleQuaternion({ 0.0f, 0.0f, 1.0f }, pi_v<float> * 0.5f);
-		sword_->SetRotation(q.ToEulerAngles());
+		/*Quaternion q = Quaternion::MakeRotateAxisAngleQuaternion({ 0.0f, 1.0f, 0.0f }, -pi_v<float> * 0.5f);
+		Quaternion q2 = q * Quaternion::MakeRotateAxisAngleQuaternion({ 1.0f, 0.0f, 0.0f }, -pi_v<float> *0.5f);*/
+		//Vector3 newRotate = q2.ToEulerAngles();
+		Vector3 newRotate = { 0.0f, pi_v<float> *0.5f, pi_v<float> *0.5f };
+		sword_->SetRotation(newRotate);
 	}
 	// 下
 	if (InputDirection() == DOWN) {
