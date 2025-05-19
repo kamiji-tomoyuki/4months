@@ -106,6 +106,9 @@ void PlayerSword::OnCollision(Collider* other)
 
 			enemySwod->GetEnemy()->SetVelocity(enemySwod->GetEnemy()->GetVelocity() + newVelocity.Normalize() * 30.0f);
 		}
+		if (GetIsDefence() && enemySwod->GetIsAttack()) {
+			emitters_[0]->Start();
+		}
 	}
 	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kEnemy) ||
 		typeID == static_cast<uint32_t>(CollisionTypeIdDef::kBoss)) {
