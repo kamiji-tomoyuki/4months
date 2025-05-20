@@ -102,6 +102,24 @@ void TutorialEvent::Initialize(Player* player) {
 		}
 		);
 
+	tutorialUI_[EventType::BLOCK]->Initialize(
+		Vector2(1180.0f, 100.0f),
+		"RightSlash.png",
+		{
+			TutorialUI::UIType::kRStick,
+			TutorialUI::UIType::kLButton
+		}
+	);
+
+	tutorialUI_[EventType::ATTACK]->Initialize(
+		Vector2(100.0f, 100.0f),
+		"RightSlash.png",
+		{
+			TutorialUI::UIType::kRStick,
+			TutorialUI::UIType::kRButton
+		}
+	);
+
 	for (size_t i = 0; i < 2; i++) {
 
 		std::unique_ptr<Sprite> newSprite;
@@ -110,6 +128,9 @@ void TutorialEvent::Initialize(Player* player) {
 
 		tutorialText_.push_back(std::move(newSprite));
 	}
+
+	tutorialTextBG_ = std::make_unique<Sprite>();
+	tutorialTextBG_->Initialize("TutorialTextBG.png", { 640.0f,100.0f }, { 0,0,0,0 }, { 0.5f,0.5f });
 
 	nextUI_ = std::make_unique<Sprite>();
 	nextUI_->Initialize("Next.png", { 640.0f,600.0f }, { 0.2f,0.2f,0.2f,1 }, { 0.5f,0.5f });
@@ -206,6 +227,16 @@ void TutorialEvent::Update() {
 		}
 	}
 
+	tutorialTextBG_->SetAlpha(tutorialTextBG_->GetColor().w + 1.0f / 60.0f);
+
+	if (tutorialTextBG_->GetColor().w <= 0.0f) {
+
+		tutorialTextBG_->SetAlpha(0.0f);
+	} else if (tutorialTextBG_->GetColor().w >= 1.0f) {
+
+		tutorialTextBG_->SetAlpha(1.0f);
+	}
+
 	switch (eventCount_) {
 
 	case 1:
@@ -234,9 +265,15 @@ void TutorialEvent::Update() {
 
 	case 3:
 
-		isSceneChange_ = true;
+		AddEvent(EventType::ATTACK);
 
-		//successUI_->SetAlpha(tutorialText_[1]->GetColor().w);
+		break;
+
+	case 4:
+
+		tutorialTextBG_->SetAlpha(tutorialTextBG_->GetColor().w - 2.0f / 60.0f);
+
+		isSceneChange_ = true;
 
 		break;
 
@@ -269,6 +306,8 @@ void TutorialEvent::Draw() {
 	for (auto& ui : tutorialUI_) {
 		ui->Draw();
 	}
+
+	tutorialTextBG_->Draw();
 
 	for (auto& text : tutorialText_) {
 		text->Draw();
@@ -366,6 +405,31 @@ void TutorialEvent::UpdateEvent() {
 				if (player_->GetAttackType() == Player::AttackType::kLeftSlash) {
 					tutorialUI_[EventType::RIGHTSLASH]->SetIsSuccess(true);
 				}
+				break;
+			case TutorialEvent::BLOCK:
+
+				if (player_->GetSword()->GetIsAttackSuccessful()) {
+
+					attackCount_++;
+
+					player_->GetSword()->SetIsAttackSuccessful(false);
+				}
+
+				break;
+			case TutorialEvent::ATTACK:
+
+				if (player_->GetSword()->GetIsAttackSuccessful()) {
+
+					attackCount_++;
+
+					player_->GetSword()->SetIsAttackSuccessful(false);
+				}
+
+				if (attackCount_ >= 5) {
+
+					tutorialUI_[EventType::ATTACK]->SetIsSuccess(true);
+				}
+
 				break;
 			}
 		}

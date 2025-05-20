@@ -1,6 +1,7 @@
 #pragma once
 #include "Sprite.h"
 #include "Player.h"
+#include "Enemy.h"
 #include "TutorialUI.h"
 
 #include "vector"
@@ -21,6 +22,8 @@ private:
 		THRUST,
 		LEFTSLASH,
 		RIGHTSLASH,
+		BLOCK,
+		ATTACK,
 		END
 	};
 
@@ -50,6 +53,8 @@ private:
 
 	std::vector<std::unique_ptr<Sprite>> tutorialText_;
 
+	std::unique_ptr<Sprite> tutorialTextBG_;
+
 	std::unique_ptr<Sprite> nextUI_;
 
 	std::unique_ptr<Sprite> successUI_;
@@ -59,6 +64,8 @@ private:
 	uint32_t eventCount_ = 1;
 
 	bool canNext_;
+
+	int attackCount_;
 
 	float alphaTimer_;
 

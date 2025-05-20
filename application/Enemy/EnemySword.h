@@ -1,6 +1,8 @@
 #pragma once
 #include "BaseEnemySword.h"
 
+#include "ParticleEmitter.h"
+
 class EnemySword : public BaseEnemySword {
 public:
 	/// <summary>
@@ -12,6 +14,8 @@ public:
 	/// 更新
 	/// </summary>
 	void Update()override;
+
+	void UpdateParticle(const ViewProjection& viewProjection)override;
 
 	/// <summary>
 	/// 描画
@@ -43,6 +47,9 @@ public:
 	Vector3 GetCenterRotation() const override;
 
 private:
+
+	// パーティクルエミッタ
+	std::vector<std::unique_ptr<ParticleEmitter>> emitters_;
 
 public:
 

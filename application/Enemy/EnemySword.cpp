@@ -7,6 +7,14 @@
 
 void EnemySword::Initialize(std::string filePath) {
 	BaseEnemySword::Initialize(filePath);
+
+	for (int i = 0; i < 2; ++i) {
+		std::unique_ptr<ParticleEmitter> emitter_;
+		emitter_ = std::make_unique<ParticleEmitter>();
+		emitters_.push_back(std::move(emitter_));
+	}
+
+	emitters_[0]->Initialize("Block.json");
 }
 void EnemySword::Update() {
 	SetRadius(0);
@@ -14,6 +22,13 @@ void EnemySword::Update() {
 	SetOBBScale({0.4f,8.0f,1.0f});
 	
 	BaseEnemySword::Update();
+}
+
+void EnemySword::UpdateParticle(const ViewProjection& viewProjection) {
+	for (std::unique_ptr<ParticleEmitter>& emitter_ : emitters_) {
+		emitter_->SetPosition(GetCenterPosition());
+		emitter_->Update();
+	}
 }
 
 void EnemySword::Draw(const ViewProjection& viewProjection) {
@@ -38,6 +53,7 @@ void EnemySword::OnCollision([[maybe_unused]] Collider* other) {
 		PlayerSword* playerSwod = static_cast<PlayerSword*>(other);
 		if (GetIsAttack() && playerSwod->GetIsDefence()) {
 			SetIsAttack(false);
+			emitters_[0]->Start();
 			//enemy_->SetObjColor({ 0.0f,0.0f,1.0f,1.0f });
 			//emitters_[0]->SetEmitActive(true);
 			Vector3 newVelocity = playerSwod->GetPlayer()->GetCenterPosition() - enemy_->GetCenterPosition();
@@ -76,7 +92,7 @@ void EnemySword::OnCollisionEnter([[maybe_unused]] Collider* other) {
 		PlayerSword* playerSwod = static_cast<PlayerSword*>(other);
 		if (GetIsAttack() && playerSwod->GetIsDefence()) {
 			SetIsAttack(false);
-			//emitters_[0]->SetEmitActive(true);
+			emitters_[0]->Start();
 			Vector3 newVelocity = playerSwod->GetPlayer()->GetCenterPosition() - enemy_->GetCenterPosition();
 
 			playerSwod->GetPlayer()->SetVelocity(playerSwod->GetPlayer()->GetVelocity() + newVelocity.Normalize() * 30.0f);

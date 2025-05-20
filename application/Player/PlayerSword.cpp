@@ -86,6 +86,7 @@ void PlayerSword::DrawAnimation(const ViewProjection& viewProjection)
 /// 当たってる間
 void PlayerSword::OnCollision(Collider* other)
 {
+
 	if (timeManager_->GetTimer("start").isStart || timeManager_->GetTimer("collision").isStart) {
 		return;
 	}
@@ -102,6 +103,7 @@ void PlayerSword::OnCollision(Collider* other)
 			//player_->SetObjColor({ 0.0f,0.0f,1.0f,1.0f });
 			//防御された時のエフェクト
 			emitters_[0]->Start();
+
 			Vector3 newVelocity = enemySwod->GetEnemy()->GetCenterPosition() - player_->GetCenterPosition();
 
 			enemySwod->GetEnemy()->SetVelocity(enemySwod->GetEnemy()->GetVelocity() + newVelocity.Normalize() * 30.0f);
@@ -125,6 +127,7 @@ void PlayerSword::OnCollision(Collider* other)
 			if (enemy->GetHP() <= 0) {
 				enemy->SetIsAlive(false);
 			}
+
 			//SetIsAttack(false);
 		}
 	}
@@ -152,6 +155,7 @@ void PlayerSword::OnCollisionEnter(Collider* other)
 			enemySwod->GetEnemy()->SetVelocity(enemySwod->GetEnemy()->GetVelocity() + newVelocity.Normalize() * 30.0f);
 		}
 	}
+
 	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kEnemy) ||
 		typeID == static_cast<uint32_t>(CollisionTypeIdDef::kBoss)) {
 		Enemy* enemy = static_cast<Enemy*>(other);
@@ -172,6 +176,9 @@ void PlayerSword::OnCollisionEnter(Collider* other)
 			if (enemy->GetHP() <= 0) {
 				enemy->SetIsAlive(false);
 			}
+
+			isAttackSuccessful = true;
+
 			//SetIsAttack(false);
 		}
 	}

@@ -16,6 +16,8 @@ public:
 	/// </summary>
 	virtual void Update();
 
+	virtual void UpdateParticle(const ViewProjection& viewProjection);
+
 	/// <summary>
 	/// 描画
 	/// </summary>
