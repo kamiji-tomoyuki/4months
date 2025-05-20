@@ -11,7 +11,12 @@ Boss::Boss() {
 void Boss::Init() {
 	Enemy::Init();
 	Collider::SetTypeID(static_cast<uint32_t>(CollisionTypeIdDef::kBoss));
-	BaseObject::CreateModel("enemy/enemyBody.obj");
+
+	BaseObject::Init();
+	BaseObject::CreateModel("boss/boss.gltf");
+	model_ = std::make_unique<Object3d>();
+	model_->Initialize("boss/boss.gltf");
+
 	Enemy::ChangeState(std::make_unique<BossStateRoot>(this));
 	Collider::SetRadius(10.0f);
 	Collider::SetAABBScale({ 0.0f,0.0f,0.0f });
@@ -50,6 +55,7 @@ void Boss::Init() {
 }
 void Boss::Update() {
 	ApplyGlobalVariables();
+	BaseObject::Update();
 	Enemy::VectorRotation(player_->GetCenterPosition() - GetCenterPosition());
 	Enemy::Update();
 	if (!isMove_) {
@@ -65,14 +71,16 @@ void Boss::Update() {
 	transform_.translation_.y = GetRadius();
 	Enemy::Update();
 	sword_->Update();
+
+	model_->AnimationUpdate(true);
 }
 void Boss::Draw(const ViewProjection& viewProjection) {
-	Enemy::Draw(viewProjection);
+	//Enemy::Draw(viewProjection);
+	//BaseObject::Draw(viewProjection);
 	sword_->Draw(viewProjection);
 }
 void Boss::DrawAnimation(const ViewProjection& viewProjection){
-	/*Enemy::DrawAnimation(viewProjection);
-	sword_->DrawAnimation(viewProjection);*/
+	model_->Draw(BaseObject::GetWorldTransform(), viewProjection);
 }
 void Boss::OnCollision(Collider* other) {
 	Enemy::OnCollision(other);
