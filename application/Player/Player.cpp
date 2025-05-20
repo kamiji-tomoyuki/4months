@@ -637,7 +637,7 @@ void Player::AttackTypeDownSwingUpdate()
 	sword_->SetTranslation(newPos);
 
 	// 角度の計算
-	Quaternion q1 = Quaternion::MakeRotateAxisAngleQuaternion({ 1.0f, 0.0f, 0.0f }, pi_v<float> * 0.5f);
+	Quaternion q1 = Quaternion::MakeRotateAxisAngleQuaternion({ 1.0f, 0.0f, 0.0f }, pi_v<float> * 0.6f);
 	Quaternion q2 = Quaternion::Sleap(Quaternion{ 0.0f, 0.0f, 0.0f, 1.0f }, q1, attack_.time / attack_.kLimitTime);
 	sword_->SetRotation(q2.ToEulerAngles());
 }
