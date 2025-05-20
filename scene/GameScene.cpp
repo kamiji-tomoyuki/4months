@@ -65,6 +65,11 @@ void GameScene::Initialize()
 	enemies_.push_back(std::move(newEnemy));
 	LoadEnemyPopData();
 
+	// コロシアム
+	coliseum_ = std::make_unique<Coliseum>();
+	coliseum_->Init("sphere.obj");
+	coliseum_->SetViewProjection(&vp_);
+
 	//カメラ
 	followCamera_ = std::make_unique<FollowCamera>();
 	followCamera_->Initialize();
@@ -152,6 +157,9 @@ void GameScene::Update()
 	skydome_->Update();
 
 	ground_->Update();
+	coliseum_->SetScale({ 400.0f,400.0f,400.0f });// コロシアムのScale
+	coliseum_->SetRadius(390.0f);
+	coliseum_->Update();
 
 	// HPバーのサイズと位置を更新
 	float hpRatio = static_cast<float>(players_[0]->GetHP()) / kMaxHp;
@@ -216,6 +224,7 @@ void GameScene::Draw()
 		enemy->Draw(vp_);
 	}
 	skydome_->Draw(vp_);
+	coliseum_->Draw(vp_);
 	ground_->Draw(vp_);
 	//--------------------------
 	                 

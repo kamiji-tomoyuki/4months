@@ -115,6 +115,7 @@
     <ClCompile Include="application\Enemy\Boss\BossStateAttack.cpp" />
     <ClCompile Include="application\Enemy\Boss\BossSword.cpp" />
     <ClCompile Include="BaseEnemySword.cpp" />
+    <ClCompile Include="application\Coliseum\Coliseum.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application\CollisionTypeIdDef.h" />
@@ -220,6 +221,7 @@
     <ClInclude Include="application\Enemy\Boss\BossStateAttack.h" />
     <ClInclude Include="application\Enemy\Boss\BossSword.h" />
     <ClInclude Include="BaseEnemySword.h" />
+    <ClInclude Include="application\Coliseum\Coliseum.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="myEngine.rc" />
