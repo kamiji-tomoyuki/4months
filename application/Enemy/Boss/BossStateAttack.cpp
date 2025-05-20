@@ -26,7 +26,7 @@ void BossStateAttack::Initialize(){
 void BossStateAttack::Update(){
 	Quaternion quaternion = boss_->GetSword()->GetQuaternion();
 	
-	float theta = pi_v<float> * 0.05f * boss_->GetAimingDirection().y;
+	float theta = pi_v<float> * 0.03f * boss_->GetAimingDirection().y;
 
 	Vector3 newPos = boss_->GetSword()->GetTranslation();
 	Vector3 newRotate = boss_->GetSword()->GetRotate();
