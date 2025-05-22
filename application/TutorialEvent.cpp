@@ -1,10 +1,12 @@
 #include "TutorialEvent.h"
 
+#include "EnemySword.h"
+
 #include "Input.h"
 #include "Easing.h"
 
-void TutorialEvent::Initialize(Player* player) {
-	player_ = player;
+void TutorialEvent::Initialize() {
+
 	// --- UIの初期化 ---
 
 	for (int i = 0; i < EventType::END; i++) {
@@ -104,23 +106,25 @@ void TutorialEvent::Initialize(Player* player) {
 
 	tutorialUI_[EventType::BLOCK]->Initialize(
 		Vector2(1180.0f, 100.0f),
-		"RightSlash.png",
+		"Block.png",
 		{
-			TutorialUI::UIType::kRStick,
-			TutorialUI::UIType::kLButton
+			TutorialUI::UIType::kCount,
+			TutorialUI::UIType::kSlash,
+			TutorialUI::UIType::kMaxCount
 		}
 	);
 
 	tutorialUI_[EventType::ATTACK]->Initialize(
 		Vector2(100.0f, 100.0f),
-		"RightSlash.png",
+		"Attack.png",
 		{
-			TutorialUI::UIType::kRStick,
-			TutorialUI::UIType::kRButton
+			TutorialUI::UIType::kCount,
+			TutorialUI::UIType::kSlash,
+			TutorialUI::UIType::kMaxCount
 		}
 	);
 
-	for (size_t i = 0; i < 2; i++) {
+	for (size_t i = 0; i < 5; i++) {
 
 		std::unique_ptr<Sprite> newSprite;
 
@@ -147,7 +151,20 @@ void TutorialEvent::Initialize(Player* player) {
 	tutorialText_[1]->Initialize("TutorialText02.png", { 640.0f,100.0f }, { 1,1,1,1 }, { 0.5f,0.5f });
 	tutorialText_[1]->SetAlpha(0.0f);
 
+	tutorialText_[2]->Initialize("TutorialText03.png", { 640.0f,100.0f }, { 1,1,1,1 }, { 0.5f,0.5f });
+	tutorialText_[2]->SetAlpha(0.0f);
+
+	tutorialText_[3]->Initialize("TutorialText04.png", { 640.0f,100.0f }, { 1,1,1,1 }, { 0.5f,0.5f });
+	tutorialText_[3]->SetAlpha(0.0f);
+
+	tutorialText_[4]->Initialize("TutorialText05.png", { 640.0f,100.0f }, { 1,1,1,1 }, { 0.5f,0.5f });
+	tutorialText_[4]->SetAlpha(0.0f);
+
 	eventCount_ = 1;
+
+	attackCount_ = -1;
+
+	blockCount_ = -1;
 
 	canNext_ = false;
 
@@ -265,19 +282,73 @@ void TutorialEvent::Update() {
 
 	case 3:
 
-		AddEvent(EventType::ATTACK);
+		tutorialText_[2]->SetAlpha(tutorialText_[2]->GetColor().w + 2.0f / 60.0f);
+
+		AddEvent(EventType::BLOCK);
+		AddEvent(EventType::TOPDEFENSE);
+		AddEvent(EventType::BOTTOMDEFENSE);
+		AddEvent(EventType::LEFTDEFENSE);
+		AddEvent(EventType::RIGHTDEFENSE);
+
+		tutorialUI_[EventType::TOPDEFENSE]->SetIsSuccess(true);
+		tutorialUI_[EventType::BOTTOMDEFENSE]->SetIsSuccess(true);
+		tutorialUI_[EventType::LEFTDEFENSE]->SetIsSuccess(true);
+		tutorialUI_[EventType::RIGHTDEFENSE]->SetIsSuccess(true);
 
 		break;
 
 	case 4:
 
-		tutorialTextBG_->SetAlpha(tutorialTextBG_->GetColor().w - 2.0f / 60.0f);
+		tutorialText_[3]->SetAlpha(tutorialText_[3]->GetColor().w + 2.0f / 60.0f);
 
-		isSceneChange_ = true;
+		AddEvent(EventType::ATTACK);
+		AddEvent(EventType::DOWNSWING);
+		AddEvent(EventType::THRUST);
+		AddEvent(EventType::LEFTSLASH);
+		AddEvent(EventType::RIGHTSLASH);
+
+		tutorialUI_[EventType::DOWNSWING]->SetIsSuccess(true);
+		tutorialUI_[EventType::THRUST]->SetIsSuccess(true);
+		tutorialUI_[EventType::LEFTSLASH]->SetIsSuccess(true);
+		tutorialUI_[EventType::RIGHTSLASH]->SetIsSuccess(true);
+
+		break;
+
+	case 5:
+
+		tutorialText_[4]->SetAlpha(tutorialText_[4]->GetColor().w + 2.0f / 60.0f);
+
+		AddEvent(EventType::TOPDEFENSE);
+		AddEvent(EventType::BOTTOMDEFENSE);
+		AddEvent(EventType::LEFTDEFENSE);
+		AddEvent(EventType::RIGHTDEFENSE);
+		AddEvent(EventType::DOWNSWING);
+		AddEvent(EventType::THRUST);
+		AddEvent(EventType::LEFTSLASH);
+		AddEvent(EventType::RIGHTSLASH);
+
+		tutorialUI_[EventType::TOPDEFENSE]->SetIsSuccess(true);
+		tutorialUI_[EventType::BOTTOMDEFENSE]->SetIsSuccess(true);
+		tutorialUI_[EventType::LEFTDEFENSE]->SetIsSuccess(true);
+		tutorialUI_[EventType::RIGHTDEFENSE]->SetIsSuccess(true);
+		tutorialUI_[EventType::DOWNSWING]->SetIsSuccess(true);
+		tutorialUI_[EventType::THRUST]->SetIsSuccess(true);
+		tutorialUI_[EventType::LEFTSLASH]->SetIsSuccess(true);
+		tutorialUI_[EventType::RIGHTSLASH]->SetIsSuccess(true);
+
+		if (!enemy_) {
+
+			canNext_ = true;
+		}
 
 		break;
 
 	default:
+
+		tutorialTextBG_->SetAlpha(tutorialTextBG_->GetColor().w - 2.0f / 60.0f);
+
+		isSceneChange_ = true;
+
 		break;
 	}
 
@@ -408,15 +479,32 @@ void TutorialEvent::UpdateEvent() {
 				break;
 			case TutorialEvent::BLOCK:
 
-				if (player_->GetSword()->GetIsAttackSuccessful()) {
+				tutorialUI_[EventType::BLOCK]->SetCount(blockCount_);
 
-					attackCount_++;
+				if (enemy_) {
 
-					player_->GetSword()->SetIsAttackSuccessful(false);
+					if (dynamic_cast<EnemySword*>(enemy_->GetSword())) {
+
+						EnemySword* enemySword = dynamic_cast<EnemySword*>(enemy_->GetSword());
+
+						if (enemySword->GetIsBlocked()) {
+
+							blockCount_++;
+
+							enemySword->SetIsBlocked(false);
+						}
+					}
+
+					if (blockCount_ >= 5) {
+
+						tutorialUI_[EventType::BLOCK]->SetIsSuccess(true);
+					}
 				}
 
 				break;
 			case TutorialEvent::ATTACK:
+
+				tutorialUI_[EventType::ATTACK]->SetCount(attackCount_);
 
 				if (player_->GetSword()->GetIsAttackSuccessful()) {
 
@@ -436,6 +524,11 @@ void TutorialEvent::UpdateEvent() {
 	}
 
 	for (auto event : eventList_) {
+
+		if (eventCount_ == 5) {
+
+			break;
+		}
 
 		if (tutorialUI_[event]->GetSprite()->GetColor().w < 1.0f) {
 

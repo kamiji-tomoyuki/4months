@@ -29,7 +29,7 @@ private:
 
 public:
 
-	void Initialize(Player* player);
+	void Initialize();
 
 	void Update();
 
@@ -38,6 +38,10 @@ public:
 public:
 
 	bool GetIsSceneChange() { return isSceneChange_; }
+
+	void SetPlayer(Player* ptr) { player_ = ptr; }
+
+	void SetEnemy(Enemy* ptr) { enemy_ = ptr; }
 
 private:
 
@@ -48,6 +52,8 @@ private:
 private:
 
 	Player* player_ = nullptr;
+
+	Enemy* enemy_ = nullptr;
 
 	std::vector<std::unique_ptr<TutorialUI>> tutorialUI_;
 
@@ -66,6 +72,8 @@ private:
 	bool canNext_;
 
 	int attackCount_;
+
+	int blockCount_;
 
 	float alphaTimer_;
 

@@ -46,10 +46,15 @@ public:
 	Vector3 GetCenterPosition() const override;
 	Vector3 GetCenterRotation() const override;
 
+	bool GetIsBlocked() { return isBlocked; }
+	void SetIsBlocked(bool flag) { isBlocked = flag; }
+
 private:
 
 	// パーティクルエミッタ
 	std::vector<std::unique_ptr<ParticleEmitter>> emitters_;
+
+	bool isBlocked;
 
 public:
 

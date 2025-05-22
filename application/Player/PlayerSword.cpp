@@ -34,6 +34,8 @@ void PlayerSword::Initialize(std::string filePath, std::string palmFilePath)
 	}
 
 	emitters_[0]->Initialize("Block.json");
+
+	isAttackSuccessful = true;
 }
 
 /// 更新

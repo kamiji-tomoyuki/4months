@@ -131,7 +131,9 @@ void TutorialScene::Initialize() {
 
 	tutorialEvent_ = std::make_unique<TutorialEvent>();
 
-	tutorialEvent_->Initialize(player_.get());
+	tutorialEvent_->Initialize();
+
+	tutorialEvent_->SetPlayer(player_.get());
 
 	/// === オーディオの設定 === ///
 
@@ -160,6 +162,12 @@ void TutorialScene::Update() {
 	Debug();
 #endif // _DEBUG
 
+	for (auto& enemy : enemies_) {
+		if (!enemy->GetIsAlive()) {
+			tutorialEvent_->SetEnemy(nullptr);
+		}
+	}
+
 	enemies_.remove_if([](const std::unique_ptr<Enemy>& enemy) {
 		if (!enemy->GetIsAlive()) {
 			return true;
@@ -177,12 +185,26 @@ void TutorialScene::Update() {
 	//プレイヤーのパーティクル更新
 	player_->UpdateParticle(vp_);
 
+	bool skipStart = false;
+
 	for (auto& enemy : enemies_) {
 
-		//エネミーの更新
-		enemy->Update();
-		//エネミーのパーティクル更新
-		enemy->UpdateParticle(vp_);
+		if (enemies_.size() == 1) {
+			break;
+		}
+
+		if (!skipStart) {
+
+			//エネミーの更新
+			enemy->Update();
+
+			tutorialEvent_->SetEnemy(enemy.get());
+
+			//エネミーのパーティクル更新
+			enemy->UpdateParticle(vp_);
+
+			skipStart = true;
+		}
 	}
 
 	//天球の更新

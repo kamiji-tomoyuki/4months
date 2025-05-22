@@ -24,7 +24,10 @@ public:
 		kRButton,
 		kLButton,
 		kRTrigger,
-		kLTrigger
+		kLTrigger,
+		kCount,
+		kMaxCount,
+		kSlash
 	};
 
 public:
@@ -42,6 +45,8 @@ public:
 	void SetIsActive(bool flag) { isActive = flag; }
 
 	bool GetIsActive() { return isActive; }
+
+	void SetCount(int num) { count_ = num; }
 
 	Sprite* GetSprite() { return textBackGround_.get(); }
 
@@ -62,4 +67,6 @@ private:
 	bool isSuccess = false;
 
 	bool isActive = false;
+
+	int count_ = 0;
 };

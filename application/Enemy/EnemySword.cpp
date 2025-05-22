@@ -15,6 +15,8 @@ void EnemySword::Initialize(std::string filePath) {
 	}
 
 	emitters_[0]->Initialize("Block.json");
+
+	isBlocked = true;
 }
 void EnemySword::Update() {
 	SetRadius(0);
@@ -54,6 +56,9 @@ void EnemySword::OnCollision([[maybe_unused]] Collider* other) {
 		if (GetIsAttack() && playerSwod->GetIsDefence()) {
 			SetIsAttack(false);
 			emitters_[0]->Start();
+
+			isBlocked = true;
+
 			//enemy_->SetObjColor({ 0.0f,0.0f,1.0f,1.0f });
 			//emitters_[0]->SetEmitActive(true);
 			Vector3 newVelocity = playerSwod->GetPlayer()->GetCenterPosition() - enemy_->GetCenterPosition();
@@ -93,6 +98,7 @@ void EnemySword::OnCollisionEnter([[maybe_unused]] Collider* other) {
 		if (GetIsAttack() && playerSwod->GetIsDefence()) {
 			SetIsAttack(false);
 			emitters_[0]->Start();
+
 			Vector3 newVelocity = playerSwod->GetPlayer()->GetCenterPosition() - enemy_->GetCenterPosition();
 
 			playerSwod->GetPlayer()->SetVelocity(playerSwod->GetPlayer()->GetVelocity() + newVelocity.Normalize() * 30.0f);
