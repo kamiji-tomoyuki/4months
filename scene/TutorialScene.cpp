@@ -180,6 +180,8 @@ void TutorialScene::Update() {
 
 	ReSpawnEnemy();
 
+	player_->SetHP(10000);
+
 	//プレイヤーの更新
 	player_->Update();
 	//プレイヤーのパーティクル更新
