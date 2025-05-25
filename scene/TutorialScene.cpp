@@ -165,6 +165,7 @@ void TutorialScene::Update() {
 	for (auto& enemy : enemies_) {
 		if (!enemy->GetIsAlive()) {
 			tutorialEvent_->SetEnemy(nullptr);
+			lockOn_->ResetTarget();
 		}
 	}
 
