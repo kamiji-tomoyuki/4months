@@ -32,6 +32,9 @@ void BaseEnemySword::Update(){
 	obj3d_->AnimationUpdate(true);
 }
 
+void BaseEnemySword::UpdateParticle(const ViewProjection& viewProjection) {
+}
+
 void BaseEnemySword::Draw(const ViewProjection& viewProjection){
 	obj3d_->Draw(transform_, viewProjection, &objColor_);
 }

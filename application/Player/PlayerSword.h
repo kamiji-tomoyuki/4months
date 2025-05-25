@@ -69,6 +69,7 @@ private:
 
 	bool isAttack_ = false;
 	bool isDefence_ = false;
+	bool isAttackSuccessful = false;
 
 	// パーティクルエミッタ
 	std::vector<std::unique_ptr<ParticleEmitter>> emitters_;
@@ -82,6 +83,7 @@ public:
 	Vector3 GetRotate() { return transform_.rotation_; }
 	bool GetIsAttack() { return isAttack_; }
 	bool GetIsDefence() { return isDefence_; }
+	bool GetIsAttackSuccessful() { return isAttackSuccessful; }
 	Player* GetPlayer() { return player_; }
 
 	void SetID(int id) { id_ = id; }
@@ -101,5 +103,6 @@ public:
 	void SetSize(float size) { Collider::SetRadius(size); }
 	void SetIsAttack(bool isAttack) { isAttack_ = isAttack; }
 	void SetIsDefence(bool isGrab) { isDefence_ = isGrab; }
+	void SetIsAttackSuccessful(bool flag) { isAttackSuccessful = flag; }
 };
 

@@ -89,6 +89,7 @@ void Soldier::UpdateParticle(const ViewProjection& viewProjection){
 		emitter_->SetPosition(GetCenterPosition());
 		emitter_->Update();
 	}
+	sword_->UpdateParticle(viewProjection);
 }
 void Soldier::Draw(const ViewProjection& viewProjection){
 	if (GetSerialNumber() == GetNextSerialNumber() - 1) {

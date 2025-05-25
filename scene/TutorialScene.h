@@ -65,6 +65,8 @@ private:
 
 	void ChangeScene();
 
+	void ReSpawnEnemy();
+
 private:
 
 	Audio* audio_;
@@ -108,5 +110,7 @@ private:
 
 	// SE 多重再生防止
 	bool isPlay = true;
+
+	float spawnTimer_;
 
 };
