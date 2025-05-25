@@ -48,7 +48,7 @@ void ClearScene::Initialize() {
 	ground_->Init();
 
 	UI_ = std::make_unique<Sprite>();
-	UI_->Initialize("UiA.png", { 0,0 }, { 1,1,1,1 }, { 0.5f,0.5f });
+	UI_->Initialize("UiA.png", { 640.0f, 600.0f }, { 1,1,1,1 }, { 0.5f,0.5f });
 
 	//タイム
 	timeManager_ = std::make_unique<TimeManager>();

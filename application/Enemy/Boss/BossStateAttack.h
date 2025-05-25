@@ -21,6 +21,5 @@ private:	// 攻撃方向タイプ
 	Player* player_;
 	TimeManager* timeManager_;
 	Attack attack_;
-	Quaternion quaternion_;
 };
 

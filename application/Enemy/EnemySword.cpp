@@ -91,7 +91,7 @@ void EnemySword::OnCollisionEnter([[maybe_unused]] Collider* other) {
 		return;
 	}
 	// 衝突相手の種別IDを取得
-	uint32_t typeID = other->GetTypeID();
+	//uint32_t typeID = other->GetTypeID();
 	//衝突相手
 	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kPlayerWeapon)) {
 		PlayerSword* playerSwod = static_cast<PlayerSword*>(other);

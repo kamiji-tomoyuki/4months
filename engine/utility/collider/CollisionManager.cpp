@@ -108,10 +108,8 @@ void CollisionManager::CheckCollisionPair(Collider* colliderA, Collider* collide
 			colliderA->OnCollisionEnter(colliderB);
 			colliderB->OnCollisionEnter(colliderA);
 		}
-		else {
-			colliderA->OnCollision(colliderB);
-			colliderB->OnCollision(colliderA);
-		}
+		colliderA->OnCollision(colliderB);
+		colliderB->OnCollision(colliderA);
 		colliderA->SetHitColor();
 		colliderB->SetHitColor();
 	}
