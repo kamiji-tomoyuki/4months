@@ -157,8 +157,8 @@ void GameScene::Update()
 	skydome_->Update();
 
 	ground_->Update();
-	coliseum_->SetScale({ 400.0f,400.0f,400.0f });// コロシアムのScale
-	coliseum_->SetRadius(400.0f);
+	coliseum_->SetScale({ 320.0f,320.0f,320.0f });// コロシアムのScale
+	coliseum_->SetRadius(275.0f);
 	coliseum_->Update();
 
 	// HPバーのサイズと位置を更新
@@ -224,8 +224,10 @@ void GameScene::Draw()
 		enemy->Draw(vp_);
 	}
 	skydome_->Draw(vp_);
-	coliseum_->Draw(vp_);
+	//coliseum_->Draw(vp_);
 	ground_->Draw(vp_);
+
+	stage_->Draw(wtStage_, vp_);
 	//--------------------------
 	                 
 
