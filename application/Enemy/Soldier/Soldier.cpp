@@ -109,7 +109,7 @@ void Soldier::DrawParticle(const ViewProjection& viewProjection){
 	}
 }
 void Soldier::DrawAnimation(const ViewProjection& viewProjection){
-	//sword_->DrawAnimation(viewProjection);
+	Enemy::DrawAnimation(viewProjection);
 }
 void Soldier::OnCollision(Collider* other){
 	Enemy::OnCollision(other);

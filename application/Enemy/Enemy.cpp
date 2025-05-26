@@ -13,6 +13,9 @@ Enemy::Enemy() {
 
 void Enemy::Init(){
 	BaseObject::Init();
+	model_ = std::make_unique<Object3d>();
+	model_->Initialize("enemy/enemy.gltf");
+
 	Collider::SetTypeID(static_cast<uint32_t>(CollisionTypeIdDef::kEnemy));
 
 	damageEmitter_ = std::make_unique<ParticleEmitter>();
@@ -33,20 +36,22 @@ void Enemy::Update() {
 	dustEmitter_->SetPosition(GetCenterPosition());
 
 	dustEmitter_->Update();
+
+	model_->AnimationUpdate(true);
 }
 
 void Enemy::UpdateParticle(const ViewProjection& viewProjection){
 
 }
 
-void Enemy::Draw(const ViewProjection& viewProjection) { BaseObject::Draw(viewProjection); }
+void Enemy::Draw(const ViewProjection& viewProjection) { /*BaseObject::Draw(viewProjection);*/ }
 
 void Enemy::DrawParticle(const ViewProjection& viewProjection){
 
 }
 
 void Enemy::DrawAnimation(const ViewProjection& viewProjection){
-
+	model_->Draw(BaseObject::GetWorldTransform(), viewProjection);
 }
 
 void Enemy::OnCollision(Collider* other) {
