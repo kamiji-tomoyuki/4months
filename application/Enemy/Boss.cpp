@@ -28,8 +28,8 @@ void Boss::Init() {
 	sword_->SetTranslation(Vector3(0.0f, 0.0f, 2.0f));
 	sword_->SetScale({ 1.0f,1.0f,1.0f });
 
-	shortDistance_ = (player_->GetRadius() + GetRadius()) * 200.0f;
-	middleDistance_ = (player_->GetRadius() + GetRadius()) * 400.0f;
+	shortDistance_ = (player_->GetRadius() + GetRadius()) * 4.0f;
+	middleDistance_ = (player_->GetRadius() + GetRadius()) * 8.0f;
 	//imgui
 	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
 	// グループを追加
