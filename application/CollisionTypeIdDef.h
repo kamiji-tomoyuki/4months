@@ -10,4 +10,6 @@ enum class CollisionTypeIdDef : uint32_t {
 	kEnemy,
 	kEnemyWeapon,
 	kBoss,
+	kColiseum,
+	kFollowCamera,
 };
