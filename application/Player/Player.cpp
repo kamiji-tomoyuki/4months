@@ -31,6 +31,9 @@ void Player::Init() {
 	sword_->SetTimeManager(timeManager_);
 
 	BaseObject::CreateModel("player/playerBody.obj");
+	model_ = std::make_unique<Object3d>();
+	model_->Initialize("player/player.gltf");
+
 	sword_->Initialize("player/playerArm.gltf", "sword/sword.obj");
 
 	sword_->SetID(id_);
@@ -121,6 +124,7 @@ void Player::Update() {
 	sword_->SetSize(size_ * 1.3f);
 	sword_->Update();
 	
+	model_->AnimationUpdate(true);
 }
 
 void Player::UpdateParticle(const ViewProjection& viewProjection) {
@@ -142,7 +146,7 @@ void Player::UpdateParticle(const ViewProjection& viewProjection) {
 
 void Player::Draw(const ViewProjection& viewProjection) {
 	//基底クラス描画
-	BaseObject::Draw(viewProjection);
+	//BaseObject::Draw(viewProjection);
 	sword_->Draw(viewProjection);
 
 }
@@ -157,7 +161,7 @@ void Player::DrawParticle(const ViewProjection& viewProjection) {
 
 void Player::DrawAnimation(const ViewProjection& viewProjection)
 {
-	//sword_->DrawAnimation(viewProjection);
+	model_->Draw(BaseObject::GetWorldTransform(), viewProjection);
 }
 
 void Player::OnCollision([[maybe_unused]] Collider* other) {

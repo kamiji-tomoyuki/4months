@@ -44,6 +44,8 @@ private:
 	const char* groupName = "Boss";
 	bool isMove_ = true;
 
+	std::unique_ptr<Object3d> model_;
+
 	// 狙う方向
 	Vector3 aimingDirection_{0,1,0};
 public:
