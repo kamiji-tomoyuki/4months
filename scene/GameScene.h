@@ -103,4 +103,9 @@ private:
 	std::stringstream enemyPopCommands;
 	//クリア
 	bool isClear = false;
+
+	// ステージ
+	std::unique_ptr<Object3d> stage_;
+	float size_ = 15.0f;
+	WorldTransform wtStage_;
 };

@@ -105,6 +105,13 @@ void GameScene::Initialize()
 
 	starEmitter_->Start();
 
+	// ステージ
+	stage_ = std::make_unique<Object3d>();
+	stage_->Initialize("stage/stage.obj");
+
+	wtStage_.Initialize();
+	stage_->SetSize(Vector3{ size_,size_,size_ });
+
 	audio_->StopWave(0);
 	audio_->StopWave(1);
 	audio_->StopWave(2);
@@ -176,6 +183,9 @@ void GameScene::Update()
 	starEmitter_->Update();
 
 	particleManager_->Update(vp_);
+
+	stage_->Update(wtStage_, vp_);
+	wtStage_.UpdateMatrix();
 }
 
 void GameScene::Draw()
@@ -217,6 +227,8 @@ void GameScene::Draw()
 	}
 	skydome_->Draw(vp_);
 	ground_->Draw(vp_);
+
+	stage_->Draw(wtStage_, vp_);
 	//--------------------------
 	                 
 

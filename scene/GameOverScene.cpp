@@ -137,7 +137,10 @@ void GameOverScene::Draw()
 
 	objCommon_->skinningDrawCommonSetting();
 	//-----アニメーションの描画開始-----
-
+	player_->DrawAnimation(vp_);
+	for (const std::unique_ptr<Enemy>& enemy : enemies_) {
+		enemy->DrawAnimation(vp_);
+	}
 	//------------------------------
 
 
