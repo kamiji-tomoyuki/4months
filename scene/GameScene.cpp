@@ -228,7 +228,7 @@ void GameScene::Draw()
 	skydome_->Draw(vp_);
 	ground_->Draw(vp_);
 
-	stage_->Draw(wtStage_, vp_);
+	//stage_->Draw(wtStage_, vp_);
 	//--------------------------
 	                 
 
