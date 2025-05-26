@@ -112,6 +112,7 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="application\Coliseum\Coliseum.cpp" />
     <ClCompile Include="application\ContactRecord.cpp" />
     <ClCompile Include="application\Enemy\BaseEnemyState.cpp" />
+    <ClCompile Include="application\Enemy\Boss\BossStateApproach.cpp" />
     <ClCompile Include="application\Enemy\Boss\BossStateRoot.cpp" />
     <ClCompile Include="application\Enemy\Soldier\SoldierStateApproach.cpp" />
     <ClCompile Include="application\Enemy\Soldier\SoldierStateAttack.cpp" />
@@ -234,6 +235,7 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="application\CollisionTypeIdDef.h" />
     <ClInclude Include="application\ContactRecord.h" />
     <ClInclude Include="application\Enemy\BaseEnemyState.h" />
+    <ClInclude Include="application\Enemy\Boss\BossStateApproach.h" />
     <ClInclude Include="application\Enemy\Boss\BossStateRoot.h" />
     <ClInclude Include="application\Enemy\Soldier\SoldierStateApproach.h" />
     <ClInclude Include="application\Enemy\Soldier\SoldierStateAttack.h" />

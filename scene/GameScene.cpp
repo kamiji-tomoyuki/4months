@@ -112,6 +112,13 @@ void GameScene::Initialize() {
 
 	starEmitter_->Start();
 
+	// ステージ
+	stage_ = std::make_unique<Object3d>();
+	stage_->Initialize("stage/stage.obj");
+
+	wtStage_.Initialize();
+	stage_->SetSize(Vector3{ size_,size_,size_ });
+
 	audio_->StopWave(0);
 	audio_->StopWave(1);
 	audio_->StopWave(2);
@@ -144,6 +151,11 @@ void GameScene::Update() {
 		});
 	// タイマー更新
 	timeManager_->Update();
+  
+	ground_->Update();
+	coliseum_->SetScale({ 320.0f,320.0f,320.0f });// コロシアムのScale
+	coliseum_->SetRadius(275.0f);
+	coliseum_->Update();
 
 	pause_->Update();
 
@@ -193,6 +205,8 @@ void GameScene::Update() {
 	// シーン切り替え
 	ChangeScene();
 
+	stage_->Update(wtStage_, vp_);
+	wtStage_.UpdateMatrix();
 }
 
 void GameScene::Draw() {
@@ -233,8 +247,10 @@ void GameScene::Draw() {
 		enemy->Draw(vp_);
 	}
 	skydome_->Draw(vp_);
-	coliseum_->Draw(vp_);
+	//coliseum_->Draw(vp_);
 	ground_->Draw(vp_);
+
+	stage_->Draw(wtStage_, vp_);
 	//--------------------------
 
 
@@ -421,6 +437,7 @@ void GameScene::AddEnemy(const Vector3& position) {
 		if (enemy->GetSerialNumber() == enemy->GetNextSerialNumber() - 1) {
 			enemy->SetTranslation(position);
 			enemy->Update();
+			enemy->SetRadius(3.0f);
 		}
 	}
 	std::unique_ptr<Enemy> newEnemy = std::make_unique<Soldier>();

@@ -1,10 +1,11 @@
 #pragma once
+#include "BaseObject.h"
 #include "WorldTransform.h"
 #include "ViewProjection.h"
 #include "myMath.h"
 
 class LockOn;
-class FollowCamera {
+class FollowCamera : public BaseObject {
 public:
 	struct Shake {
 		Vector2 move;
@@ -14,6 +15,11 @@ public:
 		bool isShake = false;
 	};
 public:
+
+	void Init() override;
+
+	void Init(const std::string& fileName);
+
 	/// <summary>
 	/// 初期化
 	/// </summary>
@@ -22,11 +28,31 @@ public:
 	/// <summary>
 	/// 更新
 	/// </summary>
-	void Update();
+	void Update() override;
 
 	void Reset();
 
 	void ShakeStart(Vector2 move, float kTime);
+
+	void Draw(const ViewProjection& viewProjection) override;
+
+	/// <summary>
+	/// 当たってる間
+	/// </summary>
+	/// <param name="other"></param>
+	void OnCollision([[maybe_unused]] Collider* other) override;
+
+	/// <summary>
+	/// 当たった瞬間
+	/// </summary>
+	/// <param name="other"></param>
+	void OnCollisionEnter([[maybe_unused]] Collider* other) override;
+
+	/// <summary>
+	/// 当たり終わった瞬間
+	/// </summary>
+	/// <param name="other"></param>
+	void OnCollisionOut([[maybe_unused]] Collider* other) override;
 private:
 	void ApplyGlobalVariables();
 	void Shaking();
@@ -51,6 +77,11 @@ private:
 	//ロックオン
 	const LockOn* lockOn_ = nullptr;
 public:
+	Vector3 GetCenterPosition() const override;
+
+	Vector3 GetCenterRotation() const override;
+	void SetPosition(Vector3 position);
+
 	void SetTarget(const WorldTransform* target);
 	const ViewProjection& GetViewProjection() { return viewProjection_; }
 	void SetLockOn(const LockOn* lockOn) { lockOn_ = lockOn; }

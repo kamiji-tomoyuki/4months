@@ -68,6 +68,9 @@ public:
 
 	void Damage();
 protected:
+
+	std::unique_ptr<Object3d> model_;
+
 	//ポインタ
 	Player* player_ = nullptr;
 	TimeManager* timeManager_ = nullptr;
@@ -111,6 +114,10 @@ public:
 	void SetVelocity(const Vector3& velocity) { velocity_ = velocity; }
 	void SetIsAlive(bool isAlive) { isAlive_ = isAlive; }
 	void SetHP(int hp) { hp_ = hp; }
+	void SetPosition(Vector3 position) {
+		transform_.translation_ = position;
+		transform_.UpdateMatrix();
+	}
 	void SetScale(const Vector3& scale) {
 		transform_.scale_ = scale;  // **スケールを適用**
 	}

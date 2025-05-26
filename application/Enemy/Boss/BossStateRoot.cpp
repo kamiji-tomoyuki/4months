@@ -1,7 +1,7 @@
 #include "BossStateRoot.h"
 #include "Player.h"
 #include "TimeManager.h"
-//#include "BossStateApproach.h"
+#include "BossStateApproach.h"
 #include "BossStateAttack.h"
 
 BossStateRoot::BossStateRoot(Enemy* boss)
@@ -38,8 +38,8 @@ void BossStateRoot::Update(){
 	if (Vector3(player->GetCenterPosition() - enemy_->GetCenterPosition()).Length() < enemy_->GetShortDistance()) {
 		
 	} else if (Vector3(player->GetCenterPosition() - enemy_->GetCenterPosition()).Length() < enemy_->GetMiddleDistance()) {
-		//enemy_->ChangeState(std::make_unique<SoldierStateApproach>(enemy_));
+		enemy_->ChangeState(std::make_unique<BossStateApproach>(enemy_));
 	} else {
-		//enemy_->ChangeState(std::make_unique<SoldierStateApproach>(enemy_));
+		enemy_->ChangeState(std::make_unique<BossStateApproach>(enemy_));
 	}
 }

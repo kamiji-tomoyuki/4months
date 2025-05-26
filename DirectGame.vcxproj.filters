@@ -117,6 +117,7 @@
     <ClCompile Include="BaseEnemySword.cpp" />
     <ClCompile Include="application\Coliseum\Coliseum.cpp" />
     <ClCompile Include="application\Pause.cpp" />
+    <ClCompile Include="application\Enemy\Boss\BossStateApproach.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application\CollisionTypeIdDef.h" />
@@ -224,6 +225,7 @@
     <ClInclude Include="BaseEnemySword.h" />
     <ClInclude Include="application\Coliseum\Coliseum.h" />
     <ClInclude Include="application\Pause.h" />
+    <ClInclude Include="application\Enemy\Boss\BossStateApproach.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="myEngine.rc" />
