@@ -182,6 +182,9 @@ private:	// メンバ関数
 	bool IsAttackDirectionInput();
 
 private:	// メンバ変数
+
+	std::unique_ptr<Object3d> model_;
+
 	// 動作パターン
 	Behavior behavior_ = Behavior::kRoot;
 	static void(Player::* BehaviorInitFuncTable[])();

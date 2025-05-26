@@ -63,7 +63,7 @@ void TutorialScene::Initialize() {
 
 	Enemy::SetEnemyID(0);
 
-	for (size_t i = 0; i < 2; i++) {
+	for (size_t i = 0; i < 1; i++) {
 
 		std::unique_ptr<Enemy> newEnemy = std::make_unique<Soldier>();
 
@@ -119,8 +119,6 @@ void TutorialScene::Initialize() {
 
 	hpBar_->SetAnchorPoint({ 0.0f,0.0f });
 
-	/// === 操作説明UIの初期化 === ///
-
 	/// === エミッターの初期化 === ///
   
 	particleManager_ = ParticleManager::GetInstance();
@@ -133,7 +131,9 @@ void TutorialScene::Initialize() {
 
 	tutorialEvent_ = std::make_unique<TutorialEvent>();
 
-	tutorialEvent_->Initialize(player_.get());
+	tutorialEvent_->Initialize();
+
+	tutorialEvent_->SetPlayer(player_.get());
 
 	/// === オーディオの設定 === ///
 
@@ -162,23 +162,52 @@ void TutorialScene::Update() {
 	Debug();
 #endif // _DEBUG
 
+	for (auto& enemy : enemies_) {
+		if (!enemy->GetIsAlive()) {
+			tutorialEvent_->SetEnemy(nullptr);
+			lockOn_->ResetTarget();
+		}
+	}
+
+	enemies_.remove_if([](const std::unique_ptr<Enemy>& enemy) {
+		if (!enemy->GetIsAlive()) {
+			return true;
+		}
+		return false;
+		});
+
 	//タイムマネージャーの更新
 	timeManager_->Update();
+
+	ReSpawnEnemy();
+
+	player_->SetHP(10000);
 
 	//プレイヤーの更新
 	player_->Update();
 	//プレイヤーのパーティクル更新
 	player_->UpdateParticle(vp_);
 
+	bool skipStart = false;
+
 	for (auto& enemy : enemies_) {
 
-		//エネミーを動かないようにする
-		enemy->SetTranslation(Vector3(0.0f, 1.750f, 0.0f));
+		if (enemies_.size() == 1) {
+			break;
+		}
 
-		//エネミーの更新
-		enemy->Update();
-		//エネミーのパーティクル更新
-		enemy->UpdateParticle(vp_);
+		if (!skipStart) {
+
+			//エネミーの更新
+			enemy->Update();
+
+			tutorialEvent_->SetEnemy(enemy.get());
+
+			//エネミーのパーティクル更新
+			enemy->UpdateParticle(vp_);
+
+			skipStart = true;
+		}
 	}
 
 	//天球の更新
@@ -274,6 +303,11 @@ void TutorialScene::Draw() {
 
 	//プレイヤーのパーティクル描画
 	player_->DrawParticle(vp_);
+
+	//敵のパーティクル描画
+	for (auto& enemy : enemies_) {
+		enemy->DrawParticle(vp_);
+	}
 
 	//-----------------------------
 
@@ -383,6 +417,31 @@ void TutorialScene::ChangeScene() {
 		if (isPlay) {
 
 			isPlay = false;
+		}
+	}
+}
+
+void TutorialScene::ReSpawnEnemy() {
+
+	if (enemies_.size() <= 1) {
+
+		spawnTimer_ += 1.0f / 60.0f;
+
+		if (spawnTimer_ >= 3.0f) {
+
+			std::unique_ptr<Enemy> newEnemy = std::make_unique<Soldier>();
+
+			newEnemy->SetPlayer(player_.get());
+
+			newEnemy->SetTimeManager(timeManager_.get());
+
+			newEnemy->Init();
+
+			newEnemy->SetTranslation({ 0.0f,1.750f,0.0f });
+
+			enemies_.push_back(std::move(newEnemy));
+
+			spawnTimer_ = 0.0f;
 		}
 	}
 }

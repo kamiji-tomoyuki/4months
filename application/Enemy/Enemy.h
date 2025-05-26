@@ -68,6 +68,9 @@ public:
 
 	void Damage();
 protected:
+
+	std::unique_ptr<Object3d> model_;
+
 	//ポインタ
 	Player* player_ = nullptr;
 	TimeManager* timeManager_ = nullptr;

@@ -34,6 +34,8 @@ void PlayerSword::Initialize(std::string filePath, std::string palmFilePath)
 	}
 
 	emitters_[0]->Initialize("Block.json");
+
+	isAttackSuccessful = true;
 }
 
 /// 更新
@@ -86,6 +88,7 @@ void PlayerSword::DrawAnimation(const ViewProjection& viewProjection)
 /// 当たってる間
 void PlayerSword::OnCollision(Collider* other)
 {
+
 	if (timeManager_->GetTimer("start").isStart || timeManager_->GetTimer("collision").isStart) {
 		return;
 	}
@@ -102,6 +105,7 @@ void PlayerSword::OnCollision(Collider* other)
 			//player_->SetObjColor({ 0.0f,0.0f,1.0f,1.0f });
 			//防御された時のエフェクト
 			emitters_[0]->Start();
+
 			Vector3 newVelocity = enemySwod->GetEnemy()->GetCenterPosition() - player_->GetCenterPosition();
 
 			enemySwod->GetEnemy()->SetVelocity(enemySwod->GetEnemy()->GetVelocity() + newVelocity.Normalize() * 30.0f);
@@ -125,11 +129,14 @@ void PlayerSword::OnCollision(Collider* other)
 
 			enemy->Damage();
 
+			isAttackSuccessful = true;
+
 			enemy->SetVelocity(enemy->GetVelocity() + newVelocity.Normalize() * 30.0f);
 			enemy->SetHP(enemy->GetHP() - int(1000));
 			if (enemy->GetHP() <= 0) {
 				enemy->SetIsAlive(false);
 			}
+
 			//SetIsAttack(false);
 		}
 	}
@@ -143,8 +150,6 @@ void PlayerSword::OnCollisionEnter(Collider* other)
 	}
 	// 衝突相手の種別IDを取得
 	//uint32_t typeID = other->GetTypeID();
-	//衝突相手
-	
 }
 
 /// 当たり終わった瞬間

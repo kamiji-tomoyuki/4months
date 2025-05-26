@@ -24,7 +24,10 @@ public:
 		kRButton,
 		kLButton,
 		kRTrigger,
-		kLTrigger
+		kLTrigger,
+		kCount,
+		kMaxCount,
+		kSlash
 	};
 
 public:
@@ -43,6 +46,10 @@ public:
 
 	bool GetIsActive() { return isActive; }
 
+	void SetCount(int num) { count_ = num; }
+
+	Sprite* GetSprite() { return textBackGround_.get(); }
+
 private:
 
 	std::unique_ptr<Sprite> textBackGround_;
@@ -60,4 +67,6 @@ private:
 	bool isSuccess = false;
 
 	bool isActive = false;
+
+	int count_ = 0;
 };

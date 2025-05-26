@@ -1,5 +1,7 @@
 #include "TutorialUI.h"
 
+#include "TextureManager.h"
+
 #include "Input.h"
 #include "Easing.h"
 
@@ -100,6 +102,26 @@ void TutorialUI::Initialize(Vector2 pos, std::string textSpriteFileName, std::in
 			break;
 		case TutorialUI::UIType::kLTrigger:
 			break;
+		case TutorialUI::UIType::kCount:
+
+			TextureManager::GetInstance()->LoadTexture("Zero.png");
+			TextureManager::GetInstance()->LoadTexture("One.png");
+			TextureManager::GetInstance()->LoadTexture("Two.png");
+			TextureManager::GetInstance()->LoadTexture("Three.png");
+			TextureManager::GetInstance()->LoadTexture("Four.png");
+			TextureManager::GetInstance()->LoadTexture("Five.png");
+
+			newUISprite->Initialize("Zero.png", pos);
+
+			break;
+		case TutorialUI::UIType::kMaxCount:
+
+			newUISprite->Initialize("Five.png", pos);
+			break;
+		case TutorialUI::UIType::kSlash:
+
+			newUISprite->Initialize("Slash.png", pos);
+			break;
 		default:
 
 			newUISprite->Initialize("xbox_guide.png", pos);
@@ -109,6 +131,11 @@ void TutorialUI::Initialize(Vector2 pos, std::string textSpriteFileName, std::in
 		float uiWidth = newUISprite->GetSize().x / 2.0f;
 
 		float uiHeight = newUISprite->GetSize().y / 2.0f;
+
+		if (uiType == UIType::kCount || uiType == UIType::kMaxCount) {
+
+			uiWidth *= 0.5f;
+		}
 
 		newUISprite->SetAnchorPoint({ 0.5f, 0.5f });
 
@@ -236,6 +263,42 @@ void TutorialUI::Update() {
 			case TutorialUI::UIType::kRTrigger:
 				break;
 			case TutorialUI::UIType::kLTrigger:
+				break;
+			case TutorialUI::UIType::kCount:
+
+				switch (count_) {
+				case 0:
+
+					controllerUI_[i]->SetTexturePath("Zero.png");
+
+					break;
+				case 1:
+
+					controllerUI_[i]->SetTexturePath("One.png");
+
+					break;
+				case 2:
+
+					controllerUI_[i]->SetTexturePath("Two.png");
+
+					break;
+				case 3:
+
+					controllerUI_[i]->SetTexturePath("Three.png");
+
+					break;
+				case 4:
+
+					controllerUI_[i]->SetTexturePath("Four.png");
+
+					break;
+				case 5:
+
+					controllerUI_[i]->SetTexturePath("Five.png");
+
+					break;
+				}
+
 				break;
 			default:
 
