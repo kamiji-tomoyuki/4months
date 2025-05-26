@@ -414,6 +414,7 @@ void GameScene::AddEnemy(const Vector3& position) {
 		if (enemy->GetSerialNumber() == enemy->GetNextSerialNumber() -1) {
 			enemy->SetTranslation(position);
 			enemy->Update();
+			enemy->SetRadius(3.0f);
 		}
 	}
 	std::unique_ptr<Enemy> newEnemy = std::make_unique<Soldier>();

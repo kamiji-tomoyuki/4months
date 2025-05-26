@@ -1,6 +1,7 @@
 #include "Coliseum.h"
 #include "Player.h"
 #include "Enemy.h"
+#include "Boss.h"
 #include <cassert>
 #include <iostream> // デバッグ用
 #include <CollisionTypeIdDef.h>
@@ -66,9 +67,15 @@ void Coliseum::OnCollision(Collider* other)
 		enemyToColiseum = enemyToColiseum.Normalize();
 		enemy->SetPosition(GetCenterPosition() + enemyToColiseum * (GetRadius() - enemy->GetRadius() * 2.0f));
 	}
-	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kFollowCamera)) {
+	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kBoss)) {
+		Boss* boss = static_cast<Boss*>(other);
 
-		// FollowCameraの処理
+		Vector3 bossToColiseum = boss->GetCenterPosition() - transform_.translation_;
+		if (bossToColiseum.Length() < GetRadius() - boss->GetRadius() * 2.0f) {
+			return; // ボスがコロシアムの中心にいる場合は何もしない
+		}
+		bossToColiseum = bossToColiseum.Normalize();
+		boss->SetPosition(GetCenterPosition() + bossToColiseum * (GetRadius() - boss->GetRadius() * 2.0f));
 	}
 }
 

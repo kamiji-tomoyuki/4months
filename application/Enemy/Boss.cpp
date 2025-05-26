@@ -18,7 +18,7 @@ void Boss::Init() {
 	model_->Initialize("boss/boss.gltf");
 
 	Enemy::ChangeState(std::make_unique<BossStateRoot>(this));
-	Collider::SetRadius(10.0f);
+	Collider::SetRadius(11.0f);
 	Collider::SetAABBScale({ 0.0f,0.0f,0.0f });
 	Enemy::SetScale({ 10.0f,10.0f,10.0f });
 	sword_ = std::make_unique<BossSword>();
