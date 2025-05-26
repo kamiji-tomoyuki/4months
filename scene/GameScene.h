@@ -19,6 +19,7 @@
 #include "Coliseum.h"
 #include "TimeManager.h"
 #include "LockOn.h"
+#include "Pause.h"
 #include "ParticleEmitter.h"
 #include "ParticleManager.h"
 #include "Enemy.h"
@@ -87,6 +88,8 @@ private:
 	std::list<std::unique_ptr<Enemy>> enemies_;
 	//ロックオン
 	std::unique_ptr<LockOn> lockOn_;
+	//ポーズ
+	std::unique_ptr<Pause> pause_;
 	//カメラ
 	std::unique_ptr<FollowCamera> followCamera_;
 	//タイム

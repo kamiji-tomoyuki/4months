@@ -18,6 +18,7 @@
 #include "Ground.h"
 #include "TimeManager.h"
 #include "LockOn.h"
+#include "Pause.h"
 #include "ParticleEmitter.h"
 #include "ParticleManager.h"
 #include "Enemy.h"
@@ -90,6 +91,8 @@ private:
 
 	//ロックオン
 	std::unique_ptr<LockOn> lockOn_;
+
+	std::unique_ptr<Pause> pause_;
 
 	//カメラ
 	std::unique_ptr<FollowCamera> followCamera_;
