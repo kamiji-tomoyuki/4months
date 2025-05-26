@@ -107,6 +107,12 @@ void TutorialScene::Initialize() {
 
 	player_->SetLockOn(lockOn_.get());
 
+	/// === ポーズの初期化 === ///
+
+	pause_ = std::make_unique<Pause>();
+
+	pause_->Initialize();
+
 	/// === HPBarの初期化 === ///
 
 	hpBar_ = std::make_unique<Sprite>();
@@ -120,7 +126,7 @@ void TutorialScene::Initialize() {
 	hpBar_->SetAnchorPoint({ 0.0f,0.0f });
 
 	/// === エミッターの初期化 === ///
-  
+
 	particleManager_ = ParticleManager::GetInstance();
 
 	starEmitter_ = std::make_unique<ParticleEmitter>();
@@ -179,36 +185,7 @@ void TutorialScene::Update() {
 	//タイムマネージャーの更新
 	timeManager_->Update();
 
-	ReSpawnEnemy();
-
-	player_->SetHP(10000);
-
-	//プレイヤーの更新
-	player_->Update();
-	//プレイヤーのパーティクル更新
-	player_->UpdateParticle(vp_);
-
-	bool skipStart = false;
-
-	for (auto& enemy : enemies_) {
-
-		if (enemies_.size() == 1) {
-			break;
-		}
-
-		if (!skipStart) {
-
-			//エネミーの更新
-			enemy->Update();
-
-			tutorialEvent_->SetEnemy(enemy.get());
-
-			//エネミーのパーティクル更新
-			enemy->UpdateParticle(vp_);
-
-			skipStart = true;
-		}
-	}
+	pause_->Update();
 
 	//天球の更新
 	skydome_->Update();
@@ -216,29 +193,65 @@ void TutorialScene::Update() {
 	//地面の更新
 	ground_->Update();
 
-	//HPの比率を計算
-	float hpRatio = static_cast<float>(player_->GetHP()) / 10000;
-	//HPに応じた高さ
-	float newHeight = 500.0f * hpRatio;
-	//横幅を70pxに変更
-	hpBar_->SetSize(Vector2(70.0f, newHeight));
+	if (!pause_->GetIsPause()) {
 
-	//カメラの更新
-	CameraUpdate();
+		ReSpawnEnemy();
+
+		player_->SetHP(10000);
+
+		//プレイヤーの更新
+		player_->Update();
+		//プレイヤーのパーティクル更新
+		player_->UpdateParticle(vp_);
+
+		bool skipStart = false;
+
+		for (auto& enemy : enemies_) {
+
+			if (enemies_.size() == 1) {
+				break;
+			}
+
+			if (!skipStart) {
+
+				//エネミーの更新
+				enemy->Update();
+
+				tutorialEvent_->SetEnemy(enemy.get());
+
+				//エネミーのパーティクル更新
+				enemy->UpdateParticle(vp_);
+
+				skipStart = true;
+			}
+		}
+
+		//HPの比率を計算
+		float hpRatio = static_cast<float>(player_->GetHP()) / 10000;
+		//HPに応じた高さ
+		float newHeight = 500.0f * hpRatio;
+		//横幅を70pxに変更
+		hpBar_->SetSize(Vector2(70.0f, newHeight));
+
+		//カメラの更新
+		CameraUpdate();
+
+		//エミッターの位置をプレイヤーの中心に設定
+		starEmitter_->SetPosition(player_->GetCenterPosition());
+
+		//エミッターの更新
+		starEmitter_->Update();
+
+		//パーティクルマネージャーの更新
+		particleManager_->Update(vp_);
+
+		tutorialEvent_->Update();
+
+	}
 
 	//シーンの切り替え
 	ChangeScene();
 
-	//エミッターの位置をプレイヤーの中心に設定
-	starEmitter_->SetPosition(player_->GetCenterPosition());
-
-	//エミッターの更新
-	starEmitter_->Update();
-
-	//パーティクルマネージャーの更新
-	particleManager_->Update(vp_);
-
-	tutorialEvent_->Update();
 }
 
 void TutorialScene::Draw() {
@@ -317,6 +330,9 @@ void TutorialScene::Draw() {
 	spCommon_->DrawCommonSetting();
 
 	tutorialEvent_->Draw();
+
+	//ポーズの描画
+	pause_->Draw();
 
 	//-----------------------------
 
@@ -408,6 +424,20 @@ void TutorialScene::CameraUpdate() {
 void TutorialScene::ChangeScene() {
 
 #pragma region プレイ会用機能
+
+	switch (pause_->GetReturnScene()) {
+
+	case Pause::TITLE:
+
+		sceneManager_->NextSceneReservation("TITLE");
+
+		if (isPlay) {
+
+			isPlay = false;
+		}
+
+		break;
+	}
 
 	// タイトルシーンへ戻す
 	if (tutorialEvent_->GetIsSceneChange()) {
