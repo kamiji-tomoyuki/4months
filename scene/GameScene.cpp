@@ -158,7 +158,7 @@ void GameScene::Update()
 
 	ground_->Update();
 	coliseum_->SetScale({ 400.0f,400.0f,400.0f });// コロシアムのScale
-	coliseum_->SetRadius(390.0f);
+	coliseum_->SetRadius(400.0f);
 	coliseum_->Update();
 
 	// HPバーのサイズと位置を更新
