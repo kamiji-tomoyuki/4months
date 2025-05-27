@@ -79,69 +79,73 @@ bool JsonLoader::GetName(const std::string& filePath, const std::string& targetN
 }
 
 Vector3 JsonLoader::GetWorldTransform(const std::string& filePath, const std::string& targetName) const {
-    const std::string fullPath = "resources/jsons/" + filePath;
+    LoadTransformData(filePath);
+    const auto& fileMap = transformCache_[filePath];
 
-    std::ifstream file(fullPath);
-    if (!file.is_open()) {
-        return Vector3(0.0f, 0.0f, 0.0f);
+    auto it = fileMap.find(targetName);
+    if (it != fileMap.end() && !it->second.empty()) {
+        return it->second[0];
     }
-    nlohmann::json jsonData;
-    try {
-        file >> jsonData;
-    }
-    catch (const std::exception&) {
-        return Vector3(0.0f, 0.0f, 0.0f);
-    }
-    if (!jsonData.contains("objects") || !jsonData["objects"].is_array()) {
-        return Vector3(0.0f, 0.0f, 0.0f);
-    }
-    for (const auto& obj : jsonData["objects"]) {
-        if (obj.contains("name") && obj["name"] == targetName) {
-            if (obj.contains("transform") && obj["transform"].contains("translation")) {
-                std::vector<float> position = obj["transform"]["translation"];
-                if (position.size() == 3) {
-                    return Vector3(position[0], position[1], position[2]);
-                }
-            }
-        }
-    }
+
     return Vector3(0.0f, 0.0f, 0.0f);
 }
 
-Vector3 JsonLoader::GetWorldTransformRandom(const std::string& filePath, const std::string& targetName) const
+Vector3 JsonLoader::GetWorldTransformRandom(const std::string& filePath, const std::string& targetName) const {
+    LoadTransformData(filePath);
+    const auto& fileMap = transformCache_[filePath];
+
+    std::vector<Vector3> matchedPositions;
+    for (const auto& [name, positions] : fileMap) {
+        if (name.find(targetName) != std::string::npos) {
+            matchedPositions.insert(matchedPositions.end(), positions.begin(), positions.end());
+        }
+    }
+
+    if (matchedPositions.empty()) {
+        return Vector3(0.0f, 0.0f, 0.0f);
+    }
+
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<size_t> dist(0, matchedPositions.size() - 1);
+    return matchedPositions[dist(gen)];
+}
+
+void JsonLoader::LoadTransformData(const std::string& filePath) const
 {
     const std::string fullPath = "resources/jsons/" + filePath;
+    if (transformCache_.count(filePath)) return;
 
     std::ifstream file(fullPath);
     if (!file.is_open()) {
-        return Vector3(0.0f, 0.0f, 0.0f);
+        transformCache_[filePath] = {};
+        return;
     }
+
     nlohmann::json jsonData;
     try {
         file >> jsonData;
     }
     catch (const std::exception&) {
-        return Vector3(0.0f, 0.0f, 0.0f);
+        transformCache_[filePath] = {};
+        return;
     }
+
     if (!jsonData.contains("objects") || !jsonData["objects"].is_array()) {
-        return Vector3(0.0f, 0.0f, 0.0f);
+        transformCache_[filePath] = {};
+        return;
     }
-    std::vector<Vector3> positions;
+
+    std::map<std::string, std::vector<Vector3>> nameToPositions;
     for (const auto& obj : jsonData["objects"]) {
-        if (obj.contains("name") && obj["name"].get<std::string>().find(targetName) != std::string::npos) {
-            if (obj.contains("transform") && obj["transform"].contains("translation")) {
-                std::vector<float> pos = obj["transform"]["translation"];
-                if (pos.size() == 3) {
-                    positions.emplace_back(pos[0], pos[1], pos[2]);
-                }
+        if (obj.contains("name") && obj.contains("transform") && obj["transform"].contains("translation")) {
+            std::string name = obj["name"];
+            std::vector<float> pos = obj["transform"]["translation"];
+            if (pos.size() == 3) {
+                nameToPositions[name].emplace_back(pos[0], pos[1], pos[2]);
             }
         }
     }
-    if (positions.empty()) {
-        return Vector3(0.0f, 0.0f, 0.0f);
-    }
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution<size_t> dist(0, positions.size() - 1);
-    return positions[dist(gen)];
+
+    transformCache_[filePath] = std::move(nameToPositions);
 }
