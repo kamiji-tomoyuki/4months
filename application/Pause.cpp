@@ -55,38 +55,50 @@ void Pause::Update() {
 
 	if (Input::GetInstance()->GetJoystickState(0, joyState)) {
 
-		if (isCheckReturnTitle_) {
 
-			if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_A) {
+		if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_START) {
 
-				if (!(preJoyState_.Gamepad.wButtons & XINPUT_GAMEPAD_A)) {
+			if (!(preJoyState_.Gamepad.wButtons & XINPUT_GAMEPAD_START)) {
 
-					returnScene_ = TITLE;
-				}
+				isPause_ = !isPause_;
+
+				isCheckReturnTitle_ = false;
 			}
+		}
 
-			if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_B) {
+		if (isPause_) {
 
-				if (!(preJoyState_.Gamepad.wButtons & XINPUT_GAMEPAD_B)) {
+			/// === ポーズ中の場合 === ///
 
-					isCheckReturnTitle_ = false;
+			if (isCheckReturnTitle_) {
+
+				/// === タイトルに戻ろうとしている場合 === ///
+
+				if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_A) {
+
+					if (!(preJoyState_.Gamepad.wButtons & XINPUT_GAMEPAD_A)) {
+
+						returnScene_ = TITLE;
+					}
 				}
-			}
-		} else {
 
-			if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_START) {
+				if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_B) {
 
-				if (!(preJoyState_.Gamepad.wButtons & XINPUT_GAMEPAD_START)) {
+					if (!(preJoyState_.Gamepad.wButtons & XINPUT_GAMEPAD_B)) {
 
-					isPause_ = !isPause_;
+						isCheckReturnTitle_ = false;
+					}
 				}
-			}
+			} else {
 
-			if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_X) {
+				/// === タイトルに戻ろうとしていない場合 === ///
 
-				if (!(preJoyState_.Gamepad.wButtons & XINPUT_GAMEPAD_X)) {
+				if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_X) {
 
-					isCheckReturnTitle_ = true;
+					if (!(preJoyState_.Gamepad.wButtons & XINPUT_GAMEPAD_X)) {
+
+						isCheckReturnTitle_ = true;
+					}
 				}
 			}
 		}
