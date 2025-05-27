@@ -14,6 +14,9 @@ private:
 	enum EventType {
 		MOVE,
 		ATTACKDIRECTION,
+		DASH,
+		LOCKON,
+		PAUSE,
 		TOPDEFENSE,
 		BOTTOMDEFENSE,
 		LEFTDEFENSE,

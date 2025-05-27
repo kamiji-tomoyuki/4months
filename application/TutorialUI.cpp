@@ -83,10 +83,14 @@ void TutorialUI::Initialize(Vector2 pos, std::string textSpriteFileName, std::in
 			newUISprite->Initialize("xbox_stick_l.png", pos);
 			break;
 		case TutorialUI::UIType::kAButton:
+
+			newUISprite->Initialize("xbox_button_a.png", pos);
 			break;
 		case TutorialUI::UIType::kButton:
 			break;
 		case TutorialUI::UIType::kXButton:
+
+			newUISprite->Initialize("xbox_button_x.png", pos);
 			break;
 		case TutorialUI::UIType::kYButton:
 			break;
@@ -101,6 +105,10 @@ void TutorialUI::Initialize(Vector2 pos, std::string textSpriteFileName, std::in
 		case TutorialUI::UIType::kRTrigger:
 			break;
 		case TutorialUI::UIType::kLTrigger:
+			break;
+		case TutorialUI::UIType::kStart:
+
+			newUISprite->Initialize("xbox_button_menu.png", pos);
 			break;
 		case TutorialUI::UIType::kCount:
 
@@ -233,6 +241,14 @@ void TutorialUI::Update() {
 				}
 				break;
 			case TutorialUI::UIType::kAButton:
+
+				if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_A) {
+
+					controllerUI_[i]->SetColor(Vector3(1.0f, 1.0f, 1.0f));
+				} else {
+
+					controllerUI_[i]->SetColor(Vector3(0.2f, 0.2f, 0.2f));
+				}
 				break;
 			case TutorialUI::UIType::kButton:
 				break;
@@ -263,6 +279,17 @@ void TutorialUI::Update() {
 			case TutorialUI::UIType::kRTrigger:
 				break;
 			case TutorialUI::UIType::kLTrigger:
+				break;
+			case TutorialUI::UIType::kStart:
+
+				if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_START) {
+
+					controllerUI_[i]->SetColor(Vector3(1.0f, 1.0f, 1.0f));
+				} else {
+
+					controllerUI_[i]->SetColor(Vector3(0.2f, 0.2f, 0.2f));
+				}
+
 				break;
 			case TutorialUI::UIType::kCount:
 
