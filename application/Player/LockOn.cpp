@@ -44,7 +44,7 @@ void LockOn::Update(const std::list<std::unique_ptr<Enemy>>& enemies,const ViewP
 	//	lockOnMark_->SetPosition(positionScreenV2);
 	//}
 
-	preLockOnButton_ = Input::GetInstance()->GetJoystickState(0, joyState) && joyState.Gamepad.wButtons & XINPUT_GAMEPAD_X;
+	preLockOnButton_ = Input::GetInstance()->GetJoystickState(0, joyState) && joyState.Gamepad.wButtons & XINPUT_GAMEPAD_A;
 }
 
 void LockOn::Draw() { 

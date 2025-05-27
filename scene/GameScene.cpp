@@ -6,13 +6,11 @@
 #include "Boss.h"
 #include <CollisionTypeIdDef.h>
 
-void GameScene::Finalize()
-{
+void GameScene::Finalize() {
 
 }
 
-void GameScene::Initialize()
-{
+void GameScene::Initialize() {
 
 	audio_ = Audio::GetInstance();
 	objCommon_ = Object3dCommon::GetInstance();
@@ -54,14 +52,14 @@ void GameScene::Initialize()
 		newEnemy->SetPlayer(players_[0].get());
 		newEnemy->SetTimeManager(timeManager_.get());
 		newEnemy->Init();
-		newEnemy->SetTranslation({0.0f,0.0f,100.0f});
+		newEnemy->SetTranslation({ 0.0f,0.0f,100.0f });
 		enemies_.push_back(std::move(newEnemy));
 	}
 	std::unique_ptr<Enemy> newEnemy = std::make_unique<Soldier>();
 	newEnemy->SetPlayer(players_[0].get());
 	newEnemy->SetTimeManager(timeManager_.get());
 	newEnemy->Init();
-	newEnemy->SetTranslation({0,0,0});
+	newEnemy->SetTranslation({ 0,0,0 });
 	enemies_.push_back(std::move(newEnemy));
 	LoadEnemyPopData();
 
@@ -83,6 +81,10 @@ void GameScene::Initialize()
 	lockOn_->Initialize();
 	followCamera_->SetLockOn(lockOn_.get());
 	players_[0]->SetLockOn(lockOn_.get());
+
+	//ポーズ
+	pause_ = std::make_unique<Pause>();
+	pause_->Initialize();
 
 	// HPバーのスプライトを作成
 	hpBar_ = std::make_unique<Sprite>();
@@ -127,8 +129,7 @@ void GameScene::Initialize()
 	audio_->PlayWave(7, 1.0f, false);
 }
 
-void GameScene::Update()
-{
+void GameScene::Update() {
 #ifdef _DEBUG
 	// デバッグ
 	Debug();
@@ -150,54 +151,65 @@ void GameScene::Update()
 		});
 	// タイマー更新
 	timeManager_->Update();
-	// プレイヤー更新
-	for (std::unique_ptr<Player>& player : players_) {
-		player->Update(); 
-		player->UpdateParticle(vp_);
-	}
-	//今 敵処理
-	UpdateEnemyPopCommands();
-	for (const std::unique_ptr<Enemy>& enemy : enemies_) {
-		enemy->Update();
-	}
-	skydome_->SetScale({ 1000.0f,1000.0f,1000.0f });// 天球のScale
-	skydome_->Update();
-
+  
 	ground_->Update();
-	coliseum_->SetScale({ 400.0f,400.0f,400.0f });// コロシアムのScale
-	coliseum_->SetRadius(400.0f);
+	coliseum_->SetScale({ 320.0f,320.0f,320.0f });// コロシアムのScale
+	coliseum_->SetRadius(275.0f);
 	coliseum_->Update();
 
-	// HPバーのサイズと位置を更新
-	float hpRatio = static_cast<float>(players_[0]->GetHP()) / kMaxHp;
-	float newHeight = 500.0f * hpRatio; // HPに応じた高さ
-	hpBar_->SetSize(Vector2(100.0f, newHeight)); // 横幅を70pxに変更
-	//hpBar_->SetPosition(Vector2(0.0f, 0.0f)); // 右側に配置
+	pause_->Update();
 
-	// 敵の HPバーのサイズと位置を更新
-	//float enemyHpRatio = static_cast<float>(players_[1]->GetHP()) / kMaxHp;
-	//float enemyNewHeight = 500.0f * enemyHpRatio;
-	//enemyHpBar_->SetSize(Vector2(100.0f, enemyNewHeight)); // 横幅を70pxに変更
-	//enemyHpBar_->SetPosition(Vector2(50.0f, 100 + (500.0f - enemyNewHeight))); // 左側に配置
+	if (!pause_->GetIsPause()) {
 
-	// カメラ更新
-	CameraUpdate();
+		// プレイヤー更新
+		for (std::unique_ptr<Player>& player : players_) {
+			player->Update();
+			player->UpdateParticle(vp_);
+		}
+		//今 敵処理
+		UpdateEnemyPopCommands();
+		for (const std::unique_ptr<Enemy>& enemy : enemies_) {
+			enemy->Update();
+		}
+		skydome_->SetScale({ 1000.0f,1000.0f,1000.0f });// 天球のScale
+		skydome_->Update();
+
+		ground_->Update();
+		coliseum_->SetScale({ 400.0f,400.0f,400.0f });// コロシアムのScale
+		coliseum_->SetRadius(390.0f);
+		coliseum_->Update();
+
+		// HPバーのサイズと位置を更新
+		float hpRatio = static_cast<float>(players_[0]->GetHP()) / kMaxHp;
+		float newHeight = 500.0f * hpRatio; // HPに応じた高さ
+		hpBar_->SetSize(Vector2(100.0f, newHeight)); // 横幅を70pxに変更
+		//hpBar_->SetPosition(Vector2(0.0f, 0.0f)); // 右側に配置
+
+		// 敵の HPバーのサイズと位置を更新
+		//float enemyHpRatio = static_cast<float>(players_[1]->GetHP()) / kMaxHp;
+		//float enemyNewHeight = 500.0f * enemyHpRatio;
+		//enemyHpBar_->SetSize(Vector2(100.0f, enemyNewHeight)); // 横幅を70pxに変更
+		//enemyHpBar_->SetPosition(Vector2(50.0f, 100 + (500.0f - enemyNewHeight))); // 左側に配置
+
+		// カメラ更新
+		CameraUpdate();
+
+		starEmitter_->SetPosition(players_[0]->GetCenterPosition());
+
+		starEmitter_->Update();
+
+		particleManager_->Update(vp_);
+
+	}
 
 	// シーン切り替え
 	ChangeScene();
-
-	starEmitter_->SetPosition(players_[0]->GetCenterPosition());
-
-	starEmitter_->Update();
-
-	particleManager_->Update(vp_);
 
 	stage_->Update(wtStage_, vp_);
 	wtStage_.UpdateMatrix();
 }
 
-void GameScene::Draw()
-{
+void GameScene::Draw() {
 	/// -------描画処理開始-------
 
 	/// Spriteの描画準備
@@ -209,6 +221,7 @@ void GameScene::Draw()
 	lockOn_->Draw();
 	// HPバーの描画
 	hpBar_->Draw();
+
 	//enemyHpBar_->Draw(); // 敵の HPバーも描画
 
 	//------------------------
@@ -234,12 +247,12 @@ void GameScene::Draw()
 		enemy->Draw(vp_);
 	}
 	skydome_->Draw(vp_);
-	coliseum_->Draw(vp_);
+	//coliseum_->Draw(vp_);
 	ground_->Draw(vp_);
 
-	//stage_->Draw(wtStage_, vp_);
+	stage_->Draw(wtStage_, vp_);
 	//--------------------------
-	                 
+
 
 	/// Particleの描画準備
 	ptCommon_->DrawCommonSetting();
@@ -250,8 +263,15 @@ void GameScene::Draw()
 	for (std::unique_ptr<Player>& player : players_) {
 		player->DrawParticle(vp_);
 	}
-	
+
 	//-----------------------------
+
+	//-----UIの描画開始-----
+
+	/// Spriteの描画準備
+	spCommon_->DrawCommonSetting();
+
+	pause_->Draw();
 
 	//-----線描画-----
 	DrawLine3D::GetInstance()->Draw(vp_);
@@ -262,8 +282,7 @@ void GameScene::Draw()
 	/// -------描画処理終了-------
 }
 
-void GameScene::DrawForOffScreen()
-{
+void GameScene::DrawForOffScreen() {
 	/// -------描画処理開始-------
 
 	/// Spriteの描画準備
@@ -295,8 +314,7 @@ void GameScene::DrawForOffScreen()
 	/// -------描画処理終了-------
 }
 
-void GameScene::Debug()
-{
+void GameScene::Debug() {
 	ImGui::Begin("GameScene:Debug");
 	debugCamera_->imgui();
 	LightGroup::GetInstance()->imgui();
@@ -307,8 +325,7 @@ void GameScene::Debug()
 	ImGui::End();
 }
 
-void GameScene::CameraUpdate()
-{
+void GameScene::CameraUpdate() {
 	if (debugCamera_->GetActive()) {
 		debugCamera_->Update();
 	} else {
@@ -322,9 +339,16 @@ void GameScene::CameraUpdate()
 	}
 }
 
-void GameScene::ChangeScene()
-{
+void GameScene::ChangeScene() {
 #pragma region プレイ会用機能
+
+	if (pause_->GetReturnScene() == Pause::TITLE) {
+		sceneManager_->NextSceneReservation("TITLE");
+		if (isPlay) {
+			isPlay = false;
+		}
+	}
+
 	// タイトルシーンへ戻す
 	if (Input::GetInstance()->TriggerKey(DIK_T)) {
 		sceneManager_->NextSceneReservation("TITLE");
@@ -343,8 +367,7 @@ void GameScene::ChangeScene()
 		isClear = false;
 	}
 	for (std::unique_ptr<Player>& player : players_) {
-		if (player->IsGameOver())
-		{
+		if (player->IsGameOver()) {
 			sceneManager_->NextSceneReservation("GAMEOVER");
 			if (isPlay) {
 				audio_->PlayWave(8, 1.0f, false);
@@ -356,13 +379,13 @@ void GameScene::ChangeScene()
 
 
 void GameScene::LoadEnemyPopData() {
-    std::ifstream file;
-    file.open("./resources/enemyPop.csv");
-    assert(file.is_open());
-    //
-    enemyPopCommands << file.rdbuf();
-    //
-    file.close();
+	std::ifstream file;
+	file.open("./resources/enemyPop.csv");
+	assert(file.is_open());
+	//
+	enemyPopCommands << file.rdbuf();
+	//
+	file.close();
 }
 
 void GameScene::UpdateEnemyPopCommands() {
@@ -401,7 +424,7 @@ void GameScene::UpdateEnemyPopCommands() {
 			//
 			int32_t waitTime = atoi(word.c_str());
 			//待機開始
-			timeManager_->SetTimer("enemyPop",(float)waitTime);
+			timeManager_->SetTimer("enemyPop", (float)waitTime);
 			//
 			break;
 		}
@@ -411,15 +434,16 @@ void GameScene::UpdateEnemyPopCommands() {
 
 void GameScene::AddEnemy(const Vector3& position) {
 	for (const std::unique_ptr<Enemy>& enemy : enemies_) {
-		if (enemy->GetSerialNumber() == enemy->GetNextSerialNumber() -1) {
+		if (enemy->GetSerialNumber() == enemy->GetNextSerialNumber() - 1) {
 			enemy->SetTranslation(position);
 			enemy->Update();
+			enemy->SetRadius(3.0f);
 		}
 	}
 	std::unique_ptr<Enemy> newEnemy = std::make_unique<Soldier>();
 	newEnemy->SetPlayer(players_[0].get());
 	newEnemy->SetTimeManager(timeManager_.get());
 	newEnemy->Init();
-	newEnemy->SetTranslation({0,0,0});
+	newEnemy->SetTranslation({ 0,0,0 });
 	enemies_.push_back(std::move(newEnemy));
 }

@@ -81,6 +81,11 @@ public:
 
 private:
 
+    void LoadTransformData(const std::string& filePath) const;
+
+private:
+
     nlohmann::json jsonData_;
+    mutable std::map<std::string, std::map<std::string, std::vector<Vector3>>> transformCache_;
 
 };

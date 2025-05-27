@@ -25,6 +25,7 @@ public:
 		kLButton,
 		kRTrigger,
 		kLTrigger,
+		kStart,
 		kCount,
 		kMaxCount,
 		kSlash

@@ -128,6 +128,7 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="application\Enemy\Boss\BossStateAttack.cpp" />
     <ClCompile Include="application\Enemy\Boss\BossSword.cpp" />
     <ClCompile Include="BaseEnemySword.cpp" />
+    <ClCompile Include="application\Pause.cpp" />
     <ClCompile Include="scene\EditorScene.cpp" />
     <ClCompile Include="application\Player\PlayerSword.cpp" />
     <ClCompile Include="application\Enemy\EnemySword.cpp" />
@@ -250,6 +251,7 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="application\Enemy\Boss\BossStateAttack.h" />
     <ClInclude Include="application\Enemy\Boss\BossSword.h" />
     <ClInclude Include="BaseEnemySword.h" />
+    <ClInclude Include="application\Pause.h" />
     <ClInclude Include="scene\EditorScene.h" />
     <ClInclude Include="application\Player\PlayerSword.h" />
     <ClInclude Include="application\Enemy\EnemySword.h" />

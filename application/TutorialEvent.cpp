@@ -32,6 +32,30 @@ void TutorialEvent::Initialize() {
 		}
 	);
 
+	tutorialUI_[EventType::DASH]->Initialize(
+		Vector2(100.0f, 270.0f),
+		"Dash.png",
+		{
+			TutorialUI::UIType::kXButton
+		}
+	);
+
+	tutorialUI_[EventType::LOCKON]->Initialize(
+		Vector2(100.0f, 440.0f),
+		"LockOn.png",
+		{
+			TutorialUI::UIType::kAButton
+		}
+	);
+
+	tutorialUI_[EventType::PAUSE]->Initialize(
+		Vector2(1180.0, 270.0f),
+		"PauseText.png",
+		{
+			TutorialUI::UIType::kStart
+		}
+	);
+
 	tutorialUI_[EventType::TOPDEFENSE]->Initialize(
 		Vector2(100.0f, 100.0f),
 		"TopDefense.png",
@@ -262,6 +286,9 @@ void TutorialEvent::Update() {
 
 		AddEvent(EventType::MOVE);
 		AddEvent(EventType::ATTACKDIRECTION);
+		AddEvent(EventType::DASH);
+		AddEvent(EventType::PAUSE);
+		AddEvent(EventType::LOCKON);
 
 		break;
 
@@ -415,6 +442,24 @@ void TutorialEvent::UpdateEvent() {
 
 				if (Input::GetInstance()->GetJoyStickDirection(0, true) != Input::JoyStickDirection::None) {
 					tutorialUI_[EventType::ATTACKDIRECTION]->SetIsSuccess(true);
+				}
+				break;
+			case TutorialEvent::DASH:
+
+				if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_X) {
+					tutorialUI_[EventType::DASH]->SetIsSuccess(true);
+				}
+				break;
+			case TutorialEvent::PAUSE:
+
+				if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_START) {
+					tutorialUI_[EventType::PAUSE]->SetIsSuccess(true);
+				}
+				break;
+			case TutorialEvent::LOCKON:
+
+				if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_A) {
+					tutorialUI_[EventType::LOCKON]->SetIsSuccess(true);
 				}
 				break;
 			case TutorialEvent::TOPDEFENSE:
