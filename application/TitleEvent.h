@@ -21,6 +21,9 @@ public:
 	enum StageSelect {
 		TUTORIAL,
 		STAGE1,
+		STAGE2,
+		STAGE3,
+		STAGE4,
 		STAGEEND
 	};
 
