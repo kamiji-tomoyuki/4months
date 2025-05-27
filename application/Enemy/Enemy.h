@@ -127,7 +127,7 @@ public:
 	BaseEnemySword* GetSword() { return sword_.get(); }
 	Vector3 GetVelocity() { return velocity_; }
 	uint32_t GetSerialNumber() const { return serialNumber_; }
-	uint32_t GetNextSerialNumber() const { return nextSerialNumber_; }
+	static uint32_t GetNextSerialNumber() { return nextSerialNumber_; }
 	bool GetIsAlive() { return isAlive_; }
 	int GetHP() { return hp_; }
 	float GetShortDistance() { return shortDistance_; }

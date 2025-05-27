@@ -22,6 +22,11 @@ void GameScene::Initialize() {
 	debugCamera_ = std::make_unique<DebugCamera>();
 	debugCamera_->Initialize(&vp_);
 
+	timeManager_ = std::make_unique<TimeManager>();
+	timeManager_->Initialize();
+	timeManager_->SetTimer("start", 2.0f / 60.0f);
+
+
 	//天球
 	skydome_ = std::make_unique<Skydome>();
 	skydome_->Init("WildsSkyDome.obj");
@@ -31,37 +36,38 @@ void GameScene::Initialize() {
 	ground_ = std::make_unique<Ground>();
 	ground_->Init();
 
-	timeManager_ = std::make_unique<TimeManager>();
-	timeManager_->Initialize();
-	timeManager_->SetTimer("start", 2.0f / 60.0f);
 	//プレイヤー
 	Player::SetPlayerID(0);
-	for (uint32_t i = 0; i < 1; ++i) {
-		std::unique_ptr<Player> player = std::make_unique<Player>();
-		player->SetTimeManager(timeManager_.get());
-		player->Init();
-		player->SetViewProjection(&vp_);
-		players_.push_back(std::move(player));
-	}
-	players_[0]->SetPosition({ 0.0f,1.750f,-50.0f });
-
 	//敵
 	Enemy::SetEnemyID(0);
-	for (size_t i = 0; i < 1; i++) {
-		std::unique_ptr<Enemy> newEnemy = std::make_unique<Boss>();
-		newEnemy->SetPlayer(players_[0].get());
-		newEnemy->SetTimeManager(timeManager_.get());
-		newEnemy->Init();
-		newEnemy->SetTranslation({ 0.0f,0.0f,100.0f });
-		enemies_.push_back(std::move(newEnemy));
-	}
-	std::unique_ptr<Enemy> newEnemy = std::make_unique<Soldier>();
-	newEnemy->SetPlayer(players_[0].get());
-	newEnemy->SetTimeManager(timeManager_.get());
-	newEnemy->Init();
-	newEnemy->SetTranslation({ 0,0,0 });
-	enemies_.push_back(std::move(newEnemy));
-	LoadEnemyPopData();
+
+	LoadLevelData();
+	////プレイヤー
+	//Player::SetPlayerID(0);
+	//for (uint32_t i = 0; i < 1; ++i) {
+	//	std::unique_ptr<Player> player = std::make_unique<Player>();
+	//	player->SetTimeManager(timeManager_.get());
+	//	player->Init();
+	//	player->SetViewProjection(&vp_);
+	//	players_.push_back(std::move(player));
+	//}
+	//players_[0]->SetPosition({ 0.0f,1.750f,-50.0f });
+
+	//for (size_t i = 0; i < 1; i++) {
+	//	std::unique_ptr<Enemy> newEnemy = std::make_unique<Boss>();
+	//	newEnemy->SetPlayer(players_[0].get());
+	//	newEnemy->SetTimeManager(timeManager_.get());
+	//	newEnemy->Init();
+	//	newEnemy->SetTranslation({ 0.0f,0.0f,100.0f });
+	//	enemies_.push_back(std::move(newEnemy));
+	//}
+	//std::unique_ptr<Enemy> newEnemy = std::make_unique<Soldier>();
+	//newEnemy->SetPlayer(players_[0].get());
+	//newEnemy->SetTimeManager(timeManager_.get());
+	//newEnemy->Init();
+	//newEnemy->SetTranslation({ 2000,0,2000 });
+	//enemies_.push_back(std::move(newEnemy));
+	//LoadEnemyPopData();
 
 	// コロシアム
 	coliseum_ = std::make_unique<Coliseum>();
@@ -149,6 +155,7 @@ void GameScene::Update() {
 		}
 		return false;
 		});
+	isClear = enemies_.size() <= 1 ? true : false;
 	// タイマー更新
 	timeManager_->Update();
   
@@ -433,7 +440,16 @@ void GameScene::UpdateEnemyPopCommands() {
 }
 
 void GameScene::AddEnemy(const Vector3& position) {
+	if (0 == Enemy::GetNextSerialNumber()) {
+		std::unique_ptr<Enemy> newEnemy = std::make_unique<Soldier>();
+		newEnemy->SetPlayer(players_[0].get());
+		newEnemy->SetTimeManager(timeManager_.get());
+		newEnemy->Init();
+		newEnemy->SetTranslation({ 0,0,0 });
+		enemies_.push_back(std::move(newEnemy));
+	}
 	for (const std::unique_ptr<Enemy>& enemy : enemies_) {
+		
 		if (enemy->GetSerialNumber() == enemy->GetNextSerialNumber() - 1) {
 			enemy->SetTranslation(position);
 			enemy->Update();
@@ -446,4 +462,64 @@ void GameScene::AddEnemy(const Vector3& position) {
 	newEnemy->Init();
 	newEnemy->SetTranslation({ 0,0,0 });
 	enemies_.push_back(std::move(newEnemy));
+}
+
+void GameScene::LoadLevelData(){
+	json_ = std::make_unique<JsonLoader>();
+	std::string filePath = "scene/stage" + std::to_string(stageNum_) + ".json";
+	json_->LoadTransformData(filePath);
+	auto data = json_->GetTransformData();
+	for (const auto& [filename, names] : data) {
+		if (filename != filePath) {
+			continue;
+		}
+		for(const auto& [name, positions] : names) {
+			//プレイヤー
+			if (name == "aplayer") {
+				std::unique_ptr<Player> player = std::make_unique<Player>();
+				player->SetTimeManager(timeManager_.get());
+				player->Init();
+				player->SetViewProjection(&vp_);
+				int count = 0;
+				for (const Vector3& pos : positions) {
+					if (count == 0) {
+						player->SetPosition(pos);
+					}
+					count++;
+				}
+				players_.push_back(std::move(player));
+			}
+			//敵
+			if (name == "boss") {
+				std::unique_ptr<Enemy> newEnemy = std::make_unique<Boss>();
+				newEnemy->SetPlayer(players_[0].get());
+				newEnemy->SetTimeManager(timeManager_.get());
+				newEnemy->Init();
+				newEnemy->SetTranslation({ 0.0f,0.0f,100.0f });
+				int count = 0;
+				for (const Vector3& pos : positions) {
+					if (count == 0) {
+						newEnemy->SetTranslation(pos);
+					}
+					count++;
+				}
+				enemies_.push_back(std::move(newEnemy));
+				std::unique_ptr<Enemy> newEnemy2 = std::make_unique<Soldier>();
+				newEnemy2->SetPlayer(players_[0].get());
+				newEnemy2->SetTimeManager(timeManager_.get());
+				newEnemy2->Init();
+				newEnemy2->SetTranslation({ 0,0,0 });
+				enemies_.push_back(std::move(newEnemy2));
+			}
+			if (name.rfind("soldier", 0) == 0) {
+				int count = 0;
+				for (const Vector3& pos : positions) {
+					if (count == 0) {
+						AddEnemy(pos);
+					}
+					count++;
+				}
+			}
+		}
+	}
 }
