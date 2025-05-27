@@ -14,9 +14,10 @@ void SoldierStateApproach::Update() {
 	Player* player = enemy_->GetPlayer();
 	TimeManager* timeManager = enemy_->GetTimeManager();
 
-	Vector3 velocity_ = player->GetCenterPosition() - enemy_->GetCenterPosition();
-	velocity_ = velocity_.Normalize();
-	enemy_->SetTranslation(enemy_->GetCenterPosition() + velocity_);
+	Vector3 velocity = player->GetCenterPosition() - enemy_->GetCenterPosition();
+	velocity = velocity.Normalize();
+	enemy_->SetTranslation(enemy_->GetCenterPosition() + velocity);
+	enemy_->SetVelocity(velocity);
 
 	//プレイヤーの位置によって行動を変える
 	if (Vector3(player->GetCenterPosition() - enemy_->GetCenterPosition()).Length() < enemy_->GetShortDistance()) {
