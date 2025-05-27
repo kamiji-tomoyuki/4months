@@ -81,9 +81,16 @@ void Enemy::OnCollision(Collider* other) {
 
 		float distance = Vector3(GetCenterPosition() - enemy->GetCenterPosition()).Length();
 
-		Vector3 correction = Vector3(GetCenterPosition() - enemy->GetCenterPosition()).Normalize() * (GetRadius() + enemy->GetRadius() - distance) * 0.50f;
+		Vector3 correction = Vector3(GetCenterPosition() - enemy->GetCenterPosition()).Normalize() * (GetRadius() + enemy->GetRadius() - distance) * 0.65f;
 		transform_.translation_ += correction;
 		enemy->SetTranslation(enemy->GetTransform().translation_ - correction);
+
+		if (Vector3(GetPlayer()->GetCenterPosition() - enemy->GetCenterPosition()).Length() < enemy->GetShortDistance()) {
+			// プレイヤーとの距離が短い場合は、適切な距離に移動
+			Vector3 distance = Vector3(enemy->GetCenterPosition() - GetPlayer()->GetCenterPosition()).Normalize();
+			distance *= enemy->GetShortDistance();
+			enemy->SetPosition(GetPlayer()->GetCenterPosition() + distance);
+		}
 
 		//timeManager_->SetTimer("collision", timeManager_->deltaTime_ * 3.0f);
 	}

@@ -175,8 +175,8 @@ void GameScene::Update() {
 		skydome_->Update();
 
 		ground_->Update();
-		coliseum_->SetScale({ 400.0f,400.0f,400.0f });// コロシアムのScale
-		coliseum_->SetRadius(390.0f);
+		coliseum_->SetScale({ 320.0f,320.0f,320.0f });// コロシアムのScale
+		coliseum_->SetRadius(275.0f);
 		coliseum_->Update();
 
 		// HPバーのサイズと位置を更新
@@ -437,7 +437,6 @@ void GameScene::AddEnemy(const Vector3& position) {
 		if (enemy->GetSerialNumber() == enemy->GetNextSerialNumber() - 1) {
 			enemy->SetTranslation(position);
 			enemy->Update();
-			enemy->SetRadius(3.0f);
 		}
 	}
 	std::unique_ptr<Enemy> newEnemy = std::make_unique<Soldier>();

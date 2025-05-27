@@ -191,7 +191,7 @@ void Player::OnCollision([[maybe_unused]] Collider* other) {
 
 		float distance = Vector3(GetCenterPosition() - enemy->GetCenterPosition()).Length();
 
-		Vector3 correction = Vector3(GetCenterPosition() - enemy->GetCenterPosition()).Normalize() * (GetRadius() + enemy->GetRadius() - distance) * 0.50f;
+		Vector3 correction = Vector3(GetCenterPosition() - enemy->GetCenterPosition()).Normalize() * (GetRadius() + enemy->GetRadius() - distance) * 0.750f;
 		transform_.translation_ += correction;
 		enemy->SetTranslation(enemy->GetTransform().translation_ - correction);
 
