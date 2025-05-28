@@ -45,7 +45,7 @@ void Enemy::Update() {
 
 	wtHp_.parent_ = const_cast<WorldTransform*>(&BaseObject::GetWorldTransform());
 	wtHp_.translation_.x = 1.3f;
-	wtHp_.scale_.x = float(hp_ / maxHp_);
+	wtHp_.scale_.x = (float)kHp_ / (float)maxHp_;
 	wtHp_.UpdateMatrix();
 }
 

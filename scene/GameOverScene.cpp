@@ -151,7 +151,7 @@ void GameOverScene::Draw()
 	ground_->Draw(vp_);
 	player_->Draw(vp_);
 	for (const std::unique_ptr<Enemy>& enemy : enemies_) {
-		enemy->Draw(vp_);
+		//enemy->Draw(vp_);
 	}
 
 	//--------------------------
