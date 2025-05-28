@@ -70,6 +70,9 @@ public:
 protected:
 
 	std::unique_ptr<Object3d> model_;
+	std::unique_ptr<Object3d> hpModel_;
+
+	WorldTransform wtHp_;
 
 	//ポインタ
 	Player* player_ = nullptr;
@@ -88,6 +91,7 @@ protected:
 	bool isAlive_ = true;
 	int kHp_ = 10000;
 	int hp_ = 5;
+	int maxHp_ = 10000;
 	//行動距離
 	float shortDistance_ = 10.0f;
 	float middleDistance_ = 50.0f;
