@@ -15,6 +15,8 @@ void Enemy::Init(){
 	BaseObject::Init();
 	model_ = std::make_unique<Object3d>();
 	model_->Initialize("enemy/enemy.gltf");
+	hpModel_ = std::make_unique<Object3d>();
+	hpModel_->Initialize("enemy/hpBar.obj");
 
 	Collider::SetTypeID(static_cast<uint32_t>(CollisionTypeIdDef::kEnemy));
 
@@ -24,6 +26,8 @@ void Enemy::Init(){
 	dustEmitter_ = std::make_unique<ParticleEmitter>();
 	dustEmitter_->Initialize("Dust.json");
 	dustEmitter_->Start();
+
+	wtHp_.Initialize();
 }
 
 void Enemy::Update() {
@@ -38,13 +42,20 @@ void Enemy::Update() {
 	dustEmitter_->Update();
 
 	model_->AnimationUpdate(true);
+
+	wtHp_.parent_ = const_cast<WorldTransform*>(&BaseObject::GetWorldTransform());
+	wtHp_.translation_.x = 1.3f;
+	wtHp_.scale_.x = float(hp_ / maxHp_);
+	wtHp_.UpdateMatrix();
 }
 
 void Enemy::UpdateParticle(const ViewProjection& viewProjection){
 
 }
 
-void Enemy::Draw(const ViewProjection& viewProjection) { /*BaseObject::Draw(viewProjection);*/ }
+void Enemy::Draw(const ViewProjection& viewProjection) { 
+	hpModel_->Draw(wtHp_, viewProjection);
+}
 
 void Enemy::DrawParticle(const ViewProjection& viewProjection){
 
