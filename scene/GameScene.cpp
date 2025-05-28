@@ -181,7 +181,7 @@ void GameScene::Update() {
 			// Boss だけにこの処理を行う
 			if (Boss* boss = dynamic_cast<Boss*>(enemy.get())) {
 				// ボスの HPバーのサイズと位置を更新
-				float enemyHpRatio = static_cast<float>(enemy->GetHP()) / kMaxHp;
+				float enemyHpRatio = static_cast<float>(boss->GetHP()) / kMaxHp;
 				float enemyNewHeight = 500.0f * enemyHpRatio;
 				enemyHpBar_->SetSize(Vector2(100.0f, enemyNewHeight)); // 横幅を70pxに変更
 			}
