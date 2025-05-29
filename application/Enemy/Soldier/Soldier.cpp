@@ -7,10 +7,10 @@
 #include <Easing.h>
 using namespace std::numbers;
 
-Soldier::Soldier(){
+Soldier::Soldier() {
 
 }
-void Soldier::Init(){
+void Soldier::Init() {
 	Enemy::Init();
 	Collider::SetRadius(3.0f);
 	Collider::SetAABBScale({ 0.0f,0.0f,0.0f });
@@ -34,7 +34,7 @@ void Soldier::Init(){
 	// グループを追加
 	GlobalVariables::GetInstance()->CreateGroup(groupName);
 	globalVariables->AddItem(groupName, "kHp_", kHp_);
-	
+
 	globalVariables->AddItem(groupName, "shortDistanceProbability_.kAttack", shortDistanceProbability_.kAttack);
 	globalVariables->AddItem(groupName, "shortDistanceProbability_.kDefense", shortDistanceProbability_.kDefense);
 	globalVariables->AddItem(groupName, "middleDistanceProbability_.kAttack", middleDistanceProbability_.kAttack);
@@ -50,9 +50,11 @@ void Soldier::Init(){
 	globalVariables->AddItem(groupName, "isMove_", isMove_);
 	ApplyGlobalVariables();
 
+	deleteScale_ = transform_.scale_;
+
 	hp_ = kHp_;
 }
-void Soldier::Update(){
+void Soldier::Update() {
 	if (GetSerialNumber() == GetNextSerialNumber() - 1) {
 		return;
 	}
@@ -66,19 +68,28 @@ void Soldier::Update(){
 	if (!isMove_) {
 		return;
 	}
-	// キャラ移動
-	state_->Update();
-	
-	velocity_ *= 1.0f - kAttenuation_;
 
-	transform_.translation_ += velocity_ * timeManager_->deltaTime_;
+	if (isAlive_) {
 
-	transform_.translation_.y = GetRadius();
+		// キャラ移動
+		state_->Update();
 
-	Enemy::Update();
-	sword_->Update();
+		velocity_ *= 1.0f - kAttenuation_;
+
+		transform_.translation_ += velocity_ * timeManager_->deltaTime_;
+
+		transform_.translation_.y = GetRadius();
+
+		Enemy::Update();
+		sword_->Update();
+	} else {
+
+		Dead();
+
+		Enemy::Update();
+	}
 }
-void Soldier::UpdateParticle(const ViewProjection& viewProjection){
+void Soldier::UpdateParticle(const ViewProjection& viewProjection) {
 	Enemy::UpdateParticle(viewProjection);
 	if (timeManager_->GetTimer("Smoke" + std::to_string(GetSerialNumber())).isStart &&
 		!timeManager_->GetTimer("SmokeCoolTime" + std::to_string(GetSerialNumber())).isStart) {
@@ -91,14 +102,14 @@ void Soldier::UpdateParticle(const ViewProjection& viewProjection){
 	}
 	sword_->UpdateParticle(viewProjection);
 }
-void Soldier::Draw(const ViewProjection& viewProjection){
+void Soldier::Draw(const ViewProjection& viewProjection) {
 	if (GetSerialNumber() == GetNextSerialNumber() - 1) {
 		return;
 	}
 	Enemy::Draw(viewProjection);
 	sword_->Draw(viewProjection);
 }
-void Soldier::DrawParticle(const ViewProjection& viewProjection){
+void Soldier::DrawParticle(const ViewProjection& viewProjection) {
 	if (GetSerialNumber() == GetNextSerialNumber() - 1) {
 		return;
 	}
@@ -108,10 +119,10 @@ void Soldier::DrawParticle(const ViewProjection& viewProjection){
 		//emitter_->DrawEmitter();
 	}
 }
-void Soldier::DrawAnimation(const ViewProjection& viewProjection){
+void Soldier::DrawAnimation(const ViewProjection& viewProjection) {
 	Enemy::DrawAnimation(viewProjection);
 }
-void Soldier::OnCollision(Collider* other){
+void Soldier::OnCollision(Collider* other) {
 	Enemy::OnCollision(other);
 	// 衝突相手の種別IDを取得
 	uint32_t typeID = other->GetTypeID();
@@ -120,10 +131,10 @@ void Soldier::OnCollision(Collider* other){
 
 	}
 }
-void Soldier::OnCollisionEnter(Collider* other){
+void Soldier::OnCollisionEnter(Collider* other) {
 	Enemy::OnCollisionEnter(other);
 }
-void Soldier::OnCollisionOut(Collider* other){
+void Soldier::OnCollisionOut(Collider* other) {
 	Enemy::OnCollisionOut(other);
 }
 
@@ -145,12 +156,12 @@ void Soldier::ApplyGlobalVariables() {
 	isMove_ = globalVariables->GetBoolValue(groupName, "isMove_");
 }
 // 予備動作の方向
-void Soldier::DirectionPreliminaryAction(){
+void Soldier::DirectionPreliminaryAction() {
 	aimingDirection_ = { 0.0f, 0.0f, 0.0f };
 	// 方向をセット
-	if (GetProbabilities(0.25f)){
+	if (GetProbabilities(0.25f)) {
 		aimingDirection_ = { 1.0f, 0.0f, 0.0f };
-	} 
+	}
 	if (GetProbabilities(0.25f)) {
 		aimingDirection_ = { -1.0f, 0.0f, 0.0f };
 	}
@@ -164,7 +175,7 @@ void Soldier::DirectionPreliminaryAction(){
 	aimingDirection_ *= 5.0f;
 }
 
-Vector3 Soldier::GetCenterPosition() const{
+Vector3 Soldier::GetCenterPosition() const {
 	//ローカル座標でのオフセット
 	const Vector3 offset = { 0.0f, 0.0f, 0.0f };
 	// ワールド座標に変換
@@ -172,6 +183,6 @@ Vector3 Soldier::GetCenterPosition() const{
 	return worldPos;
 }
 
-Vector3 Soldier::GetCenterRotation() const{
+Vector3 Soldier::GetCenterRotation() const {
 	return transform_.rotation_;
 }

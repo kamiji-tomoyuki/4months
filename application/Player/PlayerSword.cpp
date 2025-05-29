@@ -6,8 +6,7 @@
 #include "EnemySword.h"
 
 /// 初期化
-void PlayerSword::Initialize()
-{
+void PlayerSword::Initialize() {
 	Collider::Initialize();
 	Collider::SetTypeID(static_cast<uint32_t>(CollisionTypeIdDef::kPlayerWeapon));
 	obj3d_ = std::make_unique<Object3d>();
@@ -15,8 +14,7 @@ void PlayerSword::Initialize()
 }
 
 /// 初期化
-void PlayerSword::Initialize(std::string filePath, std::string palmFilePath)
-{
+void PlayerSword::Initialize(std::string filePath, std::string palmFilePath) {
 	Initialize();
 	obj3d_->Initialize(filePath);
 	palm_->Initialize(palmFilePath);
@@ -33,14 +31,14 @@ void PlayerSword::Initialize(std::string filePath, std::string palmFilePath)
 		emitters_.push_back(std::move(emitter_));
 	}
 
-	emitters_[0]->Initialize("Block.json");
+	emitters_[0]->Initialize("BlockSpark.json");
+	emitters_[1]->Initialize("BlockWave.json");
 
 	isAttackSuccessful = true;
 }
 
 /// 更新
-void PlayerSword::Update()
-{
+void PlayerSword::Update() {
 	// 半径をセット
 	SetRadius(0.0f);
 	SetAABBScale({ 0.0f,0.0f,0.0f });
@@ -56,7 +54,7 @@ void PlayerSword::Update()
 	obj3d_->AnimationUpdate(true);
 }
 
-void PlayerSword::UpdateParticle(const ViewProjection& viewProjection){
+void PlayerSword::UpdateParticle(const ViewProjection& viewProjection) {
 	if (timeManager_->GetTimer("PlayerDefence" + std::to_string(id_)).isStart &&
 		!timeManager_->GetTimer("PlayerDefenceCoolTime" + std::to_string(id_)).isStart) {
 		//emitters_[1]->Start();
@@ -69,8 +67,7 @@ void PlayerSword::UpdateParticle(const ViewProjection& viewProjection){
 }
 
 /// 描画
-void PlayerSword::Draw(const ViewProjection& viewProjection)
-{
+void PlayerSword::Draw(const ViewProjection& viewProjection) {
 	palm_->Draw(transformPalm_, viewProjection);
 }
 void PlayerSword::DrawParticle(const ViewProjection& viewProjection) {
@@ -80,14 +77,12 @@ void PlayerSword::DrawParticle(const ViewProjection& viewProjection) {
 	}
 }
 /// 描画
-void PlayerSword::DrawAnimation(const ViewProjection& viewProjection)
-{
+void PlayerSword::DrawAnimation(const ViewProjection& viewProjection) {
 	obj3d_->Draw(transform_, viewProjection, &objColor_);
 }
 
 /// 当たってる間
-void PlayerSword::OnCollision(Collider* other)
-{
+void PlayerSword::OnCollision(Collider* other) {
 
 	if (timeManager_->GetTimer("start").isStart || timeManager_->GetTimer("collision").isStart) {
 		return;
@@ -103,8 +98,11 @@ void PlayerSword::OnCollision(Collider* other)
 		if (GetIsAttack() && enemySwod->GetIsDefense()) {
 			SetIsAttack(false);
 			//player_->SetObjColor({ 0.0f,0.0f,1.0f,1.0f });
+
 			//防御された時のエフェクト
 			emitters_[0]->Start();
+			emitters_[1]->Start();
+
 
 			Vector3 newVelocity = enemySwod->GetEnemy()->GetCenterPosition() - player_->GetCenterPosition();
 
@@ -143,8 +141,7 @@ void PlayerSword::OnCollision(Collider* other)
 }
 
 /// 当たった瞬間
-void PlayerSword::OnCollisionEnter(Collider* other)
-{
+void PlayerSword::OnCollisionEnter(Collider* other) {
 	if (timeManager_->GetTimer("start").isStart || timeManager_->GetTimer("collision").isStart) {
 		return;
 	}
@@ -153,13 +150,11 @@ void PlayerSword::OnCollisionEnter(Collider* other)
 }
 
 /// 当たり終わった瞬間
-void PlayerSword::OnCollisionOut(Collider* other)
-{
+void PlayerSword::OnCollisionOut(Collider* other) {
 }
 
 // 中心座標を取得
-Vector3 PlayerSword::GetCenterPosition() const
-{
+Vector3 PlayerSword::GetCenterPosition() const {
 	//ローカル座標でのオフセット
 	const Vector3 offset = { 0.0f, 2.5f, 0.0f };
 	//ワールド座標に変換
@@ -168,7 +163,7 @@ Vector3 PlayerSword::GetCenterPosition() const
 }
 
 // 回転を取得
-Vector3 PlayerSword::GetCenterRotation() const{
+Vector3 PlayerSword::GetCenterRotation() const {
 	//OBBのローカルローテーション
 	Quaternion playerQuaternion = Quaternion::FromEulerAngles(player_->GetRotation());
 	Quaternion swordQuaternion = Quaternion::FromEulerAngles(transform_.rotation_);
@@ -177,8 +172,7 @@ Vector3 PlayerSword::GetCenterRotation() const{
 }
 
 
-void PlayerSword::ImGui()
-{
+void PlayerSword::ImGui() {
 	if (ImGui::Begin("PlayerSword Coordinates")) {
 		ImGui::PushID(id_);
 		// 座標情報を表示し、DragFloat3で編集可能にする
@@ -190,26 +184,24 @@ void PlayerSword::ImGui()
 
 		ImGui::Text("Scale:");
 		ImGui::DragFloat3("Scale", &transform_.scale_.x, 0.1f);
-		
+
 		ImGui::PopID();
 		ImGui::End();
 	}
 }
 
-void PlayerSword::ContactRecordClear(){
+void PlayerSword::ContactRecordClear() {
 	contactRecord_.Clear();
 }
 
 
 /// モデルセット
-void PlayerSword::SetModel(const std::string& filePath)
-{
+void PlayerSword::SetModel(const std::string& filePath) {
 	obj3d_->SetModel(filePath);
 }
 
 /// プレイヤーセット
-void PlayerSword::SetPlayer(Player* player)
-{
+void PlayerSword::SetPlayer(Player* player) {
 	player_ = player;
 	transform_.parent_ = &player->GetWorldTransform();
 	transformPalm_.parent_ = transform_.parent_;

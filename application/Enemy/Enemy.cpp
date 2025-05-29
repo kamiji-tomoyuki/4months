@@ -1,6 +1,7 @@
 #include "Enemy.h"
 #include "CollisionTypeIdDef.h"
 #include "Player.h"
+#include "Easing.h"
 
 uint32_t Enemy::nextSerialNumber_ = 0;
 
@@ -11,7 +12,7 @@ Enemy::Enemy() {
 	++nextSerialNumber_;
 }
 
-void Enemy::Init(){
+void Enemy::Init() {
 	BaseObject::Init();
 	model_ = std::make_unique<Object3d>();
 	model_->Initialize("enemy/enemy.gltf");
@@ -40,17 +41,17 @@ void Enemy::Update() {
 	model_->AnimationUpdate(true);
 }
 
-void Enemy::UpdateParticle(const ViewProjection& viewProjection){
+void Enemy::UpdateParticle(const ViewProjection& viewProjection) {
 
 }
 
 void Enemy::Draw(const ViewProjection& viewProjection) { /*BaseObject::Draw(viewProjection);*/ }
 
-void Enemy::DrawParticle(const ViewProjection& viewProjection){
+void Enemy::DrawParticle(const ViewProjection& viewProjection) {
 
 }
 
-void Enemy::DrawAnimation(const ViewProjection& viewProjection){
+void Enemy::DrawAnimation(const ViewProjection& viewProjection) {
 	model_->Draw(BaseObject::GetWorldTransform(), viewProjection);
 }
 
@@ -91,7 +92,7 @@ void Enemy::OnCollision(Collider* other) {
 	transform_.UpdateMatrix();
 }
 
-void Enemy::OnCollisionEnter(Collider* other){
+void Enemy::OnCollisionEnter(Collider* other) {
 	if (GetSerialNumber() == GetNextSerialNumber() - 1) {
 		return;
 	}
@@ -100,16 +101,15 @@ void Enemy::OnCollisionEnter(Collider* other){
 	//衝突相手
 }
 
-void Enemy::OnCollisionOut(Collider* other){
+void Enemy::OnCollisionOut(Collider* other) {
 
 }
 
-void Enemy::ChangeState(std::unique_ptr<BaseEnemyState> state){
+void Enemy::ChangeState(std::unique_ptr<BaseEnemyState> state) {
 	state_ = std::move(state);
 	state_->Initialize();
 }
-bool Enemy::GetProbabilities(float probabilities)
-{
+bool Enemy::GetProbabilities(float probabilities) {
 	static std::random_device rd;
 	static std::mt19937 gen(rd());
 	static std::uniform_real_distribution<float> dist(0.0f, 1.0f);
@@ -132,6 +132,17 @@ void Enemy::Damage() {
 	damageEmitter_->SetPosition(GetCenterPosition());
 
 	damageEmitter_->Start();
+}
+void Enemy::Dead() {
+
+	deleteTimer_ += deleteSpeed_;
+
+	transform_.scale_ = EaseInBack(deleteScale_, Vector3(0.0f, 0.0f, 0.0f), deleteTimer_, 1.0f);
+
+	if (deleteTimer_ >= 1.0f) {
+
+		canDelate_ = true;
+	}
 }
 void Enemy::SetTranslation(const Vector3& translation) {
 	transform_.translation_ = translation;
