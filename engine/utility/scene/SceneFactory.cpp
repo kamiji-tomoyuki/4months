@@ -20,6 +20,24 @@ BaseScene* SceneFactory::CreateScene(const std::string& sceneName)
 	}
 	else if (sceneName == "GAME") {
 		newScene = new GameScene();
+		GameScene* gameScene = static_cast<GameScene*>(newScene);
+		gameScene->SetStageNum(1); // ステージ番号を設定
+	} else if (sceneName == "STAGE1") {
+		newScene = new GameScene(); 
+		GameScene* gameScene = static_cast<GameScene*>(newScene);
+		gameScene->SetStageNum(1); // ステージ番号を設定
+	} else if (sceneName == "STAGE2") {
+		newScene = new GameScene(); 
+		GameScene* gameScene = static_cast<GameScene*>(newScene);
+		gameScene->SetStageNum(2); // ステージ番号を設定
+	} else if (sceneName == "STAGE3") {
+		newScene = new GameScene(); 
+		GameScene* gameScene = static_cast<GameScene*>(newScene);
+		gameScene->SetStageNum(3); // ステージ番号を設定
+	} else if (sceneName == "STAGE4") {
+		newScene = new GameScene(); 
+		GameScene* gameScene = static_cast<GameScene*>(newScene);
+		gameScene->SetStageNum(4); // ステージ番号を設定
 	}
 	else if (sceneName == "CLEAR") {
 		newScene = new ClearScene();

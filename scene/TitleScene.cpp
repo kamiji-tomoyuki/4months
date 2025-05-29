@@ -43,9 +43,13 @@ void TitleScene::Initialize() {
 	tutorialGround_->Init();
 	tutorialGround_->SetScale({ 5.0f,5.0f,5.0f });
 
-	stage1Ground_ = std::make_unique<Ground>();
-	stage1Ground_->Init();
-	stage1Ground_->SetScale({ 5.0f,5.0f,5.0f });
+	for (int i = 0; i < 4; i++) {
+		std::unique_ptr<Ground> stageGround = std::make_unique<Ground>();
+		stageGround->Init();
+		stageGround->SetScale({ 5.0f,5.0f,5.0f });
+		stageGround_.push_back(std::move(stageGround));
+	}
+	
 
 	// BGM
 	audio_->StopWave(0);
@@ -85,7 +89,9 @@ void TitleScene::Initialize() {
 	titleEvent_->SetViewProjection(&vp_);
 
 	titleEvent_->AddGround(tutorialGround_.get());
-	titleEvent_->AddGround(stage1Ground_.get());
+	for (std::unique_ptr<Ground>& ground : stageGround_) {
+		titleEvent_->AddGround(ground.get());
+	}
 }
 
 void TitleScene::Finalize() {
@@ -125,7 +131,9 @@ void TitleScene::Update() {
 
 	tutorialGround_->Update();
 
-	stage1Ground_->Update();
+	for (std::unique_ptr<Ground>& ground : stageGround_) {
+		ground->Update();
+	}
 
 	starEmitter_->Update();
 
@@ -160,7 +168,9 @@ void TitleScene::Draw() {
 	skydome_->Draw(vp_);
 
 	tutorialGround_->Draw(vp_);
-	stage1Ground_->Draw(vp_);
+	for (std::unique_ptr<Ground>& ground : stageGround_) {
+		ground->Draw(vp_);
+	}
 	//--------------------------
 
 	/// Particleの描画準備
@@ -252,7 +262,13 @@ void TitleScene::ChangeScene() {
 	if (titleEvent_->GetStageSelect() == TitleEvent::StageSelect::TUTORIAL) {
 		sceneManager_->NextSceneReservation("TUTORIAL");
 	} else if (titleEvent_->GetStageSelect() == TitleEvent::StageSelect::STAGE1) {
-		sceneManager_->NextSceneReservation("GAME");
+		sceneManager_->NextSceneReservation("STAGE1");
+	} else if (titleEvent_->GetStageSelect() == TitleEvent::StageSelect::STAGE2) {
+		sceneManager_->NextSceneReservation("STAGE2");
+	} else if (titleEvent_->GetStageSelect() == TitleEvent::StageSelect::STAGE3) {
+		sceneManager_->NextSceneReservation("STAGE3");
+	} else if (titleEvent_->GetStageSelect() == TitleEvent::StageSelect::STAGE4) {
+		sceneManager_->NextSceneReservation("STAGE4");
 	}
 
 	audio_->PlayWave(5, 1.0f, false);

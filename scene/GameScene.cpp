@@ -22,6 +22,11 @@ void GameScene::Initialize() {
 	debugCamera_ = std::make_unique<DebugCamera>();
 	debugCamera_->Initialize(&vp_);
 
+	timeManager_ = std::make_unique<TimeManager>();
+	timeManager_->Initialize();
+	timeManager_->SetTimer("start", 2.0f / 60.0f);
+
+
 	//天球
 	skydome_ = std::make_unique<Skydome>();
 	skydome_->Init("WildsSkyDome.obj");
@@ -31,37 +36,38 @@ void GameScene::Initialize() {
 	ground_ = std::make_unique<Ground>();
 	ground_->Init();
 
-	timeManager_ = std::make_unique<TimeManager>();
-	timeManager_->Initialize();
-	timeManager_->SetTimer("start", 2.0f / 60.0f);
 	//プレイヤー
 	Player::SetPlayerID(0);
-	for (uint32_t i = 0; i < 1; ++i) {
-		std::unique_ptr<Player> player = std::make_unique<Player>();
-		player->SetTimeManager(timeManager_.get());
-		player->Init();
-		player->SetViewProjection(&vp_);
-		players_.push_back(std::move(player));
-	}
-	players_[0]->SetPosition({ 0.0f,1.750f,-50.0f });
-
 	//敵
 	Enemy::SetEnemyID(0);
-	for (size_t i = 0; i < 1; i++) {
-		std::unique_ptr<Enemy> newEnemy = std::make_unique<Boss>();
-		newEnemy->SetPlayer(players_[0].get());
-		newEnemy->SetTimeManager(timeManager_.get());
-		newEnemy->Init();
-		newEnemy->SetTranslation({ 0.0f,0.0f,100.0f });
-		enemies_.push_back(std::move(newEnemy));
-	}
-	std::unique_ptr<Enemy> newEnemy = std::make_unique<Soldier>();
-	newEnemy->SetPlayer(players_[0].get());
-	newEnemy->SetTimeManager(timeManager_.get());
-	newEnemy->Init();
-	newEnemy->SetTranslation({ 0,0,0 });
-	enemies_.push_back(std::move(newEnemy));
-	LoadEnemyPopData();
+
+	LoadLevelData();
+	////プレイヤー
+	//Player::SetPlayerID(0);
+	//for (uint32_t i = 0; i < 1; ++i) {
+	//	std::unique_ptr<Player> player = std::make_unique<Player>();
+	//	player->SetTimeManager(timeManager_.get());
+	//	player->Init();
+	//	player->SetViewProjection(&vp_);
+	//	players_.push_back(std::move(player));
+	//}
+	//players_[0]->SetPosition({ 0.0f,1.750f,-50.0f });
+
+	//for (size_t i = 0; i < 1; i++) {
+	//	std::unique_ptr<Enemy> newEnemy = std::make_unique<Boss>();
+	//	newEnemy->SetPlayer(players_[0].get());
+	//	newEnemy->SetTimeManager(timeManager_.get());
+	//	newEnemy->Init();
+	//	newEnemy->SetTranslation({ 0.0f,0.0f,100.0f });
+	//	enemies_.push_back(std::move(newEnemy));
+	//}
+	//std::unique_ptr<Enemy> newEnemy = std::make_unique<Soldier>();
+	//newEnemy->SetPlayer(players_[0].get());
+	//newEnemy->SetTimeManager(timeManager_.get());
+	//newEnemy->Init();
+	//newEnemy->SetTranslation({ 2000,0,2000 });
+	//enemies_.push_back(std::move(newEnemy));
+	//LoadEnemyPopData();
 
 	// コロシアム
 	coliseum_ = std::make_unique<Coliseum>();
@@ -95,8 +101,9 @@ void GameScene::Initialize() {
 
 	// 敵の HP バーのスプライトを作成
 	enemyHpBar_ = std::make_unique<Sprite>();
-	enemyHpBar_->Initialize("enemyHpBar.png", Vector2(50.0f, 200.0f)); // 左端に配置
+	enemyHpBar_->Initialize("enemyHpBar.png", Vector2(400.0f, 80.0f)); // 上に配置
 	enemyHpBar_->SetSize(Vector2(70.0f, 500.0f)); // 横幅を少し太く
+	enemyHpBar_->SetRotation(-1.57f);
 	enemyHpBar_->SetAnchorPoint({ 0.0f,0.0f });
 
 	// 操作説明のスプライトを作成
@@ -149,6 +156,7 @@ void GameScene::Update() {
 		}
 		return false;
 		});
+	isClear = enemies_.size() <= 1 ? true : false;
 	// タイマー更新
 	timeManager_->Update();
   
@@ -166,30 +174,33 @@ void GameScene::Update() {
 			player->Update();
 			player->UpdateParticle(vp_);
 		}
-		//今 敵処理
-		UpdateEnemyPopCommands();
-		for (const std::unique_ptr<Enemy>& enemy : enemies_) {
-			enemy->Update();
-		}
-		skydome_->SetScale({ 1000.0f,1000.0f,1000.0f });// 天球のScale
-		skydome_->Update();
-
-		ground_->Update();
-		coliseum_->SetScale({ 400.0f,400.0f,400.0f });// コロシアムのScale
-		coliseum_->SetRadius(390.0f);
-		coliseum_->Update();
 
 		// HPバーのサイズと位置を更新
 		float hpRatio = static_cast<float>(players_[0]->GetHP()) / kMaxHp;
 		float newHeight = 500.0f * hpRatio; // HPに応じた高さ
 		hpBar_->SetSize(Vector2(100.0f, newHeight)); // 横幅を70pxに変更
-		//hpBar_->SetPosition(Vector2(0.0f, 0.0f)); // 右側に配置
 
-		// 敵の HPバーのサイズと位置を更新
-		//float enemyHpRatio = static_cast<float>(players_[1]->GetHP()) / kMaxHp;
-		//float enemyNewHeight = 500.0f * enemyHpRatio;
-		//enemyHpBar_->SetSize(Vector2(100.0f, enemyNewHeight)); // 横幅を70pxに変更
-		//enemyHpBar_->SetPosition(Vector2(50.0f, 100 + (500.0f - enemyNewHeight))); // 左側に配置
+		//今 敵処理
+		UpdateEnemyPopCommands();
+		for (const std::unique_ptr<Enemy>& enemy : enemies_) {
+			enemy->Update();
+
+			// Boss だけにこの処理を行う
+			if (Boss* boss = dynamic_cast<Boss*>(enemy.get())) {
+				// ボスの HPバーのサイズと位置を更新
+				float enemyHpRatio = static_cast<float>(boss->GetHP()) / kMaxHp;
+				float enemyNewHeight = 500.0f * enemyHpRatio;
+				enemyHpBar_->SetSize(Vector2(100.0f, enemyNewHeight)); // 横幅を70pxに変更
+			}
+		}
+
+		skydome_->SetScale({ 1000.0f,1000.0f,1000.0f });// 天球のScale
+		skydome_->Update();
+
+		ground_->Update();
+		coliseum_->SetScale({ 320.0f,320.0f,320.0f });// コロシアムのScale
+		coliseum_->SetRadius(275.0f);
+		coliseum_->Update();
 
 		// カメラ更新
 		CameraUpdate();
@@ -215,15 +226,7 @@ void GameScene::Draw() {
 	/// Spriteの描画準備
 	spCommon_->DrawCommonSetting();
 	//-----Spriteの描画開始-----
-	// 操作説明の描画
-	howToPlay_->Draw();
-	//ロックオンマーク
-	lockOn_->Draw();
-	// HPバーの描画
-	hpBar_->Draw();
-
-	//enemyHpBar_->Draw(); // 敵の HPバーも描画
-
+	
 	//------------------------
 
 	objCommon_->skinningDrawCommonSetting();
@@ -270,6 +273,14 @@ void GameScene::Draw() {
 
 	/// Spriteの描画準備
 	spCommon_->DrawCommonSetting();
+	// 操作説明の描画
+	howToPlay_->Draw();
+	//ロックオンマーク
+	lockOn_->Draw();
+	// HPバーの描画
+	hpBar_->Draw();
+
+	enemyHpBar_->Draw();
 
 	pause_->Draw();
 
@@ -433,11 +444,19 @@ void GameScene::UpdateEnemyPopCommands() {
 }
 
 void GameScene::AddEnemy(const Vector3& position) {
+	if (0 == Enemy::GetNextSerialNumber()) {
+		std::unique_ptr<Enemy> newEnemy = std::make_unique<Soldier>();
+		newEnemy->SetPlayer(players_[0].get());
+		newEnemy->SetTimeManager(timeManager_.get());
+		newEnemy->Init();
+		newEnemy->SetTranslation({ 0,0,0 });
+		enemies_.push_back(std::move(newEnemy));
+	}
 	for (const std::unique_ptr<Enemy>& enemy : enemies_) {
+		
 		if (enemy->GetSerialNumber() == enemy->GetNextSerialNumber() - 1) {
 			enemy->SetTranslation(position);
 			enemy->Update();
-			enemy->SetRadius(3.0f);
 		}
 	}
 	std::unique_ptr<Enemy> newEnemy = std::make_unique<Soldier>();
@@ -446,4 +465,64 @@ void GameScene::AddEnemy(const Vector3& position) {
 	newEnemy->Init();
 	newEnemy->SetTranslation({ 0,0,0 });
 	enemies_.push_back(std::move(newEnemy));
+}
+
+void GameScene::LoadLevelData(){
+	json_ = std::make_unique<JsonLoader>();
+	std::string filePath = "scene/stage" + std::to_string(stageNum_) + ".json";
+	json_->LoadTransformData(filePath);
+	auto data = json_->GetTransformData();
+	for (const auto& [filename, names] : data) {
+		if (filename != filePath) {
+			continue;
+		}
+		for(const auto& [name, positions] : names) {
+			//プレイヤー
+			if (name == "aplayer") {
+				std::unique_ptr<Player> player = std::make_unique<Player>();
+				player->SetTimeManager(timeManager_.get());
+				player->Init();
+				player->SetViewProjection(&vp_);
+				int count = 0;
+				for (const Vector3& pos : positions) {
+					if (count == 0) {
+						player->SetPosition(pos);
+					}
+					count++;
+				}
+				players_.push_back(std::move(player));
+			}
+			//敵
+			if (name == "boss") {
+				std::unique_ptr<Enemy> newEnemy = std::make_unique<Boss>();
+				newEnemy->SetPlayer(players_[0].get());
+				newEnemy->SetTimeManager(timeManager_.get());
+				newEnemy->Init();
+				newEnemy->SetTranslation({ 0.0f,0.0f,100.0f });
+				int count = 0;
+				for (const Vector3& pos : positions) {
+					if (count == 0) {
+						newEnemy->SetTranslation(pos);
+					}
+					count++;
+				}
+				enemies_.push_back(std::move(newEnemy));
+				std::unique_ptr<Enemy> newEnemy2 = std::make_unique<Soldier>();
+				newEnemy2->SetPlayer(players_[0].get());
+				newEnemy2->SetTimeManager(timeManager_.get());
+				newEnemy2->Init();
+				newEnemy2->SetTranslation({ 0,0,0 });
+				enemies_.push_back(std::move(newEnemy2));
+			}
+			if (name.rfind("soldier", 0) == 0) {
+				int count = 0;
+				for (const Vector3& pos : positions) {
+					if (count == 0) {
+						AddEnemy(pos);
+					}
+					count++;
+				}
+			}
+		}
+	}
 }

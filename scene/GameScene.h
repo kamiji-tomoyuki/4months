@@ -24,6 +24,8 @@
 #include "ParticleManager.h"
 #include "Enemy.h"
 #include "Soldier.h"
+#include <json/JsonLoader.h>
+
 
 class GameScene : public BaseScene
 {
@@ -55,6 +57,7 @@ public: // メンバ関数
 	void DrawForOffScreen()override;
 
 	ViewProjection* GetViewProjection()override { return &vp_; }
+	void SetStageNum(int stageNum) { stageNum_ = stageNum; }
 private:
 	void Debug();
 
@@ -65,6 +68,7 @@ private:
 	void LoadEnemyPopData();
 	void UpdateEnemyPopCommands();
 	void AddEnemy(const Vector3& position);
+	void LoadLevelData();
 private:
 
 	Audio* audio_;
@@ -113,4 +117,7 @@ private:
 	std::unique_ptr<Object3d> stage_;
 	float size_ = 15.0f;
 	WorldTransform wtStage_;
+
+	int stageNum_ = 1; // ステージ番号
+	std::unique_ptr<JsonLoader> json_;
 };

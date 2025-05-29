@@ -79,8 +79,16 @@ public:
     /// <returns>ワールド座標 (x, y, z) のリスト</returns>
     Vector3 GetWorldTransformRandom(const std::string& filePath, const std::string& targetName) const;
 
+    void LoadTransformData(const std::string& filePath) const;
+	std::map<std::string, std::map<std::string, std::vector<Vector3>>> GetTransformData() const {
+		return transformCache_;
+	}
+private:
+
+
 private:
 
     nlohmann::json jsonData_;
+    mutable std::map<std::string, std::map<std::string, std::vector<Vector3>>> transformCache_;
 
 };

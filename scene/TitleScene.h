@@ -71,7 +71,7 @@ private:
 
 	std::unique_ptr<Ground> tutorialGround_ = nullptr;// 地面
 
-	std::unique_ptr<Ground> stage1Ground_ = nullptr;// 地面
+	std::vector<std::unique_ptr<Ground>> stageGround_;// 地面
 
 	std::unique_ptr<ParticleEmitter> starEmitter_ = nullptr;
 

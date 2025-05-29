@@ -14,8 +14,7 @@ void Soldier::Init() {
 	Enemy::Init();
 	Collider::SetRadius(3.0f);
 	Collider::SetAABBScale({ 0.0f,0.0f,0.0f });
-	Enemy::SetScale({ 1.0f,1.0f,1.0f });
-	Enemy::SetScale({ GetRadius(),GetRadius(),GetRadius() });
+	Enemy::SetScale({ GetRadius() * 0.9f,GetRadius() * 0.9f,GetRadius() * 0.9f });
 	shortDistance_ = (player_->GetRadius() + GetRadius()) * 2.0f;
 	middleDistance_ = (player_->GetRadius() + GetRadius()) * 4.0f;
 

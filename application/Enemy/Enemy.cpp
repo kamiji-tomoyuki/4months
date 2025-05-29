@@ -16,6 +16,8 @@ void Enemy::Init() {
 	BaseObject::Init();
 	model_ = std::make_unique<Object3d>();
 	model_->Initialize("enemy/enemy.gltf");
+	hpModel_ = std::make_unique<Object3d>();
+	hpModel_->Initialize("enemy/hpBar.obj");
 
 	Collider::SetTypeID(static_cast<uint32_t>(CollisionTypeIdDef::kEnemy));
 
@@ -25,6 +27,8 @@ void Enemy::Init() {
 	dustEmitter_ = std::make_unique<ParticleEmitter>();
 	dustEmitter_->Initialize("Dust.json");
 	dustEmitter_->Start();
+
+	wtHp_.Initialize();
 }
 
 void Enemy::Update() {
@@ -39,13 +43,20 @@ void Enemy::Update() {
 	dustEmitter_->Update();
 
 	model_->AnimationUpdate(true);
+
+	wtHp_.parent_ = const_cast<WorldTransform*>(&BaseObject::GetWorldTransform());
+	wtHp_.translation_.x = 1.3f;
+	wtHp_.scale_.x = (float)kHp_ / (float)maxHp_;
+	wtHp_.UpdateMatrix();
 }
 
 void Enemy::UpdateParticle(const ViewProjection& viewProjection) {
 
 }
 
-void Enemy::Draw(const ViewProjection& viewProjection) { /*BaseObject::Draw(viewProjection);*/ }
+void Enemy::Draw(const ViewProjection& viewProjection) { 
+	hpModel_->Draw(wtHp_, viewProjection);
+}
 
 void Enemy::DrawParticle(const ViewProjection& viewProjection) {
 
@@ -82,9 +93,16 @@ void Enemy::OnCollision(Collider* other) {
 
 		float distance = Vector3(GetCenterPosition() - enemy->GetCenterPosition()).Length();
 
-		Vector3 correction = Vector3(GetCenterPosition() - enemy->GetCenterPosition()).Normalize() * (GetRadius() + enemy->GetRadius() - distance) * 0.50f;
+		Vector3 correction = Vector3(GetCenterPosition() - enemy->GetCenterPosition()).Normalize() * (GetRadius() + enemy->GetRadius() - distance) * 0.65f;
 		transform_.translation_ += correction;
 		enemy->SetTranslation(enemy->GetTransform().translation_ - correction);
+
+		if (Vector3(GetPlayer()->GetCenterPosition() - enemy->GetCenterPosition()).Length() < enemy->GetShortDistance()) {
+			// プレイヤーとの距離が短い場合は、適切な距離に移動
+			Vector3 distance = Vector3(enemy->GetCenterPosition() - GetPlayer()->GetCenterPosition()).Normalize();
+			distance *= enemy->GetShortDistance();
+			enemy->SetPosition(GetPlayer()->GetCenterPosition() + distance);
+		}
 
 		//timeManager_->SetTimer("collision", timeManager_->deltaTime_ * 3.0f);
 	}
