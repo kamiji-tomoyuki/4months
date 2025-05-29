@@ -16,7 +16,7 @@
     "frequency": 0.0,
     "isBillboard": true,
     "isLoop": false,
-    "lifeTime": 0.5,
+    "lifeTime": 0.30000001192092896,
     "lifeTimeRandomRange": 0.0,
     "modelName": "planeSpark.obj",
     "name": "BlockWave",
@@ -156,7 +156,7 @@
         1.0,
         1.0,
         1.0,
-        0.501960813999176
+        1.0
     ],
     "startTime": 0.0
 }

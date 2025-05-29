@@ -16,14 +16,14 @@
     "frequency": 0.0,
     "isBillboard": true,
     "isLoop": false,
-    "lifeTime": 0.5,
+    "lifeTime": 1.5,
     "lifeTimeRandomRange": 0.0,
     "modelName": "planeSpark.obj",
     "name": "BlockSpark",
     "position": {
         "acceleration": [
             0.0,
-            -0.019999999552965164,
+            -0.05000000074505806,
             0.0
         ],
         "accelerationRandomRange": [
@@ -57,9 +57,9 @@
             0.0
         ],
         "velocityRandomRange": [
-            1.0,
-            1.0,
-            1.0
+            2.0,
+            2.0,
+            2.0
         ]
     },
     "positionEasingState": 0,
@@ -130,9 +130,9 @@
             0.0
         ],
         "startNum": [
-            5.0,
-            5.0,
-            5.0
+            2.5,
+            2.5,
+            2.5
         ],
         "startRandomRange": [
             0.0,
