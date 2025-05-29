@@ -90,6 +90,8 @@ void Collider::UpdateWorldTransform() {
 }
 
 void Collider::DrawSphere(const ViewProjection& viewProjection) {
+#ifdef _DEBUG
+
 	const uint32_t kSubdivision = 10;                                        // 分割数
 	const float kLonEvery = 2.0f * std::numbers::pi_v<float> / kSubdivision; // 経度分割1つ分の角度
 	const float kLatEvery = std::numbers::pi_v<float> / kSubdivision;        // 緯度分割1つ分の角度
@@ -129,11 +131,15 @@ void Collider::DrawSphere(const ViewProjection& viewProjection) {
 			DrawLine3D::GetInstance()->SetPoints(start, end2, color_);
 		}
 	}
+
+#endif // _DEBUG
 }
 
 
 void Collider::DrawAABB(const ViewProjection& viewProjection)
 {
+#ifdef _DEBUG
+
 	// AABBの頂点リスト
 	std::array<Vector3, 8> vertices = {
 		aabb.min,
@@ -157,9 +163,13 @@ void Collider::DrawAABB(const ViewProjection& viewProjection)
 	for (const auto& edge : edges) {
 		DrawLine3D::GetInstance()->SetPoints(vertices[edge.first], vertices[edge.second],color_);
 	}
+
+#endif // _DEBUG
 }
 
 void Collider::DrawOBB(const ViewProjection& viewProjection) {
+#ifdef _DEBUG
+
 	// OBBの8つの頂点を計算
 	std::array<Vector3, 8> vertices;
 
@@ -188,6 +198,8 @@ void Collider::DrawOBB(const ViewProjection& viewProjection) {
 	for (const auto& edge : edges) {
 		DrawLine3D::GetInstance()->SetPoints(vertices[edge.first], vertices[edge.second], color_);
 	}
+
+#endif // _DEBUG
 }
 
 
