@@ -69,7 +69,7 @@ void BossSword::OnCollision([[maybe_unused]] Collider* other){
 
 			player->SetHP(player->GetHP() - int(1000));
 			if (player->GetHP() <= 0) {
-				player->SetGameOver(true);
+				player->SetIsAlive(false);
 			}
 			SetIsAttack(false);
 		}

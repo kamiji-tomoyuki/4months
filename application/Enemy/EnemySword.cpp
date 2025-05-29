@@ -57,8 +57,8 @@ void EnemySword::OnCollision([[maybe_unused]] Collider* other) {
 		if (GetIsAttack() && playerSwod->GetIsDefence()) {
 			SetIsAttack(false);
 
-			emitters_[0]->Start();
-			emitters_[1]->Start();
+			//emitters_[0]->Start();
+			//emitters_[1]->Start();
 
 			isBlocked = true;
 
@@ -79,7 +79,7 @@ void EnemySword::OnCollision([[maybe_unused]] Collider* other) {
 
 			player->SetHP(player->GetHP() - int(1000));
 			if (player->GetHP() <= 0) {
-				player->SetGameOver(true);
+				player->SetIsAlive(false);
 			}
 			SetIsAttack(false);
 		}

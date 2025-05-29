@@ -71,6 +71,10 @@ void Player::Init() {
 
 	hp_ = kHp_;
 	Collider::SetRadius(size_ * 1.3f);
+
+	transform_.scale_ = { size_,size_ ,size_ };
+
+	deleteScale_ = transform_.scale_;
 }
 
 void Player::Update() {
@@ -79,31 +83,38 @@ void Player::Update() {
 	//基底クラス更新
 	BaseObject::Update();
 
-	if (behaviorRequest_) {
-		//振るまいを変更する
-		behavior_ = behaviorRequest_.value();
+	if (isAlive_) {
 
-		(this->*BehaviorInitFuncTable[static_cast<size_t>(behavior_)])();
+		if (behaviorRequest_) {
+			//振るまいを変更する
+			behavior_ = behaviorRequest_.value();
 
-		behaviorRequest_ = std::nullopt;
+			(this->*BehaviorInitFuncTable[static_cast<size_t>(behavior_)])();
+
+			behaviorRequest_ = std::nullopt;
+		}
+
+		(this->*BehaviorUpdateFuncTable[static_cast<size_t>(behavior_)])();
+
+		//if (transform_.translation_.x < -75.0f || transform_.translation_.x > 75.0f) {
+		//	transform_.translation_.x = std::clamp(transform_.translation_.x, -75.0f, 75.0f);
+		//	velocity_.x *= -1.0f;
+		//	if (!isGameOver_) {  // GameOver時はチェックしない
+		//		Audio::GetInstance()->PlayWave(11, 1.0f, false);
+		//	}
+		//}
+		//if (transform_.translation_.z < -135.0f || transform_.translation_.z > 12.0f) {
+		//	transform_.translation_.z = std::clamp(transform_.translation_.z, -135.0f, 12.0f);
+		//	velocity_.z *= -1.0f;
+		//	if (!isGameOver_) {  // GameOver時はチェックしない
+		//		Audio::GetInstance()->PlayWave(11, 1.0f, false);
+		//	}
+		//}
+
+	} else {
+
+		Dead();
 	}
-
-	(this->*BehaviorUpdateFuncTable[static_cast<size_t>(behavior_)])();
-
-	//if (transform_.translation_.x < -75.0f || transform_.translation_.x > 75.0f) {
-	//	transform_.translation_.x = std::clamp(transform_.translation_.x, -75.0f, 75.0f);
-	//	velocity_.x *= -1.0f;
-	//	if (!isGameOver_) {  // GameOver時はチェックしない
-	//		Audio::GetInstance()->PlayWave(11, 1.0f, false);
-	//	}
-	//}
-	//if (transform_.translation_.z < -135.0f || transform_.translation_.z > 12.0f) {
-	//	transform_.translation_.z = std::clamp(transform_.translation_.z, -135.0f, 12.0f);
-	//	velocity_.z *= -1.0f;
-	//	if (!isGameOver_) {  // GameOver時はチェックしない
-	//		Audio::GetInstance()->PlayWave(11, 1.0f, false);
-	//	}
-	//}
 
 	// 速度に減衰をかける
 	velocity_.x *= (1.0f - kAttenuation_);
@@ -114,7 +125,6 @@ void Player::Update() {
 	velocity_.x = std::clamp(velocity_.x, -kLimitRunSpeed_, kLimitRunSpeed_);
 	velocity_.z = std::clamp(velocity_.z, -kLimitRunSpeed_, kLimitRunSpeed_);
 
-	transform_.scale_ = { size_,size_ ,size_ };
 	Collider::SetRadius(size_ * 1.2f);
 	Collider::SetAABBScale({ 0.0f,0.0f,0.0f });
 
@@ -794,6 +804,22 @@ bool Player::IsAttackDirectionInput()
 		return true;
 	}
 	return false;
+}
+
+void Player::Dead() {
+
+	deleteTimer_ += deleteSpeed_;
+
+	if (deleteTimer_ >= 1.0f) {
+		deleteTimer_ = 1.0f;
+	}
+
+	transform_.scale_ = EaseInBack(deleteScale_, Vector3(0.0f, 0.0f, 0.0f), deleteTimer_, 1.0f);
+
+	if (deleteTimer_ >= 1.0f) {
+
+		isGameOver_ = true;
+	}
 }
 
 // 向きをセット

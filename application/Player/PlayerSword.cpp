@@ -110,6 +110,7 @@ void PlayerSword::OnCollision(Collider* other) {
 		}
 		if (GetIsDefence() && enemySwod->GetIsAttack()) {
 			emitters_[0]->Start();
+			emitters_[1]->Start();
 		}
 	}
 	if (typeID == static_cast<uint32_t>(CollisionTypeIdDef::kEnemy) ||
