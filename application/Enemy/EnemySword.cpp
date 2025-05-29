@@ -14,7 +14,8 @@ void EnemySword::Initialize(std::string filePath) {
 		emitters_.push_back(std::move(emitter_));
 	}
 
-	emitters_[0]->Initialize("Block.json");
+	emitters_[0]->Initialize("BlockSpark.json");
+	emitters_[1]->Initialize("BlockWave.json");
 
 	isBlocked = true;
 }
@@ -55,7 +56,9 @@ void EnemySword::OnCollision([[maybe_unused]] Collider* other) {
 		PlayerSword* playerSwod = static_cast<PlayerSword*>(other);
 		if (GetIsAttack() && playerSwod->GetIsDefence()) {
 			SetIsAttack(false);
+
 			emitters_[0]->Start();
+			emitters_[1]->Start();
 
 			isBlocked = true;
 

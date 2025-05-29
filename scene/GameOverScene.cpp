@@ -51,6 +51,9 @@ void GameOverScene::Initialize()
 	UI_ = std::make_unique<Sprite>();
 	UI_->Initialize("UiA.png", { 640.0f, 600.0f }, { 1,1,1,1 }, { 0.5f,0.5f });
 
+	gameOver_ = std::make_unique<Sprite>();
+	gameOver_->Initialize("gameOverUI.png", { 640.0f, 300.0f }, { 1,1,1,1 }, { 0.5f,0.5f });
+
 	//タイム
 	timeManager_ = std::make_unique<TimeManager>();
 	timeManager_->Initialize();
@@ -151,7 +154,7 @@ void GameOverScene::Draw()
 	ground_->Draw(vp_);
 	player_->Draw(vp_);
 	for (const std::unique_ptr<Enemy>& enemy : enemies_) {
-		enemy->Draw(vp_);
+		//enemy->Draw(vp_);
 	}
 
 	//--------------------------
@@ -168,6 +171,7 @@ void GameOverScene::Draw()
 	spCommon_->DrawCommonSetting();
 	//-----Spriteの描画開始-----
 	UI_->Draw();
+	gameOver_->Draw();
 	//---------------
 
 	//-----線描画-----

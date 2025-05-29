@@ -50,6 +50,9 @@ void ClearScene::Initialize() {
 	UI_ = std::make_unique<Sprite>();
 	UI_->Initialize("UiA.png", { 640.0f, 600.0f }, { 1,1,1,1 }, { 0.5f,0.5f });
 
+	clear_ = std::make_unique<Sprite>();
+	clear_->Initialize("gameClearUI.png", { 640.0f, 300.0f }, { 1,1,1,1 }, { 0.5f,0.5f });
+
 	//タイム
 	timeManager_ = std::make_unique<TimeManager>();
 	timeManager_->Initialize();
@@ -157,7 +160,7 @@ void ClearScene::Draw() {
 	ground_->Draw(vp_);
 	player_->Draw(vp_);
 	for (const std::unique_ptr<Enemy>& enemy : enemies_) {
-		enemy->Draw(vp_);
+		//enemy->Draw(vp_);
 	}
 
 	//--------------------------
@@ -174,6 +177,7 @@ void ClearScene::Draw() {
 	spCommon_->DrawCommonSetting();
 	//-----Spriteの描画開始-----
 	UI_->Draw();
+	clear_->Draw();
 	//---------------
 
 	//-----線描画-----

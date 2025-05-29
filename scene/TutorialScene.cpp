@@ -169,14 +169,14 @@ void TutorialScene::Update() {
 #endif // _DEBUG
 
 	for (auto& enemy : enemies_) {
-		if (!enemy->GetIsAlive()) {
+		if (enemy->GetCanDelate()) {
 			tutorialEvent_->SetEnemy(nullptr);
 			lockOn_->ResetTarget();
 		}
 	}
 
 	enemies_.remove_if([](const std::unique_ptr<Enemy>& enemy) {
-		if (!enemy->GetIsAlive()) {
+		if (enemy->GetCanDelate()) {
 			return true;
 		}
 		return false;
