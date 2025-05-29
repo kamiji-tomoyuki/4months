@@ -143,7 +143,7 @@ void GameScene::Update() {
 #endif // _DEBUG
 	//前 敵処理
 	for (const std::unique_ptr<Enemy>& enemy : enemies_) {
-		if (!enemy->GetIsAlive()) {
+		if (enemy->GetCanDelate()) {
 			lockOn_->ResetTarget();
 			if (enemy->GetTypeID() == static_cast<uint32_t>(CollisionTypeIdDef::kBoss)) {
 				isClear = true;
@@ -151,7 +151,7 @@ void GameScene::Update() {
 		}
 	}
 	enemies_.remove_if([](const std::unique_ptr<Enemy>& enemy) {
-		if (!enemy->GetIsAlive()) {
+		if (enemy->GetCanDelate()) {
 			return true;
 		}
 		return false;

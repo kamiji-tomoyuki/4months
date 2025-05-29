@@ -67,6 +67,8 @@ public:
 	void VectorRotation(const Vector3& direction);
 
 	void Damage();
+
+	void Dead();
 protected:
 
 	std::unique_ptr<Object3d> model_;
@@ -89,6 +91,7 @@ protected:
 	static uint32_t nextSerialNumber_;
 	//命
 	bool isAlive_ = true;
+	bool canDelate_ = false;
 	int kHp_ = 10000;
 	int hp_ = 5;
 	int maxHp_ = 10000;
@@ -104,6 +107,12 @@ protected:
 	// 減衰速度
 	float kAttenuation_ = 0.005f;
 
+	Vector3 deleteScale_;
+
+	float deleteTimer_ = 0.0f;
+
+	float deleteSpeed_ = 0.05f;
+
 	// パーティクルエミッタ
 	std::vector<std::unique_ptr<ParticleEmitter>> emitters_;
 
@@ -117,6 +126,7 @@ public:
 	void SetTranslation(const Vector3& translation);
 	void SetVelocity(const Vector3& velocity) { velocity_ = velocity; }
 	void SetIsAlive(bool isAlive) { isAlive_ = isAlive; }
+	void SetCanDelate(bool canDelate) { canDelate_ = canDelate; }
 	void SetHP(int hp) { hp_ = hp; }
 	void SetPosition(Vector3 position) {
 		transform_.translation_ = position;
@@ -133,6 +143,8 @@ public:
 	uint32_t GetSerialNumber() const { return serialNumber_; }
 	static uint32_t GetNextSerialNumber() { return nextSerialNumber_; }
 	bool GetIsAlive() { return isAlive_; }
+	bool GetCanDelate() { return canDelate_; }
+	int GetHP() { return hp_; }
 	int GetHP() { return kHp_; }
 	float GetShortDistance() { return shortDistance_; }
 	float GetMiddleDistance() { return middleDistance_; }
