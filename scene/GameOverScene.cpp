@@ -67,6 +67,8 @@ void GameOverScene::Initialize()
 	player_->SetViewProjection(&vp_);
 	player_->SetRotation({ -1.0f,0.0f,0.0f });
 
+	player_->UpdateTransform();
+
 	player_->Update();
 
 	//エネミー

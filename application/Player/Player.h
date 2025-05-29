@@ -181,6 +181,8 @@ private:	// メンバ関数
 	// 攻撃方向入力されたか
 	bool IsAttackDirectionInput();
 
+	void Dead();
+
 private:	// メンバ変数
 
 	std::unique_ptr<Object3d> model_;
@@ -236,6 +238,12 @@ private:	// メンバ変数
 	//float powerMagnification_ = 1.0f;
 	bool isClear_ = false;
 	bool isGameOver_ = false;
+
+	Vector3 deleteScale_;
+
+	float deleteTimer_ = 0.0f;
+
+	float deleteSpeed_ = 0.05f;
 
 	std::unique_ptr<PlayerSword> sword_;
 	// パーティクルエミッタ
@@ -294,5 +302,7 @@ public:
 	//void SetAttackPower(float attackPower) { attackPower_ = attackPower; }
 	//void SetPowerMagnification(float powerMagnification) { powerMagnification_ = powerMagnification; }
 	void SetGameOver(bool gameOver) { isGameOver_ = gameOver; }
+
+	void SetIsAlive(bool flag) { isAlive_ = flag; }
 
 };

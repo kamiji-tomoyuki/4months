@@ -108,6 +108,10 @@ void ClearScene::Update() {
 
 	timeManager_->Update();
 
+	player_->SetRotation({ 0.0f,3.14f,0.0f });
+
+	player_->UpdateTransform();
+
 	for (auto& enemy : enemies_) {
 
 		enemy->SetRotation({ enemy->GetCenterRotation().x,enemy->GetCenterRotation().y + 0.01f,enemy->GetCenterRotation().z });
