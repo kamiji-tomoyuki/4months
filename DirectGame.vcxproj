@@ -66,7 +66,7 @@
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <TreatWarningAsError>true</TreatWarningAsError>
       <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)application\;$(ProjectDir)application\Base;$(ProjectDir)application\Enemy\Boss;$(ProjectDir)application\Enemy\Soldier;$(ProjectDir)application\Enemy;$(ProjectDir)application\Player;$(ProjectDir)application\Coliseum;$(ProjectDir)engine\2d;$(ProjectDir)engine\3d;$(ProjectDir)engine\3d\light;$(ProjectDir)engine\3d\particle;$(ProjectDir)engine\3d\model;$(ProjectDir)engine\3d\transform;$(ProjectDir)engine\3d\camera;$(ProjectDir)engine\base;$(ProjectDir)engine\input;$(ProjectDir)engine\utility;$(ProjectDir)engine\utility\graphics;$(ProjectDir)engine\utility\debug;$(ProjectDir)engine\utility\string;$(ProjectDir)scene;$(ProjectDir)engine\core;$(ProjectDir)engine\utility\edit;$(ProjectDir)engine\utility\collider;$(ProjectDir)engine\utility\scene;$(ProjectDir)particle;$(ProjectDir)math;$(ProjectDir)externals\assimp\include;$(ProjectDir)engine\Frame;$(ProjectDir)engine\Audio;$(ProjectDir)externals\imgui;$(ProjectDir)externals\DirectXTex</AdditionalIncludeDirectories>
-      <Optimization>Custom</Optimization>
+      <Optimization>MinSpace</Optimization>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -93,7 +93,7 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)application\;$(ProjectDir)application\Base;$(ProjectDir)application\Enemy\Boss;$(ProjectDir)application\Enemy\Soldier;$(ProjectDir)application\Enemy;$(ProjectDir)application\Player;$(ProjectDir)application\Coliseum;$(ProjectDir)engine\2d;$(ProjectDir)engine\3d;$(ProjectDir)engine\3d\light;$(ProjectDir)engine\3d\particle;$(ProjectDir)engine\3d\model;$(ProjectDir)engine\3d\transform;$(ProjectDir)engine\3d\camera;$(ProjectDir)engine\base;$(ProjectDir)engine\input;$(ProjectDir)engine\utility;$(ProjectDir)engine\utility\graphics;$(ProjectDir)engine\utility\debug;$(ProjectDir)engine\utility\string;$(ProjectDir)scene;$(ProjectDir)engine\core;$(ProjectDir)engine\utility\edit;$(ProjectDir)engine\utility\collider;$(ProjectDir)engine\utility\scene;$(ProjectDir)particle;$(ProjectDir)math;$(ProjectDir)externals\assimp\include;$(ProjectDir)engine\Frame;$(ProjectDir)engine\Audio;$(ProjectDir)externals\imgui;$(ProjectDir)externals\DirectXTex</AdditionalIncludeDirectories>
-      <Optimization>Custom</Optimization>
+      <Optimization>MinSpace</Optimization>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
