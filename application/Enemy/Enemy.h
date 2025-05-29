@@ -133,7 +133,7 @@ public:
 	uint32_t GetSerialNumber() const { return serialNumber_; }
 	uint32_t GetNextSerialNumber() const { return nextSerialNumber_; }
 	bool GetIsAlive() { return isAlive_; }
-	int GetHP() { return hp_; }
+	int GetHP() { return kHp_; }
 	float GetShortDistance() { return shortDistance_; }
 	float GetMiddleDistance() { return middleDistance_; }
 	BehaviorProbability GetShortDistanceProbability() { return shortDistanceProbability_; }

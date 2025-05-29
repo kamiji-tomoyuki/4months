@@ -226,7 +226,7 @@ void GameScene::Draw() {
 	// HPバーの描画
 	hpBar_->Draw();
 
-	enemyHpBar_->Draw(); // 敵の HPバーも描画
+	enemyHpBar_->Draw();
 
 	//------------------------
 
