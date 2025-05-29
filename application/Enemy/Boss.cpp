@@ -52,6 +52,8 @@ void Boss::Init() {
 	//更新
 	ApplyGlobalVariables();
 	hp_ = kHp_;
+
+	deleteScale_ = transform_.scale_;
 }
 void Boss::Update() {
 	ApplyGlobalVariables();
@@ -61,18 +63,27 @@ void Boss::Update() {
 	if (!isMove_) {
 		return;
 	}
-	// キャラ移動
-	state_->Update();
 
-	velocity_ *= 1.0f - kAttenuation_;
+	if (isAlive_) {
+		// キャラ移動
+		state_->Update();
 
-	transform_.translation_ += velocity_ * timeManager_->deltaTime_;
+		velocity_ *= 1.0f - kAttenuation_;
 
-	transform_.translation_.y = GetRadius();
-	Enemy::Update();
-	sword_->Update();
+		transform_.translation_ += velocity_ * timeManager_->deltaTime_;
 
-	model_->AnimationUpdate(true);
+		transform_.translation_.y = GetRadius();
+		Enemy::Update();
+		sword_->Update();
+
+		model_->AnimationUpdate(true);
+	} else {
+
+		Dead();
+
+		Enemy::Update();
+	}
+
 }
 void Boss::Draw(const ViewProjection& viewProjection) {
 	//Enemy::Draw(viewProjection);

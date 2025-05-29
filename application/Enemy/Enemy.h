@@ -145,7 +145,6 @@ public:
 	bool GetIsAlive() { return isAlive_; }
 	bool GetCanDelate() { return canDelate_; }
 	int GetHP() { return hp_; }
-	int GetHP() { return kHp_; }
 	float GetShortDistance() { return shortDistance_; }
 	float GetMiddleDistance() { return middleDistance_; }
 	BehaviorProbability GetShortDistanceProbability() { return shortDistanceProbability_; }
