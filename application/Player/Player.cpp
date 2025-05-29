@@ -70,6 +70,7 @@ void Player::Init() {
 	ApplyGlobalVariables();
 
 	hp_ = kHp_;
+	Collider::SetRadius(size_ * 1.3f);
 }
 
 void Player::Update() {
