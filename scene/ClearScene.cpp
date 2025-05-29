@@ -93,6 +93,13 @@ void ClearScene::Initialize() {
 	emitter_ = std::make_unique<ParticleEmitter>();
 	emitter_->Initialize("Clear.json");
 	emitter_->Start();
+
+	audio_->StopWave(0);
+	audio_->StopWave(1);
+	audio_->StopWave(2);
+	audio_->StopWave(3);
+	audio_->StopWave(4);
+	audio_->PlayWave(2, 0.1f, true);
 }
 
 /// 更新

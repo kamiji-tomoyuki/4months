@@ -89,6 +89,12 @@ void GameOverScene::Initialize()
 	gameOverEmitter_->Initialize("GameOver.json");
 	gameOverEmitter_->Start();
 
+	audio_->StopWave(0);
+	audio_->StopWave(1);
+	audio_->StopWave(2);
+	audio_->StopWave(3);
+	audio_->StopWave(4);
+	audio_->PlayWave(3, 0.1f, true);
 }
 
 /// 更新
