@@ -94,7 +94,7 @@ protected:
 	bool canDelate_ = false;
 	int kHp_ = 10000;
 	int hp_ = 5;
-	int maxHp_ = 10000;
+	int maxHp_ = 3000;
 	//行動距離
 	float shortDistance_ = 10.0f;
 	float middleDistance_ = 50.0f;
