@@ -77,6 +77,7 @@ private:
 	std::vector<std::unique_ptr<Enemy>> enemies_;
 
 	std::unique_ptr<Sprite> UI_;
+	std::unique_ptr<Sprite> clear_;
 	float timer_ = 0.0f;
 	float speed_ = 0.02f;
 

@@ -226,15 +226,7 @@ void GameScene::Draw() {
 	/// Spriteの描画準備
 	spCommon_->DrawCommonSetting();
 	//-----Spriteの描画開始-----
-	// 操作説明の描画
-	howToPlay_->Draw();
-	//ロックオンマーク
-	lockOn_->Draw();
-	// HPバーの描画
-	hpBar_->Draw();
-
-	enemyHpBar_->Draw();
-
+	
 	//------------------------
 
 	objCommon_->skinningDrawCommonSetting();
@@ -281,6 +273,14 @@ void GameScene::Draw() {
 
 	/// Spriteの描画準備
 	spCommon_->DrawCommonSetting();
+	// 操作説明の描画
+	howToPlay_->Draw();
+	//ロックオンマーク
+	lockOn_->Draw();
+	// HPバーの描画
+	hpBar_->Draw();
+
+	enemyHpBar_->Draw();
 
 	pause_->Draw();
 
