@@ -2,7 +2,9 @@
 
 #include "ViewProjection.h"
 #include "Ground.h"
+#include "TitleGround.h"
 #include "Sprite.h"
+#include "Object3d.h"
 
 #include "vector"
 
@@ -40,7 +42,9 @@ public:
 	/// <summary>
 	/// 描画
 	/// </summary>
-	void Draw();
+	void DrawUI();
+
+	void DrawObject3D();
 
 	void ImGui();
 
@@ -72,8 +76,8 @@ public:
 
 	StageSelect GetStageSelect() const { return stageSelectState_; }
 
-	void AddGround(Ground* ground) {
-		grounds_.push_back(ground);
+	void AddTitleGround(TitleGround* titleGround) {
+		titleGrounds_.push_back(titleGround);
 	}
 
 	bool IsEventEnd() const {
@@ -90,7 +94,15 @@ private:
 
 	SceneManager* sceneManager_ = nullptr;
 
-	std::vector<Ground*> grounds_;
+	std::vector<TitleGround*> titleGrounds_;
+
+	std::vector<std::unique_ptr<Object3d>> soldiers_;
+
+	std::vector<WorldTransform> wtSoldiers_;
+
+	std::unique_ptr<Object3d> boss_;
+
+	WorldTransform wtBoss_;
 
 	std::unique_ptr<Sprite> padUI_;
 
@@ -104,6 +116,12 @@ private:
 
 	std::unique_ptr<Sprite> stage1UI_;
 
+	std::unique_ptr<Sprite> stage2UI_;
+
+	std::unique_ptr<Sprite> stage3UI_;
+
+	std::unique_ptr<Sprite> stage4UI_;
+
 	State state_;
 
 	StageSelect stageSelectState_;
@@ -111,6 +129,10 @@ private:
 	bool isEventEnd_ = false;
 
 	bool isSceneChange_ = false;
+
+	int soldierCount_ = 0;
+
+	bool bossFlag_ = false;
 
 	float timer_ = 0.0f;
 

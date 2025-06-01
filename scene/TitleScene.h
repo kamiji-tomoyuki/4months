@@ -10,7 +10,7 @@
 #include"WorldTransform.h"
 #include"ParticleEmitter.h"
 #include <Skydome.h>
-#include "Ground.h"
+#include "TitleGround.h"
 #include <Sprite.h>
 #include "TitleEvent.h"
 
@@ -69,9 +69,9 @@ private:
 
 	std::unique_ptr<Skydome> skydome_ = nullptr;// 天球
 
-	std::unique_ptr<Ground> tutorialGround_ = nullptr;// 地面
+	std::unique_ptr<TitleGround> tutorialGround_ = nullptr;// 地面
 
-	std::vector<std::unique_ptr<Ground>> stageGround_;// 地面
+	std::vector<std::unique_ptr<TitleGround>> stageGround_;// 地面
 
 	std::unique_ptr<ParticleEmitter> starEmitter_ = nullptr;
 

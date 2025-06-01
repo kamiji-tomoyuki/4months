@@ -23,6 +23,8 @@ void TitleScene::Initialize() {
 
 	vp_.Initialize();
 	vp_.translation_ = { 0.0f,100.0f,0.0f };
+	vp_.nearZ = 1.0f;
+	vp_.farZ = 10000.0f;
 
 	debugCamera_ = std::make_unique<DebugCamera>();
 	debugCamera_->Initialize(&vp_);
@@ -39,17 +41,16 @@ void TitleScene::Initialize() {
 	skydome_->SetViewProjection(&vp_);
 	skydome_->SetScale({ 1000.0f,1000.0f,1000.0f });// 天球のScale
 
-	tutorialGround_ = std::make_unique<Ground>();
-	tutorialGround_->Init();
-	tutorialGround_->SetScale({ 5.0f,5.0f,5.0f });
+	tutorialGround_ = std::make_unique<TitleGround>();
+	tutorialGround_->Initialize();
+	tutorialGround_->SetViewProjection(&vp_);
 
 	for (int i = 0; i < 4; i++) {
-		std::unique_ptr<Ground> stageGround = std::make_unique<Ground>();
-		stageGround->Init();
-		stageGround->SetScale({ 5.0f,5.0f,5.0f });
+		std::unique_ptr<TitleGround> stageGround = std::make_unique<TitleGround>();
+		stageGround->Initialize();
+		stageGround->SetViewProjection(&vp_);
 		stageGround_.push_back(std::move(stageGround));
 	}
-	
 
 	// BGM
 	audio_->StopWave(0);
@@ -88,9 +89,9 @@ void TitleScene::Initialize() {
 
 	titleEvent_->SetViewProjection(&vp_);
 
-	titleEvent_->AddGround(tutorialGround_.get());
-	for (std::unique_ptr<Ground>& ground : stageGround_) {
-		titleEvent_->AddGround(ground.get());
+	titleEvent_->AddTitleGround(tutorialGround_.get());
+	for (std::unique_ptr<TitleGround>& ground : stageGround_) {
+		titleEvent_->AddTitleGround(ground.get());
 	}
 }
 
@@ -131,7 +132,7 @@ void TitleScene::Update() {
 
 	tutorialGround_->Update();
 
-	for (std::unique_ptr<Ground>& ground : stageGround_) {
+	for (std::unique_ptr<TitleGround>& ground : stageGround_) {
 		ground->Update();
 	}
 
@@ -154,6 +155,7 @@ void TitleScene::Draw() {
 	objCommon_->skinningDrawCommonSetting();
 	//-----アニメーションの描画開始-----
 
+	titleEvent_->DrawObject3D();
 
 	//------------------------------
 
@@ -167,10 +169,12 @@ void TitleScene::Draw() {
 
 	skydome_->Draw(vp_);
 
-	tutorialGround_->Draw(vp_);
-	for (std::unique_ptr<Ground>& ground : stageGround_) {
-		ground->Draw(vp_);
+	tutorialGround_->Draw();
+
+	for (std::unique_ptr<TitleGround>& ground : stageGround_) {
+		ground->Draw();
 	}
+
 	//--------------------------
 
 	/// Particleの描画準備
@@ -185,7 +189,7 @@ void TitleScene::Draw() {
 	spCommon_->DrawCommonSetting();
 	//-----Spriteの描画開始-----
 
-	titleEvent_->Draw();
+	titleEvent_->DrawUI();
 
 	//------------------------
 
