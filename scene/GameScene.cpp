@@ -124,6 +124,7 @@ void GameScene::Initialize() {
 	stage_->Initialize("stage/stage.obj");
 
 	wtStage_.Initialize();
+
 	stage_->SetSize(Vector3{ size_,size_,size_ });
 
 	audio_->StopWave(0);

@@ -206,6 +206,7 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="scene\TutorialScene.cpp" />
     <ClCompile Include="application\TutorialUI.cpp" />
     <ClCompile Include="application\TutorialEvent.cpp" />
+    <ClCompile Include="application\TitleGround.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
@@ -337,6 +338,7 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="scene\TutorialScene.h" />
     <ClInclude Include="application\TutorialUI.h" />
     <ClInclude Include="application\TutorialEvent.h" />
+    <ClInclude Include="application\TitleGround.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\shaders\OffScreen\BoxFilter.PS.hlsl">
