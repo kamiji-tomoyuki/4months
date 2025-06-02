@@ -4,6 +4,7 @@
 #include "CollisionTypeIdDef.h"
 #include "Player.h"
 #include "PlayerSword.h"
+#include <Audio.h>
 
 void EnemySword::Initialize(std::string filePath) {
 	BaseEnemySword::Initialize(filePath);
@@ -62,6 +63,8 @@ void EnemySword::OnCollision([[maybe_unused]] Collider* other) {
 
 			isBlocked = true;
 
+			Audio::GetInstance()->PlayWave(9, 0.3f, false);
+
 			//enemy_->SetObjColor({ 0.0f,0.0f,1.0f,1.0f });
 			//emitters_[0]->SetEmitActive(true);
 			Vector3 newVelocity = playerSwod->GetPlayer()->GetCenterPosition() - enemy_->GetCenterPosition();
@@ -76,6 +79,8 @@ void EnemySword::OnCollision([[maybe_unused]] Collider* other) {
 			Vector3 newVelocity = player->GetCenterPosition() - enemy_->GetCenterPosition();
 
 			player->SetVelocity(player->GetVelocity() + newVelocity.Normalize() * 300.0f);
+
+			Audio::GetInstance()->PlayWave(12, 0.2f, false);
 
 			player->SetHP(player->GetHP() - int(1000));
 			if (player->GetHP() <= 0) {
