@@ -75,6 +75,10 @@ void TutorialScene::Initialize() {
 
 		newEnemy->SetTranslation({ 0.0f,1.750f,0.0f });
 
+		newEnemy->SetMaxHP(6000);
+
+		newEnemy->SetHP(6000);
+
 		enemies_.push_back(std::move(newEnemy));
 	}
 
@@ -461,6 +465,10 @@ void TutorialScene::ReSpawnEnemy() {
 			newEnemy->Init();
 
 			newEnemy->SetTranslation({ 0.0f,1.750f,0.0f });
+
+			newEnemy->SetMaxHP(6000);
+
+			newEnemy->SetHP(6000);
 
 			enemies_.push_back(std::move(newEnemy));
 

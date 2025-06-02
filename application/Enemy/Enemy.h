@@ -128,6 +128,7 @@ public:
 	void SetIsAlive(bool isAlive) { isAlive_ = isAlive; }
 	void SetCanDelate(bool canDelate) { canDelate_ = canDelate; }
 	void SetHP(int hp) { hp_ = hp; }
+	void SetMaxHP(int maxHp) { maxHp_ = maxHp; }
 	void SetPosition(Vector3 position) {
 		transform_.translation_ = position;
 		transform_.UpdateMatrix();
