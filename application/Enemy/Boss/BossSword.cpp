@@ -5,6 +5,7 @@
 #include "Player.h"
 #include "PlayerSword.h"
 #include "BossStateRoot.h"
+#include <Audio.h>
 using namespace std::numbers;
 
 void BossSword::Initialize(std::string filePath){
@@ -42,6 +43,9 @@ void BossSword::OnCollision([[maybe_unused]] Collider* other){
 			SetIsAttack(false);
 			Vector3 aimingDirection = boss->GetAimingDirection();
 			aimingDirection.y *= -1.0f;
+
+			Audio::GetInstance()->PlayWave(9, 0.3f, false);
+
 			boss->SetAimingDirection(aimingDirection);
 			//enemy_->SetObjColor({ 0.0f,0.0f,1.0f,1.0f });
 			//emitters_[0]->SetEmitActive(true);
@@ -66,6 +70,8 @@ void BossSword::OnCollision([[maybe_unused]] Collider* other){
 			Vector3 newVelocity = player->GetCenterPosition() - enemy_->GetCenterPosition();
 
 			player->SetVelocity(player->GetVelocity() + newVelocity.Normalize() * 300.0f);
+
+			Audio::GetInstance()->PlayWave(12, 0.2f, false);
 
 			player->SetHP(player->GetHP() - int(1000));
 			if (player->GetHP() <= 0) {

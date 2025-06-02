@@ -281,8 +281,12 @@ void GameScene::Draw() {
 	// HPバーの描画
 	hpBar_->Draw();
 
-	enemyHpBar_->Draw();
-
+	for (const std::unique_ptr<Enemy>& enemy : enemies_) {
+		if (Boss* boss = dynamic_cast<Boss*>(enemy.get())) {
+			enemyHpBar_->Draw();
+		}
+	}
+	
 	pause_->Draw();
 
 	//-----線描画-----
