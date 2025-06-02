@@ -45,6 +45,17 @@ void BossStateAttack::Update(){
 		timeManager_->SetTimer("AttackCoolTime" + std::to_string(enemy_->GetSerialNumber()), enemy_->GetCoolTime());
 		boss_->GetSword()->SetIsAttack(true);
 	}
+
+	Vector3 velocity_ = player_->GetCenterPosition() - enemy_->GetCenterPosition();
+	
+	velocity_ = velocity_.Normalize();
+
+	float angle = std::numbers::pi_v<float> / 2.0f * boss_->GetAimingDirection().y; // 90度
+	Quaternion rot = Quaternion::MakeRotateAxisAngleQuaternion(Vector3(0.0f, 1.0f, 0.0f), angle);
+	velocity_ = Quaternion::RotateVector(velocity_, rot);
+
+	
+	enemy_->SetTranslation(enemy_->GetCenterPosition() + velocity_ * 30.0f * timeManager_->deltaTime_);
 	////プレイヤーの位置によって行動を変える
 	//if (Vector3(player_->GetCenterPosition() - enemy_->GetCenterPosition()).Length() < enemy_->GetShortDistance()) {
 	//	enemy_->ChangeState(std::make_unique<BossStateRoot>(enemy_));
