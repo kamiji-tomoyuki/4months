@@ -53,6 +53,7 @@ void PlayerSword::Update() {
 	objColor_.TransferMatrix();
 
 	obj3d_->AnimationUpdate(true);
+	palm_->AnimationUpdate(true);
 }
 
 void PlayerSword::UpdateParticle(const ViewProjection& viewProjection) {
