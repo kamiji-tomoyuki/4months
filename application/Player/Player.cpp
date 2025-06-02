@@ -207,6 +207,7 @@ void Player::OnCollision([[maybe_unused]] Collider* other) {
 		enemy->SetTranslation(enemy->GetTransform().translation_ - correction);
 
 		//timeManager_->SetTimer("collision", timeManager_->deltaTime_ * 3.0f);
+
 	}
 
 	transform_.UpdateMatrix();

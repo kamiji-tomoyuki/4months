@@ -69,9 +69,10 @@ void TitleScene::Initialize() {
 	audio_->LoadWave("SE/punch.wav");		// 6
 	audio_->LoadWave("SE/battleStart.wav");	// 7
 	audio_->LoadWave("SE/battleEnd.wav");	// 8
-	audio_->LoadWave("SE/hit.wav");			// 9	ダメージをもらった時
-	audio_->LoadWave("SE/hitBigDamage.wav");// 10	大ダメージを与えた/もらった時
+	audio_->LoadWave("SE/gard.wav");		// 9	ダメージをもらった時
+	audio_->LoadWave("SE/hitBigDamage.wav");// 10	使わない
 	audio_->LoadWave("SE/reflection.wav");	// 11	壁に反射したとき
+	audio_->LoadWave("SE/damaged.wav");		// 12	被弾した時
 
 	audio_->PlayWave(0, 0.1f, true);
 
