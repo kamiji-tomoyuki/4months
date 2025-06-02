@@ -534,9 +534,9 @@ void TitleEvent::ImGui() {
 
 			ImGui::DragFloat3("GameStart Rotation", &gameStartRotation_.x, 0.1f);
 
-			ImGui::Text("TutorialGroundTranslation : %f,%f,%f", grounds_[0]->GetWorldPosition().x, grounds_[0]->GetWorldPosition().y, grounds_[0]->GetWorldPosition().z);
+			//ImGui::Text("TutorialGroundTranslation : %f,%f,%f", grounds_[0]->GetWorldPosition().x, grounds_[0]->GetWorldPosition().y, grounds_[0]->GetWorldPosition().z);
 
-			ImGui::Text("Stage1GroundTranslation : %f,%f,%f", grounds_[1]->GetWorldPosition().x, grounds_[1]->GetWorldPosition().y, grounds_[1]->GetWorldPosition().z);
+			//ImGui::Text("Stage1GroundTranslation : %f,%f,%f", grounds_[1]->GetWorldPosition().x, grounds_[1]->GetWorldPosition().y, grounds_[1]->GetWorldPosition().z);
 
 			ImGui::EndTabItem();
 		}
