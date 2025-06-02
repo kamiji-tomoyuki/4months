@@ -8,7 +8,10 @@
 using namespace std::numbers;
 
 Soldier::Soldier() {
-
+	//シリアルナンバーをふる
+	serialNumber_ = nextSerialNumber_;
+	//次の番号を加算
+	++nextSerialNumber_;
 }
 void Soldier::Init() {
 	Enemy::Init();
@@ -119,6 +122,9 @@ void Soldier::DrawParticle(const ViewProjection& viewProjection) {
 	}
 }
 void Soldier::DrawAnimation(const ViewProjection& viewProjection) {
+	if (GetSerialNumber() == GetNextSerialNumber() - 1) {
+		return;
+	}
 	Enemy::DrawAnimation(viewProjection);
 }
 void Soldier::OnCollision(Collider* other) {
