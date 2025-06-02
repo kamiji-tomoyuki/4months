@@ -2,13 +2,11 @@
 #include <numbers>
 #include"ViewProjection.h"
 
-float Lerp(float _start, float _end, float _t)
-{
+float Lerp(float _start, float _end, float _t) {
 	return (1.0f - _t) * _start + _end * _t;
 }
 
-Vector3 Lerp(const Vector3& _start, const Vector3& _end, float _t)
-{
+Vector3 Lerp(const Vector3& _start, const Vector3& _end, float _t) {
 	Vector3 result;
 	result.x = (1.0f - _t) * _start.x + _end.x * _t;
 	result.y = (1.0f - _t) * _start.y + _end.y * _t;
@@ -16,8 +14,7 @@ Vector3 Lerp(const Vector3& _start, const Vector3& _end, float _t)
 	return result;
 }
 
-Vector4 Lerp(const Vector4& _start, const Vector4& _end, float _t)
-{
+Vector4 Lerp(const Vector4& _start, const Vector4& _end, float _t) {
 	Vector4 result;
 	result.x = (1.0f - _t) * _start.x + _end.x * _t;
 	result.y = (1.0f - _t) * _start.y + _end.y * _t;
@@ -25,6 +22,34 @@ Vector4 Lerp(const Vector4& _start, const Vector4& _end, float _t)
 	result.w = (1.0f - _t) * _start.w + _end.w * _t;
 	return result;
 }
+
+Vector3 EaseIn(const Vector3& _start, const Vector3& _end, float _t, float _mag) {
+
+	float easeT = powf(_t, _mag);
+
+	Vector3 result = Lerp(_start, _end, easeT);
+
+	return result;
+}
+
+Vector3 EaseOut(const Vector3& _start, const Vector3& _end, float _t, float _mag) {
+
+	float easeT = 1.0f - powf(1.0f - _t, _mag);
+
+	Vector3 result = Lerp(_start, _end, easeT);
+
+	return result;
+}
+
+Vector3 EaseInOut(const Vector3& _start, const Vector3& _end, float _t, float _mag) {
+
+	float easeT = _t < 0.5f ? powf(2.0f, _mag - 1.0f) * powf(_t, _mag) : 1.0f - powf(-2.0f * _t + 2.0f, _mag) / 2.0f;
+
+	Vector3 result = Lerp(_start, _end, easeT);
+
+	return result;
+}
+
 Matrix4x4 MakeTranslateMatrix(const Vector3& translate) { return { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, translate.x, translate.y, translate.z, 1 }; }
 
 Matrix4x4 MakeScaleMatrix(const Vector3& scale) { return { scale.x, 0, 0, 0, 0, scale.y, 0, 0, 0, 0, scale.z, 0, 0, 0, 0, 1 }; }
@@ -164,8 +189,7 @@ Matrix4x4 MakeRotateZMatrix(float radian) { return { std::cosf(radian), std::sin
 
 Matrix4x4 MakeRotateXYZMatrix(const Vector3& radian) { return { (MakeRotateXMatrix(radian.x) * MakeRotateYMatrix(radian.y) * MakeRotateZMatrix(radian.z)) }; }
 
-Matrix4x4 MakeRotateXYZMatrix(const Quaternion& quat)
-{
+Matrix4x4 MakeRotateXYZMatrix(const Quaternion& quat) {
 	// クォータニオンから回転行列を計算
 	float x = quat.x, y = quat.y, z = quat.z, w = quat.w;
 
@@ -219,9 +243,8 @@ Matrix4x4 MakeViewPortMatrix(float left, float top, float width, float height, f
 	return { width / 2.0f, 0, 0, 0, 0, -height / 2.0f, 0, 0, 0, 0, maxDepth - minDepth, 0, left + width / 2.0f, top + height / 2.0f, minDepth, 1.0f };
 }
 
-Vector3 QuaternionToAxis(const Quaternion& q)
-{
-	Quaternion normalizedQ = q.Normalize(); 
+Vector3 QuaternionToAxis(const Quaternion& q) {
+	Quaternion normalizedQ = q.Normalize();
 
 	// 回転軸の計算: ベクトル部分(x, y, z)が回転軸になる
 	Vector3 axis(normalizedQ.x, normalizedQ.y, normalizedQ.z);
@@ -282,8 +305,7 @@ float LerpShortAngle(float a, float b, float t) {
 	// 角度を[-PI,PI]に補正する
 	if (diff > pi) {
 		diff -= 2.0f * pi;
-	}
-	else if (diff < -pi) {
+	} else if (diff < -pi) {
 		diff += 2.0f * pi;
 	}
 	return a + diff * t;
@@ -299,8 +321,7 @@ Vector3 GetEulerAnglesFromMatrix(const Matrix4x4& mat) {
 		eulerAngles.x = std::atan2(-mat.m[2][1], mat.m[2][2]); // Pitch (X軸回転)
 		eulerAngles.y = std::asin(mat.m[2][0]);                // Yaw (Y軸回転)
 		eulerAngles.z = std::atan2(-mat.m[1][0], mat.m[0][0]); // Roll (Z軸回転)
-	}
-	else {
+	} else {
 		// Gimbal lock の場合
 		eulerAngles.x = std::atan2(mat.m[1][2], mat.m[1][1]);
 		eulerAngles.y = (mat.m[2][0] > 0.0f) ? std::numbers::pi_v<float> / 2 : -std::numbers::pi_v<float> / 2;
@@ -318,8 +339,7 @@ float degreesToRadians(float degrees) {
 	return degrees * (std::numbers::pi_v<float> / 180.0f);
 }
 
-Quaternion Slerp(Quaternion q0, Quaternion q1, float t)
-{
+Quaternion Slerp(Quaternion q0, Quaternion q1, float t) {
 	float dot = q0.Dot(q1);
 	if (dot < 0.0f) {
 		q0 = { -q0.x, -q0.y, -q0.z, -q0.w }; // 反対方向に補間
@@ -337,21 +357,18 @@ Quaternion Slerp(Quaternion q0, Quaternion q1, float t)
 
 		// 補間後のQuaternionを計算
 		return q0 * scale0 + q1 * scale1;
-	}
-	else {
+	} else {
 		// ほぼ同じ方向の場合、線形補間
 		return q0 * (1 - t) + q1 * t;
 	}
 }
- Vector3 Project(const Vector3& v1, const Vector3& v2)
-{
+Vector3 Project(const Vector3& v1, const Vector3& v2) {
 	Vector3 v3;
 	v3 = (v1.Dot(v2.Normalize()) * v2.Normalize());
 	return v3;
 }
 std::pair<Vector3, Vector3> ComputeCollisionVelocities(
-	float mass1, const Vector3& velocity1, float mass2, const Vector3& velocity2, float coefficientOfRestitution, const Vector3& normal)
-{
+	float mass1, const Vector3& velocity1, float mass2, const Vector3& velocity2, float coefficientOfRestitution, const Vector3& normal) {
 	// 衝突面の法線方向に速度を射影
 	Vector3 project1 = Project(velocity1, normal); // 物体1の法線方向の速度
 	Vector3 project2 = Project(velocity2, normal); // 物体2の法線方向の速度

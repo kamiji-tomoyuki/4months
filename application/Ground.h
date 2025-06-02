@@ -7,6 +7,7 @@
 class Ground : public BaseObject {
 public:
 	void Init() override;
+	void Init(const std::string& fileName);
 	void Update() override;
 	void Draw(const ViewProjection& viewProjection) override;
 

@@ -53,6 +53,9 @@ void Object3d::AnimationUpdate(bool roop)
 {
 	if (modelAnimation_) {
 		modelAnimation_->Update(roop);
+		model->SetBone(modelAnimation_->GetBone());
+		model->SetSkin(modelAnimation_->GetSkin());
+		model->SetAnimator(modelAnimation_->GetAnimator());
 	}
 }
 

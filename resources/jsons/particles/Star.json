@@ -1,0 +1,162 @@
+{
+    "colorRandomRange": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+    ],
+    "count": 100,
+    "endColor": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+    ],
+    "endTime": 3.0,
+    "frequency": 0.009999999776482582,
+    "isBillboard": false,
+    "isLoop": true,
+    "lifeTime": 1.0,
+    "lifeTimeRandomRange": 0.0,
+    "modelName": "star.obj",
+    "name": "Star",
+    "position": {
+        "acceleration": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "accelerationRandomRange": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "endNum": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "endRandomRange": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "startNum": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "startRandomRange": [
+            100.0,
+            50.0,
+            100.0
+        ],
+        "velocity": [
+            0.0,
+            0.05000000074505806,
+            0.0
+        ],
+        "velocityRandomRange": [
+            0.0,
+            0.02500000037252903,
+            0.0
+        ]
+    },
+    "positionEasingState": 0,
+    "positionState": 1,
+    "rotation": {
+        "acceleration": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "accelerationRandomRange": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "endNum": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "endRandomRange": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "startNum": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "startRandomRange": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "velocity": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "velocityRandomRange": [
+            0.10000000149011612,
+            0.10000000149011612,
+            0.10000000149011612
+        ]
+    },
+    "rotationEasingState": 0,
+    "rotationState": 1,
+    "scale": {
+        "acceleration": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "accelerationRandomRange": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "endNum": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "endRandomRange": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "startNum": [
+            1.5,
+            1.5,
+            1.5
+        ],
+        "startRandomRange": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "velocity": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "velocityRandomRange": [
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    "scaleEasingState": 0,
+    "scaleState": 2,
+    "startColor": [
+        1.0,
+        1.0,
+        1.0,
+        0.0
+    ],
+    "startTime": 0.0
+}

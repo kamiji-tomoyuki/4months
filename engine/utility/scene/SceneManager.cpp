@@ -2,6 +2,7 @@
 #include <cassert>
 #include <ImGuiManager.h>
 #include"GlobalVariables.h"
+#include "ParticleManager.h"
 
 SceneManager* SceneManager::instance = nullptr;
 
@@ -46,6 +47,26 @@ void SceneManager::Update()
 		}
 		transition_->Reset();
 		nextScene_ = sceneFactory_->CreateScene("GAME");
+		transition_->SetFadeInStart(true);
+	}
+	if (ImGui::Button("ClearScene") && (transition_->IsEnd() && !transition_->FadeInStart())) {
+		transition_->Reset();
+		nextScene_ = sceneFactory_->CreateScene("CLEAR");
+		transition_->SetFadeInStart(true);
+	}
+	if (ImGui::Button("GameOverScene") && (transition_->IsEnd() && !transition_->FadeInStart())) {
+		transition_->Reset();
+		nextScene_ = sceneFactory_->CreateScene("GAMEOVER");
+		transition_->SetFadeInStart(true);
+	}
+	if (ImGui::Button("EditorScene") && (transition_->IsEnd() && !transition_->FadeInStart())) {
+		transition_->Reset();
+		nextScene_ = sceneFactory_->CreateScene("EDITOR");
+		transition_->SetFadeInStart(true);
+	}
+	if (ImGui::Button("TutorialScene") && (transition_->IsEnd() && !transition_->FadeInStart())) {
+		transition_->Reset();
+		nextScene_ = sceneFactory_->CreateScene("TUTORIAL");
 		transition_->SetFadeInStart(true);
 	}
 	ImGui::End();
@@ -119,6 +140,9 @@ void SceneManager::SceneChange()
 	if (transition_->FadeInFinish()) {
 		// 旧シーンの終了
 		if (scene_) {
+
+			ParticleManager::GetInstance()->ClearParticles();
+
 			scene_->Finalize();
 			delete scene_;
 		}

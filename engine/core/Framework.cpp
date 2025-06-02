@@ -122,6 +122,11 @@ void Framework::Initialize()
 	line3d_->Initialize();
 	///------------------------
 
+	///-------ParticleManager-------
+	particleManager_ = ParticleManager::GetInstance();
+	particleManager_->Initialize(SrvManager::GetInstance());
+	///------------------------
+
 	LightGroup::GetInstance()->Initialize();
 
 	GlobalVariables::GetInstance()->LoadFiles();
@@ -160,6 +165,7 @@ void Framework::Finalize()
 	object3dCommon->Finalize();
 	spriteCommon->Finalize();
 	particleCommon->Finalize();
+	particleManager_->Finalize();
 	dxCommon->Finalize();
 	delete sceneFactory_;
 }

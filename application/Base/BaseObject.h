@@ -62,6 +62,8 @@ public:
 	virtual Vector3 GetWorldPosition() const;
 	virtual const WorldTransform& GetWorldTransform() const { return transform_; }
 
+	void UpdateTransform() { transform_.UpdateMatrix(); }
+
 	/// ===================================================
 	///getter 
 	/// ===================================================

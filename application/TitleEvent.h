@@ -1,0 +1,155 @@
+#pragma once
+
+#include "ViewProjection.h"
+#include "Ground.h"
+#include "TitleGround.h"
+#include "Sprite.h"
+#include "Object3d.h"
+
+#include "vector"
+
+class SceneManager;
+
+class TitleEvent {
+
+public:
+	enum State {
+		TITLE,
+		STAGESELECT,
+		GAMESTART,
+		STATEEND
+	};
+
+	enum StageSelect {
+		TUTORIAL,
+		STAGE1,
+		STAGE2,
+		STAGE3,
+		STAGE4,
+		STAGEEND
+	};
+
+public:
+
+	/// <summary>
+	/// 初期化
+	/// </summary>
+	void Initialize();
+	/// <summary>
+	/// 更新
+	/// </summary>
+	void Update();
+	/// <summary>
+	/// 描画
+	/// </summary>
+	void DrawUI();
+
+	void DrawObject3D();
+
+	void ImGui();
+
+public:
+
+	void SetViewProjection(ViewProjection* vp) { vp_ = vp; }
+
+	void SetState(State state) { state_ = state; }
+
+	State GetState() const { return state_; }
+
+	const char* GetStateString() const {
+		switch (state_) {
+		case TITLE: return "TITLE";
+		case STAGESELECT: return "STAGESELECT";
+		case GAMESTART: return "GAMESTART";
+		default: return "UNKNOWN";
+		}
+	}
+
+	const char* GetStageSelectString() const {
+		switch (stageSelectState_) {
+		case TUTORIAL: return "TUTORIAL";
+		case STAGE1: return "STAGE1";
+		case STAGEEND: return "STAGEEND";
+		default: return "UNKNOWN";
+		}
+	}
+
+	StageSelect GetStageSelect() const { return stageSelectState_; }
+
+	void AddTitleGround(TitleGround* titleGround) {
+		titleGrounds_.push_back(titleGround);
+	}
+
+	bool IsEventEnd() const {
+		return isEventEnd_;
+	}
+
+	bool IsSceneChange() const {
+		return isSceneChange_;
+	}
+
+private:
+
+	ViewProjection* vp_ = nullptr; 
+
+	SceneManager* sceneManager_ = nullptr;
+
+	std::vector<TitleGround*> titleGrounds_;
+
+	std::vector<std::unique_ptr<Object3d>> soldiers_;
+
+	std::vector<WorldTransform> wtSoldiers_;
+
+	std::unique_ptr<Object3d> boss_;
+
+	WorldTransform wtBoss_;
+
+	std::unique_ptr<Sprite> padUI_;
+
+	std::unique_ptr<Sprite> stageSelectUI_;
+
+	std::unique_ptr<Sprite> startUI_;
+
+	std::unique_ptr<Sprite> selectUI_;
+
+	std::unique_ptr<Sprite> tutorialStageUI_;
+
+	std::unique_ptr<Sprite> stage1UI_;
+
+	std::unique_ptr<Sprite> stage2UI_;
+
+	std::unique_ptr<Sprite> stage3UI_;
+
+	std::unique_ptr<Sprite> stage4UI_;
+
+	State state_;
+
+	StageSelect stageSelectState_;
+
+	bool isEventEnd_ = false;
+
+	bool isSceneChange_ = false;
+
+	int soldierCount_ = 0;
+
+	bool bossFlag_ = false;
+
+	float timer_ = 0.0f;
+
+	float alphaTimer_ = 0.0f;
+
+	float alphaSpeed_ = 0.02f;
+
+	float maxTime_ = 2.0f;
+
+	Vector3 titleTranslation_;
+	Vector3 titleRotation_;
+
+	Vector3 stageSelectTranslation_;
+	Vector3 stageSelectRotation_;
+
+	Vector3 gameStartTranslation_;
+	Vector3 gameStartRotation_;
+
+	float stageDistance_;
+};

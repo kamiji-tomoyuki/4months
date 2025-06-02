@@ -1,8 +1,9 @@
 #include "Boss.h"
 #include <CollisionTypeIdDef.h>
 #include "myMath.h"
-#include "EnemyStateRoot.h"
+#include "BossStateRoot.h"
 #include "Player.h"
+#include "BossSword.h"
 
 Boss::Boss() {
 
@@ -10,13 +11,25 @@ Boss::Boss() {
 void Boss::Init() {
 	Enemy::Init();
 	Collider::SetTypeID(static_cast<uint32_t>(CollisionTypeIdDef::kBoss));
-	BaseObject::CreateModel("enemy/enemyBody.obj");
-	Enemy::ChangeState(std::make_unique<EnemyStateRoot>(this));
-	Collider::SetRadius(10.0f);
+
+	BaseObject::Init();
+	BaseObject::CreateModel("boss/boss.gltf");
+	model_ = std::make_unique<Object3d>();
+	model_->Initialize("boss/boss.gltf");
+
+	Enemy::ChangeState(std::make_unique<BossStateRoot>(this));
+	Collider::SetRadius(11.0f);
 	Collider::SetAABBScale({ 0.0f,0.0f,0.0f });
 	Enemy::SetScale({ 10.0f,10.0f,10.0f });
-	shortDistance_ = (player_->GetRadius() + GetRadius()) * 2.0f;
-	middleDistance_ = (player_->GetRadius() + GetRadius()) * 4.0f;
+	sword_ = std::make_unique<BossSword>();
+	sword_->SetEnemy(this);
+	sword_->SetTimeManager(timeManager_);
+	sword_->Initialize("sword/sword.obj");
+	sword_->SetTranslation(Vector3(0.0f, 0.0f, 2.0f));
+	sword_->SetScale({ 1.0f,1.0f,1.0f });
+
+	shortDistance_ = (player_->GetRadius() + GetRadius()) * 4.0f;
+	middleDistance_ = (player_->GetRadius() + GetRadius()) * 8.0f;
 	//imgui
 	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
 	// グループを追加
@@ -39,22 +52,46 @@ void Boss::Init() {
 	//更新
 	ApplyGlobalVariables();
 	hp_ = kHp_;
+
+	deleteScale_ = transform_.scale_;
 }
 void Boss::Update() {
 	ApplyGlobalVariables();
+	BaseObject::Update();
 	Enemy::VectorRotation(player_->GetCenterPosition() - GetCenterPosition());
 	Enemy::Update();
 	if (!isMove_) {
 		return;
 	}
-	// キャラ移動
-	state_->Update();
-	transform_.translation_ += velocity_ * timeManager_->deltaTime_;
 
-	Enemy::Update();
+	if (isAlive_) {
+		// キャラ移動
+		state_->Update();
+
+		velocity_ *= 1.0f - kAttenuation_;
+
+		transform_.translation_ += velocity_ * timeManager_->deltaTime_;
+
+		transform_.translation_.y = GetRadius();
+		Enemy::Update();
+		sword_->Update();
+
+		model_->AnimationUpdate(true);
+	} else {
+
+		Dead();
+
+		Enemy::Update();
+	}
+
 }
 void Boss::Draw(const ViewProjection& viewProjection) {
-	Enemy::Draw(viewProjection);
+	//Enemy::Draw(viewProjection);
+	//BaseObject::Draw(viewProjection);
+	sword_->Draw(viewProjection);
+}
+void Boss::DrawAnimation(const ViewProjection& viewProjection){
+	model_->Draw(BaseObject::GetWorldTransform(), viewProjection);
 }
 void Boss::OnCollision(Collider* other) {
 	Enemy::OnCollision(other);

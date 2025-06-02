@@ -10,17 +10,22 @@
 #include"DebugCamera.h"
 #include "Player.h"
 #include "FollowCamera.h"
-#include "PlayerArm.h"
+#include "PlayerSword.h"
 #include <array>
 #include <vector>
 
 #include "Skydome.h"
 #include "Ground.h"
+#include "Coliseum.h"
 #include "TimeManager.h"
 #include "LockOn.h"
-#include <ParticleEmitter.h>
+#include "Pause.h"
+#include "ParticleEmitter.h"
+#include "ParticleManager.h"
 #include "Enemy.h"
 #include "Soldier.h"
+#include <json/JsonLoader.h>
+
 
 class GameScene : public BaseScene
 {
@@ -52,6 +57,7 @@ public: // メンバ関数
 	void DrawForOffScreen()override;
 
 	ViewProjection* GetViewProjection()override { return &vp_; }
+	void SetStageNum(int stageNum) { stageNum_ = stageNum; }
 private:
 	void Debug();
 
@@ -62,6 +68,7 @@ private:
 	void LoadEnemyPopData();
 	void UpdateEnemyPopCommands();
 	void AddEnemy(const Vector3& position);
+	void LoadLevelData();
 private:
 
 	Audio* audio_;
@@ -70,18 +77,23 @@ private:
 	SpriteCommon* spCommon_;
 	ParticleCommon* ptCommon_;
 
+	ParticleManager* particleManager_;
+
 	// ビュープロジェクション
 	ViewProjection vp_;
 	std::unique_ptr<DebugCamera> debugCamera_;
 
 	std::unique_ptr<Skydome> skydome_ = nullptr;// 天球
 	std::unique_ptr<Ground> ground_ = nullptr;//地面
+	std::unique_ptr<Coliseum> coliseum_ = nullptr;//コロシアム
 
 	std::vector<std::unique_ptr<Player>> players_;
 	//Enemy
 	std::list<std::unique_ptr<Enemy>> enemies_;
 	//ロックオン
 	std::unique_ptr<LockOn> lockOn_;
+	//ポーズ
+	std::unique_ptr<Pause> pause_;
 	//カメラ
 	std::unique_ptr<FollowCamera> followCamera_;
 	//タイム
@@ -90,12 +102,22 @@ private:
 	std::unique_ptr<Sprite> hpBar_;
 	const int kMaxHp = 10000; // HPの最大値
 	std::unique_ptr<Sprite> enemyHpBar_; // 敵の HP バー
+	// 操作説明
+	std::unique_ptr<Sprite> howToPlay_;
 	//パーティクルエミッタ
-	std::vector<std::unique_ptr<ParticleEmitter>> emitters_;
+	std::unique_ptr<ParticleEmitter> starEmitter_;
 	// SE 多重再生防止
 	bool isPlay = true;
 	//敵発生コマンド
 	std::stringstream enemyPopCommands;
 	//クリア
 	bool isClear = false;
+
+	// ステージ
+	std::unique_ptr<Object3d> stage_;
+	float size_ = 15.0f;
+	WorldTransform wtStage_;
+
+	int stageNum_ = 1; // ステージ番号
+	std::unique_ptr<JsonLoader> json_;
 };

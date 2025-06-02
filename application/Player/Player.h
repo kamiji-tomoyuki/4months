@@ -6,7 +6,7 @@
 #include "ViewProjection.h"
 #include "BaseObject.h"
 #include "optional"
-#include "PlayerArm.h"
+#include "PlayerSword.h"
 #include "TimeManager.h"
 #include "ParticleEmitter.h"
 
@@ -17,10 +17,6 @@ class LockOn;
 /// </summary>
 class Player :public BaseObject {
 public:
-	enum ModelState {
-		kSword,		// 剣
-		kModelNum,	
-	};
 	enum class Behavior {
 		kRoot,			// 通常状態
 		kDash,			// ダッシュ中
@@ -36,32 +32,35 @@ public:
 		kLeftSlash,		// 左振り抜き(右入力攻撃)
 		kNullType,		// 未入力
 	};
+	enum DirectionInput {
+		TOP,		// 上
+		DOWN,		// 下
+		LEFT,		// 左
+		RIGHT,		// 右
+		Nothing,	// 無入力
+	};
 	struct Root {
-		float floatingParameter = 0.0f;//浮遊ギミックの媒介変数
-		int32_t period = 60;// 浮遊移動のサイクル<frame>
-		float floatingAmplitude = 0.2f;// 浮遊の振幅<m>
-		float armAmplitude = 0.4f;//アームの振幅
+		float floatingParameter = 0.0f;		//浮遊ギミックの媒介変数
+		int32_t period = 60;				// 浮遊移動のサイクル<frame>
+		float floatingAmplitude = 0.2f;		// 浮遊の振幅<m>
+		float armAmplitude = 0.4f;			//アームの振幅
 	};
 	struct Attack {
-		float kLimitTime = 0.4f;
-		Vector3 armStart = { 0.0f };
-		Vector3 armEnd = { 0.0f };
-		float time = 0;
-		bool isAttack = false;
-		bool isLeft = false;
+		float kLimitTime = 0.4f;					// 攻撃の時間(モーション)
+		Vector3 swordStartTransform = { 0.0f };		// 剣の始めの位置
+		Vector3 swordEndTransform = { 0.0f };		// 剣の終わりの位置
+		float time = 0;								// 現在の進行度(モーション)
+		bool isAttack = false;						// 攻撃フラグ
 	};
-	struct Grab {
-		float kLimitTime = 0.5f;
-		float armStartL = 0.0f;
-		float armStartR = 0.0f;
-		float armEnd = 3.0f;
-		float time = 0;
-		bool isGrab = false;
+	struct Defence {
+		float kLimitTime = 0.5f;			// 防御の時間(モーション)
+		float time = 0;						// 現在の進行度(モーション)
+		bool isDefence = false;				// 防御フラグ
 	};
 	struct WorkDash {
-		float kDashTime_ = 0.6f;
-		float DashTime_ = 0;
-		float kAttenuation_ = 1.50f;
+		float kDashTime_ = 0.6f;			// ダッシュの時間(モーション)
+		float DashTime_ = 0;				// 現在の進行度(モーション)
+		float kAttenuation_ = 0.250f;		// 減衰率
 	};
 
 	Player();
@@ -108,7 +107,7 @@ public:
 	// 向きをセット
 	void VectorRotation(const Vector3& direction);
 	// 方向を取得
-	Vector2 InputDirection();
+	Vector2 InputDirectionGampad();
 
 	// 中心座標を取得
 	Vector3 GetCenterPosition() const override;
@@ -145,11 +144,7 @@ private:	// 動作パターン
 	// 調整項目の適用
 	void ApplyGlobalVariables();
 
-	// 移動
-	void Move();
-
-	// 予備動作の方向
-	void DirectionPreliminaryAction();
+	
 
 private:	// 攻撃方向タイプ
 	// 振り下ろし(上入力攻撃)
@@ -172,7 +167,26 @@ private:	// 攻撃方向タイプ
 	void AttackTypeNullInitialize();
 	void AttackTypeNullUpdate();
 
+private:	// メンバ関数
+	// 移動
+	void Move();
+
+	// 入力方向
+	/// <returns>入力方向 0:上 1:下 2:左 3:右 4:無入力</returns>
+	int InputDirection();
+
+	// 入力方向の設定
+	void SetInputDirection();
+	
+	// 攻撃方向入力されたか
+	bool IsAttackDirectionInput();
+
+	void Dead();
+
 private:	// メンバ変数
+
+	std::unique_ptr<Object3d> model_;
+
 	// 動作パターン
 	Behavior behavior_ = Behavior::kRoot;
 	static void(Player::* BehaviorInitFuncTable[])();
@@ -194,7 +208,7 @@ private:	// メンバ変数
 	// 各動作に必要なデータ
 	Root root_;
 	Attack attack_;
-	Grab grab_;
+	Defence defence_;
 	WorkDash workDash_;
 
 	// 移動速度 減衰速度
@@ -214,6 +228,7 @@ private:	// メンバ変数
 	Vector3 acceleration_{};
 
 	// 狙う方向
+	Vector3 attackDirection_{};
 	Vector3 aimingDirection_{};
 
 	// HP
@@ -224,9 +239,15 @@ private:	// メンバ変数
 	bool isClear_ = false;
 	bool isGameOver_ = false;
 
-	std::array<std::unique_ptr<PlayerArm>, kModelNum> arms_;
+	Vector3 deleteScale_;
+
+	float deleteTimer_ = 0.0f;
+
+	float deleteSpeed_ = 0.05f;
+
+	std::unique_ptr<PlayerSword> sword_;
 	// パーティクルエミッタ
-	//std::vector<std::unique_ptr<ParticleEmitter>> emitters_;
+	std::vector<std::unique_ptr<ParticleEmitter>> emitters_;
 	// ポインタ
 	TimeManager* timeManager_ = nullptr;
 	FollowCamera* followCamera_ = nullptr;
@@ -256,8 +277,14 @@ public:
 		transform_.scale_ = scale;  // **スケールを適用**
 	}
 
-	// プレイヤーの腕を取得
-	std::array<std::unique_ptr<PlayerArm>, kModelNum>& GetArms() { return arms_; }
+	Behavior GetBehavior() { return behavior_; }
+
+	AttackType GetAttackType() { return attackType_; }
+
+	// プレイヤーの剣を取得
+	PlayerSword* GetSword() { return sword_.get(); }
+
+	const Vector3& GetAimingDirection() { return aimingDirection_; }
 
 	void SetBehavior(Behavior newBehavior);
 
@@ -275,5 +302,7 @@ public:
 	//void SetAttackPower(float attackPower) { attackPower_ = attackPower; }
 	//void SetPowerMagnification(float powerMagnification) { powerMagnification_ = powerMagnification; }
 	void SetGameOver(bool gameOver) { isGameOver_ = gameOver; }
+
+	void SetIsAlive(bool flag) { isAlive_ = flag; }
 
 };

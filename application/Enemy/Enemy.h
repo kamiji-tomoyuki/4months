@@ -1,6 +1,8 @@
 #pragma once
 #include "BaseObject.h"
 #include "BaseEnemyState.h"
+#include "ParticleEmitter.h"
+#include "BaseEnemySword.h"
 
 class TimeManager;
 class Player;
@@ -29,12 +31,13 @@ public:
 	/// 更新
 	/// </summary>
 	virtual void Update() override;
-
+	virtual void UpdateParticle(const ViewProjection& viewProjection);
 	/// <summary>
 	/// 描画
 	/// </summary>
 	virtual void Draw(const ViewProjection& viewProjection)override;
-
+	virtual void DrawParticle(const ViewProjection& viewProjection);
+	virtual void DrawAnimation(const ViewProjection& viewProjection);
 	//当たり判定
 	virtual Vector3 GetCenterPosition() const override = 0;
 	virtual Vector3 GetCenterRotation() const override = 0;
@@ -63,10 +66,21 @@ public:
 	//方向の回転
 	void VectorRotation(const Vector3& direction);
 
+	void Damage();
+
+	void Dead();
 protected:
+
+	std::unique_ptr<Object3d> model_;
+	std::unique_ptr<Object3d> hpModel_;
+
+	WorldTransform wtHp_;
+
 	//ポインタ
 	Player* player_ = nullptr;
 	TimeManager* timeManager_ = nullptr;
+	//
+	std::unique_ptr<BaseEnemySword> sword_;
 	//ステート
 	std::unique_ptr<BaseEnemyState> state_;
 	//物理
@@ -77,33 +91,60 @@ protected:
 	static uint32_t nextSerialNumber_;
 	//命
 	bool isAlive_ = true;
+	bool canDelate_ = false;
 	int kHp_ = 10000;
 	int hp_ = 5;
+	int maxHp_ = 3000;
 	//行動距離
 	float shortDistance_ = 10.0f;
 	float middleDistance_ = 50.0f;
 	//行動確率
-	BehaviorProbability shortDistanceProbability_ = { 0.60f,0.10f };
+	BehaviorProbability shortDistanceProbability_ = { 0.40f,0.40f };
 	BehaviorProbability middleDistanceProbability_ = { 0.50f ,0.05f };
 	BehaviorProbability longDistanceProbability_ = { 0.01f,0.01f };
 	//行動クールタイム
-	float kCoolTime_ = 0.3f;
+	float kCoolTime_ = 1.0f;
+	// 減衰速度
+	float kAttenuation_ = 0.005f;
+
+	Vector3 deleteScale_;
+
+	float deleteTimer_ = 0.0f;
+
+	float deleteSpeed_ = 0.05f;
+
+	// パーティクルエミッタ
+	std::vector<std::unique_ptr<ParticleEmitter>> emitters_;
+
+	std::unique_ptr<ParticleEmitter> damageEmitter_;
+
+	std::unique_ptr<ParticleEmitter> dustEmitter_;
 public:
+	static void SetEnemyID(int ID) { nextSerialNumber_ = ID; }
 	void SetPlayer(Player* player) { player_ = player; }
 	void SetTimeManager(TimeManager* timeManager) { timeManager_ = timeManager; }
 	void SetTranslation(const Vector3& translation);
 	void SetVelocity(const Vector3& velocity) { velocity_ = velocity; }
 	void SetIsAlive(bool isAlive) { isAlive_ = isAlive; }
+	void SetCanDelate(bool canDelate) { canDelate_ = canDelate; }
 	void SetHP(int hp) { hp_ = hp; }
+	void SetMaxHP(int maxHp) { maxHp_ = maxHp; }
+	void SetPosition(Vector3 position) {
+		transform_.translation_ = position;
+		transform_.UpdateMatrix();
+	}
 	void SetScale(const Vector3& scale) {
 		transform_.scale_ = scale;  // **スケールを適用**
 	}
 
 	Player* GetPlayer() { return player_; }
 	TimeManager* GetTimeManager() { return timeManager_; }
+	BaseEnemySword* GetSword() { return sword_.get(); }
 	Vector3 GetVelocity() { return velocity_; }
 	uint32_t GetSerialNumber() const { return serialNumber_; }
+	static uint32_t GetNextSerialNumber() { return nextSerialNumber_; }
 	bool GetIsAlive() { return isAlive_; }
+	bool GetCanDelate() { return canDelate_; }
 	int GetHP() { return hp_; }
 	float GetShortDistance() { return shortDistance_; }
 	float GetMiddleDistance() { return middleDistance_; }

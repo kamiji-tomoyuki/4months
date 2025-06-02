@@ -6,8 +6,20 @@
 #include "TimeManager.h"
 #include "LockOn.h"
 #include "GlobalVariables.h"
+#include <CollisionTypeIdDef.h>
+#include "Coliseum.h"
+
+void FollowCamera::Init()
+{
+}
+
+void FollowCamera::Init(const std::string& fileName)
+{
+}
 
 void FollowCamera::Initialize() {
+
+	Collider::SetTypeID(static_cast<uint32_t>(CollisionTypeIdDef::kFollowCamera));
 	viewProjection_.Initialize();
 	destinationAngle = Quaternion::IdentityQuaternion();
 	//imgui
@@ -24,6 +36,8 @@ void FollowCamera::Initialize() {
 }
 
 void FollowCamera::Update() {
+	SetRadius(2.0f);
+
 	ApplyGlobalVariables();
 	// ジョイスティック
 	XINPUT_STATE joyState;
@@ -45,7 +59,7 @@ void FollowCamera::Update() {
 			move += Vector3(0.0f, 1.0f, 0.0f);
 		}
 
-		// 右Rスティック
+		// 右Rスティック押し込み
 		if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_THUMB) {
 			//destinationAngleX_ = target_->rotation_.x;
 			destinationAngleY_ = target_->rotation_.y;
@@ -91,12 +105,13 @@ void FollowCamera::Update() {
 		//追従対象からのロックオン対象へのベクトル
 		Vector3 sub = lockOnPos - target_->translation_;
 		//Y軸周りの角度
-		//viewProjection_.rotation_.y = std::atan2(sub.x, sub.z);
+		viewProjection_.rotation_.y = std::atan2(sub.x, sub.z);
 		destinationAngleY_ = std::atan2(sub.x, sub.z);
 	}
 
-	destinationAngle = Quaternion::Sleap(destinationAngle, Quaternion::MakeRotateAxisAngleQuaternion({ 0,0,-1 }, destinationAngleX_) * Quaternion::MakeRotateAxisAngleQuaternion({ 0,-1,0 }, destinationAngleY_), 0.1f);
-	viewProjection_.rotation_ = destinationAngle.ToEulerAngles();
+	destinationAngle = Quaternion::Sleap(destinationAngle, Quaternion::MakeRotateAxisAngleQuaternion({ 0,1,0 }, destinationAngleY_), 0.1f);
+	Quaternion changeAngle = destinationAngle * Quaternion::MakeRotateAxisAngleQuaternion({ 1,0,0 }, destinationAngleX_);
+	viewProjection_.rotation_ = changeAngle.ToEulerAngles();
 	// 追従対象がいれば
 	if (target_) {
 		// 追従座標の補完
@@ -131,6 +146,26 @@ void FollowCamera::ShakeStart(Vector2 move,float kTime){
 	shake_.time = 0.0f;
 	shake_.isShake = true;
 }
+void FollowCamera::Draw(const ViewProjection& viewProjection)
+{
+}
+
+/// 当たってる間
+void FollowCamera::OnCollision(Collider* other)
+{
+}
+
+/// 当たった瞬間
+void FollowCamera::OnCollisionEnter(Collider* other)
+{
+}
+
+/// 当たり終わった瞬間
+void FollowCamera::OnCollisionOut(Collider* other)
+{
+	
+}
+
 Vector3 FollowCamera::MakeOffset() {
 	//回転行列の合成
 	Matrix4x4 rotateMatrix = MakeAffineMatrix({1, 1, 1}, viewProjection_.rotation_, {});
@@ -138,6 +173,7 @@ Vector3 FollowCamera::MakeOffset() {
 	Vector3 result = TransformNormal(offset_,rotateMatrix);
 	return result;
 }
+
 void FollowCamera::ApplyGlobalVariables() {
 	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
 	const char* groupName = "FollowCamera";
@@ -174,6 +210,26 @@ float FollowCamera::LerpShortAngle(const float& v1, const float& v2, float t) {
 	v3 = v1 + t * (v2 - v1);
 	return v3;
 }
+
+
+Vector3 FollowCamera::GetCenterPosition() const
+{
+	return Vector3();
+}
+
+Vector3 FollowCamera::GetCenterRotation() const
+{
+	return Vector3();
+}
+
+void FollowCamera::SetPosition(Vector3 position)
+{
+	viewProjection_.translation_ = position;
+	viewProjection_.UpdateMatrix();
+	
+}
+
+
 void FollowCamera::SetTarget(const WorldTransform* target) {
 	target_ = target;
 	Reset();

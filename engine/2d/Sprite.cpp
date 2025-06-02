@@ -48,6 +48,11 @@ void Sprite::Update()
 	transformationMatrixData->WVP = worldProjectionMatrix;
 	transformationMatrixData->World = worldMatrix;
 
+	float left = 0.0f - anchorPoint_.x;
+	float right = 1.0f - anchorPoint_.x;
+	float top = 0.0f - anchorPoint_.y;
+	float bottom = 1.0f - anchorPoint_.y;
+
 	// --- フリップの更新処理 ---
 	if (isFlipX_) {
 		left = -left;

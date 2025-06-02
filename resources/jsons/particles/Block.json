@@ -1,0 +1,162 @@
+{
+    "colorRandomRange": [
+        1.0,
+        0.0,
+        1.0,
+        1.0
+    ],
+    "count": 16,
+    "endColor": [
+        1.0,
+        1.0,
+        1.0,
+        0.0
+    ],
+    "endTime": 3.0,
+    "frequency": 0.0,
+    "isBillboard": true,
+    "isLoop": false,
+    "lifeTime": 0.30000001192092896,
+    "lifeTimeRandomRange": 0.0,
+    "modelName": "planeSpark.obj",
+    "name": "Block",
+    "position": {
+        "acceleration": [
+            0.0,
+            -0.019999999552965164,
+            0.0
+        ],
+        "accelerationRandomRange": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "endNum": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "endRandomRange": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "startNum": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "startRandomRange": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "velocity": [
+            0.0,
+            0.5,
+            0.0
+        ],
+        "velocityRandomRange": [
+            1.0,
+            1.0,
+            1.0
+        ]
+    },
+    "positionEasingState": 0,
+    "positionState": 1,
+    "rotation": {
+        "acceleration": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "accelerationRandomRange": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "endNum": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "endRandomRange": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "startNum": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "startRandomRange": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "velocity": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "velocityRandomRange": [
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    "rotationEasingState": 0,
+    "rotationState": 0,
+    "scale": {
+        "acceleration": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "accelerationRandomRange": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "endNum": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "endRandomRange": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "startNum": [
+            2.0,
+            2.0,
+            2.0
+        ],
+        "startRandomRange": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "velocity": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "velocityRandomRange": [
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    "scaleEasingState": 0,
+    "scaleState": 2,
+    "startColor": [
+        1.0,
+        1.0,
+        1.0,
+        1.0
+    ],
+    "startTime": 0.0
+}

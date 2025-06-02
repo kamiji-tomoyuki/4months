@@ -7,7 +7,7 @@
             100.0
         ],
         "deltaTime": 0.01666666753590107,
-        "kAcceleration": 20.0,
+        "kAcceleration": 8.0,
         "kAttenuation": 0.05000000074505806,
         "kHp_": 10000,
         "kLimitRunSpeed": 200.0,
