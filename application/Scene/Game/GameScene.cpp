@@ -127,14 +127,14 @@ void GameScene::Initialize() {
 
 	stage_->SetSize(Vector3{ size_,size_,size_ });
 
-	audio_->StopWave(0);
-	audio_->StopWave(1);
-	audio_->StopWave(2);
-	audio_->StopWave(3);
-	audio_->StopWave(4);
-	audio_->PlayWave(1, 0.1f, true);
+	audio_->StopWave("BGM/title.wav");
+	audio_->StopWave("BGM/battle.wav");
+	audio_->StopWave("BGM/gameClear.wav");
+	audio_->StopWave("BGM/gameOver.wav");
+	audio_->StopWave("BGM/tutorial.wav");
+	audio_->PlayWave("BGM/battle.wav", 0.1f, true);
 
-	audio_->PlayWave(7, 1.0f, false);
+	audio_->PlayWave("SE/battleStart.wav", 1.0f, false);
 }
 
 void GameScene::Update() {
@@ -377,7 +377,7 @@ void GameScene::ChangeScene() {
 	if (isClear) {
 		sceneManager_->NextSceneReservation("CLEAR");
 		if (isPlay) {
-			audio_->PlayWave(8, 1.0f, false);
+			audio_->PlayWave("SE/battleEnd.wav", 1.0f, false);
 			isPlay = false;
 		}
 		isClear = false;
@@ -386,7 +386,7 @@ void GameScene::ChangeScene() {
 		if (player->IsGameOver()) {
 			sceneManager_->NextSceneReservation("GAMEOVER");
 			if (isPlay) {
-				audio_->PlayWave(8, 1.0f, false);
+				audio_->PlayWave("SE/battleEnd.wav", 1.0f, false);
 				isPlay = false;
 			}
 		}

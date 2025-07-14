@@ -105,7 +105,7 @@ void PlayerSword::OnCollision(Collider* other) {
 			emitters_[0]->Start();
 			emitters_[1]->Start();
 
-			Audio::GetInstance()->PlayWave(9, 0.3f, false);
+			Audio::GetInstance()->PlayWave("SE/gard.wav", 0.3f, false);
 
 			Vector3 newVelocity = enemySwod->GetEnemy()->GetCenterPosition() - player_->GetCenterPosition();
 
@@ -131,7 +131,7 @@ void PlayerSword::OnCollision(Collider* other) {
 
 			enemy->Damage();
 
-			Audio::GetInstance()->PlayWave(12, 0.2f, false);
+			Audio::GetInstance()->PlayWave("SE/damaged.wav", 0.2f, false);
 
 			isAttackSuccessful = true;
 

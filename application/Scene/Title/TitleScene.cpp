@@ -53,11 +53,12 @@ void TitleScene::Initialize() {
 	}
 
 	// BGM
-	audio_->StopWave(0);
-	audio_->StopWave(1);
-	audio_->StopWave(2);
-	audio_->StopWave(3);
-	audio_->StopWave(4);
+	audio_->StopWave("BGM/title.wav");
+	audio_->StopWave("BGM/battle.wav");
+	audio_->StopWave("BGM/gameClear.wav");
+	audio_->StopWave("BGM/gameOver.wav");
+	audio_->StopWave("BGM/tutorial.wav");
+
 	audio_->LoadWave("BGM/title.wav");
 	audio_->LoadWave("BGM/battle.wav");
 	audio_->LoadWave("BGM/gameClear.wav");
@@ -74,7 +75,7 @@ void TitleScene::Initialize() {
 	audio_->LoadWave("SE/reflection.wav");	// 11	壁に反射したとき
 	audio_->LoadWave("SE/damaged.wav");		// 12	被弾した時
 
-	audio_->PlayWave(0, 0.1f, true);
+	audio_->PlayWave("BGM/title.wav", 0.1f, true);
 
 	particleManager_ = ParticleManager::GetInstance();
 
@@ -276,6 +277,6 @@ void TitleScene::ChangeScene() {
 		sceneManager_->NextSceneReservation("STAGE4");
 	}
 
-	audio_->PlayWave(5, 1.0f, false);
+	audio_->PlayWave("scene.wav", 1.0f, false);
 	isChangeScene = false;
 }

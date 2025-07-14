@@ -94,12 +94,12 @@ void ClearScene::Initialize() {
 	emitter_->Initialize("Clear.json");
 	emitter_->Start();
 
-	audio_->StopWave(0);
-	audio_->StopWave(1);
-	audio_->StopWave(2);
-	audio_->StopWave(3);
-	audio_->StopWave(4);
-	audio_->PlayWave(2, 0.1f, true);
+	audio_->StopWave("BGM/title.wav");
+	audio_->StopWave("BGM/battle.wav");
+	audio_->StopWave("BGM/gameClear.wav");
+	audio_->StopWave("BGM/gameOver.wav");
+	audio_->StopWave("BGM/tutorial.wav");
+	audio_->PlayWave("BGM/gameClear.wav", 0.1f, true);
 }
 
 /// 更新

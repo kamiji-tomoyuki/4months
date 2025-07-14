@@ -147,12 +147,12 @@ void TutorialScene::Initialize() {
 
 	/// === オーディオの設定 === ///
 
-	audio_->StopWave(0);
-	audio_->StopWave(1);
-	audio_->StopWave(2);
-	audio_->StopWave(3);
-	audio_->StopWave(4);
-	audio_->PlayWave(4, 0.1f, true);
+	audio_->StopWave("BGM/title.wav");
+	audio_->StopWave("BGM/battle.wav");
+	audio_->StopWave("BGM/gameClear.wav");
+	audio_->StopWave("BGM/gameOver.wav");
+	audio_->StopWave("BGM/tutorial.wav");
+	audio_->PlayWave("BGM/tutorial.wav", 0.1f, true);
 }
 
 void TutorialScene::Finalize() {

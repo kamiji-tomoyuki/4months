@@ -44,7 +44,7 @@ void BossSword::OnCollision([[maybe_unused]] Collider* other){
 			Vector3 aimingDirection = boss->GetAimingDirection();
 			aimingDirection.y *= -1.0f;
 
-			Audio::GetInstance()->PlayWave(9, 0.3f, false);
+			Audio::GetInstance()->PlayWave("SE/gard.wav", 0.3f, false);
 
 			boss->SetAimingDirection(aimingDirection);
 			//enemy_->SetObjColor({ 0.0f,0.0f,1.0f,1.0f });
@@ -71,7 +71,7 @@ void BossSword::OnCollision([[maybe_unused]] Collider* other){
 
 			player->SetVelocity(player->GetVelocity() + newVelocity.Normalize() * 300.0f);
 
-			Audio::GetInstance()->PlayWave(12, 0.2f, false);
+			Audio::GetInstance()->PlayWave("SE/damaged.wav", 0.2f, false);
 
 			player->SetHP(player->GetHP() - int(1000));
 			if (player->GetHP() <= 0) {
