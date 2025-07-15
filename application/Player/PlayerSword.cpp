@@ -10,14 +10,12 @@
 void PlayerSword::Initialize() {
 	Collider::Initialize();
 	Collider::SetTypeID(static_cast<uint32_t>(CollisionTypeIdDef::kPlayerWeapon));
-	obj3d_ = std::make_unique<Object3d>();
 	palm_ = std::make_unique<Object3d>();
 }
 
 /// 初期化
-void PlayerSword::Initialize(std::string filePath, std::string palmFilePath) {
+void PlayerSword::Initialize(std::string palmFilePath) {
 	Initialize();
-	obj3d_->Initialize(filePath);
 	palm_->Initialize(palmFilePath);
 	/// ワールドトランスフォームの初期化
 	transform_.Initialize();
@@ -52,7 +50,6 @@ void PlayerSword::Update() {
 	/// 色転送
 	objColor_.TransferMatrix();
 
-	obj3d_->AnimationUpdate(true);
 	palm_->AnimationUpdate(true);
 }
 
@@ -80,7 +77,6 @@ void PlayerSword::DrawParticle(const ViewProjection& viewProjection) {
 }
 /// 描画
 void PlayerSword::DrawAnimation(const ViewProjection& viewProjection) {
-	obj3d_->Draw(transform_, viewProjection, &objColor_);
 }
 
 /// 当たってる間
@@ -203,7 +199,6 @@ void PlayerSword::ContactRecordClear() {
 
 /// モデルセット
 void PlayerSword::SetModel(const std::string& filePath) {
-	obj3d_->SetModel(filePath);
 }
 
 /// プレイヤーセット

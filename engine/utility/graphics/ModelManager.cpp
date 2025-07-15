@@ -36,7 +36,7 @@ void ModelManager::LoadModel(const std::string& filePath)
     }
 
     std::unique_ptr<Model> model = std::make_unique<Model>();
-    model->Initialize(modelCommon, "resources/models/", filePath);
+    model->Initialize(modelCommon, "resources/models", filePath);
     model->SetSrv(srvManager);
     models.insert(std::make_pair(filePath, std::move(model)));
 }
