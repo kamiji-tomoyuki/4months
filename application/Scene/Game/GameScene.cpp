@@ -42,32 +42,6 @@ void GameScene::Initialize() {
 	Enemy::SetEnemyID(0);
 
 	LoadLevelData();
-	////プレイヤー
-	//Player::SetPlayerID(0);
-	//for (uint32_t i = 0; i < 1; ++i) {
-	//	std::unique_ptr<Player> player = std::make_unique<Player>();
-	//	player->SetTimeManager(timeManager_.get());
-	//	player->Init();
-	//	player->SetViewProjection(&vp_);
-	//	players_.push_back(std::move(player));
-	//}
-	//players_[0]->SetPosition({ 0.0f,1.750f,-50.0f });
-
-	//for (size_t i = 0; i < 1; i++) {
-	//	std::unique_ptr<Enemy> newEnemy = std::make_unique<Boss>();
-	//	newEnemy->SetPlayer(players_[0].get());
-	//	newEnemy->SetTimeManager(timeManager_.get());
-	//	newEnemy->Init();
-	//	newEnemy->SetTranslation({ 0.0f,0.0f,100.0f });
-	//	enemies_.push_back(std::move(newEnemy));
-	//}
-	//std::unique_ptr<Enemy> newEnemy = std::make_unique<Soldier>();
-	//newEnemy->SetPlayer(players_[0].get());
-	//newEnemy->SetTimeManager(timeManager_.get());
-	//newEnemy->Init();
-	//newEnemy->SetTranslation({ 2000,0,2000 });
-	//enemies_.push_back(std::move(newEnemy));
-	//LoadEnemyPopData();
 
 	// コロシアム
 	coliseum_ = std::make_unique<Coliseum>();
@@ -104,25 +78,6 @@ void GameScene::Initialize() {
 		}
 	}
 	uiManager_->Initialize(playerMaxHp, bossMaxHp); // プレイヤーとボスの最大HPを設定
-
-	// HPバーのスプライトを作成
-	//hpBar_ = std::make_unique<Sprite>();
-	//hpBar_->Initialize("hp.png", Vector2(400.0f, 700.0f)); // 下に配置
-	//hpBar_->SetSize(Vector2(70.0f, 500.0f)); // 横幅を少し太く
-	//hpBar_->SetRotation(-1.57f);
-	//hpBar_->SetAnchorPoint({ 0.0f,0.0f });
-
-	// 敵の HP バーのスプライトを作成
-	//enemyHpBar_ = std::make_unique<Sprite>();
-	//enemyHpBar_->Initialize("enemyHpBar.png", Vector2(400.0f, 80.0f)); // 上に配置
-	//enemyHpBar_->SetSize(Vector2(70.0f, 500.0f)); // 横幅を少し太く
-	//enemyHpBar_->SetRotation(-1.57f);
-	//enemyHpBar_->SetAnchorPoint({ 0.0f,0.0f });
-
-	// 操作説明のスプライトを作成
-	/*howToPlay_ = std::make_unique<Sprite>();
-	howToPlay_->Initialize("HowToPlay.png", Vector2(0.0f, 0.0f));
-	howToPlay_->SetAnchorPoint({ 0.0f, 0.0f });*/
 
 	particleManager_ = ParticleManager::GetInstance();
 
@@ -190,11 +145,6 @@ void GameScene::Update() {
 			uiManager_->SetPlayerHP(player->GetHP()); // プレイヤーのHPをUIマネージャに設定
 		}
 
-		// HPバーのサイズと位置を更新
-		//float hpRatio = static_cast<float>(players_[0]->GetHP()) / kMaxHp;
-		//float newHeight = 500.0f * hpRatio; // HPに応じた高さ
-		//hpBar_->SetSize(Vector2(100.0f, newHeight)); // 横幅を70pxに変更
-
 		//今 敵処理
 		UpdateEnemyPopCommands();
 		for (const std::unique_ptr<Enemy>& enemy : enemies_) {
@@ -203,10 +153,6 @@ void GameScene::Update() {
 			// Boss だけにこの処理を行う
 			if (Boss* boss = dynamic_cast<Boss*>(enemy.get())) {
 				uiManager_->SetBossHP(boss->GetHP()); // ボスのHPをUIマネージャに設定
-				// ボスの HPバーのサイズと位置を更新
-				//float enemyHpRatio = static_cast<float>(boss->GetHP()) / kMaxHp;
-				//float enemyNewHeight = 500.0f * enemyHpRatio;
-				//enemyHpBar_->SetSize(Vector2(100.0f, enemyNewHeight)); // 横幅を70pxに変更
 			}
 		}
 
@@ -291,19 +237,10 @@ void GameScene::Draw() {
 
 	/// Spriteの描画準備
 	spCommon_->DrawCommonSetting();
-	// 操作説明の描画
-	//howToPlay_->Draw();
 	//ロックオンマーク
 	lockOn_->Draw();
-	// HPバーの描画
-	//hpBar_->Draw();
+	// UIの描画
 	uiManager_->Draw();
-
-	/*for (const std::unique_ptr<Enemy>& enemy : enemies_) {
-		if (Boss* boss = dynamic_cast<Boss*>(enemy.get())) {
-			enemyHpBar_->Draw();
-		}
-	}*/
 	
 	pause_->Draw();
 
@@ -374,24 +311,6 @@ void GameScene::CameraUpdate() {
 }
 
 void GameScene::ChangeScene() {
-#pragma region プレイ会用機能
-
-	if (pause_->GetReturnScene() == Pause::TITLE) {
-		sceneManager_->NextSceneReservation("TITLE");
-		if (isPlay) {
-			isPlay = false;
-		}
-	}
-
-	// タイトルシーンへ戻す
-	if (Input::GetInstance()->TriggerKey(DIK_T)) {
-		sceneManager_->NextSceneReservation("TITLE");
-		if (isPlay) {
-			isPlay = false;
-		}
-	}
-#pragma endregion プレイ会用機能
-
 	if (isClear) {
 		sceneManager_->NextSceneReservation("CLEAR");
 		if (isPlay) {
