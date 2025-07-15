@@ -65,7 +65,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)application\;$(ProjectDir)application\Base;$(ProjectDir)application\Enemy\Boss;$(ProjectDir)application\Enemy\Soldier;$(ProjectDir)application\Enemy;$(ProjectDir)application\Player;$(ProjectDir)application\Coliseum;$(ProjectDir)engine\2d;$(ProjectDir)engine\3d;$(ProjectDir)engine\3d\light;$(ProjectDir)engine\3d\particle;$(ProjectDir)engine\3d\model;$(ProjectDir)engine\3d\transform;$(ProjectDir)engine\3d\camera;$(ProjectDir)engine\base;$(ProjectDir)engine\input;$(ProjectDir)engine\utility;$(ProjectDir)engine\utility\graphics;$(ProjectDir)engine\utility\debug;$(ProjectDir)engine\utility\string;$(ProjectDir)scene;$(ProjectDir)engine\core;$(ProjectDir)engine\utility\edit;$(ProjectDir)engine\utility\collider;$(ProjectDir)engine\utility\scene;$(ProjectDir)particle;$(ProjectDir)math;$(ProjectDir)externals\assimp\include;$(ProjectDir)engine\Frame;$(ProjectDir)engine\Audio;$(ProjectDir)externals\imgui;$(ProjectDir)externals\DirectXTex</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)application\;$(ProjectDir)application\Base;$(ProjectDir)application\Enemy\Boss;$(ProjectDir)application\Enemy\Soldier;$(ProjectDir)application\Enemy;$(ProjectDir)application\Player;$(ProjectDir)engine\2d;$(ProjectDir)engine\3d;$(ProjectDir)engine\3d\light;$(ProjectDir)engine\3d\particle;$(ProjectDir)engine\3d\model;$(ProjectDir)engine\3d\transform;$(ProjectDir)engine\3d\camera;$(ProjectDir)engine\base;$(ProjectDir)engine\input;$(ProjectDir)engine\utility;$(ProjectDir)engine\utility\graphics;$(ProjectDir)engine\utility\debug;$(ProjectDir)engine\utility\string;$(ProjectDir)scene;$(ProjectDir)engine\core;$(ProjectDir)engine\utility\edit;$(ProjectDir)engine\utility\collider;$(ProjectDir)engine\utility\scene;$(ProjectDir)particle;$(ProjectDir)engine\math;$(ProjectDir)externals\assimp\include;$(ProjectDir)engine\Frame;$(ProjectDir)engine\Audio;$(ProjectDir)externals\imgui;$(ProjectDir)externals\DirectXTex;$(ProjectDir)application\Scene;$(ProjectDir)application\Stage;$(ProjectDir)application\Scene\Base;$(ProjectDir)application\Scene\Game;$(ProjectDir)application\Scene\GameClear;$(ProjectDir)application\Scene\GameOver;$(ProjectDir)application\Scene\Title;$(ProjectDir)application\Scene\Tutorial</AdditionalIncludeDirectories>
       <Optimization>Custom</Optimization>
     </ClCompile>
     <Link>
@@ -92,7 +92,7 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
       <AdditionalOptions>/utf-8</AdditionalOptions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)application\;$(ProjectDir)application\Base;$(ProjectDir)application\Enemy\Boss;$(ProjectDir)application\Enemy\Soldier;$(ProjectDir)application\Enemy;$(ProjectDir)application\Player;$(ProjectDir)application\Coliseum;$(ProjectDir)engine\2d;$(ProjectDir)engine\3d;$(ProjectDir)engine\3d\light;$(ProjectDir)engine\3d\particle;$(ProjectDir)engine\3d\model;$(ProjectDir)engine\3d\transform;$(ProjectDir)engine\3d\camera;$(ProjectDir)engine\base;$(ProjectDir)engine\input;$(ProjectDir)engine\utility;$(ProjectDir)engine\utility\graphics;$(ProjectDir)engine\utility\debug;$(ProjectDir)engine\utility\string;$(ProjectDir)scene;$(ProjectDir)engine\core;$(ProjectDir)engine\utility\edit;$(ProjectDir)engine\utility\collider;$(ProjectDir)engine\utility\scene;$(ProjectDir)particle;$(ProjectDir)math;$(ProjectDir)externals\assimp\include;$(ProjectDir)engine\Frame;$(ProjectDir)engine\Audio;$(ProjectDir)externals\imgui;$(ProjectDir)externals\DirectXTex</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)application\;$(ProjectDir)application\Base;$(ProjectDir)application\Enemy\Boss;$(ProjectDir)application\Enemy\Soldier;$(ProjectDir)application\Enemy;$(ProjectDir)application\Player;$(ProjectDir)engine\2d;$(ProjectDir)engine\3d;$(ProjectDir)engine\3d\light;$(ProjectDir)engine\3d\particle;$(ProjectDir)engine\3d\model;$(ProjectDir)engine\3d\transform;$(ProjectDir)engine\3d\camera;$(ProjectDir)engine\base;$(ProjectDir)engine\input;$(ProjectDir)engine\utility;$(ProjectDir)engine\utility\graphics;$(ProjectDir)engine\utility\debug;$(ProjectDir)engine\utility\string;$(ProjectDir)scene;$(ProjectDir)engine\core;$(ProjectDir)engine\utility\edit;$(ProjectDir)engine\utility\collider;$(ProjectDir)engine\utility\scene;$(ProjectDir)particle;$(ProjectDir)engine\math;$(ProjectDir)externals\assimp\include;$(ProjectDir)engine\Frame;$(ProjectDir)engine\Audio;$(ProjectDir)externals\imgui;$(ProjectDir)externals\DirectXTex;$(ProjectDir)application\Scene;$(ProjectDir)application\Stage;$(ProjectDir)application\Scene\Base;$(ProjectDir)application\Scene\Game;$(ProjectDir)application\Scene\GameClear;$(ProjectDir)application\Scene\GameOver;$(ProjectDir)application\Scene\Title;$(ProjectDir)application\Scene\Tutorial</AdditionalIncludeDirectories>
       <Optimization>MinSpace</Optimization>
     </ClCompile>
     <Link>
@@ -109,8 +109,8 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="application\Coliseum\Coliseum.cpp" />
-    <ClCompile Include="application\ContactRecord.cpp" />
+    <ClCompile Include="application\Stage\Coliseum.cpp" />
+    <ClCompile Include="application\Player\ContactRecord.cpp" />
     <ClCompile Include="application\Enemy\BaseEnemyState.cpp" />
     <ClCompile Include="application\Enemy\Boss\BossStateApproach.cpp" />
     <ClCompile Include="application\Enemy\Boss\BossStateRoot.cpp" />
@@ -119,7 +119,7 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="application\Enemy\Soldier\SoldierStateDefense.cpp" />
     <ClCompile Include="application\Enemy\Soldier\SoldierStateLeave.cpp" />
     <ClCompile Include="application\Enemy\Soldier\SoldierStateRoot.cpp" />
-    <ClCompile Include="application\Ground.cpp" />
+    <ClCompile Include="application\Stage\Ground.cpp" />
     <ClCompile Include="application\Player\FollowCamera.cpp" />
     <ClCompile Include="application\Player\LockOn.cpp" />
     <ClCompile Include="application\Player\Player.cpp" />
@@ -128,9 +128,7 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="application\Enemy\Boss\BossStateAttack.cpp" />
     <ClCompile Include="application\Enemy\Boss\BossSword.cpp" />
     <ClCompile Include="application\Enemy\BaseEnemySword.cpp" />
-    <ClCompile Include="application\Pause.cpp" />
-    <ClCompile Include="application\Enemy\EnemyManager.cpp" />
-    <ClCompile Include="scene\EditorScene.cpp" />
+    <ClCompile Include="application\Scene\Game\Pause.cpp" />
     <ClCompile Include="application\Player\PlayerSword.cpp" />
     <ClCompile Include="application\Enemy\Soldier\EnemySword.cpp" />
     <ClCompile Include="engine\3d\model\animation\ModelAnimation.cpp" />
@@ -139,8 +137,8 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\3d\model\animation\Animator.cpp" />
     <ClCompile Include="application\Base\BaseObject.cpp" />
     <ClCompile Include="engine\utility\json\JsonLoader.cpp" />
-    <ClCompile Include="math\Quaternion.cpp" />
-    <ClCompile Include="math\random.cpp" />
+    <ClCompile Include="engine\math\Quaternion.cpp" />
+    <ClCompile Include="engine\math\random.cpp" />
     <ClCompile Include="engine\3d\camera\DebugCamera.cpp" />
     <ClCompile Include="engine\3d\light\LightGroup.cpp" />
     <ClCompile Include="engine\3d\line\DrawLine3D.cpp" />
@@ -148,7 +146,7 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\input\Mouse.cpp" />
     <ClCompile Include="engine\utility\collider\Collider.cpp" />
     <ClCompile Include="engine\utility\collider\CollisionManager.cpp" />
-    <ClCompile Include="math\Easing.cpp" />
+    <ClCompile Include="engine\math\Easing.cpp" />
     <ClCompile Include="engine\3d\particle\ParticleCommon.cpp" />
     <ClCompile Include="engine\3d\particle\ParticleManager.cpp" />
     <ClCompile Include="engine\utility\debug\GlobalVariables.cpp" />
@@ -168,7 +166,7 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="externals\imgui\imgui_tables.cpp" />
     <ClCompile Include="externals\imgui\imgui_widgets.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="math\myMath.cpp" />
+    <ClCompile Include="engine\math\myMath.cpp" />
     <ClCompile Include="engine\3d\camera\Camera.cpp" />
     <ClCompile Include="engine\utility\debug\D3DResourceLeakChecker.cpp" />
     <ClCompile Include="engine\base\DirectXCommon.cpp" />
@@ -193,21 +191,20 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\3d\line\LineManager.cpp" />
     <ClCompile Include="engine\utility\scene\SceneTransition.cpp" />
     <ClCompile Include="engine\offscreen\OffScreen.cpp" />
-    <ClCompile Include="application\ParticleEditor.cpp" />
-    <ClCompile Include="scene\BaseScene.cpp" />
-    <ClCompile Include="scene\ClearScene.cpp" />
-    <ClCompile Include="scene\GameOverScene.cpp" />
-    <ClCompile Include="scene\GameScene.cpp" />
-    <ClCompile Include="scene\TitleScene.cpp" />
+    <ClCompile Include="application\Scene\Base\BaseScene.cpp" />
+    <ClCompile Include="application\Scene\GameClear\ClearScene.cpp" />
+    <ClCompile Include="application\Scene\GameOver\GameOverScene.cpp" />
+    <ClCompile Include="application\Scene\Game\GameScene.cpp" />
+    <ClCompile Include="application\Scene\Title\TitleScene.cpp" />
     <ClCompile Include="engine\3d\model\animation\Skin.cpp" />
-    <ClCompile Include="application\Skydome.cpp" />
+    <ClCompile Include="application\Stage\Skydome.cpp" />
     <ClCompile Include="application\Enemy\Soldier\Soldier.cpp" />
-    <ClCompile Include="application\TimeManager.cpp" />
-    <ClCompile Include="application\TitleEvent.cpp" />
-    <ClCompile Include="scene\TutorialScene.cpp" />
-    <ClCompile Include="application\TutorialUI.cpp" />
-    <ClCompile Include="application\TutorialEvent.cpp" />
-    <ClCompile Include="application\TitleGround.cpp" />
+    <ClCompile Include="engine\math\TimeManager.cpp" />
+    <ClCompile Include="application\Scene\Title\TitleEvent.cpp" />
+    <ClCompile Include="application\Scene\Tutorial\TutorialScene.cpp" />
+    <ClCompile Include="application\Scene\Tutorial\TutorialUI.cpp" />
+    <ClCompile Include="application\Scene\Tutorial\TutorialEvent.cpp" />
+    <ClCompile Include="application\Scene\Title\TitleGround.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
@@ -233,9 +230,9 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="application\Coliseum\Coliseum.h" />
-    <ClInclude Include="application\CollisionTypeIdDef.h" />
-    <ClInclude Include="application\ContactRecord.h" />
+    <ClInclude Include="application\Stage\Coliseum.h" />
+    <ClInclude Include="engine\utility\collider\CollisionTypeIdDef.h" />
+    <ClInclude Include="application\Player\ContactRecord.h" />
     <ClInclude Include="application\Enemy\BaseEnemyState.h" />
     <ClInclude Include="application\Enemy\Boss\BossStateApproach.h" />
     <ClInclude Include="application\Enemy\Boss\BossStateRoot.h" />
@@ -244,7 +241,7 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="application\Enemy\Soldier\SoldierStateDefense.h" />
     <ClInclude Include="application\Enemy\Soldier\SoldierStateLeave.h" />
     <ClInclude Include="application\Enemy\Soldier\SoldierStateRoot.h" />
-    <ClInclude Include="application\Ground.h" />
+    <ClInclude Include="application\Stage\Ground.h" />
     <ClInclude Include="application\Player\FollowCamera.h" />
     <ClInclude Include="application\Player\LockOn.h" />
     <ClInclude Include="application\Player\Player.h" />
@@ -253,9 +250,7 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="application\Enemy\Boss\BossStateAttack.h" />
     <ClInclude Include="application\Enemy\Boss\BossSword.h" />
     <ClInclude Include="application\Enemy\BaseEnemySword.h" />
-    <ClInclude Include="application\Pause.h" />
-    <ClInclude Include="application\Enemy\EnemyManager.h" />
-    <ClInclude Include="scene\EditorScene.h" />
+    <ClInclude Include="application\Scene\Game\Pause.h" />
     <ClInclude Include="application\Player\PlayerSword.h" />
     <ClInclude Include="application\Enemy\Soldier\EnemySword.h" />
     <ClInclude Include="engine\3d\model\animation\ModelAnimation.h" />
@@ -265,8 +260,8 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\3d\model\animation\Animator.h" />
     <ClInclude Include="application\Base\BaseObject.h" />
     <ClInclude Include="engine\utility\json\JsonLoader.h" />
-    <ClInclude Include="math\Quaternion.h" />
-    <ClInclude Include="math\random.h" />
+    <ClInclude Include="engine\math\Quaternion.h" />
+    <ClInclude Include="engine\math\random.h" />
     <ClInclude Include="engine\3d\camera\DebugCamera.h" />
     <ClInclude Include="engine\3d\light\LightGroup.h" />
     <ClInclude Include="engine\3d\line\DrawLine3D.h" />
@@ -275,7 +270,7 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\input\Mouse.h" />
     <ClInclude Include="engine\utility\collider\Collider.h" />
     <ClInclude Include="engine\utility\collider\CollisionManager.h" />
-    <ClInclude Include="math\Easing.h" />
+    <ClInclude Include="engine\math\Easing.h" />
     <ClInclude Include="engine\3d\particle\ParticleCommon.h" />
     <ClInclude Include="engine\3d\particle\ParticleManager.h" />
     <ClInclude Include="engine\utility\debug\GlobalVariables.h" />
@@ -295,12 +290,12 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="externals\imgui\imstb_rectpack.h" />
     <ClInclude Include="externals\imgui\imstb_textedit.h" />
     <ClInclude Include="externals\imgui\imstb_truetype.h" />
-    <ClInclude Include="math\Matrix3x3.h" />
-    <ClInclude Include="math\Matrix4x4.h" />
-    <ClInclude Include="math\myMath.h" />
-    <ClInclude Include="math\Vector2.h" />
-    <ClInclude Include="math\Vector3.h" />
-    <ClInclude Include="math\Vector4.h" />
+    <ClInclude Include="engine\math\Matrix3x3.h" />
+    <ClInclude Include="engine\math\Matrix4x4.h" />
+    <ClInclude Include="engine\math\myMath.h" />
+    <ClInclude Include="engine\math\Vector2.h" />
+    <ClInclude Include="engine\math\Vector3.h" />
+    <ClInclude Include="engine\math\Vector4.h" />
     <ClInclude Include="engine\3d\camera\Camera.h" />
     <ClInclude Include="engine\utility\debug\D3DResourceLeakChecker.h" />
     <ClInclude Include="engine\base\DirectXCommon.h" />
@@ -326,21 +321,20 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\3d\line\LineManager.h" />
     <ClInclude Include="engine\utility\scene\SceneTransition.h" />
     <ClInclude Include="engine\offscreen\OffScreen.h" />
-    <ClInclude Include="application\ParticleEditor.h" />
-    <ClInclude Include="scene\BaseScene.h" />
-    <ClInclude Include="scene\ClearScene.h" />
-    <ClInclude Include="scene\GameOverScene.h" />
-    <ClInclude Include="scene\GameScene.h" />
-    <ClInclude Include="scene\TitleScene.h" />
+    <ClInclude Include="application\Scene\Base\BaseScene.h" />
+    <ClInclude Include="application\Scene\GameClear\ClearScene.h" />
+    <ClInclude Include="application\Scene\GameOver\GameOverScene.h" />
+    <ClInclude Include="application\Scene\Game\GameScene.h" />
+    <ClInclude Include="application\Scene\Title\TitleScene.h" />
     <ClInclude Include="engine\3d\model\animation\Skin.h" />
-    <ClInclude Include="application\Skydome.h" />
+    <ClInclude Include="application\Stage\Skydome.h" />
     <ClInclude Include="application\Enemy\Soldier\Soldier.h" />
-    <ClInclude Include="application\TimeManager.h" />
-    <ClInclude Include="application\TitleEvent.h" />
-    <ClInclude Include="scene\TutorialScene.h" />
-    <ClInclude Include="application\TutorialUI.h" />
-    <ClInclude Include="application\TutorialEvent.h" />
-    <ClInclude Include="application\TitleGround.h" />
+    <ClInclude Include="engine\math\TimeManager.h" />
+    <ClInclude Include="application\Scene\Title\TitleEvent.h" />
+    <ClInclude Include="application\Scene\Tutorial\TutorialScene.h" />
+    <ClInclude Include="application\Scene\Tutorial\TutorialUI.h" />
+    <ClInclude Include="application\Scene\Tutorial\TutorialEvent.h" />
+    <ClInclude Include="application\Scene\Title\TitleGround.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\shaders\OffScreen\BoxFilter.PS.hlsl">

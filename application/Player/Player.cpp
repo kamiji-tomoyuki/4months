@@ -30,11 +30,10 @@ void Player::Init() {
 	sword_->SetPlayer(this);
 	sword_->SetTimeManager(timeManager_);
 
-	BaseObject::CreateModel("player/playerBody.obj");
 	model_ = std::make_unique<Object3d>();
 	model_->Initialize("player/player.gltf");
 
-	sword_->Initialize("player/playerArm.gltf", "sword/sword.obj");
+	sword_->Initialize("sword/sword.obj");
 
 	sword_->SetID(id_);
 	sword_->SetRotation(Vector3(0.0f, 0.0f, 0.0f));

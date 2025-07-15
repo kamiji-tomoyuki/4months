@@ -4,7 +4,6 @@
 #include "GameScene.h"
 #include "ClearScene.h"
 #include "GameOverScene.h"
-#include "EditorScene.h"
 #include "TutorialScene.h"
 
 BaseScene* SceneFactory::CreateScene(const std::string& sceneName)
@@ -44,9 +43,6 @@ BaseScene* SceneFactory::CreateScene(const std::string& sceneName)
 	}
 	else if (sceneName == "GAMEOVER") {
 		newScene = new GameOverScene();
-	}
-	else if (sceneName == "EDITOR") {
-		newScene = new EditorScene();
 	}
 	else if (sceneName == "TUTORIAL") {
 		newScene = new TutorialScene();
