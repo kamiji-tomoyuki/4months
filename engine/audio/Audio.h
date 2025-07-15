@@ -6,12 +6,13 @@
 #include "vector"
 #include "wrl.h"
 #include <set>
+#include <unordered_map>
 
 // 音声管理
 class Audio
 {
 	class VoiceCallback : public IXAudio2VoiceCallback {
-	
+
 	public:
 		void STDMETHODCALLTYPE OnStreamEnd() override {}
 		void STDMETHODCALLTYPE OnVoiceProcessingPassEnd() override {}
@@ -24,7 +25,7 @@ class Audio
 			if (pBufferContext) {
 				Voice* voice = reinterpret_cast<Voice*>(pBufferContext);
 				if (voice) {
-					Audio::GetInstance()->StopWave(voice->handle);
+					Audio::GetInstance()->StopWave(voice->filename);
 				}
 			}
 		}
@@ -60,7 +61,7 @@ private:
 	};
 
 	struct Voice {
-		uint32_t handle = 0u;
+		std::string filename;
 		IXAudio2SourceVoice* sourceVoice = nullptr;
 		float volume = 1.0f;
 	};
@@ -94,35 +95,50 @@ public:
 	/// </summary>
 	/// <param name="filename"></param>
 	/// <returns></returns>
-	uint32_t LoadWave(const std::string& filename);
+	void LoadWave(const std::string& filename);
 
 	/// <summary>
 	/// 音声データ解放
 	/// </summary>
-	/// <param name="soundData"></param>
-	void Unload(uint32_t soundIndex);
+	/// <param name="filename"></param>
+	void Unload(const std::string& filename);
 
 	/// <summary>
 	/// 音声再生
 	/// </summary>
-	/// <param name="xAudio2"></param>
-	/// <param name="soundData"></param>
-	void PlayWave(uint32_t soundIndex, float volume, bool loop = false);
+	/// <param name="filename"></param>
+	/// <param name="volume"></param>
+	/// <param name="loop"></param>
+	void PlayWave(const std::string& filename, float volume = 1.0f, bool loop = false);
 
 	/// <summary>
 	/// 音声停止
 	/// </summary>
-	/// <param name="soundIndex"></param>
-	void StopWave(uint32_t soundIndex);
+	/// <param name="filename"></param>
+	void StopWave(const std::string& filename);
 
 	/// <summary>
 	/// 音量設定
 	/// </summary>
-	/// <param name="soundIndex"></param>
+	/// <param name="filename"></param>
 	/// <param name="volume"></param>
-	void SetVolume(uint32_t soundIndex, float volume);
+	void SetVolume(const std::string& filename, float volume);
 
 private:
+	/// <summary>
+	/// ファイル名からインデックスを取得
+	/// </summary>
+	/// <param name="filename"></param>
+	/// <returns></returns>
+	uint32_t GetSoundIndex(const std::string& filename) const;
+
+private:
+	/// <summary>
+	/// ファイル名からベース名を取得（階層パスを除去）
+	/// </summary>
+	/// <param name="filename"></param>
+	/// <returns></returns>
+	std::string GetBaseName(const std::string& filename) const;
 
 	Microsoft::WRL::ComPtr<IXAudio2>xAudio2;
 
@@ -131,7 +147,7 @@ private:
 	std::array<SoundData, kMaxSoundData> soundDatas_;
 	size_t soundDataIndex = 0;
 	std::set<Voice*> voices_;
-	std::set<std::string> loadedFiles;
+	std::unordered_map<std::string, uint32_t> filenameToIndex;
 
 	// フォーマット情報を読み込む
 	uint16_t audioFormat;

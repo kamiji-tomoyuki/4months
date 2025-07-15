@@ -1,0 +1,253 @@
+#include "GameOverScene.h"
+#include "ImGuiManager.h"
+#include"SceneManager.h"
+#include"SrvManager.h"
+
+#ifdef _DEBUG
+#include<imgui.h>
+#endif // _DEBUG
+#include <LightGroup.h>
+#include"line/DrawLine3D.h"
+
+#include "Soldier.h"
+
+/// 終了
+void GameOverScene::Finalize()
+{
+}
+
+/// 初期化
+void GameOverScene::Initialize()
+{
+	audio_ = Audio::GetInstance();
+	objCommon_ = Object3dCommon::GetInstance();
+	spCommon_ = SpriteCommon::GetInstance();
+	ptCommon_ = ParticleCommon::GetInstance();
+	input_ = Input::GetInstance();
+
+	particleManager_ = ParticleManager::GetInstance();
+
+	enemiesDistance_ = 10.0f;
+
+	enemyMaxColumn_ = 6;
+
+	vp_.Initialize();
+	vp_.translation_ = { 0.0f,10.0f,-30.0f };
+	vp_.rotation_ = { 0.1f,0.0f,0.0f };
+
+	debugCamera_ = std::make_unique<DebugCamera>();
+	debugCamera_->Initialize(&vp_);
+
+	//天球
+	skyDome_ = std::make_unique<Skydome>();
+	skyDome_->Init("WildsSkyDome.obj");
+	skyDome_->SetViewProjection(&vp_);
+	skyDome_->SetScale({ 1000.0f,1000.0f,1000.0f });// 天球のScale
+
+	//地面
+	ground_ = std::make_unique<Ground>();
+	ground_->Init();
+
+	UI_ = std::make_unique<Sprite>();
+	UI_->Initialize("UiA.png", { 640.0f, 600.0f }, { 1,1,1,1 }, { 0.5f,0.5f });
+
+	gameOver_ = std::make_unique<Sprite>();
+	gameOver_->Initialize("gameOverUI.png", { 640.0f, 300.0f }, { 1,1,1,1 }, { 0.5f,0.5f });
+
+	//タイム
+	timeManager_ = std::make_unique<TimeManager>();
+	timeManager_->Initialize();
+	timeManager_->SetTimer("start", 2.0f / 60.0f);
+
+	//プレイヤー
+	Player::SetPlayerID(0);
+	player_ = std::make_unique<Player>();
+	player_->SetTimeManager(timeManager_.get());
+	player_->Init();
+	player_->SetViewProjection(&vp_);
+	player_->SetRotation({ -1.0f,0.0f,0.0f });
+
+	player_->UpdateTransform();
+
+	player_->Update();
+
+	//エネミー
+	Enemy::SetEnemyID(0);
+
+	for (int i = -enemyMaxColumn_ + 1; i <= enemyMaxColumn_ + 1; i += 2) {
+		std::unique_ptr<Enemy> newEnemy = std::make_unique<Soldier>();
+		newEnemy->SetPlayer(player_.get());
+		newEnemy->SetTimeManager(timeManager_.get());
+		newEnemy->Init();
+		newEnemy->SetTranslation({ i * enemiesDistance_,0.0f,50.0f });
+		enemies_.push_back(std::move(newEnemy));
+	}
+
+	for (auto& enemy : enemies_) {
+		enemy->Update();
+	}
+
+	gameOverEmitter_ = std::make_unique<ParticleEmitter>();
+	gameOverEmitter_->Initialize("GameOver.json");
+	gameOverEmitter_->Start();
+
+	audio_->StopWave("BGM/title.wav");
+	audio_->StopWave("BGM/battle.wav");
+	audio_->StopWave("BGM/gameClear.wav");
+	audio_->StopWave("BGM/gameOver.wav");
+	audio_->StopWave("BGM/tutorial.wav");
+	audio_->PlayWave("gameOver.wav", 0.1f, true);
+}
+
+/// 更新
+void GameOverScene::Update()
+{
+#ifdef _DEBUG
+	// デバッグ
+	Debug();
+#endif // _DEBUG
+
+	skyDome_->Update();
+
+	ground_->Update();
+
+	timeManager_->Update();
+
+	player_->SetRotation({ player_->GetCenterRotation().x,player_->GetCenterRotation().y + 0.01f,player_->GetCenterRotation().z });
+	player_->UpdateTransform();
+
+	//// UI点滅
+	timer_ += speed_;
+	if (timer_ >= 1.0f || timer_ < 0.0f) {
+		speed_ *= -1.0f;
+	}
+	UI_->SetAlpha(timer_);
+
+	gameOverEmitter_->Update();
+
+	particleManager_->Update(vp_);
+
+	// カメラ更新
+	CameraUpdate();
+
+	// シーン切り替え
+	ChangeScene();
+
+}
+
+/// 描画
+void GameOverScene::Draw()
+{
+	/// -------描画処理開始-------
+
+	/// Spriteの描画準備
+	spCommon_->DrawCommonSetting();
+	//-----Spriteの描画開始-----
+	
+	//------------------------
+
+	objCommon_->skinningDrawCommonSetting();
+	//-----アニメーションの描画開始-----
+	player_->DrawAnimation(vp_);
+	for (const std::unique_ptr<Enemy>& enemy : enemies_) {
+		enemy->DrawAnimation(vp_);
+	}
+	//------------------------------
+
+
+	objCommon_->DrawCommonSetting();
+	//-----3DObjectの描画開始-----
+
+	skyDome_->Draw(vp_);
+	ground_->Draw(vp_);
+	player_->Draw(vp_);
+	for (const std::unique_ptr<Enemy>& enemy : enemies_) {
+		//enemy->Draw(vp_);
+	}
+
+	//--------------------------
+
+	/// Particleの描画準備
+	ptCommon_->DrawCommonSetting();
+	//------Particleの描画開始-------
+
+	particleManager_->Draw();
+
+	//-----------------------------
+
+	/// Spriteの描画準備
+	spCommon_->DrawCommonSetting();
+	//-----Spriteの描画開始-----
+	UI_->Draw();
+	gameOver_->Draw();
+	//---------------
+
+	//-----線描画-----
+	DrawLine3D::GetInstance()->Draw(vp_);
+	//---------------
+
+	/// ----------------------------------
+
+	/// -------描画処理終了-------
+}
+
+/// オフスクリーン上に描画
+void GameOverScene::DrawForOffScreen()
+{
+	/// -------描画処理開始-------
+
+	/// Spriteの描画準備
+	spCommon_->DrawCommonSetting();
+	//-----Spriteの描画開始-----
+
+	//------------------------
+
+	objCommon_->skinningDrawCommonSetting();
+	//-----アニメーションの描画開始-----
+
+	//------------------------------
+
+
+	objCommon_->DrawCommonSetting();
+	//-----3DObjectの描画開始-----
+
+	//--------------------------
+
+	/// Particleの描画準備
+	ptCommon_->DrawCommonSetting();
+	//------Particleの描画開始-------
+
+	//-----------------------------
+
+
+	/// ----------------------------------
+
+	/// -------描画処理終了-------
+}
+
+void GameOverScene::Debug()
+{
+	ImGui::Begin("GameOverScene:Debug");
+	debugCamera_->imgui();
+	LightGroup::GetInstance()->imgui();
+	ImGui::End();
+}
+
+void GameOverScene::CameraUpdate()
+{
+	if (debugCamera_->GetActive()) {
+		debugCamera_->Update();
+	}
+	else {
+		vp_.UpdateMatrix();
+	}
+}
+
+void GameOverScene::ChangeScene(){
+	XINPUT_STATE joyState;
+	if (Input::GetInstance()->GetJoystickState(0, joyState) && joyState.Gamepad.wButtons & XINPUT_GAMEPAD_A || input_->TriggerKey(DIK_SPACE)) {
+		sceneManager_->NextSceneReservation("TITLE");
+	} else if (Input::GetInstance()->GetJoystickState(0, joyState) && joyState.Gamepad.wButtons & XINPUT_GAMEPAD_B || input_->TriggerKey(DIK_BACKSPACE)) {
+		sceneManager_->NextSceneReservation("GAME");
+	}
+}
