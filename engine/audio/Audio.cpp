@@ -12,7 +12,6 @@ void Audio::Initialize(const std::string& directoryPath)
 
 	hr = XAudio2Create(&xAudio2, 0, XAUDIO2_DEFAULT_PROCESSOR);
 	hr = xAudio2->CreateMasteringVoice(&masterVoice);
-
 }
 
 Audio* Audio::GetInstance()
@@ -23,14 +22,10 @@ Audio* Audio::GetInstance()
 	return instance;
 }
 
-uint32_t Audio::LoadWave(const std::string& filename) {
-	// --- wavファイル読み込み ---
-	if (loadedFiles.find(filename) != loadedFiles.end()) {
-		for (size_t i = 0; i < kMaxSoundData; ++i) {
-			if (soundDatas_[i].name_ == filename) {
-				return static_cast<uint32_t>(i);
-			}
-		}
+void Audio::LoadWave(const std::string& filename) {
+	// 既に読み込み済みの場合は何もしない
+	if (filenameToIndex.find(filename) != filenameToIndex.end()) {
+		return;
 	}
 
 	std::string fullPath = directoryPath_ + "/" + filename;
@@ -62,7 +57,8 @@ uint32_t Audio::LoadWave(const std::string& filename) {
 			file.read((char*)&format.fmt, chunkHeader.size);
 
 			break;
-		} else {
+		}
+		else {
 			file.seekg(chunkHeader.size, std::ios_base::cur);
 		}
 	}
@@ -76,7 +72,8 @@ uint32_t Audio::LoadWave(const std::string& filename) {
 	while (file.read((char*)&data, sizeof(data))) {
 		if (strncmp(data.id, "data", 4) == 0) {
 			break;
-		} else {
+		}
+		else {
 			file.seekg(data.size, std::ios_base::cur);
 		}
 	}
@@ -92,36 +89,74 @@ uint32_t Audio::LoadWave(const std::string& filename) {
 
 	SoundData& soundData = soundDatas_[soundDataIndex];
 	soundData.wfex = format.fmt;
-	soundData.buffer = std::move(buffer); 
+	soundData.buffer = std::move(buffer);
 	soundData.name_ = filename;
 
-	loadedFiles.insert(filename);
+	// ファイル名とインデックスの対応を保存
+	filenameToIndex[filename] = static_cast<uint32_t>(soundDataIndex);
 
-	uint32_t currentIndex = static_cast<uint32_t>(soundDataIndex);
+	// ベース名でも登録（階層パス省略での検索に対応）
+	std::string baseName = GetBaseName(filename);
+	if (baseName != filename) {
+		filenameToIndex[baseName] = static_cast<uint32_t>(soundDataIndex);
+	}
 
 	soundDataIndex = (soundDataIndex + 1) % kMaxSoundData;
-
-	return currentIndex;
 }
 
+void Audio::Unload(const std::string& filename) {
+	auto it = filenameToIndex.find(filename);
+	if (it == filenameToIndex.end()) {
+		return; // ファイルが見つからない場合は何もしない
+	}
 
-
-void Audio::Unload(uint32_t soundIndex) {
+	uint32_t soundIndex = it->second;
 	SoundData& soundData = soundDatas_[soundIndex];
+
+	std::string originalName = soundData.name_;
+	std::string baseName = GetBaseName(originalName);
 
 	soundData.buffer.clear();  // バッファを空にする
 	soundData.wfex = {};
 	soundData.name_.clear();
+
+	// マッピングからも削除
+	filenameToIndex.erase(filename);
+
+	// ベース名のマッピングも削除
+	if (baseName != originalName) {
+		filenameToIndex.erase(baseName);
+	}
 }
 
-void Audio::PlayWave(uint32_t soundIndex, float volume, bool loop) {
-	HRESULT result;
+uint32_t Audio::GetSoundIndex(const std::string& filename) const {
+	auto it = filenameToIndex.find(filename);
+	assert(it != filenameToIndex.end()); // ファイルが読み込まれていない場合はアサート
+	return it->second;
+}
 
-	// --- 再生 ---
+std::string Audio::GetBaseName(const std::string& filename) const
+{
+	size_t pos = filename.find_last_of("/\\");
+	if (pos != std::string::npos) {
+		return filename.substr(pos + 1);
+	}
+	return filename;
+}
+
+void Audio::PlayWave(const std::string& filename, float volume, bool loop) {
+	// ファイルが読み込まれていない場合は読み込み
+	if (filenameToIndex.find(filename) == filenameToIndex.end()) {
+		LoadWave(filename);
+	}
+
+	uint32_t soundIndex = GetSoundIndex(filename);
 	const SoundData& soundData = soundDatas_[soundIndex];
 
+	HRESULT result;
+
 	Voice* voice = new Voice();
-	voice->handle = soundIndex;
+	voice->filename = filename;
 	voice->volume = volume;
 
 	VoiceCallback* voiceCallback = new VoiceCallback();
@@ -157,16 +192,16 @@ void Audio::PlayWave(uint32_t soundIndex, float volume, bool loop) {
 	voices_.insert(voice);
 }
 
-void Audio::StopWave(uint32_t soundIndex)
+void Audio::StopWave(const std::string& filename)
 {
 	// --- 音を停止 ---
 	for (auto it = voices_.begin(); it != voices_.end(); ) {
-		if ((*it)->handle == soundIndex) {
+		if ((*it)->filename == filename) {
 			if ((*it)->sourceVoice != nullptr) {
 				(*it)->sourceVoice->Stop(0);
 				(*it)->sourceVoice->DestroyVoice();
 			}
-			delete* it; 
+			delete* it;
 			it = voices_.erase(it);
 		}
 		else {
@@ -175,13 +210,12 @@ void Audio::StopWave(uint32_t soundIndex)
 	}
 }
 
-void Audio::SetVolume(uint32_t soundIndex, float volume)
+void Audio::SetVolume(const std::string& filename, float volume)
 {
 	for (auto& voice : voices_) {
-		if (voice->handle == soundIndex) {
+		if (voice->filename == filename) {
 			voice->volume = volume;
 			voice->sourceVoice->SetVolume(volume);
-			break;
 		}
 	}
 }
@@ -196,7 +230,6 @@ void Audio::Finalize()
 	for (auto voice : voices_) {
 		if (voice->sourceVoice) {
 			voice->sourceVoice->DestroyVoice();
-
 		}
 		delete voice;
 	}
@@ -205,7 +238,7 @@ void Audio::Finalize()
 	}
 
 	voices_.clear();
+	filenameToIndex.clear();
 	delete instance;
 	instance = nullptr;
 }
-
