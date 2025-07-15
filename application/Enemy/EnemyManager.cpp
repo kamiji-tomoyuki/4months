@@ -25,7 +25,12 @@ void EnemyManager::Update(){
 		//	float enemyHpRatio = static_cast<float>(boss->GetHP()) / kMaxHp;
 		//	float enemyNewHeight = 500.0f * enemyHpRatio;
 		//	enemyHpBar_->SetSize(Vector2(100.0f, enemyNewHeight)); // 横幅を70pxに変更
+		// // Boss だけにこの処理を行う
+		//if (Boss* boss = dynamic_cast<Boss*>(enemy.get())) {
+		//	uiManager_->SetBossHP(boss->GetHP()); // ボスのHPをUIマネージャに設定
 		//}
+		//}
+
 	}
 }
 
