@@ -92,24 +92,37 @@ void GameScene::Initialize() {
 	pause_ = std::make_unique<Pause>();
 	pause_->Initialize();
 
+	// UIマネージャ
+	uiManager_ = std::make_unique<UIManager>();
+	int playerMaxHp = 0, bossMaxHp = 0;
+	for(std::unique_ptr<Player>& player : players_) {
+		playerMaxHp = player->GetHP();
+	}
+	for(std::unique_ptr<Enemy>& enemy : enemies_) {
+		if (enemy->GetTypeID() == static_cast<uint32_t>(CollisionTypeIdDef::kBoss)) {
+			bossMaxHp = enemy->GetHP();
+		}
+	}
+	uiManager_->Initialize(playerMaxHp, bossMaxHp); // プレイヤーとボスの最大HPを設定
+
 	// HPバーのスプライトを作成
-	hpBar_ = std::make_unique<Sprite>();
-	hpBar_->Initialize("hp.png", Vector2(400.0f, 700.0f)); // 下に配置
-	hpBar_->SetSize(Vector2(70.0f, 500.0f)); // 横幅を少し太く
-	hpBar_->SetRotation(-1.57f);
-	hpBar_->SetAnchorPoint({ 0.0f,0.0f });
+	//hpBar_ = std::make_unique<Sprite>();
+	//hpBar_->Initialize("hp.png", Vector2(400.0f, 700.0f)); // 下に配置
+	//hpBar_->SetSize(Vector2(70.0f, 500.0f)); // 横幅を少し太く
+	//hpBar_->SetRotation(-1.57f);
+	//hpBar_->SetAnchorPoint({ 0.0f,0.0f });
 
 	// 敵の HP バーのスプライトを作成
-	enemyHpBar_ = std::make_unique<Sprite>();
-	enemyHpBar_->Initialize("enemyHpBar.png", Vector2(400.0f, 80.0f)); // 上に配置
-	enemyHpBar_->SetSize(Vector2(70.0f, 500.0f)); // 横幅を少し太く
-	enemyHpBar_->SetRotation(-1.57f);
-	enemyHpBar_->SetAnchorPoint({ 0.0f,0.0f });
+	//enemyHpBar_ = std::make_unique<Sprite>();
+	//enemyHpBar_->Initialize("enemyHpBar.png", Vector2(400.0f, 80.0f)); // 上に配置
+	//enemyHpBar_->SetSize(Vector2(70.0f, 500.0f)); // 横幅を少し太く
+	//enemyHpBar_->SetRotation(-1.57f);
+	//enemyHpBar_->SetAnchorPoint({ 0.0f,0.0f });
 
 	// 操作説明のスプライトを作成
-	howToPlay_ = std::make_unique<Sprite>();
+	/*howToPlay_ = std::make_unique<Sprite>();
 	howToPlay_->Initialize("HowToPlay.png", Vector2(0.0f, 0.0f));
-	howToPlay_->SetAnchorPoint({ 0.0f, 0.0f });
+	howToPlay_->SetAnchorPoint({ 0.0f, 0.0f });*/
 
 	particleManager_ = ParticleManager::GetInstance();
 
@@ -174,12 +187,13 @@ void GameScene::Update() {
 		for (std::unique_ptr<Player>& player : players_) {
 			player->Update();
 			player->UpdateParticle(vp_);
+			uiManager_->SetPlayerHP(player->GetHP()); // プレイヤーのHPをUIマネージャに設定
 		}
 
 		// HPバーのサイズと位置を更新
-		float hpRatio = static_cast<float>(players_[0]->GetHP()) / kMaxHp;
-		float newHeight = 500.0f * hpRatio; // HPに応じた高さ
-		hpBar_->SetSize(Vector2(100.0f, newHeight)); // 横幅を70pxに変更
+		//float hpRatio = static_cast<float>(players_[0]->GetHP()) / kMaxHp;
+		//float newHeight = 500.0f * hpRatio; // HPに応じた高さ
+		//hpBar_->SetSize(Vector2(100.0f, newHeight)); // 横幅を70pxに変更
 
 		//今 敵処理
 		UpdateEnemyPopCommands();
@@ -188,12 +202,15 @@ void GameScene::Update() {
 
 			// Boss だけにこの処理を行う
 			if (Boss* boss = dynamic_cast<Boss*>(enemy.get())) {
+				uiManager_->SetBossHP(boss->GetHP()); // ボスのHPをUIマネージャに設定
 				// ボスの HPバーのサイズと位置を更新
-				float enemyHpRatio = static_cast<float>(boss->GetHP()) / kMaxHp;
-				float enemyNewHeight = 500.0f * enemyHpRatio;
-				enemyHpBar_->SetSize(Vector2(100.0f, enemyNewHeight)); // 横幅を70pxに変更
+				//float enemyHpRatio = static_cast<float>(boss->GetHP()) / kMaxHp;
+				//float enemyNewHeight = 500.0f * enemyHpRatio;
+				//enemyHpBar_->SetSize(Vector2(100.0f, enemyNewHeight)); // 横幅を70pxに変更
 			}
 		}
+
+		uiManager_->Update();
 
 		skydome_->SetScale({ 1000.0f,1000.0f,1000.0f });// 天球のScale
 		skydome_->Update();
@@ -275,17 +292,18 @@ void GameScene::Draw() {
 	/// Spriteの描画準備
 	spCommon_->DrawCommonSetting();
 	// 操作説明の描画
-	howToPlay_->Draw();
+	//howToPlay_->Draw();
 	//ロックオンマーク
 	lockOn_->Draw();
 	// HPバーの描画
-	hpBar_->Draw();
+	//hpBar_->Draw();
+	uiManager_->Draw();
 
-	for (const std::unique_ptr<Enemy>& enemy : enemies_) {
+	/*for (const std::unique_ptr<Enemy>& enemy : enemies_) {
 		if (Boss* boss = dynamic_cast<Boss*>(enemy.get())) {
 			enemyHpBar_->Draw();
 		}
-	}
+	}*/
 	
 	pause_->Draw();
 

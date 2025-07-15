@@ -119,6 +119,8 @@
     <ClCompile Include="application\Pause.cpp" />
     <ClCompile Include="application\Enemy\Boss\BossStateApproach.cpp" />
     <ClCompile Include="application\TitleGround.cpp" />
+    <ClCompile Include="application\UI\UIManager.cpp" />
+    <ClCompile Include="application\UI\HpBar.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application\CollisionTypeIdDef.h" />
@@ -228,6 +230,8 @@
     <ClInclude Include="application\Pause.h" />
     <ClInclude Include="application\Enemy\Boss\BossStateApproach.h" />
     <ClInclude Include="application\TitleGround.h" />
+    <ClInclude Include="application\UI\UIManager.h" />
+    <ClInclude Include="application\UI\HpBar.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="myEngine.rc" />

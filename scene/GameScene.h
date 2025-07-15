@@ -18,6 +18,7 @@
 #include "Ground.h"
 #include "Coliseum.h"
 #include "TimeManager.h"
+#include "UIManager.h"
 #include "LockOn.h"
 #include "Pause.h"
 #include "ParticleEmitter.h"
@@ -98,6 +99,8 @@ private:
 	std::unique_ptr<FollowCamera> followCamera_;
 	//タイム
 	std::unique_ptr<TimeManager> timeManager_;
+	// UI マネージャ
+	std::unique_ptr<UIManager> uiManager_;
 	// HPバー
 	std::unique_ptr<Sprite> hpBar_;
 	const int kMaxHp = 10000; // HPの最大値
