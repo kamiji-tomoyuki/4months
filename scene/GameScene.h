@@ -22,8 +22,7 @@
 #include "Pause.h"
 #include "ParticleEmitter.h"
 #include "ParticleManager.h"
-#include "Enemy.h"
-#include "Soldier.h"
+#include "EnemyManager.h"
 #include <json/JsonLoader.h>
 
 
@@ -64,10 +63,8 @@ private:
 	void CameraUpdate();
 
 	void ChangeScene();
+	void ClearUpdate();
 	//enemyPop
-	void LoadEnemyPopData();
-	void UpdateEnemyPopCommands();
-	void AddEnemy(const Vector3& position);
 	void LoadLevelData();
 private:
 
@@ -88,8 +85,7 @@ private:
 	std::unique_ptr<Coliseum> coliseum_ = nullptr;//コロシアム
 
 	std::vector<std::unique_ptr<Player>> players_;
-	//Enemy
-	std::list<std::unique_ptr<Enemy>> enemies_;
+	std::unique_ptr<EnemyManager> enemyManager_; // 敵管理クラス
 	//ロックオン
 	std::unique_ptr<LockOn> lockOn_;
 	//ポーズ
@@ -108,8 +104,6 @@ private:
 	std::unique_ptr<ParticleEmitter> starEmitter_;
 	// SE 多重再生防止
 	bool isPlay = true;
-	//敵発生コマンド
-	std::stringstream enemyPopCommands;
 	//クリア
 	bool isClear = false;
 
@@ -120,4 +114,9 @@ private:
 
 	int stageNum_ = 1; // ステージ番号
 	std::unique_ptr<JsonLoader> json_;
+public:
+	Player* GetPlayer() { return players_[0].get(); }
+	TimeManager* GetTimeManager() { return timeManager_.get(); }
+
+	void SetClear(bool clear) { isClear = clear; }
 };

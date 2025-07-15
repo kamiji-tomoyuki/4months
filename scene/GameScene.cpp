@@ -2,7 +2,6 @@
 #include <LightGroup.h>
 #include"SceneManager.h"
 #include <line/DrawLine3D.h>
-#include <fstream>
 #include "Boss.h"
 #include <CollisionTypeIdDef.h>
 
@@ -38,9 +37,9 @@ void GameScene::Initialize() {
 
 	//プレイヤー
 	Player::SetPlayerID(0);
-	//敵
-	Enemy::SetEnemyID(0);
-
+	enemyManager_ = std::make_unique<EnemyManager>();
+	enemyManager_->Initialize();
+	enemyManager_->SetGameScene(this);
 	LoadLevelData();
 	////プレイヤー
 	//Player::SetPlayerID(0);
@@ -87,6 +86,7 @@ void GameScene::Initialize() {
 	lockOn_->Initialize();
 	followCamera_->SetLockOn(lockOn_.get());
 	players_[0]->SetLockOn(lockOn_.get());
+	enemyManager_->SetLockOn(lockOn_.get());
 
 	//ポーズ
 	pause_ = std::make_unique<Pause>();
@@ -142,22 +142,7 @@ void GameScene::Update() {
 	// デバッグ
 	Debug();
 #endif // _DEBUG
-	//前 敵処理
-	for (const std::unique_ptr<Enemy>& enemy : enemies_) {
-		if (enemy->GetCanDelate()) {
-			lockOn_->ResetTarget();
-			if (enemy->GetTypeID() == static_cast<uint32_t>(CollisionTypeIdDef::kBoss)) {
-				isClear = true;
-			}
-		}
-	}
-	enemies_.remove_if([](const std::unique_ptr<Enemy>& enemy) {
-		if (enemy->GetCanDelate()) {
-			return true;
-		}
-		return false;
-		});
-	isClear = enemies_.size() <= 1 ? true : false;
+	ClearUpdate();
 	// タイマー更新
 	timeManager_->Update();
   
@@ -181,19 +166,7 @@ void GameScene::Update() {
 		float newHeight = 500.0f * hpRatio; // HPに応じた高さ
 		hpBar_->SetSize(Vector2(100.0f, newHeight)); // 横幅を70pxに変更
 
-		//今 敵処理
-		UpdateEnemyPopCommands();
-		for (const std::unique_ptr<Enemy>& enemy : enemies_) {
-			enemy->Update();
-
-			// Boss だけにこの処理を行う
-			if (Boss* boss = dynamic_cast<Boss*>(enemy.get())) {
-				// ボスの HPバーのサイズと位置を更新
-				float enemyHpRatio = static_cast<float>(boss->GetHP()) / kMaxHp;
-				float enemyNewHeight = 500.0f * enemyHpRatio;
-				enemyHpBar_->SetSize(Vector2(100.0f, enemyNewHeight)); // 横幅を70pxに変更
-			}
-		}
+		enemyManager_->Update();
 
 		skydome_->SetScale({ 1000.0f,1000.0f,1000.0f });// 天球のScale
 		skydome_->Update();
@@ -235,9 +208,7 @@ void GameScene::Draw() {
 	for (std::unique_ptr<Player>& player : players_) {
 		player->DrawAnimation(vp_);
 	}
-	for (const std::unique_ptr<Enemy>& enemy : enemies_) {
-		enemy->DrawAnimation(vp_);
-	}
+	enemyManager_->DrawAnimation(vp_);
 	//------------------------------
 
 
@@ -247,9 +218,7 @@ void GameScene::Draw() {
 	for (std::unique_ptr<Player>& player : players_) {
 		player->Draw(vp_);
 	}
-	for (const std::unique_ptr<Enemy>& enemy : enemies_) {
-		enemy->Draw(vp_);
-	}
+	enemyManager_->Draw(vp_);
 	skydome_->Draw(vp_);
 	//coliseum_->Draw(vp_);
 	ground_->Draw(vp_);
@@ -281,7 +250,7 @@ void GameScene::Draw() {
 	// HPバーの描画
 	hpBar_->Draw();
 
-	for (const std::unique_ptr<Enemy>& enemy : enemies_) {
+	for (const std::unique_ptr<Enemy>& enemy : enemyManager_->GetEnemies()) {
 		if (Boss* boss = dynamic_cast<Boss*>(enemy.get())) {
 			enemyHpBar_->Draw();
 		}
@@ -351,7 +320,7 @@ void GameScene::CameraUpdate() {
 		vp_.TransferMatrix();
 		//vp_.UpdateMatrix();
 
-		lockOn_->Update(enemies_, vp_);
+		lockOn_->Update(enemyManager_->GetEnemies(), vp_);
 	}
 }
 
@@ -393,83 +362,9 @@ void GameScene::ChangeScene() {
 	}
 }
 
-
-void GameScene::LoadEnemyPopData() {
-	std::ifstream file;
-	file.open("./resources/enemyPop.csv");
-	assert(file.is_open());
-	//
-	enemyPopCommands << file.rdbuf();
-	//
-	file.close();
-}
-
-void GameScene::UpdateEnemyPopCommands() {
-	//待機処理
-	if (timeManager_->GetTimer("enemyPop").isStart) {
-		return;
-	}
-	//
-	std::string line;
-	while (getline(enemyPopCommands, line)) {
-		std::stringstream line_stream(line);
-
-		std::string word;
-		//
-		getline(line_stream, word, ',');
-		if (word.find("//") == 0) {
-			continue;
-		}
-		//POP
-		if (word.find("POP") == 0) {
-			//x
-			getline(line_stream, word, ',');
-			float x = (float)std::atof(word.c_str());
-			//y
-			getline(line_stream, word, ',');
-			float y = (float)std::atof(word.c_str());
-			//z
-			getline(line_stream, word, ',');
-			float z = (float)std::atof(word.c_str());
-			//
-			AddEnemy(Vector3(x, y, z));
-		}
-		//WAIT
-		else if (word.find("WAIT") == 0) {
-			getline(line_stream, word, ',');
-			//
-			int32_t waitTime = atoi(word.c_str());
-			//待機開始
-			timeManager_->SetTimer("enemyPop", (float)waitTime);
-			//
-			break;
-		}
-	}
-
-}
-
-void GameScene::AddEnemy(const Vector3& position) {
-	if (0 == Enemy::GetNextSerialNumber()) {
-		std::unique_ptr<Enemy> newEnemy = std::make_unique<Soldier>();
-		newEnemy->SetPlayer(players_[0].get());
-		newEnemy->SetTimeManager(timeManager_.get());
-		newEnemy->Init();
-		newEnemy->SetTranslation({ 0,0,0 });
-		enemies_.push_back(std::move(newEnemy));
-	}
-	for (const std::unique_ptr<Enemy>& enemy : enemies_) {
-		
-		if (enemy->GetSerialNumber() == enemy->GetNextSerialNumber() - 1) {
-			enemy->SetTranslation(position);
-			enemy->Update();
-		}
-	}
-	std::unique_ptr<Enemy> newEnemy = std::make_unique<Soldier>();
-	newEnemy->SetPlayer(players_[0].get());
-	newEnemy->SetTimeManager(timeManager_.get());
-	newEnemy->Init();
-	newEnemy->SetTranslation({ 0,0,0 });
-	enemies_.push_back(std::move(newEnemy));
+void GameScene::ClearUpdate(){
+	enemyManager_->DeathUpdate();
+	isClear = enemyManager_->GetEnemies().size() <= 1 ? true : false;
 }
 
 void GameScene::LoadLevelData(){
@@ -499,31 +394,19 @@ void GameScene::LoadLevelData(){
 			}
 			//敵
 			if (name == "boss") {
-				std::unique_ptr<Enemy> newEnemy = std::make_unique<Boss>();
-				newEnemy->SetPlayer(players_[0].get());
-				newEnemy->SetTimeManager(timeManager_.get());
-				newEnemy->Init();
-				newEnemy->SetTranslation({ 0.0f,0.0f,100.0f });
 				int count = 0;
 				for (const Vector3& pos : positions) {
 					if (count == 0) {
-						newEnemy->SetTranslation(pos);
+						enemyManager_->AddBoss(pos);
 					}
 					count++;
 				}
-				enemies_.push_back(std::move(newEnemy));
-				std::unique_ptr<Enemy> newEnemy2 = std::make_unique<Soldier>();
-				newEnemy2->SetPlayer(players_[0].get());
-				newEnemy2->SetTimeManager(timeManager_.get());
-				newEnemy2->Init();
-				newEnemy2->SetTranslation({ 0,0,0 });
-				enemies_.push_back(std::move(newEnemy2));
 			}
 			if (name.rfind("soldier", 0) == 0) {
 				int count = 0;
 				for (const Vector3& pos : positions) {
 					if (count == 0) {
-						AddEnemy(pos);
+						enemyManager_->AddEnemy(pos);
 					}
 					count++;
 				}
