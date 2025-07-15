@@ -97,13 +97,7 @@
     <ClCompile Include="application\Enemy\BaseEnemySword.cpp">
       <Filter>application\Enemy</Filter>
     </ClCompile>
-    <ClCompile Include="application\Enemy\Boss.cpp">
-      <Filter>application\Enemy</Filter>
-    </ClCompile>
     <ClCompile Include="application\Enemy\Enemy.cpp">
-      <Filter>application\Enemy</Filter>
-    </ClCompile>
-    <ClCompile Include="application\Enemy\EnemySword.cpp">
       <Filter>application\Enemy</Filter>
     </ClCompile>
     <ClCompile Include="application\Stage\Coliseum.cpp">
@@ -343,6 +337,15 @@
     <ClCompile Include="externals\imgui\imgui_widgets.cpp">
       <Filter>externals\imgui</Filter>
     </ClCompile>
+    <ClCompile Include="application\Enemy\Boss\Boss.cpp">
+      <Filter>application\Enemy\Boss</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Enemy\Soldier\EnemySword.cpp">
+      <Filter>application\Enemy\Soldier</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Enemy\EnemyManager.cpp">
+      <Filter>application\Enemy</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application\Base\BaseObject.h">
@@ -384,13 +387,7 @@
     <ClInclude Include="application\Enemy\BaseEnemySword.h">
       <Filter>application\Enemy</Filter>
     </ClInclude>
-    <ClInclude Include="application\Enemy\Boss.h">
-      <Filter>application\Enemy</Filter>
-    </ClInclude>
     <ClInclude Include="application\Enemy\Enemy.h">
-      <Filter>application\Enemy</Filter>
-    </ClInclude>
-    <ClInclude Include="application\Enemy\EnemySword.h">
       <Filter>application\Enemy</Filter>
     </ClInclude>
     <ClInclude Include="application\Stage\Coliseum.h">
@@ -659,6 +656,15 @@
     </ClInclude>
     <ClInclude Include="externals\imgui\imconfig.h">
       <Filter>externals\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="application\Enemy\Boss\Boss.h">
+      <Filter>application\Enemy\Boss</Filter>
+    </ClInclude>
+    <ClInclude Include="application\Enemy\Soldier\EnemySword.h">
+      <Filter>application\Enemy\Soldier</Filter>
+    </ClInclude>
+    <ClInclude Include="application\Enemy\EnemyManager.h">
+      <Filter>application\Enemy</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

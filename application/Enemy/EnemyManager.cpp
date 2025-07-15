@@ -144,8 +144,8 @@ void EnemyManager::AddBoss(const Vector3& position){
 	newEnemy->SetTranslation(position);
 	enemies_.push_back(std::move(newEnemy));
 	std::unique_ptr<Enemy> newEnemy2 = std::make_unique<Soldier>();
-	newEnemy->SetPlayer(gameScene_->GetPlayer());
-	newEnemy->SetTimeManager(gameScene_->GetTimeManager());
+	newEnemy2->SetPlayer(gameScene_->GetPlayer());
+	newEnemy2->SetTimeManager(gameScene_->GetTimeManager());
 	newEnemy2->Init();
 	newEnemy2->SetTranslation({ 0,0,0 });
 	enemies_.push_back(std::move(newEnemy2));

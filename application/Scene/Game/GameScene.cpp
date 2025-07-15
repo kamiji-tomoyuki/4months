@@ -25,7 +25,6 @@ void GameScene::Initialize() {
 	timeManager_->Initialize();
 	timeManager_->SetTimer("start", 2.0f / 60.0f);
 
-
 	//天球
 	skydome_ = std::make_unique<Skydome>();
 	skydome_->Init("WildsSkyDome.obj");

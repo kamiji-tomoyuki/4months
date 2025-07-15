@@ -109,6 +109,7 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="application\Enemy\EnemyManager.cpp" />
     <ClCompile Include="application\Stage\Coliseum.cpp" />
     <ClCompile Include="application\Player\ContactRecord.cpp" />
     <ClCompile Include="application\Enemy\BaseEnemyState.cpp" />
@@ -230,6 +231,7 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="application\Enemy\EnemyManager.h" />
     <ClInclude Include="application\Stage\Coliseum.h" />
     <ClInclude Include="engine\utility\collider\CollisionTypeIdDef.h" />
     <ClInclude Include="application\Player\ContactRecord.h" />

@@ -42,7 +42,7 @@ private:
 	//敵発生コマンド
 	std::stringstream enemyPopCommands;
 public:
-	std::list<std::unique_ptr<Enemy>> GetEnemies() const { return enemies_; }
+	const std::list<std::unique_ptr<Enemy>>& GetEnemies() const { return enemies_; }
 
 	void SetLockOn(LockOn* lockOn) { lockOn_ = lockOn;}
 	void SetGameScene(GameScene* gameScene) { gameScene_ = gameScene; }
