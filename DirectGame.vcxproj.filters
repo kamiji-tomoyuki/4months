@@ -337,6 +337,12 @@
     <ClCompile Include="externals\imgui\imgui_widgets.cpp">
       <Filter>externals\imgui</Filter>
     </ClCompile>
+    <ClCompile Include="application\UI\HpBar.cpp">
+      <Filter>application\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="application\UI\UIManager.cpp">
+      <Filter>application\UI</Filter>
+    </ClCompile>
     <ClCompile Include="application\Enemy\Boss\Boss.cpp">
       <Filter>application\Enemy\Boss</Filter>
     </ClCompile>
@@ -657,6 +663,12 @@
     <ClInclude Include="externals\imgui\imconfig.h">
       <Filter>externals\imgui</Filter>
     </ClInclude>
+    <ClInclude Include="application\UI\HpBar.h">
+      <Filter>application\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="application\UI\UIManager.h">
+      <Filter>application\UI</Filter>
+    </ClInclude>
     <ClInclude Include="application\Enemy\Boss\Boss.h">
       <Filter>application\Enemy\Boss</Filter>
     </ClInclude>
@@ -832,6 +844,9 @@
     </Filter>
     <Filter Include="externals\imgui">
       <UniqueIdentifier>{47a08682-687b-4a89-9506-7cffcbaac01c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="application\UI">
+      <UniqueIdentifier>{5c8b8de1-ac1b-456d-8917-f76fc45ec4e8}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
