@@ -35,16 +35,24 @@ void GameScene::Initialize() {
 	ground_ = std::make_unique<Ground>();
 	ground_->Init();
 
+	// ステージ
+	stage_ = std::make_unique<Object3d>();
+	stage_->Initialize("stage/stage.obj");
+	stage_->SetSize(Vector3{ size_,size_,size_ });
+
+	wtStage_.Initialize();
+
 	//プレイヤー
 	Player::SetPlayerID(0);
 	enemyManager_ = std::make_unique<EnemyManager>();
 	enemyManager_->Initialize();
 	enemyManager_->SetGameScene(this);
+
 	LoadLevelData();
 
 	// コロシアム
 	coliseum_ = std::make_unique<Coliseum>();
-	coliseum_->Init("sphere.obj");
+	coliseum_->Init();
 	coliseum_->SetViewProjection(&vp_);
 	coliseum_->SetScale({ 320.0f,320.0f,320.0f });// コロシアムのScale
 	coliseum_->SetRadius(275.0f);
@@ -88,14 +96,6 @@ void GameScene::Initialize() {
 
 	starEmitter_->Start();
 
-	// ステージ
-	stage_ = std::make_unique<Object3d>();
-	stage_->Initialize("stage/stage.obj");
-
-	wtStage_.Initialize();
-
-	stage_->SetSize(Vector3{ size_,size_,size_ });
-
 	audio_->StopWave("BGM/title.wav");
 	audio_->StopWave("BGM/battle.wav");
 	audio_->StopWave("BGM/gameClear.wav");
@@ -115,11 +115,7 @@ void GameScene::Update() {
 	// タイマー更新
 	timeManager_->Update();
 
-	skydome_->Update();
-
-	ground_->Update();
-
-	coliseum_->Update();
+	BGObjectUpdate();
 
 	pause_->Update();
 
@@ -141,8 +137,6 @@ void GameScene::Update() {
 	// シーン切り替え
 	ChangeScene();
 
-	stage_->Update(wtStage_, vp_);
-	wtStage_.UpdateMatrix();
 }
 
 void GameScene::Draw() {
@@ -284,6 +278,14 @@ void GameScene::ParticleUpdate() {
 	starEmitter_->Update();
 
 	particleManager_->Update(vp_);
+}
+
+void GameScene::BGObjectUpdate() {
+	skydome_->Update();
+	ground_->Update();
+	coliseum_->Update();
+	stage_->Update(wtStage_, vp_);
+	wtStage_.UpdateMatrix();
 }
 
 void GameScene::ChangeScene() {

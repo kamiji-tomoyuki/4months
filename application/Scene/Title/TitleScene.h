@@ -50,6 +50,12 @@ private:
 
 	void CameraUpdate();
 
+	void TitleObjectUpdate();
+
+	void ParticleUpdate();
+
+	void BGObjectUpdate();
+
 	void ChangeScene();
 
 private:

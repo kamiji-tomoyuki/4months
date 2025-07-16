@@ -67,6 +67,8 @@ private:
 
 	void ParticleUpdate();
 
+	void BGObjectUpdate();
+
 	void ChangeScene();
 	void ClearUpdate();
 	//enemyPop

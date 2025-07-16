@@ -107,28 +107,22 @@ void GameOverScene::Update()
 	Debug();
 #endif // _DEBUG
 
-	skyDome_->Update();
-
-	ground_->Update();
-
 	timeManager_->Update();
-
-	player_->SetRotation({ player_->GetCenterRotation().x,player_->GetCenterRotation().y + 0.01f,player_->GetCenterRotation().z });
-	player_->UpdateTransform();
-
-	//// UI点滅
-	timer_ += speed_;
-	if (timer_ >= 1.0f || timer_ < 0.0f) {
-		speed_ *= -1.0f;
-	}
-	UI_->SetAlpha(timer_);
-
-	gameOverEmitter_->Update();
-
-	particleManager_->Update(vp_);
 
 	// カメラ更新
 	CameraUpdate();
+
+	// 背景オブジェクト更新
+	BGObjectUpdate();
+
+	// プレイヤー更新
+	PlayerUpdate();
+
+	// UI更新
+	UIUpdate();
+
+	// パーティクル更新
+	ParticleUpdate();
 
 	// シーン切り替え
 	ChangeScene();
@@ -241,6 +235,40 @@ void GameOverScene::CameraUpdate()
 	else {
 		vp_.UpdateMatrix();
 	}
+}
+
+void GameOverScene::PlayerUpdate() {
+
+	player_->SetRotation({ player_->GetCenterRotation().x,player_->GetCenterRotation().y + 0.01f,player_->GetCenterRotation().z });
+	player_->UpdateTransform();
+
+}
+
+void GameOverScene::UIUpdate() {
+
+	//// UI点滅
+	timer_ += speed_;
+	if (timer_ >= 1.0f || timer_ < 0.0f) {
+		speed_ *= -1.0f;
+	}
+	UI_->SetAlpha(timer_);
+
+}
+
+void GameOverScene::ParticleUpdate() {
+
+	gameOverEmitter_->Update();
+
+	particleManager_->Update(vp_);
+
+}
+
+void GameOverScene::BGObjectUpdate() {
+
+	skyDome_->Update();
+
+	ground_->Update();
+
 }
 
 void GameOverScene::ChangeScene(){
