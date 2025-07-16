@@ -59,7 +59,6 @@ void GameScene::Initialize() {
 	lockOn_->Initialize();
 	followCamera_->SetLockOn(lockOn_.get());
 	players_[0]->SetLockOn(lockOn_.get());
-	enemyManager_->SetLockOn(lockOn_.get());
 
 	//ポーズ
 	pause_ = std::make_unique<Pause>();
@@ -71,7 +70,7 @@ void GameScene::Initialize() {
 	for(std::unique_ptr<Player>& player : players_) {
 		playerMaxHp = player->GetHP();
 	}
-	for(std::unique_ptr<Enemy>& enemy : enemies_) {
+	for(const std::unique_ptr<Enemy>& enemy : enemyManager_->GetEnemies()) {
 		if (enemy->GetTypeID() == static_cast<uint32_t>(CollisionTypeIdDef::kBoss)) {
 			bossMaxHp = enemy->GetHP();
 		}
@@ -128,25 +127,7 @@ void GameScene::Update() {
 			player->UpdateParticle(vp_);
 			uiManager_->SetPlayerHP(player->GetHP()); // プレイヤーのHPをUIマネージャに設定
 		}
-
-		// HPバーのサイズと位置を更新
-		float hpRatio = static_cast<float>(players_[0]->GetHP()) / kMaxHp;
-		float newHeight = 500.0f * hpRatio; // HPに応じた高さ
-		hpBar_->SetSize(Vector2(100.0f, newHeight)); // 横幅を70pxに変更
-
-		//今 敵処理
-		UpdateEnemyPopCommands();
-		for (const std::unique_ptr<Enemy>& enemy : enemies_) {
-			enemy->Update();
-
-			// Boss だけにこの処理を行う
-			if (Boss* boss = dynamic_cast<Boss*>(enemy.get())) {
-				// ボスの HPバーのサイズと位置を更新
-				float enemyHpRatio = static_cast<float>(boss->GetHP()) / kMaxHp;
-				float enemyNewHeight = 500.0f * enemyHpRatio;
-				enemyHpBar_->SetSize(Vector2(100.0f, enemyNewHeight)); // 横幅を70pxに変更
-			}
-		}
+		enemyManager_->Update();
 
 		uiManager_->Update();
 

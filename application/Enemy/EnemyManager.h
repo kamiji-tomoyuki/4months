@@ -35,7 +35,6 @@ public:
 	void AddEnemy(const Vector3& position);
 	void AddBoss(const Vector3& position);
 private:
-	LockOn* lockOn_ = nullptr; // ロックオンシステムへのポインタ
 	GameScene* gameScene_ = nullptr; // ゲームシーンへのポインタ
 	//Enemy
 	std::list<std::unique_ptr<Enemy>> enemies_;
@@ -44,7 +43,6 @@ private:
 public:
 	const std::list<std::unique_ptr<Enemy>>& GetEnemies() const { return enemies_; }
 
-	void SetLockOn(LockOn* lockOn) { lockOn_ = lockOn;}
 	void SetGameScene(GameScene* gameScene) { gameScene_ = gameScene; }
 };
 

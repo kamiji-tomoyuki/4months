@@ -18,19 +18,10 @@ void EnemyManager::Update(){
 	UpdateEnemyPopCommands();
 	for (const std::unique_ptr<Enemy>& enemy : enemies_) {
 		enemy->Update();
-
-		//// Boss だけにこの処理を行う
-		//if (Boss* boss = dynamic_cast<Boss*>(enemy.get())) {
-		//	// ボスの HPバーのサイズと位置を更新
-		//	float enemyHpRatio = static_cast<float>(boss->GetHP()) / kMaxHp;
-		//	float enemyNewHeight = 500.0f * enemyHpRatio;
-		//	enemyHpBar_->SetSize(Vector2(100.0f, enemyNewHeight)); // 横幅を70pxに変更
-		// // Boss だけにこの処理を行う
-		//if (Boss* boss = dynamic_cast<Boss*>(enemy.get())) {
-		//	uiManager_->SetBossHP(boss->GetHP()); // ボスのHPをUIマネージャに設定
-		//}
-		//}
-
+		// Boss だけにこの処理を行う
+		if (Boss* boss = dynamic_cast<Boss*>(enemy.get())) {
+			gameScene_->GetUIManager()->SetBossHP(boss->GetHP()); // ボスのHPをUIマネージャに設定
+		}
 	}
 }
 
@@ -38,7 +29,7 @@ void EnemyManager::DeathUpdate(){
 	//死亡処理
 	for (const std::unique_ptr<Enemy>& enemy : enemies_) {
 		if (enemy->GetCanDelate()) {
-			lockOn_->ResetTarget();
+			gameScene_->GetLockOn()->ResetTarget();
 			if (enemy->GetTypeID() == static_cast<uint32_t>(CollisionTypeIdDef::kBoss)) {
 				gameScene_->SetClear(true);
 			}

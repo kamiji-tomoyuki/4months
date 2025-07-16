@@ -131,7 +131,6 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="application\Enemy\BaseEnemySword.cpp" />
     <ClCompile Include="application\Scene\Game\Pause.cpp" />
     <ClCompile Include="application\Player\PlayerSword.cpp" />
-    <ClCompile Include="application\Enemy\EnemySword.cpp" />
     <ClCompile Include="application\UI\HpBar.cpp" />
     <ClCompile Include="application\UI\UIManager.cpp" />
     <ClCompile Include="application\Enemy\Soldier\EnemySword.cpp" />

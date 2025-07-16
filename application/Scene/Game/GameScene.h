@@ -97,12 +97,6 @@ private:
 	std::unique_ptr<TimeManager> timeManager_;
 	// UI マネージャ
 	std::unique_ptr<UIManager> uiManager_;
-	// HPバー
-	std::unique_ptr<Sprite> hpBar_;
-	const int kMaxHp = 10000; // HPの最大値
-	std::unique_ptr<Sprite> enemyHpBar_; // 敵の HP バー
-	// 操作説明
-	std::unique_ptr<Sprite> howToPlay_;
 	//パーティクルエミッタ
 	std::unique_ptr<ParticleEmitter> starEmitter_;
 	// SE 多重再生防止
@@ -119,7 +113,8 @@ private:
 	std::unique_ptr<JsonLoader> json_;
 public:
 	Player* GetPlayer() { return players_[0].get(); }
+	LockOn* GetLockOn() { return lockOn_.get(); }
 	TimeManager* GetTimeManager() { return timeManager_.get(); }
-
+	UIManager* GetUIManager() { return uiManager_.get(); }
 	void SetClear(bool clear) { isClear = clear; }
 };
