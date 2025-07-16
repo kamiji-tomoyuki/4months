@@ -63,6 +63,10 @@ private:
 
 	void CameraUpdate();
 
+	void PlayerUpdate();
+
+	void ParticleUpdate();
+
 	void ChangeScene();
 	void ClearUpdate();
 	//enemyPop

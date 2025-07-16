@@ -29,6 +29,7 @@ void GameScene::Initialize() {
 	skydome_ = std::make_unique<Skydome>();
 	skydome_->Init("WildsSkyDome.obj");
 	skydome_->SetViewProjection(&vp_);
+	skydome_->SetScale({ 1000.0f,1000.0f,1000.0f });// 天球のScale
 
 	//地面
 	ground_ = std::make_unique<Ground>();
@@ -45,6 +46,8 @@ void GameScene::Initialize() {
 	coliseum_ = std::make_unique<Coliseum>();
 	coliseum_->Init("sphere.obj");
 	coliseum_->SetViewProjection(&vp_);
+	coliseum_->SetScale({ 320.0f,320.0f,320.0f });// コロシアムのScale
+	coliseum_->SetRadius(275.0f);
 
 	//カメラ
 	followCamera_ = std::make_unique<FollowCamera>();
@@ -67,10 +70,10 @@ void GameScene::Initialize() {
 	// UIマネージャ
 	uiManager_ = std::make_unique<UIManager>();
 	int playerMaxHp = 0, bossMaxHp = 0;
-	for(std::unique_ptr<Player>& player : players_) {
+	for (std::unique_ptr<Player>& player : players_) {
 		playerMaxHp = player->GetHP();
 	}
-	for(const std::unique_ptr<Enemy>& enemy : enemyManager_->GetEnemies()) {
+	for (const std::unique_ptr<Enemy>& enemy : enemyManager_->GetEnemies()) {
 		if (enemy->GetTypeID() == static_cast<uint32_t>(CollisionTypeIdDef::kBoss)) {
 			bossMaxHp = enemy->GetHP();
 		}
@@ -111,42 +114,27 @@ void GameScene::Update() {
 	ClearUpdate();
 	// タイマー更新
 	timeManager_->Update();
-  
+
+	skydome_->Update();
+
 	ground_->Update();
-	coliseum_->SetScale({ 320.0f,320.0f,320.0f });// コロシアムのScale
-	coliseum_->SetRadius(275.0f);
+
 	coliseum_->Update();
 
 	pause_->Update();
 
 	if (!pause_->GetIsPause()) {
 
-		// プレイヤー更新
-		for (std::unique_ptr<Player>& player : players_) {
-			player->Update();
-			player->UpdateParticle(vp_);
-			uiManager_->SetPlayerHP(player->GetHP()); // プレイヤーのHPをUIマネージャに設定
-		}
-		enemyManager_->Update();
-
-		uiManager_->Update();
-
-		skydome_->SetScale({ 1000.0f,1000.0f,1000.0f });// 天球のScale
-		skydome_->Update();
-
-		ground_->Update();
-		coliseum_->SetScale({ 320.0f,320.0f,320.0f });// コロシアムのScale
-		coliseum_->SetRadius(275.0f);
-		coliseum_->Update();
-
 		// カメラ更新
 		CameraUpdate();
 
-		starEmitter_->SetPosition(players_[0]->GetCenterPosition());
+		PlayerUpdate();
 
-		starEmitter_->Update();
+		enemyManager_->Update();
 
-		particleManager_->Update(vp_);
+		ParticleUpdate();
+
+		uiManager_->Update();
 
 	}
 
@@ -163,7 +151,7 @@ void GameScene::Draw() {
 	/// Spriteの描画準備
 	spCommon_->DrawCommonSetting();
 	//-----Spriteの描画開始-----
-	
+
 	//------------------------
 
 	objCommon_->skinningDrawCommonSetting();
@@ -210,7 +198,7 @@ void GameScene::Draw() {
 	lockOn_->Draw();
 	// UIの描画
 	uiManager_->Draw();
-	
+
 	pause_->Draw();
 
 	//-----線描画-----
@@ -279,7 +267,36 @@ void GameScene::CameraUpdate() {
 	}
 }
 
+void GameScene::PlayerUpdate() {
+
+	// プレイヤー更新
+	for (std::unique_ptr<Player>& player : players_) {
+		player->Update();
+		player->UpdateParticle(vp_);
+		uiManager_->SetPlayerHP(player->GetHP()); // プレイヤーのHPをUIマネージャに設定
+	}
+}
+
+void GameScene::ParticleUpdate() {
+
+	starEmitter_->SetPosition(players_[0]->GetCenterPosition());
+
+	starEmitter_->Update();
+
+	particleManager_->Update(vp_);
+}
+
 void GameScene::ChangeScene() {
+
+	switch (pause_->GetReturnScene()) {
+	case Pause::TITLE:
+		sceneManager_->NextSceneReservation("TITLE");
+		if (isPlay) {
+			isPlay = false;
+		}
+		break;
+	}
+
 	if (isClear) {
 		sceneManager_->NextSceneReservation("CLEAR");
 		if (isPlay) {
@@ -299,12 +316,12 @@ void GameScene::ChangeScene() {
 	}
 }
 
-void GameScene::ClearUpdate(){
+void GameScene::ClearUpdate() {
 	enemyManager_->DeathUpdate();
 	isClear = enemyManager_->GetEnemies().size() <= 1 ? true : false;
 }
 
-void GameScene::LoadLevelData(){
+void GameScene::LoadLevelData() {
 	json_ = std::make_unique<JsonLoader>();
 	std::string filePath = "scene/stage" + std::to_string(stageNum_) + ".json";
 	json_->LoadTransformData(filePath);
@@ -313,7 +330,7 @@ void GameScene::LoadLevelData(){
 		if (filename != filePath) {
 			continue;
 		}
-		for(const auto& [name, positions] : names) {
+		for (const auto& [name, positions] : names) {
 			//プレイヤー
 			if (name == "aplayer") {
 				std::unique_ptr<Player> player = std::make_unique<Player>();
