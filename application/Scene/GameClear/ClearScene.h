@@ -53,6 +53,16 @@ private:
 
 	void CameraUpdate();
 
+	void PlayerUpdate();
+
+	void EnemyUpdate();
+
+	void UIUpdate();
+
+	void ParticleUpdate();
+
+	void BGObjectUpdate();
+
 	void ChangeScene();
 
 private:

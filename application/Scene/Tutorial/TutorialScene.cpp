@@ -165,82 +165,32 @@ void TutorialScene::Update() {
 	Debug();
 #endif // _DEBUG
 
-	for (auto& enemy : enemies_) {
-		if (enemy->GetCanDelate()) {
-			tutorialEvent_->SetEnemy(nullptr);
-			lockOn_->ResetTarget();
-		}
-	}
-
-	enemies_.remove_if([](const std::unique_ptr<Enemy>& enemy) {
-		if (enemy->GetCanDelate()) {
-			return true;
-		}
-		return false;
-		});
+	DeleteEnemy();
 
 	//タイムマネージャーの更新
 	timeManager_->Update();
 
+	//背景オブジェクトの更新
+	BGObjectUpdate();
+
 	pause_->Update();
 
-	//天球の更新
-	skydome_->Update();
-
-	//地面の更新
-	ground_->Update();
-
 	if (!pause_->GetIsPause()) {
-
-		ReSpawnEnemy();
-
-		player_->SetHP(10000);
-
-		//プレイヤーの更新
-		player_->Update();
-		//プレイヤーのパーティクル更新
-		player_->UpdateParticle(vp_);
-
-		bool skipStart = false;
-
-		for (auto& enemy : enemies_) {
-
-			if (enemies_.size() == 1) {
-				break;
-			}
-
-			if (!skipStart) {
-
-				//エネミーの更新
-				enemy->Update();
-
-				tutorialEvent_->SetEnemy(enemy.get());
-
-				//エネミーのパーティクル更新
-				enemy->UpdateParticle(vp_);
-
-				skipStart = true;
-			}
-		}
-
-		//HPの比率を計算
-		float hpRatio = static_cast<float>(player_->GetHP()) / 10000;
-		//HPに応じた高さ
-		float newHeight = 500.0f * hpRatio;
-		//横幅を70pxに変更
-		hpBar_->SetSize(Vector2(70.0f, newHeight));
 
 		//カメラの更新
 		CameraUpdate();
 
-		//エミッターの位置をプレイヤーの中心に設定
-		starEmitter_->SetPosition(player_->GetCenterPosition());
+		//プレイヤーの更新
+		PlayerUpdate();
 
-		//エミッターの更新
-		starEmitter_->Update();
+		//敵の更新
+		EnemyUpdate();
 
-		//パーティクルマネージャーの更新
-		particleManager_->Update(vp_);
+		//パーティクルの更新
+		ParticleUpdate();
+
+		//UIの更新
+		UIUpdate();
 
 		tutorialEvent_->Update();
 
@@ -418,6 +368,79 @@ void TutorialScene::CameraUpdate() {
 	}
 }
 
+void TutorialScene::BGObjectUpdate() {
+
+	//天球の更新
+	skydome_->Update();
+
+	//地面の更新
+	ground_->Update();
+
+}
+
+void TutorialScene::PlayerUpdate() {
+
+	player_->SetHP(10000);
+
+	//プレイヤーの更新
+	player_->Update();
+	//プレイヤーのパーティクル更新
+	player_->UpdateParticle(vp_);
+
+}
+
+void TutorialScene::EnemyUpdate() {
+
+	ReSpawnEnemy();
+
+	bool skipStart = false;
+
+	for (auto& enemy : enemies_) {
+
+		if (enemies_.size() == 1) {
+			break;
+		}
+
+		if (!skipStart) {
+
+			//エネミーの更新
+			enemy->Update();
+
+			tutorialEvent_->SetEnemy(enemy.get());
+
+			//エネミーのパーティクル更新
+			enemy->UpdateParticle(vp_);
+
+			skipStart = true;
+		}
+	}
+}
+
+void TutorialScene::UIUpdate() {
+
+	//HPの比率を計算
+	float hpRatio = static_cast<float>(player_->GetHP()) / 10000;
+
+	//HPに応じた高さ
+	float newHeight = 500.0f * hpRatio;
+
+	//横幅を70pxに変更
+	hpBar_->SetSize(Vector2(70.0f, newHeight));
+
+}
+
+void TutorialScene::ParticleUpdate() {
+
+	//エミッターの位置をプレイヤーの中心に設定
+	starEmitter_->SetPosition(player_->GetCenterPosition());
+
+	//エミッターの更新
+	starEmitter_->Update();
+
+	//パーティクルマネージャーの更新
+	particleManager_->Update(vp_);
+}
+
 void TutorialScene::ChangeScene() {
 
 #pragma region プレイ会用機能
@@ -475,4 +498,21 @@ void TutorialScene::ReSpawnEnemy() {
 			spawnTimer_ = 0.0f;
 		}
 	}
+}
+
+void TutorialScene::DeleteEnemy() {
+
+	for (auto& enemy : enemies_) {
+		if (enemy->GetCanDelate()) {
+			tutorialEvent_->SetEnemy(nullptr);
+			lockOn_->ResetTarget();
+		}
+	}
+
+	enemies_.remove_if([](const std::unique_ptr<Enemy>& enemy) {
+		if (enemy->GetCanDelate()) {
+			return true;
+		}
+		return false;
+		});
 }

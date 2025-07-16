@@ -109,36 +109,25 @@ void ClearScene::Update() {
 	Debug();
 #endif // _DEBUG
 
-	skyDome_->Update();
-
-	ground_->Update();
-
 	timeManager_->Update();
-
-	player_->SetRotation({ 0.0f,3.14f,0.0f });
-
-	player_->UpdateTransform();
-
-	for (auto& enemy : enemies_) {
-
-		enemy->SetRotation({ enemy->GetCenterRotation().x,enemy->GetCenterRotation().y + 0.01f,enemy->GetCenterRotation().z });
-
-		enemy->UpdateTransform();
-	}
-
-	//// UI点滅
-	timer_ += speed_;
-	if (timer_ >= 1.0f || timer_ < 0.0f) {
-		speed_ *= -1.0f;
-	}
-	UI_->SetAlpha(timer_);
-
-	emitter_->Update();
-
-	particleManager_->Update(vp_);
 
 	// カメラ更新
 	CameraUpdate();
+
+	// 背景オブジェクト更新
+	BGObjectUpdate();
+
+	// プレイヤー更新
+	PlayerUpdate();
+
+	// エネミー更新
+	EnemyUpdate();
+
+	// UI更新
+	UIUpdate();
+
+	// パーティクル更新
+	ParticleUpdate();
 
 	// シーン切り替え
 	ChangeScene();
@@ -246,6 +235,54 @@ void ClearScene::CameraUpdate() {
 	} else {
 		vp_.UpdateMatrix();
 	}
+}
+
+void ClearScene::PlayerUpdate() {
+
+	player_->SetRotation({ 0.0f,3.14f,0.0f });
+
+	player_->UpdateTransform();
+
+}
+
+void ClearScene::EnemyUpdate() {
+
+	for (auto& enemy : enemies_) {
+
+		enemy->SetRotation({ enemy->GetCenterRotation().x,enemy->GetCenterRotation().y + 0.01f,enemy->GetCenterRotation().z });
+
+		enemy->UpdateTransform();
+	}
+
+}
+
+void ClearScene::UIUpdate() {
+
+	// UI点滅
+	timer_ += speed_;
+
+	if (timer_ >= 1.0f || timer_ < 0.0f) {
+		speed_ *= -1.0f;
+	}
+
+	UI_->SetAlpha(timer_);
+
+}
+
+void ClearScene::ParticleUpdate() {
+
+	emitter_->Update();
+
+	particleManager_->Update(vp_);
+
+}
+
+void ClearScene::BGObjectUpdate() {
+
+	skyDome_->Update();
+
+	ground_->Update();
+
 }
 
 void ClearScene::ChangeScene() {

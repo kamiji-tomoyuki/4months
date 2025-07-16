@@ -110,6 +110,15 @@ void TitleScene::Update() {
 	// カメラ更新
 	CameraUpdate();
 
+	// 背景オブジェクト更新
+	BGObjectUpdate();
+
+	// タイトルオブジェクト更新
+	TitleObjectUpdate();
+
+	// パーティクル更新
+	ParticleUpdate();
+
 	if (titleEvent_->IsSceneChange()) {
 
 		if (isChangeScene) {
@@ -117,30 +126,6 @@ void TitleScene::Update() {
 			ChangeScene();
 		}
 	}
-	timer_ += speed_;
-	if (timer_ >= 1.0f || timer_ < 0.0f) {
-		speed_ *= -1.0f;
-	}
-
-	wtTitle_.scale_ = { 1.3f,1.3f,1.3f };
-	// 3.0fを中心に上下に揺らす
-	wtTitle_.translation_.y = EaseInOutQuint(4.0f + 2.5f, 4.0f + 3.5f, timer_, 1.0f);
-
-	wtTitle_.UpdateMatrix();
-
-	titleEvent_->Update();
-
-	skydome_->Update();
-
-	tutorialGround_->Update();
-
-	for (std::unique_ptr<TitleGround>& ground : stageGround_) {
-		ground->Update();
-	}
-
-	starEmitter_->Update();
-
-	particleManager_->Update(vp_);
 }
 
 void TitleScene::Draw() {
@@ -261,6 +246,44 @@ void TitleScene::CameraUpdate() {
 	} else {
 		vp_.UpdateMatrix();
 	}
+}
+
+void TitleScene::TitleObjectUpdate() {
+
+	timer_ += speed_;
+	if (timer_ >= 1.0f || timer_ < 0.0f) {
+		speed_ *= -1.0f;
+	}
+
+	wtTitle_.scale_ = { 1.3f,1.3f,1.3f };
+
+	// 3.0fを中心に上下に揺らす
+	wtTitle_.translation_.y = EaseInOutQuint(4.0f + 2.5f, 4.0f + 3.5f, timer_, 1.0f);
+
+	wtTitle_.UpdateMatrix();
+
+	titleEvent_->Update();
+
+}
+
+void TitleScene::ParticleUpdate() {
+
+	starEmitter_->Update();
+
+	particleManager_->Update(vp_);
+
+}
+
+void TitleScene::BGObjectUpdate() {
+
+	skydome_->Update();
+
+	tutorialGround_->Update();
+
+	for (std::unique_ptr<TitleGround>& ground : stageGround_) {
+		ground->Update();
+	}
+
 }
 
 void TitleScene::ChangeScene() {
