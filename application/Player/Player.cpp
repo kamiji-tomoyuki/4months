@@ -19,6 +19,7 @@ Player::Player() {
 	playerID_++;
 }
 
+// 初期化
 void Player::Init() {
 	//基底クラスの初期化
 	BaseObject::Init();
@@ -76,6 +77,7 @@ void Player::Init() {
 	deleteScale_ = transform_.scale_;
 }
 
+// 更新
 void Player::Update() {
 	ApplyGlobalVariables();
 
@@ -137,16 +139,8 @@ void Player::Update() {
 	model_->AnimationUpdate(true);
 }
 
+// パーティクルの更新
 void Player::UpdateParticle(const ViewProjection& viewProjection) {
-	/*if (timeManager_->GetTimer("Smoke" + std::to_string(id_)).isStart &&
-		!timeManager_->GetTimer("SmokeCoolTime" + std::to_string(id_)).isStart) {
-		emitters_[1]->SetEmitActive(true);
-		timeManager_->SetTimer("SmokeCoolTime" + std::to_string(id_), 0.1f);
-	}
-	for (std::unique_ptr<ParticleEmitter>& emitter_ : emitters_) {
-		emitter_->SetEmitPosition(GetCenterPosition());
-		emitter_->UpdateOnce(viewProjection);
-	}*/
 	for (std::unique_ptr<ParticleEmitter>& emitter_ : emitters_) {
 		emitter_->SetPosition(GetCenterPosition());
 		emitter_->Update();
@@ -154,26 +148,27 @@ void Player::UpdateParticle(const ViewProjection& viewProjection) {
 	sword_->UpdateParticle(viewProjection);
 }
 
+// 描画
 void Player::Draw(const ViewProjection& viewProjection) {
-	//基底クラス描画
-	//BaseObject::Draw(viewProjection);
+	// 剣の描画
 	sword_->Draw(viewProjection);
-
 }
 
+// パーティクルの描画
 void Player::DrawParticle(const ViewProjection& viewProjection) {
-	//for (std::unique_ptr<ParticleEmitter>& emitter_ : emitters_) {
-	//	emitter_->Draw();
-	//	//emitter_->DrawEmitter();
-	//}
+	
+	// 剣のパーティクル描画
 	sword_->DrawParticle(viewProjection);
 }
 
+// アニメーションの描画
 void Player::DrawAnimation(const ViewProjection& viewProjection)
 {
+	// プレイヤーの描画
 	model_->Draw(BaseObject::GetWorldTransform(), viewProjection);
 }
 
+// 当たってる間
 void Player::OnCollision([[maybe_unused]] Collider* other) {
 
 	if (isGameOver_) return; // GameOver中は衝突処理をスキップ
@@ -212,14 +207,248 @@ void Player::OnCollision([[maybe_unused]] Collider* other) {
 	transform_.UpdateMatrix();
 }
 
+// 当たった瞬間
 void Player::OnCollisionEnter([[maybe_unused]] Collider* other) {
-	// 衝突相手の種別IDを取得
-	//uint32_t typeID = other->GetTypeID();
-	//衝突相手
+	
 }
 
+// 当たり終わった瞬間
 void Player::OnCollisionOut([[maybe_unused]] Collider* other) {
 
+}
+
+#ifdef _DEBUG
+// ImGui
+void Player::ImGui()
+{
+	if (ImGui::Begin("Player Coordinates")) {
+		ImGui::PushID(id_);
+		// 座標情報を表示し、DragFloat3で編集可能にする
+		ImGui::Text("Position:");
+		ImGui::DragFloat3("Translation", &transform_.translation_.x, 0.1f);
+
+		ImGui::Text("velocity_:");
+		ImGui::DragFloat3("velocity_", &velocity_.x, 0.1f);
+
+		//ImGui::Text("Scale:");
+		//ImGui::DragFloat3("Scale", &transform_.scale_.x, 0.1f);
+
+		//ImGui::Text("velocityLength:");
+		//velocityLength = velocity_.Length();
+		//ImGui::DragFloat("velocityLength", &velocityLength);
+
+		//ImGui::Text("velocityLengthW:");
+		//velocityLengthW = (attackPower_ + velocity_.Length() * powerMagnification_);
+		//ImGui::DragFloat("velocityLengthW", &velocityLengthW);
+
+		ImGui::Text("HP:");
+		ImGui::DragInt("HP", &hp_);
+		XINPUT_STATE joyState;
+		if (/*Input::GetInstance()->GetJoystickState(0, joyState) && joyState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER*/
+			Input::GetInstance()->GetJoystickState(0, joyState) && joyState.Gamepad.bRightTrigger/* & XINPUT_GAMEPAD_RIGHT_SHOULDER*/) {
+			ImGui::Text("RB:true");
+			ImGui::Text("RStick:(%4.2f, %4.2f)", aimingDirection_.x, aimingDirection_.y);
+			float cosTheta = atan2f(aimingDirection_.y, aimingDirection_.x);
+			ImGui::Text("cosTheta:(%4.2f)", cosTheta);
+		}
+		else {
+			ImGui::Text("RB:false");
+		}
+		ImGui::PopID();
+		ImGui::End();
+	}
+
+	sword_->ImGui();
+}
+#endif // _DEBUG
+
+// 移動処理
+void Player::Move() {
+	Matrix4x4 rotateMatrix;
+	Vector3 move{};
+
+	// ゲームパッド入力処理
+	XINPUT_STATE joyState;
+	if (Input::GetInstance()->GetJoystickState(0, joyState)) {
+		Input::GetInstance()->SetJoystickDeadZone(0, 3000, 3000);
+		// 移動量
+		move = { (float)joyState.Gamepad.sThumbLX / SHRT_MAX, 0.0f, (float)joyState.Gamepad.sThumbLY / SHRT_MAX };
+		move = kAcceleration_ * move;
+	}
+#ifdef _DEBUG
+	// キーボード入力処理
+	if (move.Length() == 0) {
+		if (Input::GetInstance()->PushKey(DIK_D)) {
+			move.x += kAcceleration_;
+		}
+		if (Input::GetInstance()->PushKey(DIK_A)) {
+			move.x -= kAcceleration_;
+		}
+		if (Input::GetInstance()->PushKey(DIK_W)) {
+			move.z += kAcceleration_;
+		}
+		if (Input::GetInstance()->PushKey(DIK_S)) {
+			move.z -= kAcceleration_;
+		}
+	}
+#endif // _DEBUG
+
+	if (move.Length() != 0) {
+		// 入力がある場合の処理
+		if (velocity_.x < 0.0f && move.x > 0.0f ||
+			velocity_.x > 0.0f && move.x < 0.0f) {
+			velocity_.x *= (1.0f - kAttenuation_);
+		}
+		if (velocity_.z < 0.0f && move.z > 0.0f ||
+			velocity_.z > 0.0f && move.z < 0.0f) {
+			velocity_.z *= (1.0f - kAttenuation_);
+		}
+
+		rotateMatrix = MakeRotateXYZMatrix(viewProjection_->rotation_);
+		move = Transformation(move, rotateMatrix);
+		move.y = 0.0f;
+		VectorRotation(move);
+
+		velocity_ += move;
+	}
+}
+
+// 入力方向
+int Player::InputDirection()
+{
+	// 使用する変数
+	Vector3 joyStickDireciton{};
+	float cosTheta = 0.0f;
+
+	// 方向をセット
+	joyStickDireciton = { InputDirectionGampad().x, InputDirectionGampad().y, 0.0f };
+	// ゲームパッドの入力角度を算出
+	cosTheta = atan2f(joyStickDireciton.y, joyStickDireciton.x);
+
+	// 上
+	if (cosTheta > 0.25f * pi_v<float> && cosTheta < 0.75f * pi_v<float>) {
+		return TOP;
+	}
+	// 下
+	if (cosTheta < -0.25f * pi_v<float> && cosTheta > -0.75f * pi_v<float>) {
+		return DOWN;
+	}
+	// 左
+	if (cosTheta >= 0.75f * pi_v<float> || cosTheta <= -0.75f * pi_v<float>) {
+		return LEFT;
+	}
+	// 右
+	if ((cosTheta <= 0.25f * pi_v<float> && cosTheta >= -0.25f * pi_v<float>) && !(joyStickDireciton.x == 0.0f && joyStickDireciton.y == 0.0f)) {
+		return RIGHT;
+	}
+	return Nothing;
+}
+
+// 入力方向の設定
+void Player::SetInputDirection()
+{
+	attackDirection_ = { 0.0f, 0.0f, 0.0f };
+	// ゲームパッド接続されているか
+	bool isGamPadConnect = Input::GetInstance()->IsAnyJoystickConnected();
+
+	// ゲームパッド入力処理
+	if (isGamPadConnect) {
+		// 上
+		if (InputDirection() == TOP) {
+			attackDirection_.y += 1.0f;
+		}
+		// 下
+		if (InputDirection() == DOWN) {
+			attackDirection_.y -= 1.0f;
+		}
+		// 左
+		if (InputDirection() == LEFT) {
+			attackDirection_.x -= 1.0f;
+			attackDirection_.y = 0.0f;
+		}
+		// 右
+		if (InputDirection() == RIGHT) {
+			attackDirection_.x += 1.0f;
+			attackDirection_.y = 0.0f;
+		}
+	}
+
+#ifdef _DEBUG
+	// キーボード入力処理
+	if (attackDirection_.Length() == 0)
+	{
+		// 上
+		if (Input::GetInstance()->PushKey(DIK_UP)) {
+			attackDirection_.y += 1.0f;
+		}
+		// 下
+		if (Input::GetInstance()->PushKey(DIK_DOWN)) {
+			attackDirection_.y -= 1.0f;
+		}
+		// 左
+		if (Input::GetInstance()->PushKey(DIK_LEFT)) {
+			attackDirection_.x -= 1.0f;
+			attackDirection_.y = 0.0f;
+		}
+		// 右
+		if (Input::GetInstance()->PushKey(DIK_RIGHT)) {
+			attackDirection_.x += 1.0f;
+			attackDirection_.y = 0.0f;
+		}
+	}
+#endif // _DEBUG
+
+	attackDirection_ *= 5.0f;
+}
+
+// ステートチェンジ
+void Player::ChangeState(std::unique_ptr<PlayerBaseState> state)
+{
+	state_ = std::move(state);
+	state_->Initialize();
+}
+
+// ダッシュ入力
+bool Player::IsDashInput()
+{
+	XINPUT_STATE joyState;
+	if (Input::GetInstance()->GetJoystickState(0, joyState)) {
+		if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_X) {
+			return true;
+		}
+	}
+	return false;
+}
+
+// 予備動作入力
+bool Player::IsPreliminaryInput()
+{
+	XINPUT_STATE joyState;
+	if (Input::GetInstance()->GetJoystickState(0, joyState) && IsAttackDirectionInput()) {
+		return true;
+	}
+	return false;
+}
+
+// 攻撃入力
+bool Player::IsAttackInput()
+{
+	XINPUT_STATE joyState;
+	if ((Input::GetInstance()->GetJoystickState(0, joyState) && joyState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) &&
+		!attack_.isAttack) {
+		return true;
+	}
+	return false;
+}
+
+// 防御入力
+bool Player::IsGuard()
+{
+	XINPUT_STATE joyState;
+	if (Input::GetInstance()->GetJoystickState(0, joyState) && joyState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) {
+		return true;
+	}
+	return false;
 }
 
 // 浮遊動作(無入力)の初期化
@@ -238,6 +467,113 @@ void Player::UpdateFloatingGimmick() {
 
 	//浮遊を座標に反映
 	transform_.translation_.y = std::sin(root_.floatingParameter) * root_.floatingAmplitude;
+}
+
+/// -------------getter-------------
+
+// 中心座標を取得
+Vector3 Player::GetCenterPosition() const {
+	//ローカル座標でのオフセット
+	const Vector3 offset = { 0.0f, 0.0f, 0.0f };
+	//ワールド座標に変換
+	Vector3 worldPos = Transformation(offset, transform_.matWorld_);
+	return worldPos;
+}
+
+// 中心回転を取得
+Vector3 Player::GetCenterRotation() const {
+	return transform_.rotation_;
+}
+
+// ワールド座標を取得
+Vector3 Player::GetWorldPosition()
+{
+	return Vector3();
+}
+
+// 方向を取得
+Vector2 Player::InputDirectionGampad()
+{
+	XINPUT_STATE joyState;
+	Vector3 input{};
+	if (Input::GetInstance()->IsAnyJoystickConnected())
+	{
+		Input::GetInstance()->GetJoystickState(0, joyState);
+		input = { (float)joyState.Gamepad.sThumbRX / SHRT_MAX, (float)joyState.Gamepad.sThumbRY / SHRT_MAX, 0.0f };
+		input = input.Normalize();
+	}
+	return { input.x, input.y };
+}
+
+Vector3 Player::GetAttackDirection()
+{
+	if (lockOn_) {
+		return lockOn_->GetTargetPosition() - transform_.translation_;
+	}
+	return aimingDirection_;
+}
+
+/// -------------getter-------------
+
+/// -------------setter-------------
+
+// 向きをセット
+void Player::VectorRotation(const Vector3& direction) {
+	Vector3 move = direction;
+	transform_.rotation_.y = std::atan2f(move.x, move.z);
+	Vector3 velocityZ = Transformation(move, MakeRotateYMatrix(-transform_.rotation_.y));
+	transform_.rotation_.x = std::atan2f(-velocityZ.y, velocityZ.z);
+}
+
+/// -------------setter-------------
+
+/// -----------メンバ関数-----------
+
+// 攻撃方向入力されたか
+bool Player::IsAttackDirectionInput()
+{
+	if (attackDirection_.x != 0.0f || attackDirection_.y != 0.0f || attackDirection_.z != 0.0f) {
+		return true;
+	}
+	return false;
+}
+
+void Player::Dead() {
+
+	deleteTimer_ += deleteSpeed_;
+
+	if (deleteTimer_ >= 1.0f) {
+		deleteTimer_ = 1.0f;
+	}
+
+	transform_.scale_ = EaseInBack(deleteScale_, Vector3(0.0f, 0.0f, 0.0f), deleteTimer_, 1.0f);
+
+	if (deleteTimer_ >= 1.0f) {
+
+		isGameOver_ = true;
+	}
+}
+
+// 調整項目の適用
+void Player::ApplyGlobalVariables() {
+	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
+	const char* groupName = "Player";
+	kAcceleration_ = globalVariables->GetFloatValue(groupName, "kAcceleration");
+	kAttenuation_ = globalVariables->GetFloatValue(groupName, "kAttenuation");
+	kLimitRunSpeed_ = globalVariables->GetFloatValue(groupName, "kLimitRunSpeed");
+	//attackVelocity_ = globalVariables->GetVector3Value(groupName, "attackVelocity_");
+	size_ = globalVariables->GetFloatValue(groupName, "size");
+	kHp_ = globalVariables->GetIntValue(groupName, "kHp_");
+}
+
+/// -----------メンバ関数-----------
+
+void Player::SetBehavior(Behavior newBehavior)
+{
+	if (behavior_ != newBehavior) {
+		behavior_ = newBehavior;
+		(this->*BehaviorInitFuncTable[static_cast<size_t>(behavior_)])();
+	}
 }
 
 // 通常動作の初期化
@@ -436,25 +772,6 @@ void Player::BehaviorAttackUpdate() {
 	}
 
 	(this->*AttackTypeUpdateFuncTable[static_cast<size_t>(attackType_)])();
-
-	//ロックオン中
-	//if (lockOn_ && lockOn_->ExistTarget()) {
-	//	// ロックオン座標
-	//	Vector3 lockOnPos = lockOn_->GetTargetPosition();
-	//	// 追従対象からロックオン対象へのベクトル
-	//	Vector3 sub = lockOnPos - GetWorldPosition();
-
-	//	//距離
-	//	float distance = sub.Length();
-	//	//距離しきい値
-	//	const float threshold = 0.4f;
-	//	
-	//	//しきい値より離れている時のみ
-	//	if (distance > threshold) {
-	//		//Y軸周り角度
-	//		transform_.rotation_.y = std::atan2f(sub.x, sub.z);
-	//	}
-	//}
 }
 
 // 防御動作の初期化
@@ -487,9 +804,6 @@ void Player::BehaviorProtectionUpdate() {
 		sword_->SetTranslation({ aimingDirection_.x * 0.6f + 2.0f, aimingDirection_.y * 0.4f , 0.25f });
 		
 		// 角度
-		/*Quaternion q = Quaternion::MakeRotateAxisAngleQuaternion({ 0.0f, 1.0f, 0.0f }, -pi_v<float> * 0.5f);
-		Quaternion q2 = q * Quaternion::MakeRotateAxisAngleQuaternion({ 1.0f, 0.0f, 0.0f }, -pi_v<float> *0.5f);*/
-		//Vector3 newRotate = q2.ToEulerAngles();
 		Vector3 newRotate = { 0.0f, pi_v<float> *0.5f, pi_v<float> *0.5f };
 		sword_->SetRotation(newRotate);
 	}
@@ -520,115 +834,7 @@ void Player::BehaviorProtectionUpdate() {
 	}
 }
 
-// 勝利(喜ぶ)動作の初期化
-void Player::BehaviorCelebrateInitialize()
-{
-	sword_->SetRotationX(0.0f);
-}
 
-// 勝利(喜ぶ)動作更新
-void Player::BehaviorCelebrateUpdate()
-{
-	// 腕を振る動作 (sin波を使って上下)
-	float wave = std::sin(timeManager_->GetCurrentTime() * 10.0f) * 0.5f; // -0.5 〜 0.5 の範囲
-	sword_->SetRotationX(wave);
-}
-
-// 調整項目の適用
-void Player::ApplyGlobalVariables() {
-	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
-	const char* groupName = "Player";
-	kAcceleration_ = globalVariables->GetFloatValue(groupName, "kAcceleration");
-	kAttenuation_ = globalVariables->GetFloatValue(groupName, "kAttenuation");
-	kLimitRunSpeed_ = globalVariables->GetFloatValue(groupName, "kLimitRunSpeed");
-	//attackVelocity_ = globalVariables->GetVector3Value(groupName, "attackVelocity_");
-	size_ = globalVariables->GetFloatValue(groupName, "size");
-	kHp_ = globalVariables->GetIntValue(groupName, "kHp_");
-	//attackPower_ = globalVariables->GetFloatValue(groupName, "attackPower_");
-	//powerMagnification_ = globalVariables->GetFloatValue(groupName, "powerMagnification_");
-}
-
-// 移動処理
-void Player::Move() {
-	Matrix4x4 rotateMatrix;
-	Vector3 move{};
-	
-	// ゲームパッド入力処理
-	XINPUT_STATE joyState;
-	if (Input::GetInstance()->GetJoystickState(0, joyState)) {
-		Input::GetInstance()->SetJoystickDeadZone(0, 3000, 3000);
-		// 移動量
-		move = { (float)joyState.Gamepad.sThumbLX / SHRT_MAX, 0.0f, (float)joyState.Gamepad.sThumbLY / SHRT_MAX };
-		move = kAcceleration_ * move;
-	}
-#ifdef _DEBUG
-	// キーボード入力処理
-	if (move.Length() == 0) {
-		if (Input::GetInstance()->PushKey(DIK_D)) {
-			move.x += kAcceleration_;
-		}
-		if (Input::GetInstance()->PushKey(DIK_A)) {
-			move.x -= kAcceleration_;
-		}
-		if (Input::GetInstance()->PushKey(DIK_W)) {
-			move.z += kAcceleration_;
-		}
-		if (Input::GetInstance()->PushKey(DIK_S)) {
-			move.z -= kAcceleration_;
-		}
-	}
-#endif // _DEBUG
-
-	if (move.Length() != 0) {
-		// 入力がある場合の処理
-		if (velocity_.x < 0.0f && move.x > 0.0f ||
-			velocity_.x > 0.0f && move.x < 0.0f) {
-			velocity_.x *= (1.0f - kAttenuation_);
-		}
-		if (velocity_.z < 0.0f && move.z > 0.0f ||
-			velocity_.z > 0.0f && move.z < 0.0f) {
-			velocity_.z *= (1.0f - kAttenuation_);
-		}
-
-		rotateMatrix = MakeRotateXYZMatrix(viewProjection_->rotation_);
-		move = Transformation(move, rotateMatrix);
-		move.y = 0.0f;
-		VectorRotation(move);
-
-		velocity_ += move;
-	}
-}
-
-// 入力方向
-int Player::InputDirection()
-{
-	// 使用する変数
-	Vector3 joyStickDireciton{};
-	float cosTheta = 0.0f;
-
-	// 方向をセット
-	joyStickDireciton = { InputDirectionGampad().x, InputDirectionGampad().y, 0.0f };
-	// ゲームパッドの入力角度を算出
-	cosTheta = atan2f(joyStickDireciton.y, joyStickDireciton.x);
-
-	// 上
-	if (cosTheta > 0.25f * pi_v<float> && cosTheta < 0.75f * pi_v<float>) {
-		return TOP;
-	}
-	// 下
-	if (cosTheta < -0.25f * pi_v<float> && cosTheta > -0.75f * pi_v<float>) {
-		return DOWN;
-	}
-	// 左
-	if (cosTheta >= 0.75f * pi_v<float> || cosTheta <= -0.75f * pi_v<float>) {
-		return LEFT;
-	}
-	// 右
-	if ((cosTheta <= 0.25f * pi_v<float> && cosTheta >= -0.25f * pi_v<float>) && !(joyStickDireciton.x == 0.0f && joyStickDireciton.y == 0.0f)) {
-		return RIGHT;
-	}
-	return Nothing;
-}
 
 // 振り下ろし(上入力攻撃)の初期化
 void Player::AttackTypeDownSwingInitialize()
@@ -740,183 +946,12 @@ void Player::AttackTypeNullUpdate()
 {
 }
 
-// 入力方向の設定
-void Player::SetInputDirection()
-{
-	attackDirection_ = { 0.0f, 0.0f, 0.0f };
-	// ゲームパッド接続されているか
-	bool isGamPadConnect = Input::GetInstance()->IsAnyJoystickConnected();
-
-	// ゲームパッド入力処理
-	if (isGamPadConnect) {
-		// 上
-		if (InputDirection() == TOP) {
-			attackDirection_.y += 1.0f;
-		}
-		// 下
-		if (InputDirection() == DOWN) {
-			attackDirection_.y -= 1.0f;
-		}
-		// 左
-		if (InputDirection() == LEFT) {
-			attackDirection_.x -= 1.0f;
-			attackDirection_.y = 0.0f;
-		}
-		// 右
-		if (InputDirection() == RIGHT) {
-			attackDirection_.x += 1.0f;
-			attackDirection_.y = 0.0f;
-		}
-	}
-
-#ifdef _DEBUG
-	// キーボード入力処理
-	if (attackDirection_.Length() == 0)
-	{
-		// 上
-		if (Input::GetInstance()->PushKey(DIK_UP)) {
-			attackDirection_.y += 1.0f;
-		}
-		// 下
-		if (Input::GetInstance()->PushKey(DIK_DOWN)) {
-			attackDirection_.y -= 1.0f;
-		}
-		// 左
-		if (Input::GetInstance()->PushKey(DIK_LEFT)) {
-			attackDirection_.x -= 1.0f;
-			attackDirection_.y = 0.0f;
-		}
-		// 右
-		if (Input::GetInstance()->PushKey(DIK_RIGHT)) {
-			attackDirection_.x += 1.0f;
-			attackDirection_.y = 0.0f;
-		}
-	}
-#endif // _DEBUG
-
-	attackDirection_ *= 5.0f;
-}
-
-// 攻撃方向入力されたか
-bool Player::IsAttackDirectionInput()
-{
-	if (attackDirection_.x != 0.0f || attackDirection_.y != 0.0f || attackDirection_.z != 0.0f) {
-		return true;
-	}
-	return false;
-}
-
-void Player::Dead() {
-
-	deleteTimer_ += deleteSpeed_;
-
-	if (deleteTimer_ >= 1.0f) {
-		deleteTimer_ = 1.0f;
-	}
-
-	transform_.scale_ = EaseInBack(deleteScale_, Vector3(0.0f, 0.0f, 0.0f), deleteTimer_, 1.0f);
-
-	if (deleteTimer_ >= 1.0f) {
-
-		isGameOver_ = true;
-	}
-}
-
-// 向きをセット
-void Player::VectorRotation(const Vector3& direction) {
-	Vector3 move = direction;
-	transform_.rotation_.y = std::atan2f(move.x, move.z);
-	Vector3 velocityZ = Transformation(move, MakeRotateYMatrix(-transform_.rotation_.y));
-	transform_.rotation_.x = std::atan2f(-velocityZ.y, velocityZ.z);
-}
-
-// 方向を取得
-Vector2 Player::InputDirectionGampad()
-{
-	XINPUT_STATE joyState;
-	Vector3 input{};
-	if (Input::GetInstance()->IsAnyJoystickConnected())
-	{
-		Input::GetInstance()->GetJoystickState(0, joyState);
-		input = { (float)joyState.Gamepad.sThumbRX / SHRT_MAX, (float)joyState.Gamepad.sThumbRY / SHRT_MAX, 0.0f };
-		input = input.Normalize();
-	}
-	return { input.x, input.y };
-}
-
-void Player::ImGui()
-{
-	if (ImGui::Begin("Player Coordinates")) {
-		ImGui::PushID(id_);
-		// 座標情報を表示し、DragFloat3で編集可能にする
-		ImGui::Text("Position:");
-		ImGui::DragFloat3("Translation", &transform_.translation_.x, 0.1f);
-
-		ImGui::Text("velocity_:");
-		ImGui::DragFloat3("velocity_", &velocity_.x, 0.1f);
-
-		//ImGui::Text("Scale:");
-		//ImGui::DragFloat3("Scale", &transform_.scale_.x, 0.1f);
-
-		//ImGui::Text("velocityLength:");
-		//velocityLength = velocity_.Length();
-		//ImGui::DragFloat("velocityLength", &velocityLength);
-
-		//ImGui::Text("velocityLengthW:");
-		//velocityLengthW = (attackPower_ + velocity_.Length() * powerMagnification_);
-		//ImGui::DragFloat("velocityLengthW", &velocityLengthW);
-
-		ImGui::Text("HP:");
-		ImGui::DragInt("HP", &hp_);
-		XINPUT_STATE joyState;
-		if (/*Input::GetInstance()->GetJoystickState(0, joyState) && joyState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER*/
-			Input::GetInstance()->GetJoystickState(0, joyState) && joyState.Gamepad.bRightTrigger/* & XINPUT_GAMEPAD_RIGHT_SHOULDER*/) {
-			ImGui::Text("RB:true");
-			ImGui::Text("RStick:(%4.2f, %4.2f)", aimingDirection_.x, aimingDirection_.y);
-			float cosTheta = atan2f(aimingDirection_.y, aimingDirection_.x);
-			ImGui::Text("cosTheta:(%4.2f)", cosTheta);
-		}
-		else {
-			ImGui::Text("RB:false");
-		}
-		ImGui::PopID();
-		ImGui::End();
-	}
-
-	sword_->ImGui();
-}
-
-Vector3 Player::GetWorldPosition()
-{
-	return Vector3();
-}
-
-void Player::SetBehavior(Behavior newBehavior)
-{
-	if (behavior_ != newBehavior) {
-		behavior_ = newBehavior;
-		(this->*BehaviorInitFuncTable[static_cast<size_t>(behavior_)])();
-	}
-}
-
-Vector3 Player::GetCenterPosition() const {
-	//ローカル座標でのオフセット
-	const Vector3 offset = { 0.0f, 0.0f, 0.0f };
-	//ワールド座標に変換
-	Vector3 worldPos = Transformation(offset, transform_.matWorld_);
-	return worldPos;
-}
-
-Vector3 Player::GetCenterRotation() const {
-	return transform_.rotation_;
-}
 void(Player::* Player::BehaviorInitFuncTable[])() = {
 	&Player::BehaviorRootInitialize,
 	&Player::BehaviorDashInitialize,
 	&Player::BehaviorPostureAttackInitialize,
 	&Player::BehaviorAttackInitialize,
 	&Player::BehaviorProtectionInitialize,
-	&Player::BehaviorCelebrateInitialize,
 };
 void(Player::* Player::BehaviorUpdateFuncTable[])() = {
 	&Player::BehaviorRootUpdate,
@@ -924,7 +959,6 @@ void(Player::* Player::BehaviorUpdateFuncTable[])() = {
 	&Player::BehaviorPostureAttackUpdate,
 	&Player::BehaviorAttackUpdate,
 	&Player::BehaviorProtectionUpdate,
-	&Player::BehaviorCelebrateUpdate,
 };
 
 void(Player::* Player::AttackTypeInitFuncTable[])() = {

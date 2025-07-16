@@ -349,6 +349,24 @@
     <ClCompile Include="application\UI\UIManager.cpp">
       <Filter>application\UI</Filter>
     </ClCompile>
+    <ClCompile Include="application\Player\State\PlayerBaseState.cpp">
+      <Filter>application\Player\State</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Player\State\PlayerStateRoot.cpp">
+      <Filter>application\Player\State</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Player\State\PlayerStatePreliminary.cpp">
+      <Filter>application\Player\State</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Player\State\PlayerStateAttack.cpp">
+      <Filter>application\Player\State</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Player\State\PlayerStateGuard.cpp">
+      <Filter>application\Player\State</Filter>
+    </ClCompile>
+    <ClCompile Include="PlayerStateDash.cpp">
+      <Filter>application\Player\State</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application\Base\BaseObject.h">
@@ -672,6 +690,24 @@
     <ClInclude Include="application\UI\UIManager.h">
       <Filter>application\UI</Filter>
     </ClInclude>
+    <ClInclude Include="application\Player\State\PlayerBaseState.h">
+      <Filter>application\Player\State</Filter>
+    </ClInclude>
+    <ClInclude Include="application\Player\State\PlayerStateRoot.h">
+      <Filter>application\Player\State</Filter>
+    </ClInclude>
+    <ClInclude Include="application\Player\State\PlayerStatePreliminary.h">
+      <Filter>application\Player\State</Filter>
+    </ClInclude>
+    <ClInclude Include="application\Player\State\PlayerStateAttack.h">
+      <Filter>application\Player\State</Filter>
+    </ClInclude>
+    <ClInclude Include="application\Player\State\PlayerStateGuard.h">
+      <Filter>application\Player\State</Filter>
+    </ClInclude>
+    <ClInclude Include="application\Player\State\PlayerStateDash.h">
+      <Filter>application\Player\State</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="myEngine.rc" />
@@ -841,6 +877,9 @@
     </Filter>
     <Filter Include="application\UI">
       <UniqueIdentifier>{5c8b8de1-ac1b-456d-8917-f76fc45ec4e8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="application\Player\State">
+      <UniqueIdentifier>{dfe8a439-ea97-4ad1-ae50-b9d5c34a59e2}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
