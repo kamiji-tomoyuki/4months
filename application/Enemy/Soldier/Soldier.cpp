@@ -26,7 +26,6 @@ void Soldier::Init() {
 	sword_->SetEnemy(this);
 	sword_->SetTimeManager(timeManager_);
 
-	BaseObject::CreateModel("player/playerBody.obj");
 	sword_->Initialize("sword/sword.obj");
 	sword_->SetTranslation(Vector3(1.7f, 0.0f, 1.3f));
 
@@ -164,17 +163,19 @@ void Soldier::ApplyGlobalVariables() {
 void Soldier::DirectionPreliminaryAction() {
 	aimingDirection_ = { 0.0f, 0.0f, 0.0f };
 	// 方向をセット
-	if (GetProbabilities(0.25f)) {
-		aimingDirection_ = { 1.0f, 0.0f, 0.0f };
-	}
-	if (GetProbabilities(0.25f)) {
-		aimingDirection_ = { -1.0f, 0.0f, 0.0f };
-	}
-	if (GetProbabilities(0.25f)) {
-		aimingDirection_ = { 0.0f, 0.0f, 1.0f };
-	}
-	if (GetProbabilities(0.25f)) {
-		aimingDirection_ = { 0.0f, 0.0f, -1.0f };
+	while (aimingDirection_.Length() == 0.0f) {
+		if (GetProbabilities(0.25f)) {
+			aimingDirection_ = { 1.0f, 0.0f, 0.0f };
+		}
+		if (GetProbabilities(0.25f) && aimingDirection_.Length() == 0.0f) {
+			aimingDirection_ = { -1.0f, 0.0f, 0.0f };
+		}
+		if (GetProbabilities(0.25f) && aimingDirection_.Length() == 0.0f) {
+			aimingDirection_ = { 0.0f, 0.0f, 1.0f };
+		}
+		if (GetProbabilities(0.25f) && aimingDirection_.Length() == 0.0f) {
+			aimingDirection_ = { 0.0f, 0.0f, -1.0f };
+		}
 	}
 
 	aimingDirection_ *= 5.0f;

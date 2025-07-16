@@ -128,9 +128,9 @@ void Enemy::ChangeState(std::unique_ptr<BaseEnemyState> state) {
 	state_->Initialize();
 }
 bool Enemy::GetProbabilities(float probabilities) {
-	static std::random_device rd;
-	static std::mt19937 gen(rd());
-	static std::uniform_real_distribution<float> dist(0.0f, 1.0f);
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::uniform_real_distribution<float> dist(0.0f, 1.0f);
 
 	float randomValue = dist(gen);
 	if (randomValue <= probabilities) {

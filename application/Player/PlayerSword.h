@@ -11,7 +11,7 @@ public:
 	/// 初期化
 	/// </summary>
 	void Initialize() override;
-	void Initialize(std::string filePath, std::string palmFilePath);
+	void Initialize(std::string palmFilePath);
 
 	/// <summary>
 	/// 更新
@@ -59,7 +59,6 @@ private:
 	TimeManager* timeManager_ = nullptr;
 
 	// モデル配列データ
-	std::unique_ptr<Object3d> obj3d_;
 	std::unique_ptr<Object3d> palm_;
 	// ベースのワールド変換データ
 	WorldTransform transform_;

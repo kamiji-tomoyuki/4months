@@ -158,7 +158,7 @@ void ParticleManager::Draw() {
 			particleCommon->GetDxCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(0, particleGroup.materialResource->GetGPUVirtualAddress());
 
 			srvManager_->SetGraphicsRootDescriptorTable(1, particleGroup.instancingSRVIndex);
-			srvManager_->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance()->GetTextureIndexByFilePath(particleGroup.modelData.material.textureFilePath));
+			srvManager_->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance()->GetModelTextureIndexByFilePath(particleGroup.modelData.material.textureFilePath));
 
 			particleCommon->GetDxCommon()->GetCommandList()->DrawInstanced(UINT(particleGroup.modelData.vertices.size()), particleGroup.instanceCount, 0, 0);
 		}
@@ -555,7 +555,7 @@ void ParticleManager::CreateParticleGroup(std::string& name, const std::string& 
 	particleGroup.vertexResource->Map(0, nullptr, reinterpret_cast<void**>(&particleGroup.vertexData));
 	std::memcpy(particleGroup.vertexData, particleGroup.modelData.vertices.data(), sizeof(VertexData) * particleGroup.modelData.vertices.size());
 
-	TextureManager::GetInstance()->LoadTexture(particleGroup.modelData.material.textureFilePath);
+	TextureManager::GetInstance()->LoadModelTexture(particleGroup.modelData.material.textureFilePath);
 
 	particleGroup.instancingResource = particleCommon->GetDxCommon()->CreateBufferResource(sizeof(ParticleForGPU) * kNumMaxInstance);
 
@@ -646,7 +646,7 @@ ParticleManager::MaterialData ParticleManager::LoadMaterialTemplateFile(const st
 	}
 
 	if (materialData.textureFilePath.empty()) {
-		materialData.textureFilePath = directoryPath + "/../images/white1x1.png";
+		materialData.textureFilePath = "resources/images/white1x1.png";
 	}
 
 	return materialData;

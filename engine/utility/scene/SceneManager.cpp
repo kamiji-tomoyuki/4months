@@ -59,11 +59,6 @@ void SceneManager::Update()
 		nextScene_ = sceneFactory_->CreateScene("GAMEOVER");
 		transition_->SetFadeInStart(true);
 	}
-	if (ImGui::Button("EditorScene") && (transition_->IsEnd() && !transition_->FadeInStart())) {
-		transition_->Reset();
-		nextScene_ = sceneFactory_->CreateScene("EDITOR");
-		transition_->SetFadeInStart(true);
-	}
 	if (ImGui::Button("TutorialScene") && (transition_->IsEnd() && !transition_->FadeInStart())) {
 		transition_->Reset();
 		nextScene_ = sceneFactory_->CreateScene("TUTORIAL");
