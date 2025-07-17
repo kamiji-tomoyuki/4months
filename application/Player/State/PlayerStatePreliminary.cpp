@@ -1,18 +1,35 @@
 #include "PlayerStatePreliminary.h"
+#include <Input.h>
 #include "Player.h"
 #include "PlayerStateRoot.h"
+#include "PlayerStateAttack.h"
+#include "PlayerStateGuard.h"
+#include "PlayerAttackStateNoInput.h"
+#include "PlayerAttackStateDownSwing.h"
+#include "PlayerAttackStateThrust.h"
+#include "PlayerAttackStateLeftSlash.h"
+#include "PlayerAttackStateRightSlash.h"
+
+using namespace std::numbers;
 
 // 初期化
 void PlayerStatePreliminary::Initialize()
 {
+	// プレイヤーのデータ取得
 	WorldTransform transform = player_->GetTransform();
-	transform.UpdateMatrix();
-	player_->SetTransform(transform);
 	Player::Attack attack = player_->GetAttackData();
+
+	transform.UpdateMatrix();
 	attack.time = 0;
 	attack.swordStartTransform = player_->GetSword()->GetTranslation().z;
+	
+	// プレイヤーのデータセット
+	player_->SetTransform(transform);
 	player_->SetAttackData(attack);
 	player_->GetSword()->SetIsAttack(false);
+
+	// プレイヤーの攻撃ステートセット
+	attackState_ = std::make_unique<PlayerAttackStateNoInput>(player_);
 }
 
 // 更新
@@ -24,68 +41,92 @@ void PlayerStatePreliminary::Update()
 	player_->SetInputDirection();
 	
 	if (player_->InputDirection() == Player::Nothing) {
-		aimingDirection_ = { 0.0f, 0.0f, 0.0f };
-		behaviorRequest_ = Behavior::kRoot;
+		player_->SetAimingDirection({ 0.0f, 0.0f, 0.0f });
+		player_->ChangeState(std::make_unique<PlayerStateRoot>(player_));
 	}
 
+	// プレイヤーのデータ取得
+	PlayerSword* sword = player_->GetSword();
+	Vector3 attackDirection = player_->GetAimingDirection();
 	// 上
-	if (InputDirection() == TOP) {
+	if (player_->InputDirection() == Player::TOP) {
 		// 座標
-		sword_->SetTranslation({ attackDirection_.x, attackDirection_.y , 0.0f });
+		sword->SetTranslation({ attackDirection.x, attackDirection.y , 0.0f });
 
 		// 角度
-		sword_->SetRotation({ 0.0f, 0.0f, 0.0f });
+		sword->SetRotation({ 0.0f, 0.0f, 0.0f });
 
-		attackTypeRequest_ = AttackType::kDownSwing;
+		// プレイヤーの攻撃ステートセット
+		ChangeAttackState(std::make_unique<PlayerAttackStateDownSwing>(player_));
+		player_->SetAttackType(Player::AttackType::kDownSwing);
 	}
 	// 下
-	if (InputDirection() == DOWN) {
+	if (player_->InputDirection() == Player::DOWN) {
 		// 座標
-		sword_->SetTranslation({ 1.5f, 0.0f , -1.5f });
+		sword->SetTranslation({ 1.5f, 0.0f , -1.5f });
 
 		// 角度
 		Quaternion q = Quaternion::MakeRotateAxisAngleQuaternion({ 1.0f, 0.0f, 0.0f }, 0.5f * pi_v<float>);
-		sword_->SetRotation(q.ToEulerAngles());
+		sword->SetRotation(q.ToEulerAngles());
 
-		attackTypeRequest_ = AttackType::kThrust;
+		// プレイヤーの攻撃ステートセット
+		ChangeAttackState(std::make_unique<PlayerAttackStateThrust>(player_));
+		player_->SetAttackType(Player::AttackType::kThrust);
 	}
 	// 左
-	if (InputDirection() == LEFT) {
+	if (player_->InputDirection() == Player::LEFT) {
 		// 座標
-		sword_->SetTranslation({ attackDirection_.x, 0.0f , attackDirection_.y });
+		sword->SetTranslation({ attackDirection.x, 0.0f , attackDirection.y });
 
 		// 角度
 		Quaternion q = Quaternion::MakeRotateAxisAngleQuaternion({ 0.0f, 0.0f, 1.0f }, 0.5f * pi_v<float>);
-		sword_->SetRotation(q.ToEulerAngles());
+		sword->SetRotation(q.ToEulerAngles());
 
-		attackTypeRequest_ = AttackType::kRightSlash;
+		// プレイヤーの攻撃ステートセット
+		ChangeAttackState(std::make_unique<PlayerAttackStateRightSlash>(player_));
+		player_->SetAttackType(Player::AttackType::kRightSlash);
 	}
 	// 右
-	if (InputDirection() == RIGHT) {
+	if (player_->InputDirection() == Player::RIGHT) {
 		// 座標
-		sword_->SetTranslation({ attackDirection_.x, 0.0f , attackDirection_.y });
+		sword->SetTranslation({ attackDirection.x, 0.0f , attackDirection.y });
 
 		// 角度
 		Quaternion q = Quaternion::MakeRotateAxisAngleQuaternion({ 0.0f, 0.0f, 1.0f }, -0.5f * pi_v<float>);
-		sword_->SetRotation(q.ToEulerAngles());
+		sword->SetRotation(q.ToEulerAngles());
 
-		attackTypeRequest_ = AttackType::kLeftSlash;
+		// プレイヤーの攻撃ステートセット
+		ChangeAttackState(std::make_unique<PlayerAttackStateLeftSlash>(player_));
+		player_->SetAttackType(Player::AttackType::kLeftSlash);
 	}
 
 	// ゲームパッド入力処理
 	XINPUT_STATE joyState;
-	// 攻撃入力がされていない時
-	if (Input::GetInstance()->GetJoystickState(0, joyState) && !(joyState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER)) {
-		attack_.isAttack = false;
-	}
-	// 攻撃の処理
-	if ((Input::GetInstance()->GetJoystickState(0, joyState) && joyState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) &&
-		!attack_.isAttack) {
-		behaviorRequest_ = Behavior::kAttack;
-		aimingDirection_ = attackDirection_;
-	}
-	// 防御の処理
-	if (Input::GetInstance()->GetJoystickState(0, joyState) && joyState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) {
-		behaviorRequest_ = Behavior::kProtection;
+
+	// プレイヤーの攻撃データ取得
+	Player::Attack attack = player_->GetAttackData();
+	Vector3 aimingDirection = player_->GetAimingDirection();
+
+	if (Input::GetInstance()->GetJoystickState(0, joyState)) {
+		// 攻撃入力がされていない時
+		if (!(joyState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER)) {
+			attack.isAttack = false;
+			player_->SetAttackData(attack);
+			player_->SetAttackType(Player::AttackType::kNullType);
+		}
+		// 攻撃の処理
+		else if ((joyState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) &&
+			!attack.isAttack) {
+			aimingDirection = player_->GetAttackDirection();
+			player_->SetAimingDirection(aimingDirection);
+			player_->ChangeState(std::make_unique<PlayerStateAttack>(player_));
+		}
+		// 防御の処理
+		else if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) {
+			player_->ChangeState(std::make_unique<PlayerStateGuard>(player_));
+			// プレイヤーの攻撃ステートセット
+			attackState_ = std::make_unique<PlayerAttackStateNoInput>(player_);
+			player_->SetAttackType(Player::AttackType::kNullType);
+		}
 	}
 }

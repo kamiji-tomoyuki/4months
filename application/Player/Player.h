@@ -5,7 +5,6 @@
 #include "WorldTransform.h"
 #include "ViewProjection.h"
 #include "BaseObject.h"
-#include "optional"
 #include "PlayerBaseState.h"
 #include "PlayerSword.h"
 #include "TimeManager.h"
@@ -18,13 +17,6 @@ class LockOn;
 /// </summary>
 class Player :public BaseObject {
 public:
-	enum class Behavior {
-		kRoot,			// 通常状態
-		kDash,			// ダッシュ中
-		kPreliminary,	// 攻撃の予備動作
-		kAttack,		// 攻撃中
-		kProtection,	// 防御中
-	};
 	enum class AttackType {
 		kDownSwing,		// 振り下ろし(上入力攻撃)
 		kThrust,		// 突き(下入力攻撃)
@@ -149,23 +141,30 @@ public:	// getter
 	Defence GetDefenceData() { return defence_; }
 	WorkDash GetWorkDashData() { return workDash_; }
 
+	// タイムマネージャを取得
+	TimeManager* GetTimeManager() { return timeManager_; }
+
 	// 狙う方向
 	Vector3 GetAttackDirection();
 	Vector3 GetAimingDirection() { return aimingDirection_; }
 
 	// IDを取得
 	int GetID() { return id_; }
-	// HPの取得
+	// HPを取得
 	int GetHP() { return hp_; }
-	// クリアフラグの取得
+	// 加速度を取得
+	float GetAcceleration() { return kAcceleration_; }
+	// 減衰速度を取得
+	float GetAttenuation() { return kAttenuation_; }
+	// 移動速度を取得
+	float GetLimitRunSpeed() { return kLimitRunSpeed_; }
+	// クリアフラグを取得
 	bool IsClear() { return isClear_; }
-	// ゲームオーバーフラグの取得
+	// ゲームオーバーフラグを取得
 	bool IsGameOver() { return isGameOver_; }
 	
 	// プレイヤーの剣を取得
 	PlayerSword* GetSword() { return sword_.get(); }
-
-	Behavior GetBehavior() { return behavior_; }
 
 	AttackType GetAttackType() { return attackType_; }
 
@@ -177,7 +176,7 @@ public:	// setter
 		transform_.translation_ = position;
 		transform_.UpdateMatrix();
 	}
-	// 大きさセット
+	// 大きさをセット
 	void SetScale(const Vector3& scale) {
 		size_ = (scale.x + scale.y + scale.z) / 3.0f;
 		transform_.scale_ = scale;  // **スケールを適用**
@@ -186,31 +185,41 @@ public:	// setter
 	void VectorRotation(const Vector3& direction);
 	// 速度をセット
 	void SetVelocity(Vector3 velocity) { velocity_ = velocity; }
-	// 各動作に必要なデータセット
+	// 各動作に必要なデータをセット
 	void SetRootData(const Root& root) { root_ = root; }
 	void SetAttackData(const Attack& attack) { attack_ = attack; }
 	void SetDefenceData(const Defence& defence) { defence_ = defence; }
 	void SetWorkDashData(const WorkDash& workDash) { workDash_ = workDash; }
 
+	// 狙う方向をセット
+	void SetAttackDirection(const Vector3& direction) { attackDirection_ = direction; }
+	void SetAimingDirection(const Vector3& direction) { aimingDirection_ = direction; }
+
 	// ロックオンをセット
 	void SetLockOn(LockOn* lockOn) { lockOn_ = lockOn; }
-	// タイムマネージャのセット
+	// タイムマネージャをセット
 	void SetTimeManager(TimeManager* timeManager) { timeManager_ = timeManager; }
-	// フォローカメラのセット
+	// フォローカメラをセット
 	void SetFollowCamera(FollowCamera* followCamera) { followCamera_ = followCamera; }
-	// ビュープロジェクションのセット
+	// ビュープロジェクションをセット
 	void SetViewProjection(const ViewProjection* viewProjection) { viewProjection_ = viewProjection; }
 	
-	// IDのセット
+	// IDをセット
 	static void SetPlayerID(int ID) { playerID_ = ID; }
-	// HPのセット
+	// HPをセット
 	void SetHP(int hp) { hp_ = hp; }
-	// 生存フラグのセット
+	// 加速度をセット
+	void SetAcceleration(float acceleration) { kAcceleration_ = acceleration; }
+	// 減衰速度をセット
+	void SetAttenuation(float attenuation) { kAttenuation_ = attenuation; }
+	// 移動速度をセット
+	void SetLimitRunSpeed(float limitRunSpeed) { kLimitRunSpeed_ = limitRunSpeed; }
+	// 生存フラグをセット
 	void SetIsAlive(bool flag) { isAlive_ = flag; }
-	// ゲームオーバーフラグセット
+	// ゲームオーバーフラグをセット
 	void SetGameOver(bool gameOver) { isGameOver_ = gameOver; }
 
-	void SetBehavior(Behavior newBehavior);
+	void SetAttackType(AttackType type) { attackType_ = type; }
 
 private:	// メンバ関数
 	// 攻撃方向入力されたか
@@ -221,49 +230,6 @@ private:	// メンバ関数
 
 	// 調整項目の適用
 	void ApplyGlobalVariables();
-
-public:	// 動作パターン
-
-	// 通常動作
-	void BehaviorRootInitialize();
-	void BehaviorRootUpdate();
-
-	// ダッシュ動作
-	void BehaviorDashInitialize();
-	void BehaviorDashUpdate();
-
-	// 攻撃の構えの動作
-	void BehaviorPostureAttackInitialize();
-	void BehaviorPostureAttackUpdate();
-
-	// 攻撃動作
-	void BehaviorAttackInitialize();
-	void BehaviorAttackUpdate();
-
-	// 防御動作
-	void BehaviorProtectionInitialize();
-	void BehaviorProtectionUpdate();
-
-private:	// 攻撃方向タイプ
-	// 振り下ろし(上入力攻撃)
-	void AttackTypeDownSwingInitialize();
-	void AttackTypeDownSwingUpdate();
-
-	// 突き(下入力攻撃)
-	void AttackTypeThrustInitialize();
-	void AttackTypeThrustUpdate();
-	
-	// 右振り抜き(左入力攻撃)
-	void AttackTypeLeftSwingInitialize();
-	void AttackTypeLeftSwingUpdate();
-	
-	// 左振り抜き(右入力攻撃)
-	void AttackTypeRightSwingInitialize();
-	void AttackTypeRightSwingUpdate();
-
-	// 未入力
-	void AttackTypeNullInitialize();
-	void AttackTypeNullUpdate();
 
 private:	// メンバ変数
 	std::unique_ptr<Object3d> model_;
@@ -281,18 +247,7 @@ private:	// メンバ変数
 	// パーティクルエミッタ
 	std::vector<std::unique_ptr<ParticleEmitter>> emitters_;
 
-	// 動作パターン
-	Behavior behavior_ = Behavior::kRoot;
-	static void(Player::* BehaviorInitFuncTable[])();
-	static void(Player::* BehaviorUpdateFuncTable[])();
-	// 動作パターンのリクエスト
-	std::optional<Behavior> behaviorRequest_ = std::nullopt;
-	// 攻撃方向タイプ
 	AttackType attackType_ = AttackType::kNullType;
-	static void(Player::* AttackTypeInitFuncTable[])();
-	static void(Player::* AttackTypeUpdateFuncTable[])();
-	// 攻撃方向タイプのリクエスト
-	std::optional<AttackType> attackTypeRequest_ = std::nullopt;
 
 	// ステータス
 	int kHp_ = 10000;
@@ -330,5 +285,4 @@ private:	// メンバ変数
 	// シリアルナンバー
 	static inline int playerID_ = 0;
 	int id_ = 0;
-
 };

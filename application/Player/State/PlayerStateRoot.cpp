@@ -3,6 +3,7 @@
 #include "PlayerStateDash.h"
 #include "PlayerStatePreliminary.h"
 #include <Input.h>
+#include "PlayerAttackStateNoInput.h"
 
 // 初期化
 void PlayerStateRoot::Initialize()
@@ -14,6 +15,10 @@ void PlayerStateRoot::Initialize()
 	player_->GetSword()->SetRotation(Vector3(0.0f, 0.0f, 0.0f));
 	player_->GetSword()->SetTranslation(Vector3(1.5f, 0.0f, 0.0f));
 	player_->GetSword()->ContactRecordClear();
+
+	// プレイヤーの攻撃ステートセット
+	attackState_ = std::make_unique<PlayerAttackStateNoInput>(player_);
+	player_->SetAttackType(Player::AttackType::kNullType);
 }
 
 // 更新
