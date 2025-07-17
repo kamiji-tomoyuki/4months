@@ -68,11 +68,8 @@ void Player::Init() {
 	globalVariables->AddItem(groupName, "kAcceleration", kAcceleration_);
 	globalVariables->AddItem(groupName, "kAttenuation", kAttenuation_);
 	globalVariables->AddItem(groupName, "kLimitRunSpeed", kLimitRunSpeed_);
-	//globalVariables->AddItem(groupName, "attackVelocity_", attackVelocity_);
 	globalVariables->AddItem(groupName, "size", size_);
 	globalVariables->AddItem(groupName, "kHp_", kHp_);
-	//globalVariables->AddItem(groupName, "attackPower_", attackPower_);
-	//globalVariables->AddItem(groupName, "powerMagnification_", powerMagnification_);
 	ApplyGlobalVariables();
 
 	hp_ = kHp_;
@@ -181,9 +178,6 @@ void Player::OnCollision([[maybe_unused]] Collider* other) {
 		Vector3 correction = Vector3(GetCenterPosition() - enemy->GetCenterPosition()).Normalize() * (GetRadius() + enemy->GetRadius() - distance) * 0.750f;
 		transform_.translation_ += correction;
 		enemy->SetTranslation(enemy->GetTransform().translation_ - correction);
-
-		//timeManager_->SetTimer("collision", timeManager_->deltaTime_ * 3.0f);
-
 	}
 
 	transform_.UpdateMatrix();
@@ -212,30 +206,8 @@ void Player::ImGui()
 		ImGui::Text("velocity_:");
 		ImGui::DragFloat3("velocity_", &velocity_.x, 0.1f);
 
-		//ImGui::Text("Scale:");
-		//ImGui::DragFloat3("Scale", &transform_.scale_.x, 0.1f);
-
-		//ImGui::Text("velocityLength:");
-		//velocityLength = velocity_.Length();
-		//ImGui::DragFloat("velocityLength", &velocityLength);
-
-		//ImGui::Text("velocityLengthW:");
-		//velocityLengthW = (attackPower_ + velocity_.Length() * powerMagnification_);
-		//ImGui::DragFloat("velocityLengthW", &velocityLengthW);
-
 		ImGui::Text("HP:");
 		ImGui::DragInt("HP", &hp_);
-		XINPUT_STATE joyState;
-		if (/*Input::GetInstance()->GetJoystickState(0, joyState) && joyState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER*/
-			Input::GetInstance()->GetJoystickState(0, joyState) && joyState.Gamepad.bRightTrigger/* & XINPUT_GAMEPAD_RIGHT_SHOULDER*/) {
-			ImGui::Text("RB:true");
-			ImGui::Text("RStick:(%4.2f, %4.2f)", aimingDirection_.x, aimingDirection_.y);
-			float cosTheta = atan2f(aimingDirection_.y, aimingDirection_.x);
-			ImGui::Text("cosTheta:(%4.2f)", cosTheta);
-		}
-		else {
-			ImGui::Text("RB:false");
-		}
 		ImGui::PopID();
 		ImGui::End();
 	}
@@ -381,6 +353,8 @@ void Player::SetInputDirection()
 #endif // _DEBUG
 
 	attackDirection_ *= 5.0f;
+
+	SetAimingDirection(attackDirection_);
 }
 
 // ステートチェンジ
@@ -405,6 +379,8 @@ bool Player::IsDashInput()
 // 予備動作入力
 bool Player::IsPreliminaryInput()
 {
+	SetInputDirection();
+
 	XINPUT_STATE joyState;
 	if (Input::GetInstance()->GetJoystickState(0, joyState) && IsAttackDirectionInput()) {
 		return true;
@@ -543,7 +519,6 @@ void Player::ApplyGlobalVariables() {
 	kAcceleration_ = globalVariables->GetFloatValue(groupName, "kAcceleration");
 	kAttenuation_ = globalVariables->GetFloatValue(groupName, "kAttenuation");
 	kLimitRunSpeed_ = globalVariables->GetFloatValue(groupName, "kLimitRunSpeed");
-	//attackVelocity_ = globalVariables->GetVector3Value(groupName, "attackVelocity_");
 	size_ = globalVariables->GetFloatValue(groupName, "size");
 	kHp_ = globalVariables->GetIntValue(groupName, "kHp_");
 }

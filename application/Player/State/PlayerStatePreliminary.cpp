@@ -5,10 +5,6 @@
 #include "PlayerStateAttack.h"
 #include "PlayerStateGuard.h"
 #include "PlayerAttackStateNoInput.h"
-#include "PlayerAttackStateDownSwing.h"
-#include "PlayerAttackStateThrust.h"
-#include "PlayerAttackStateLeftSlash.h"
-#include "PlayerAttackStateRightSlash.h"
 
 using namespace std::numbers;
 
@@ -43,6 +39,7 @@ void PlayerStatePreliminary::Update()
 	if (player_->InputDirection() == Player::Nothing) {
 		player_->SetAimingDirection({ 0.0f, 0.0f, 0.0f });
 		player_->ChangeState(std::make_unique<PlayerStateRoot>(player_));
+		return;
 	}
 
 	// プレイヤーのデータ取得
@@ -57,7 +54,6 @@ void PlayerStatePreliminary::Update()
 		sword->SetRotation({ 0.0f, 0.0f, 0.0f });
 
 		// プレイヤーの攻撃ステートセット
-		ChangeAttackState(std::make_unique<PlayerAttackStateDownSwing>(player_));
 		player_->SetAttackType(Player::AttackType::kDownSwing);
 	}
 	// 下
@@ -70,7 +66,6 @@ void PlayerStatePreliminary::Update()
 		sword->SetRotation(q.ToEulerAngles());
 
 		// プレイヤーの攻撃ステートセット
-		ChangeAttackState(std::make_unique<PlayerAttackStateThrust>(player_));
 		player_->SetAttackType(Player::AttackType::kThrust);
 	}
 	// 左
@@ -83,7 +78,6 @@ void PlayerStatePreliminary::Update()
 		sword->SetRotation(q.ToEulerAngles());
 
 		// プレイヤーの攻撃ステートセット
-		ChangeAttackState(std::make_unique<PlayerAttackStateRightSlash>(player_));
 		player_->SetAttackType(Player::AttackType::kRightSlash);
 	}
 	// 右
@@ -96,7 +90,6 @@ void PlayerStatePreliminary::Update()
 		sword->SetRotation(q.ToEulerAngles());
 
 		// プレイヤーの攻撃ステートセット
-		ChangeAttackState(std::make_unique<PlayerAttackStateLeftSlash>(player_));
 		player_->SetAttackType(Player::AttackType::kLeftSlash);
 	}
 
@@ -120,13 +113,16 @@ void PlayerStatePreliminary::Update()
 			aimingDirection = player_->GetAttackDirection();
 			player_->SetAimingDirection(aimingDirection);
 			player_->ChangeState(std::make_unique<PlayerStateAttack>(player_));
+			return;
 		}
 		// 防御の処理
 		else if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) {
-			player_->ChangeState(std::make_unique<PlayerStateGuard>(player_));
 			// プレイヤーの攻撃ステートセット
 			attackState_ = std::make_unique<PlayerAttackStateNoInput>(player_);
 			player_->SetAttackType(Player::AttackType::kNullType);
+			// プレイヤーの防御ステートセット
+			player_->ChangeState(std::make_unique<PlayerStateGuard>(player_));
+			return;
 		}
 	}
 }

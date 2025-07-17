@@ -38,9 +38,6 @@ void PlayerStateDash::Update()
 	float armTheta{};
 	
 	workDash.DashTime_ += timeManager->deltaTime_;
-	if (workDash.DashTime_ / workDash.kDashTime_ >= 1.0f) {
-		player_->ChangeState(std::make_unique<PlayerStateRoot>(player_));
-	}
 	move.z = EaseOutExpo(startSpeed, endSpeed, workDash.DashTime_, workDash.kDashTime_);
 	
 	Matrix4x4 rotateMatrix = MakeRotateYMatrix(transform.rotation_.y);
@@ -52,4 +49,9 @@ void PlayerStateDash::Update()
 	// プレイヤーデータセット
 	player_->SetWorkDashData(workDash);
 	player_->SetTransform(transform);
+
+	if (workDash.DashTime_ / workDash.kDashTime_ >= 1.0f) {
+		player_->ChangeState(std::make_unique<PlayerStateRoot>(player_));
+		return;
+	}
 }

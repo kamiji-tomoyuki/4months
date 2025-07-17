@@ -24,6 +24,9 @@ void PlayerStateRoot::Initialize()
 // 更新
 void PlayerStateRoot::Update()
 {
+	// 移動処理
+	player_->Move();
+
 	// 入力処理
 	// 攻撃入力がされていない時
 	if (!player_->IsAttackInput()) {
@@ -39,10 +42,8 @@ void PlayerStateRoot::Update()
 	// 予備動作入力判定
 	if (player_->IsPreliminaryInput()) {
 		player_->ChangeState(std::make_unique <PlayerStatePreliminary>(player_));
+		return;
 	}
-
-	// 移動処理
-	player_->Move();
 
 #ifdef _DEBUG
 	// 攻撃入力がされていない時
@@ -62,6 +63,7 @@ void PlayerStateRoot::Update()
 		Input::GetInstance()->TriggerKey(DIK_LEFT) ||
 		Input::GetInstance()->TriggerKey(DIK_RIGHT)) {
 		player_->ChangeState(std::make_unique<PlayerStatePreliminary>(player_));
+		return;
 	}
 #endif // _DEBUG
 }

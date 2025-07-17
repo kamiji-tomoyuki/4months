@@ -41,6 +41,7 @@ void PlayerStateGuard::Update()
 	float cosTheta = atan2f(player_->GetAimingDirection().y, player_->GetAimingDirection().x);
 	if (player_->InputDirection() == Player::Nothing) {
 		player_->ChangeState(std::make_unique<PlayerStateRoot>(player_));
+		return;
 	}
 
 	// 上
@@ -76,5 +77,6 @@ void PlayerStateGuard::Update()
 	// 防御解除の処理
 	if (Input::GetInstance()->GetJoystickState(0, joyState) && !(joyState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER)) {
 		player_->ChangeState(std::make_unique<PlayerStateRoot>(player_));
+		return;
 	}
 }
