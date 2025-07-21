@@ -116,10 +116,7 @@ void PlayerStatePreliminary::Update()
 			return;
 		}
 		// 防御の処理
-		else if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) {
-			// プレイヤーの攻撃ステートセット
-			attackState_ = std::make_unique<PlayerAttackStateNoInput>(player_);
-			player_->SetAttackType(Player::AttackType::kNullType);
+		if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) {
 			// プレイヤーの防御ステートセット
 			player_->ChangeState(std::make_unique<PlayerStateGuard>(player_));
 			return;

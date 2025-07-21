@@ -18,8 +18,8 @@ void PlayerStateDash::Initialize()
 	player_->SetWorkDashData(workDash);
 
 	// プレイヤーの攻撃ステートセット
-	attackState_ = std::make_unique<PlayerAttackStateNoInput>(player_);
 	player_->SetAttackType(Player::AttackType::kNullType);
+	attackState_ = std::make_unique<PlayerAttackStateNoInput>(player_);
 }
 
 // 更新

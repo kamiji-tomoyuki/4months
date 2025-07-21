@@ -145,7 +145,7 @@ public:	// getter
 	TimeManager* GetTimeManager() { return timeManager_; }
 
 	// 狙う方向
-	Vector3 GetAttackDirection();
+	Vector3 GetAttackDirection() { return aimingDirection_; }
 	Vector3 GetAimingDirection() { return aimingDirection_; }
 
 	// IDを取得

@@ -17,7 +17,7 @@ void PlayerStateAttack::Initialize()
 
 	transform.UpdateMatrix();
 	attack.time = 0;
-	attack.swordStartTransform = player_->GetSword()->GetTranslation().z;
+	attack.swordStartTransform = player_->GetSword()->GetTranslation();
 	
 	// プレイヤーのデータセット
 	player_->SetTransform(transform);
@@ -36,6 +36,7 @@ void PlayerStateAttack::Initialize()
 	} else {
 		attackState_ = std::make_unique<PlayerAttackStateNoInput>(player_);
 	}
+	attackState_->Initialize();
 }
 
 // 更新

@@ -463,14 +463,6 @@ Vector2 Player::InputDirectionGampad()
 	return { input.x, input.y };
 }
 
-Vector3 Player::GetAttackDirection()
-{
-	if (lockOn_) {
-		return lockOn_->GetTargetPosition() - transform_.translation_;
-	}
-	return aimingDirection_;
-}
-
 /// -------------getter-------------
 
 /// -------------setter-------------
