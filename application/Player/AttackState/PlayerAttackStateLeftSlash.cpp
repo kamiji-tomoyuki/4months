@@ -32,14 +32,14 @@ void PlayerAttackStateLeftSlash::Update()
 	Vector3 newPos = 0.0f;
 	float theta = float(pi_v<float> *(attack.time / attack.kLimitTime));
 
-	newPos = { attack.swordStartTransform.x * cosf(-theta) - attack.swordStartTransform.z * sinf(-theta), attack.swordStartTransform.y, attack.swordStartTransform.x * sinf(-theta) + attack.swordStartTransform.z * cosf(-theta) };
+	newPos = { attack.swordStartTransform.x * cosf(theta) + attack.swordStartTransform.z * sinf(theta), attack.swordStartTransform.y, attack.swordStartTransform.x * sinf(theta) - attack.swordStartTransform.z * cosf(theta) };
 
 	sword->SetTranslation(newPos);
 
 	// 角度の計算
-	Quaternion q1 = Quaternion::MakeRotateAxisAngleQuaternion({ 0.0f, 0.0f, 1.0f }, pi_v<float> *0.5f);
-	Quaternion q2 = Quaternion::MakeRotateAxisAngleQuaternion({ 1.0f, 0.0f, 0.0f }, 0.0f);
-	Quaternion q3 = Quaternion::MakeRotateAxisAngleQuaternion({ 1.0f, 0.0f, 0.0f }, -pi_v<float>);
+	Quaternion q1 = Quaternion::MakeRotateAxisAngleQuaternion({ 0.0f, 0.0f, 1.0f }, pi_v<float> * 0.5f);
+	Quaternion q2 = Quaternion::MakeRotateAxisAngleQuaternion({ 1.0f, 0.0f, 0.0f }, -pi_v<float>);
+	Quaternion q3 = Quaternion::MakeRotateAxisAngleQuaternion({ 1.0f, 0.0f, 0.0f }, 0.0f);
 	Quaternion q4 = Quaternion::Sleap(q1 * q2, q1 * q3, attack.time / attack.kLimitTime);
 	
 	sword->SetRotation(q4.ToEulerAngles());
