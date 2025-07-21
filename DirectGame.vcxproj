@@ -65,7 +65,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)application\;$(ProjectDir)application\Base;$(ProjectDir)application\Enemy\Boss;$(ProjectDir)application\Enemy\Soldier;$(ProjectDir)application\Enemy;$(ProjectDir)application\Player;$(ProjectDir)engine\2d;$(ProjectDir)engine\3d;$(ProjectDir)engine\3d\light;$(ProjectDir)engine\3d\particle;$(ProjectDir)engine\3d\model;$(ProjectDir)engine\3d\transform;$(ProjectDir)engine\3d\camera;$(ProjectDir)engine\base;$(ProjectDir)engine\input;$(ProjectDir)engine\utility;$(ProjectDir)engine\utility\graphics;$(ProjectDir)engine\utility\debug;$(ProjectDir)engine\utility\string;$(ProjectDir)scene;$(ProjectDir)engine\core;$(ProjectDir)engine\utility\edit;$(ProjectDir)engine\utility\collider;$(ProjectDir)engine\utility\scene;$(ProjectDir)particle;$(ProjectDir)engine\math;$(ProjectDir)externals\assimp\include;$(ProjectDir)engine\Frame;$(ProjectDir)engine\Audio;$(ProjectDir)externals\imgui;$(ProjectDir)externals\DirectXTex;$(ProjectDir)application\Scene;$(ProjectDir)application\Stage;$(ProjectDir)application\Scene\Base;$(ProjectDir)application\Scene\Game;$(ProjectDir)application\Scene\GameClear;$(ProjectDir)application\Scene\GameOver;$(ProjectDir)application\Scene\Title;$(ProjectDir)application\Scene\Tutorial;$(ProjectDir)application\UI</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)application\;$(ProjectDir)application\Base;$(ProjectDir)application\Enemy\Boss;$(ProjectDir)application\Enemy\Soldier;$(ProjectDir)application\Enemy;$(ProjectDir)application\Player;$(ProjectDir)engine\2d;$(ProjectDir)engine\3d;$(ProjectDir)engine\3d\light;$(ProjectDir)engine\3d\particle;$(ProjectDir)engine\3d\model;$(ProjectDir)engine\3d\transform;$(ProjectDir)engine\3d\camera;$(ProjectDir)engine\base;$(ProjectDir)engine\input;$(ProjectDir)engine\utility;$(ProjectDir)engine\utility\graphics;$(ProjectDir)engine\utility\debug;$(ProjectDir)engine\utility\string;$(ProjectDir)scene;$(ProjectDir)engine\core;$(ProjectDir)engine\utility\edit;$(ProjectDir)engine\utility\collider;$(ProjectDir)engine\utility\scene;$(ProjectDir)particle;$(ProjectDir)engine\math;$(ProjectDir)externals\assimp\include;$(ProjectDir)engine\Frame;$(ProjectDir)engine\Audio;$(ProjectDir)externals\imgui;$(ProjectDir)externals\DirectXTex;$(ProjectDir)application\Scene;$(ProjectDir)application\Stage;$(ProjectDir)application\Scene\Base;$(ProjectDir)application\Scene\Game;$(ProjectDir)application\Scene\GameClear;$(ProjectDir)application\Scene\GameOver;$(ProjectDir)application\Scene\Title;$(ProjectDir)application\Scene\Tutorial;$(ProjectDir)application\UI;$(ProjectDir)application\Player\State;$(ProjectDir)application\Player\AttackState</AdditionalIncludeDirectories>
       <Optimization>Custom</Optimization>
     </ClCompile>
     <Link>
@@ -92,7 +92,7 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
       <AdditionalOptions>/utf-8</AdditionalOptions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)application\;$(ProjectDir)application\Base;$(ProjectDir)application\Enemy\Boss;$(ProjectDir)application\Enemy\Soldier;$(ProjectDir)application\Enemy;$(ProjectDir)application\Player;$(ProjectDir)engine\2d;$(ProjectDir)engine\3d;$(ProjectDir)engine\3d\light;$(ProjectDir)engine\3d\particle;$(ProjectDir)engine\3d\model;$(ProjectDir)engine\3d\transform;$(ProjectDir)engine\3d\camera;$(ProjectDir)engine\base;$(ProjectDir)engine\input;$(ProjectDir)engine\utility;$(ProjectDir)engine\utility\graphics;$(ProjectDir)engine\utility\debug;$(ProjectDir)engine\utility\string;$(ProjectDir)scene;$(ProjectDir)engine\core;$(ProjectDir)engine\utility\edit;$(ProjectDir)engine\utility\collider;$(ProjectDir)engine\utility\scene;$(ProjectDir)particle;$(ProjectDir)engine\math;$(ProjectDir)externals\assimp\include;$(ProjectDir)engine\Frame;$(ProjectDir)engine\Audio;$(ProjectDir)externals\imgui;$(ProjectDir)externals\DirectXTex;$(ProjectDir)application\Scene;$(ProjectDir)application\Stage;$(ProjectDir)application\Scene\Base;$(ProjectDir)application\Scene\Game;$(ProjectDir)application\Scene\GameClear;$(ProjectDir)application\Scene\GameOver;$(ProjectDir)application\Scene\Title;$(ProjectDir)application\Scene\Tutorial;$(ProjectDir)application\UI</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)application\;$(ProjectDir)application\Base;$(ProjectDir)application\Enemy\Boss;$(ProjectDir)application\Enemy\Soldier;$(ProjectDir)application\Enemy;$(ProjectDir)application\Player;$(ProjectDir)engine\2d;$(ProjectDir)engine\3d;$(ProjectDir)engine\3d\light;$(ProjectDir)engine\3d\particle;$(ProjectDir)engine\3d\model;$(ProjectDir)engine\3d\transform;$(ProjectDir)engine\3d\camera;$(ProjectDir)engine\base;$(ProjectDir)engine\input;$(ProjectDir)engine\utility;$(ProjectDir)engine\utility\graphics;$(ProjectDir)engine\utility\debug;$(ProjectDir)engine\utility\string;$(ProjectDir)scene;$(ProjectDir)engine\core;$(ProjectDir)engine\utility\edit;$(ProjectDir)engine\utility\collider;$(ProjectDir)engine\utility\scene;$(ProjectDir)particle;$(ProjectDir)engine\math;$(ProjectDir)externals\assimp\include;$(ProjectDir)engine\Frame;$(ProjectDir)engine\Audio;$(ProjectDir)externals\imgui;$(ProjectDir)externals\DirectXTex;$(ProjectDir)application\Scene;$(ProjectDir)application\Stage;$(ProjectDir)application\Scene\Base;$(ProjectDir)application\Scene\Game;$(ProjectDir)application\Scene\GameClear;$(ProjectDir)application\Scene\GameOver;$(ProjectDir)application\Scene\Title;$(ProjectDir)application\Scene\Tutorial;$(ProjectDir)application\UI;$(ProjectDir)application\Player\State;$(ProjectDir)application\Player\AttackState</AdditionalIncludeDirectories>
       <Optimization>MinSpace</Optimization>
     </ClCompile>
     <Link>
@@ -110,6 +110,17 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="application\Enemy\EnemyManager.cpp" />
+    <ClCompile Include="application\Player\AttackState\PlayerAttackBaseState.cpp" />
+    <ClCompile Include="application\Player\AttackState\PlayerAttackStateLeftSlash.cpp" />
+    <ClCompile Include="application\Player\AttackState\PlayerAttackStateDownSwing.cpp" />
+    <ClCompile Include="application\Player\AttackState\PlayerAttackStateNoInput.cpp" />
+    <ClCompile Include="application\Player\AttackState\PlayerAttackStateRightSlash.cpp" />
+    <ClCompile Include="application\Player\AttackState\PlayerAttackStateThrust.cpp" />
+    <ClCompile Include="application\Player\State\PlayerBaseState.cpp" />
+    <ClCompile Include="application\Player\State\PlayerStateAttack.cpp" />
+    <ClCompile Include="application\Player\State\PlayerStateGuard.cpp" />
+    <ClCompile Include="application\Player\State\PlayerStatePreliminary.cpp" />
+    <ClCompile Include="application\Player\State\PlayerStateRoot.cpp" />
     <ClCompile Include="application\Stage\Coliseum.cpp" />
     <ClCompile Include="application\Player\ContactRecord.cpp" />
     <ClCompile Include="application\Enemy\BaseEnemyState.cpp" />
@@ -208,6 +219,7 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="application\Scene\Tutorial\TutorialUI.cpp" />
     <ClCompile Include="application\Scene\Tutorial\TutorialEvent.cpp" />
     <ClCompile Include="application\Scene\Title\TitleGround.cpp" />
+    <ClCompile Include="application\Player\State\PlayerStateDash.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
@@ -234,6 +246,18 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application\Enemy\EnemyManager.h" />
+    <ClInclude Include="application\Player\AttackState\PlayerAttackBaseState.h" />
+    <ClInclude Include="application\Player\AttackState\PlayerAttackStateLeftSlash.h" />
+    <ClInclude Include="application\Player\AttackState\PlayerAttackStateDownSwing.h" />
+    <ClInclude Include="application\Player\AttackState\PlayerAttackStateNoInput.h" />
+    <ClInclude Include="application\Player\AttackState\PlayerAttackStateRightSlash.h" />
+    <ClInclude Include="application\Player\AttackState\PlayerAttackStateThrust.h" />
+    <ClInclude Include="application\Player\State\PlayerBaseState.h" />
+    <ClInclude Include="application\Player\State\PlayerStateAttack.h" />
+    <ClInclude Include="application\Player\State\PlayerStateDash.h" />
+    <ClInclude Include="application\Player\State\PlayerStateGuard.h" />
+    <ClInclude Include="application\Player\State\PlayerStatePreliminary.h" />
+    <ClInclude Include="application\Player\State\PlayerStateRoot.h" />
     <ClInclude Include="application\Stage\Coliseum.h" />
     <ClInclude Include="application\UI\HpBar.h" />
     <ClInclude Include="application\UI\UIManager.h" />

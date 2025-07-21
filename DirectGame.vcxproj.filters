@@ -848,6 +848,12 @@
     <Filter Include="application\UI">
       <UniqueIdentifier>{5c8b8de1-ac1b-456d-8917-f76fc45ec4e8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="application\Player\State">
+      <UniqueIdentifier>{dfe8a439-ea97-4ad1-ae50-b9d5c34a59e2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="application\Player\AttackState">
+      <UniqueIdentifier>{b6c7cf0a-f74b-4a44-971c-2b502ada7b6e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt">

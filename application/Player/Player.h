@@ -5,7 +5,7 @@
 #include "WorldTransform.h"
 #include "ViewProjection.h"
 #include "BaseObject.h"
-#include "optional"
+#include "PlayerBaseState.h"
 #include "PlayerSword.h"
 #include "TimeManager.h"
 #include "ParticleEmitter.h"
@@ -17,14 +17,6 @@ class LockOn;
 /// </summary>
 class Player :public BaseObject {
 public:
-	enum class Behavior {
-		kRoot,			// 通常状態
-		kDash,			// ダッシュ中
-		kPreliminary,	// 攻撃の予備動作
-		kAttack,		// 攻撃中
-		kProtection,	// 防御中
-		kCelebrate,		// 喜び動作
-	};
 	enum class AttackType {
 		kDownSwing,		// 振り下ろし(上入力攻撃)
 		kThrust,		// 突き(下入力攻撃)
@@ -101,73 +93,11 @@ public:
 	/// <param name="other"></param>
 	void OnCollisionOut([[maybe_unused]] Collider* other) override;
 
+#ifdef _DEBUG
 	// ImGui
 	void ImGui();
+#endif // _DEBUG
 
-	// 向きをセット
-	void VectorRotation(const Vector3& direction);
-	// 方向を取得
-	Vector2 InputDirectionGampad();
-
-	// 中心座標を取得
-	Vector3 GetCenterPosition() const override;
-	Vector3 GetCenterRotation() const override;
-private:	// 動作パターン
-	// 浮遊動作(無入力)
-	void InitializeFloatingGimmick();
-	void UpdateFloatingGimmick();
-
-	// 通常動作
-	void BehaviorRootInitialize();
-	void BehaviorRootUpdate();
-
-	// ダッシュ動作
-	void BehaviorDashInitialize();
-	void BehaviorDashUpdate();
-
-	// 攻撃の構えの動作
-	void BehaviorPostureAttackInitialize();
-	void BehaviorPostureAttackUpdate();
-
-	// 攻撃動作
-	void BehaviorAttackInitialize();
-	void BehaviorAttackUpdate();
-
-	// 防御動作
-	void BehaviorProtectionInitialize();
-	void BehaviorProtectionUpdate();
-
-	// 勝利(喜ぶ)動作
-	void BehaviorCelebrateInitialize();
-	void BehaviorCelebrateUpdate();
-
-	// 調整項目の適用
-	void ApplyGlobalVariables();
-
-	
-
-private:	// 攻撃方向タイプ
-	// 振り下ろし(上入力攻撃)
-	void AttackTypeDownSwingInitialize();
-	void AttackTypeDownSwingUpdate();
-
-	// 突き(下入力攻撃)
-	void AttackTypeThrustInitialize();
-	void AttackTypeThrustUpdate();
-	
-	// 右振り抜き(左入力攻撃)
-	void AttackTypeLeftSwingInitialize();
-	void AttackTypeLeftSwingUpdate();
-	
-	// 左振り抜き(右入力攻撃)
-	void AttackTypeRightSwingInitialize();
-	void AttackTypeRightSwingUpdate();
-
-	// 未入力
-	void AttackTypeNullInitialize();
-	void AttackTypeNullUpdate();
-
-private:	// メンバ関数
 	// 移動
 	void Move();
 
@@ -177,67 +107,174 @@ private:	// メンバ関数
 
 	// 入力方向の設定
 	void SetInputDirection();
+
+	// ステートチェンジ
+	void ChangeState(std::unique_ptr<PlayerBaseState> state);
+	// ステート関係の入力
+	bool IsDashInput();			// ダッシュ
+	bool IsPreliminaryInput();	// 予備動作
+	bool IsAttackInput();		// 攻撃
+	bool IsGuard();				// 防御
+
+	// 浮遊動作(無入力)
+	void InitializeFloatingGimmick();
+	void UpdateFloatingGimmick();
+
+public:	// getter
+	// 中心座標を取得
+	Vector3 GetCenterPosition() const override;
+	// 中心回転を取得
+	Vector3 GetCenterRotation() const override;
+	// ワールド座標を取得
+	Vector3 GetWorldPosition();
+	// 回転を取得
+	Vector3 GetRotation() { return transform_.rotation_; }
+	// サイズを取得
+	Vector3 GetScale() { return Vector3(size_, size_, size_); }
+	// 方向を取得
+	Vector2 InputDirectionGampad();
+	// 速度を取得
+	Vector3 GetVelocity() { return velocity_; }
+	// 各動作に必要なデータを取得
+	Root GetRootData() { return root_; }
+	Attack GetAttackData() { return attack_; }
+	Defence GetDefenceData() { return defence_; }
+	WorkDash GetWorkDashData() { return workDash_; }
+
+	// タイムマネージャを取得
+	TimeManager* GetTimeManager() { return timeManager_; }
+
+	// 狙う方向
+	Vector3 GetAttackDirection() { return aimingDirection_; }
+	Vector3 GetAimingDirection() { return aimingDirection_; }
+
+	// IDを取得
+	int GetID() { return id_; }
+	// HPを取得
+	int GetHP() { return hp_; }
+	// 加速度を取得
+	float GetAcceleration() { return kAcceleration_; }
+	// 減衰速度を取得
+	float GetAttenuation() { return kAttenuation_; }
+	// 移動速度を取得
+	float GetLimitRunSpeed() { return kLimitRunSpeed_; }
+	// クリアフラグを取得
+	bool IsClear() { return isClear_; }
+	// ゲームオーバーフラグを取得
+	bool IsGameOver() { return isGameOver_; }
 	
+	// プレイヤーの剣を取得
+	PlayerSword* GetSword() { return sword_.get(); }
+
+	AttackType GetAttackType() { return attackType_; }
+
+public:	// setter
+	// ワールド座標をセット
+	void SetTransform(const WorldTransform& transform) { transform_ = transform; }
+	// 座標をセット
+	void SetPosition(Vector3 position) {
+		transform_.translation_ = position;
+		transform_.UpdateMatrix();
+	}
+	// 大きさをセット
+	void SetScale(const Vector3& scale) {
+		size_ = (scale.x + scale.y + scale.z) / 3.0f;
+		transform_.scale_ = scale;  // **スケールを適用**
+	}
+	// 向きをセット
+	void VectorRotation(const Vector3& direction);
+	// 速度をセット
+	void SetVelocity(Vector3 velocity) { velocity_ = velocity; }
+	// 各動作に必要なデータをセット
+	void SetRootData(const Root& root) { root_ = root; }
+	void SetAttackData(const Attack& attack) { attack_ = attack; }
+	void SetDefenceData(const Defence& defence) { defence_ = defence; }
+	void SetWorkDashData(const WorkDash& workDash) { workDash_ = workDash; }
+
+	// 狙う方向をセット
+	void SetAttackDirection(const Vector3& direction) { attackDirection_ = direction; }
+	void SetAimingDirection(const Vector3& direction) { aimingDirection_ = direction; }
+
+	// ロックオンをセット
+	void SetLockOn(LockOn* lockOn) { lockOn_ = lockOn; }
+	// タイムマネージャをセット
+	void SetTimeManager(TimeManager* timeManager) { timeManager_ = timeManager; }
+	// フォローカメラをセット
+	void SetFollowCamera(FollowCamera* followCamera) { followCamera_ = followCamera; }
+	// ビュープロジェクションをセット
+	void SetViewProjection(const ViewProjection* viewProjection) { viewProjection_ = viewProjection; }
+	
+	// IDをセット
+	static void SetPlayerID(int ID) { playerID_ = ID; }
+	// HPをセット
+	void SetHP(int hp) { hp_ = hp; }
+	// 加速度をセット
+	void SetAcceleration(float acceleration) { kAcceleration_ = acceleration; }
+	// 減衰速度をセット
+	void SetAttenuation(float attenuation) { kAttenuation_ = attenuation; }
+	// 移動速度をセット
+	void SetLimitRunSpeed(float limitRunSpeed) { kLimitRunSpeed_ = limitRunSpeed; }
+	// 生存フラグをセット
+	void SetIsAlive(bool flag) { isAlive_ = flag; }
+	// ゲームオーバーフラグをセット
+	void SetGameOver(bool gameOver) { isGameOver_ = gameOver; }
+
+	void SetAttackType(AttackType type) { attackType_ = type; }
+
+private:	// メンバ関数
 	// 攻撃方向入力されたか
 	bool IsAttackDirectionInput();
 
+	// 死亡
 	void Dead();
 
-private:	// メンバ変数
+	// 調整項目の適用
+	void ApplyGlobalVariables();
 
+private:	// メンバ変数
 	std::unique_ptr<Object3d> model_;
 
-	// 動作パターン
-	Behavior behavior_ = Behavior::kRoot;
-	static void(Player::* BehaviorInitFuncTable[])();
-	static void(Player::* BehaviorUpdateFuncTable[])();
-	// 動作パターンのリクエスト
-	std::optional<Behavior> behaviorRequest_ = std::nullopt;
-	// 攻撃方向タイプ
-	AttackType attackType_ = AttackType::kNullType;
-	static void(Player::* AttackTypeInitFuncTable[])();
-	static void(Player::* AttackTypeUpdateFuncTable[])();
-	// 攻撃方向タイプのリクエスト
-	std::optional<AttackType> attackTypeRequest_ = std::nullopt;
-
+	// ポインタ
+	TimeManager* timeManager_ = nullptr;
+	FollowCamera* followCamera_ = nullptr;
+	LockOn* lockOn_ = nullptr;
 	const ViewProjection* viewProjection_ = nullptr;
 
-	// 生存フラグ
-	bool isAlive_ = true;
+	// ソード
+	std::unique_ptr<PlayerSword> sword_;
+	// ステート
+	std::unique_ptr<PlayerBaseState> state_;
+	// パーティクルエミッタ
+	std::vector<std::unique_ptr<ParticleEmitter>> emitters_;
 
+	AttackType attackType_ = AttackType::kNullType;
+
+	// ステータス
+	int kHp_ = 10000;
+	int hp_ = kHp_;
+	// 移動速度 減衰速度
+	float kAcceleration_ = 0.1f;
+	float kAttenuation_ = 0.1f;
+	float kLimitRunSpeed_ = 5.0f;
+	// サイズ
+	float size_ = 1.0f;
+	// 速度
+	Vector3 velocity_{};
+	Vector3 acceleration_{};
 	// 各動作に必要なデータ
 	Root root_;
 	Attack attack_;
 	Defence defence_;
 	WorkDash workDash_;
 
-	// 移動速度 減衰速度
-	float kAcceleration_ = 0.1f;
-	float kAttenuation_ = 0.1f;
-	float kLimitRunSpeed_ = 5.0f;
-
-	// 攻撃速度 攻撃距離
-	//Vector3 attackVelocity_ = { 0.0f,0.0f,5.0f };
-	//float velocityLength = 0.0f;
-	//float velocityLengthW = 0.0f;
-
-	// サイズ
-	float size_ = 1.0f;
-	// 速度
-	Vector3 velocity_{};
-	Vector3 acceleration_{};
-
 	// 狙う方向
 	Vector3 attackDirection_{};
 	Vector3 aimingDirection_{};
 
-	// HP
-	int kHp_ = 10000;
-	int hp_ = kHp_;
-	//float attackPower_ = 10;
-	//float powerMagnification_ = 1.0f;
-	bool isClear_ = false;
-	bool isGameOver_ = false;
+	// フラグ
+	bool isAlive_ = true;		// 生存
+	bool isClear_ = false;		// クリア
+	bool isGameOver_ = false;	// ゲームオーバー
 
 	Vector3 deleteScale_;
 
@@ -245,64 +282,7 @@ private:	// メンバ変数
 
 	float deleteSpeed_ = 0.05f;
 
-	std::unique_ptr<PlayerSword> sword_;
-	// パーティクルエミッタ
-	std::vector<std::unique_ptr<ParticleEmitter>> emitters_;
-	// ポインタ
-	TimeManager* timeManager_ = nullptr;
-	FollowCamera* followCamera_ = nullptr;
-	LockOn* lockOn_ = nullptr;
-
+	// シリアルナンバー
 	static inline int playerID_ = 0;
 	int id_ = 0;
-
-	// 喜び動作用の時間
-	//float celebrateTime_ = 0.0f;
-
-public:
-	int GetID() { return id_; }
-	Vector3 GetWorldPosition();
-	Vector3 GetVelocity() { return velocity_; }
-	Vector3 GetRotation() { return transform_.rotation_; }
-	//bool IsAttack() { return attack_.isAttack; }
-	int GetHP() { return hp_; }
-	//float GetAttackPower() { return attackPower_; }
-	//float GetPowerMagnification() { return powerMagnification_; }
-	bool IsClear() { return isClear_; }
-	bool IsGameOver() { return isGameOver_; }
-
-	Vector3 GetScale() { return Vector3(size_, size_, size_); }
-	void SetScale(const Vector3& scale) {
-		size_ = (scale.x + scale.y + scale.z) / 3.0f;
-		transform_.scale_ = scale;  // **スケールを適用**
-	}
-
-	Behavior GetBehavior() { return behavior_; }
-
-	AttackType GetAttackType() { return attackType_; }
-
-	// プレイヤーの剣を取得
-	PlayerSword* GetSword() { return sword_.get(); }
-
-	const Vector3& GetAimingDirection() { return aimingDirection_; }
-
-	void SetBehavior(Behavior newBehavior);
-
-	static void SetPlayerID(int ID) { playerID_ = ID; }
-	void SetVelocity(Vector3 velocity) { velocity_ = velocity; }
-	void SetPosition(Vector3 position) {
-		transform_.translation_ = position;
-		transform_.UpdateMatrix();
-	}
-	void SetLockOn(LockOn* lockOn) { lockOn_ = lockOn; }
-	void SetTimeManager(TimeManager* timeManager) { timeManager_ = timeManager; }
-	void SetFollowCamera(FollowCamera* followCamera) { followCamera_ = followCamera; }
-	void SetViewProjection(const ViewProjection* viewProjection) { viewProjection_ = viewProjection; }
-	void SetHP(int hp) { hp_ = hp; }
-	//void SetAttackPower(float attackPower) { attackPower_ = attackPower; }
-	//void SetPowerMagnification(float powerMagnification) { powerMagnification_ = powerMagnification; }
-	void SetGameOver(bool gameOver) { isGameOver_ = gameOver; }
-
-	void SetIsAlive(bool flag) { isAlive_ = flag; }
-
 };

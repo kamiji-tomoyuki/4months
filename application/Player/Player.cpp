@@ -11,6 +11,8 @@
 #include "LockOn.h"
 #include <Audio.h>
 #include "Enemy.h"
+#include "PlayerStateRoot.h"
+#include "PlayerAttackStateNoInput.h"
 
 using namespace std::numbers;
 
@@ -19,6 +21,7 @@ Player::Player() {
 	playerID_++;
 }
 
+// 初期化
 void Player::Init() {
 	//基底クラスの初期化
 	BaseObject::Init();
@@ -29,6 +32,10 @@ void Player::Init() {
 	sword_ = std::make_unique<PlayerSword>();
 	sword_->SetPlayer(this);
 	sword_->SetTimeManager(timeManager_);
+
+	// ステートの初期化
+	state_ = std::make_unique<PlayerStateRoot>(this);
+	state_->Initialize();
 
 	model_ = std::make_unique<Object3d>();
 	model_->Initialize("player/player.gltf");
@@ -61,11 +68,8 @@ void Player::Init() {
 	globalVariables->AddItem(groupName, "kAcceleration", kAcceleration_);
 	globalVariables->AddItem(groupName, "kAttenuation", kAttenuation_);
 	globalVariables->AddItem(groupName, "kLimitRunSpeed", kLimitRunSpeed_);
-	//globalVariables->AddItem(groupName, "attackVelocity_", attackVelocity_);
 	globalVariables->AddItem(groupName, "size", size_);
 	globalVariables->AddItem(groupName, "kHp_", kHp_);
-	//globalVariables->AddItem(groupName, "attackPower_", attackPower_);
-	//globalVariables->AddItem(groupName, "powerMagnification_", powerMagnification_);
 	ApplyGlobalVariables();
 
 	hp_ = kHp_;
@@ -76,6 +80,7 @@ void Player::Init() {
 	deleteScale_ = transform_.scale_;
 }
 
+// 更新
 void Player::Update() {
 	ApplyGlobalVariables();
 
@@ -84,31 +89,7 @@ void Player::Update() {
 
 	if (isAlive_) {
 
-		if (behaviorRequest_) {
-			//振るまいを変更する
-			behavior_ = behaviorRequest_.value();
-
-			(this->*BehaviorInitFuncTable[static_cast<size_t>(behavior_)])();
-
-			behaviorRequest_ = std::nullopt;
-		}
-
-		(this->*BehaviorUpdateFuncTable[static_cast<size_t>(behavior_)])();
-
-		//if (transform_.translation_.x < -75.0f || transform_.translation_.x > 75.0f) {
-		//	transform_.translation_.x = std::clamp(transform_.translation_.x, -75.0f, 75.0f);
-		//	velocity_.x *= -1.0f;
-		//	if (!isGameOver_) {  // GameOver時はチェックしない
-		//		Audio::GetInstance()->PlayWave(11, 1.0f, false);
-		//	}
-		//}
-		//if (transform_.translation_.z < -135.0f || transform_.translation_.z > 12.0f) {
-		//	transform_.translation_.z = std::clamp(transform_.translation_.z, -135.0f, 12.0f);
-		//	velocity_.z *= -1.0f;
-		//	if (!isGameOver_) {  // GameOver時はチェックしない
-		//		Audio::GetInstance()->PlayWave(11, 1.0f, false);
-		//	}
-		//}
+		state_->Update();
 
 	} else {
 
@@ -137,16 +118,8 @@ void Player::Update() {
 	model_->AnimationUpdate(true);
 }
 
+// パーティクルの更新
 void Player::UpdateParticle(const ViewProjection& viewProjection) {
-	/*if (timeManager_->GetTimer("Smoke" + std::to_string(id_)).isStart &&
-		!timeManager_->GetTimer("SmokeCoolTime" + std::to_string(id_)).isStart) {
-		emitters_[1]->SetEmitActive(true);
-		timeManager_->SetTimer("SmokeCoolTime" + std::to_string(id_), 0.1f);
-	}
-	for (std::unique_ptr<ParticleEmitter>& emitter_ : emitters_) {
-		emitter_->SetEmitPosition(GetCenterPosition());
-		emitter_->UpdateOnce(viewProjection);
-	}*/
 	for (std::unique_ptr<ParticleEmitter>& emitter_ : emitters_) {
 		emitter_->SetPosition(GetCenterPosition());
 		emitter_->Update();
@@ -154,26 +127,27 @@ void Player::UpdateParticle(const ViewProjection& viewProjection) {
 	sword_->UpdateParticle(viewProjection);
 }
 
+// 描画
 void Player::Draw(const ViewProjection& viewProjection) {
-	//基底クラス描画
-	//BaseObject::Draw(viewProjection);
+	// 剣の描画
 	sword_->Draw(viewProjection);
-
 }
 
+// パーティクルの描画
 void Player::DrawParticle(const ViewProjection& viewProjection) {
-	//for (std::unique_ptr<ParticleEmitter>& emitter_ : emitters_) {
-	//	emitter_->Draw();
-	//	//emitter_->DrawEmitter();
-	//}
+	
+	// 剣のパーティクル描画
 	sword_->DrawParticle(viewProjection);
 }
 
+// アニメーションの描画
 void Player::DrawAnimation(const ViewProjection& viewProjection)
 {
+	// プレイヤーの描画
 	model_->Draw(BaseObject::GetWorldTransform(), viewProjection);
 }
 
+// 当たってる間
 void Player::OnCollision([[maybe_unused]] Collider* other) {
 
 	if (isGameOver_) return; // GameOver中は衝突処理をスキップ
@@ -204,355 +178,49 @@ void Player::OnCollision([[maybe_unused]] Collider* other) {
 		Vector3 correction = Vector3(GetCenterPosition() - enemy->GetCenterPosition()).Normalize() * (GetRadius() + enemy->GetRadius() - distance) * 0.750f;
 		transform_.translation_ += correction;
 		enemy->SetTranslation(enemy->GetTransform().translation_ - correction);
-
-		//timeManager_->SetTimer("collision", timeManager_->deltaTime_ * 3.0f);
-
 	}
 
 	transform_.UpdateMatrix();
 }
 
+// 当たった瞬間
 void Player::OnCollisionEnter([[maybe_unused]] Collider* other) {
-	// 衝突相手の種別IDを取得
-	//uint32_t typeID = other->GetTypeID();
-	//衝突相手
+	
 }
 
+// 当たり終わった瞬間
 void Player::OnCollisionOut([[maybe_unused]] Collider* other) {
 
 }
 
-// 浮遊動作(無入力)の初期化
-void Player::InitializeFloatingGimmick() {
-	root_.floatingParameter = 0.0f;
-}
-
-// 浮遊動作(無入力)の更新
-void Player::UpdateFloatingGimmick() {
-	// 1フレームでのパラメータ加算値
-	const float step = 2.0f * std::numbers::pi_v<float> / root_.period;
-	//パラメータを1ステップ分加算
-	root_.floatingParameter += step;
-	//2πを超えたら0に戻す
-	root_.floatingParameter = std::fmod(root_.floatingParameter, 2.0f * std::numbers::pi_v<float>);
-
-	//浮遊を座標に反映
-	transform_.translation_.y = std::sin(root_.floatingParameter) * root_.floatingAmplitude;
-}
-
-// 通常動作の初期化
-void Player::BehaviorRootInitialize() {
-	sword_->SetIsAttack(false);
-	defence_.isDefence = false;
-	sword_->SetIsDefence(false);
-	sword_->SetRotation(Vector3(0.0f, 0.0f, 0.0f));
-	sword_->SetTranslation(Vector3(1.5f, 0.0f, 0.0f));
-	sword_->ContactRecordClear();
-}
-
-// 通常動作の更新
-void Player::BehaviorRootUpdate() {
-	UpdateFloatingGimmick();
-
-	// 移動処理
-	Move();
-
-	// 方向取得
-	SetInputDirection();
-
-	// ゲームパッド入力処理
-	XINPUT_STATE joyState;
-	if (Input::GetInstance()->GetJoystickState(0, joyState))
-	{
-		// 攻撃入力がされていない時
-		if (!(joyState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER)) {
-			attack_.isAttack = false;
-		}
-		// 予備動作(攻撃防御方向入力)
-		if (IsAttackDirectionInput()) {
-			behaviorRequest_ = Behavior::kPreliminary;
-		}
-		// ダッシュ処理
-		if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_X) {
-			behaviorRequest_ = Behavior::kDash;
-		}
-	}
 #ifdef _DEBUG
-	else {
-		// 攻撃入力がされていない時
-		if (Input::GetInstance()->ReleaseKey(DIK_SPACE)) {
-			attack_.isAttack = false;
-		}
-		// 予備動作(攻撃防御方向入力)
-		if (IsAttackDirectionInput()) {
-			behaviorRequest_ = Behavior::kPreliminary;
-		}
-		// ダッシュ処理
-		if (Input::GetInstance()->TriggerKey(DIK_RSHIFT)) {
-			behaviorRequest_ = Behavior::kDash;
-		}
+// ImGui
+void Player::ImGui()
+{
+	if (ImGui::Begin("Player Coordinates")) {
+		ImGui::PushID(id_);
+		// 座標情報を表示し、DragFloat3で編集可能にする
+		ImGui::Text("Position:");
+		ImGui::DragFloat3("Translation", &transform_.translation_.x, 0.1f);
+
+		ImGui::Text("velocity_:");
+		ImGui::DragFloat3("velocity_", &velocity_.x, 0.1f);
+
+		ImGui::Text("HP:");
+		ImGui::DragInt("HP", &hp_);
+		ImGui::PopID();
+		ImGui::End();
 	}
+
+	sword_->ImGui();
+}
 #endif // _DEBUG
-
-}
-
-// ダッシュ動作の初期化
-void Player::BehaviorDashInitialize(){
-	workDash_.DashTime_ = 0;
-}
-
-// ダッシュ動作の更新
-void Player::BehaviorDashUpdate(){
-	float startSpeed = kAcceleration_;
-	float endSpeed = kAcceleration_ * workDash_.kAttenuation_;
-	Vector3 move{};
-	float armStartTheta = 0;
-	float armEndTheta = std::numbers::pi_v<float> / 2.0f;
-	float armTheta{};
-	workDash_.DashTime_ += timeManager_->deltaTime_;
-	if (workDash_.DashTime_ / workDash_.kDashTime_ >= 1.0f) {
-		behaviorRequest_ = Behavior::kRoot;
-	}
-	move.z = EaseOutExpo(startSpeed, endSpeed,workDash_.DashTime_ , workDash_.kDashTime_);
-	Matrix4x4 rotateMatrix = MakeRotateYMatrix(transform_.rotation_.y);
-	move = Transformation(move, rotateMatrix);
-	// 移動
-	transform_.translation_ = (transform_.translation_ + move);
-	transform_.UpdateMatrix();
-}
-
-// 攻撃の構えの動作の初期化
-void Player::BehaviorPostureAttackInitialize()
-{
-	transform_.UpdateMatrix();
-	attack_.time = 0;
-	attack_.swordStartTransform = sword_->GetTranslation().z;
-	sword_->SetIsAttack(false);
-}
-
-// 攻撃の構えの動作の更新
-void Player::BehaviorPostureAttackUpdate()
-{
-	// 移動処理
-	Move();
-	// 方向取得
-	SetInputDirection();
-	// 武器を入力方向に移動
-	float cosTheta = atan2f(attackDirection_.y, attackDirection_.x);
-	if (InputDirection() == Nothing) {
-		aimingDirection_ = { 0.0f, 0.0f, 0.0f };
-		behaviorRequest_ = Behavior::kRoot;
-	}
-	
-	// 上
-	if (InputDirection() == TOP) {
-		// 座標
-		sword_->SetTranslation({ attackDirection_.x, attackDirection_.y , 0.0f });
-
-		// 角度
-		sword_->SetRotation({ 0.0f, 0.0f, 0.0f });
-
-		attackTypeRequest_ = AttackType::kDownSwing;
-	}
-	// 下
-	if (InputDirection() == DOWN) {
-		// 座標
-		sword_->SetTranslation({ 1.5f, 0.0f , -1.5f });
-
-		// 角度
-		Quaternion q = Quaternion::MakeRotateAxisAngleQuaternion({ 1.0f, 0.0f, 0.0f }, 0.5f * pi_v<float>);
-		sword_->SetRotation(q.ToEulerAngles());
-
-		attackTypeRequest_ = AttackType::kThrust;
-	}
-	// 左
-	if (InputDirection() == LEFT) {
-		// 座標
-		sword_->SetTranslation({ attackDirection_.x, 0.0f , attackDirection_.y });
-
-		// 角度
-		Quaternion q = Quaternion::MakeRotateAxisAngleQuaternion({ 0.0f, 0.0f, 1.0f }, 0.5f * pi_v<float>);
-		sword_->SetRotation(q.ToEulerAngles());
-
-		attackTypeRequest_ = AttackType::kRightSlash;
-	}
-	// 右
-	if (InputDirection() == RIGHT) {
-		// 座標
-		sword_->SetTranslation({ attackDirection_.x, 0.0f , attackDirection_.y });
-
-		// 角度
-		Quaternion q = Quaternion::MakeRotateAxisAngleQuaternion({ 0.0f, 0.0f, 1.0f }, -0.5f * pi_v<float>);
-		sword_->SetRotation(q.ToEulerAngles());
-
-		attackTypeRequest_ = AttackType::kLeftSlash;
-	}
-
-	// ゲームパッド入力処理
-	XINPUT_STATE joyState;
-	// 攻撃入力がされていない時
-	if (Input::GetInstance()->GetJoystickState(0, joyState) && !(joyState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER)) {
-		attack_.isAttack = false;
-	}
-	// 攻撃の処理
-	if ((Input::GetInstance()->GetJoystickState(0, joyState) && joyState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) &&
-		!attack_.isAttack) {
-		behaviorRequest_ = Behavior::kAttack;
-		aimingDirection_ = attackDirection_;
-	}
-	// 防御の処理
-	if (Input::GetInstance()->GetJoystickState(0, joyState) && joyState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) {
-		behaviorRequest_ = Behavior::kProtection;
-	}
-}
-
-// 攻撃動作の初期化
-void Player::BehaviorAttackInitialize() {
-	transform_.UpdateMatrix();
-	attack_.time = 0;
-	attack_.isAttack = true;
-	attack_.swordStartTransform = sword_->GetTranslation().z;
-	sword_->SetIsAttack(true);
-}
-
-// 攻撃動作の更新
-void Player::BehaviorAttackUpdate() {
-	// アームの開始角度
-	float speed = kAcceleration_ * 2.0f;
-	Vector3 move{};
-	attack_.time += timeManager_->deltaTime_;
-
-	if (attack_.time / attack_.kLimitTime > 1.0f) {
-		behaviorRequest_ = Behavior::kRoot;
-	}
-
-	if (attackTypeRequest_) {
-		//振るまいを変更する
-		attackType_ = attackTypeRequest_.value();
-
-		(this->*AttackTypeInitFuncTable[static_cast<size_t>(attackType_)])();
-
-		attackTypeRequest_ = std::nullopt;
-	}
-
-	(this->*AttackTypeUpdateFuncTable[static_cast<size_t>(attackType_)])();
-
-	//ロックオン中
-	//if (lockOn_ && lockOn_->ExistTarget()) {
-	//	// ロックオン座標
-	//	Vector3 lockOnPos = lockOn_->GetTargetPosition();
-	//	// 追従対象からロックオン対象へのベクトル
-	//	Vector3 sub = lockOnPos - GetWorldPosition();
-
-	//	//距離
-	//	float distance = sub.Length();
-	//	//距離しきい値
-	//	const float threshold = 0.4f;
-	//	
-	//	//しきい値より離れている時のみ
-	//	if (distance > threshold) {
-	//		//Y軸周り角度
-	//		transform_.rotation_.y = std::atan2f(sub.x, sub.z);
-	//	}
-	//}
-}
-
-// 防御動作の初期化
-void Player::BehaviorProtectionInitialize() {
-	transform_.UpdateMatrix();
-	attack_.isAttack = false;
-	sword_->SetIsAttack(false);
-	transform_.UpdateMatrix();
-	defence_.time = 0;
-	defence_.isDefence = true;
-	sword_->SetIsDefence(true);
-}
-
-// 防御動作の更新
-void Player::BehaviorProtectionUpdate() {
-	// 移動処理
-	Move();
-	// 方向取得
-	SetInputDirection();
-	aimingDirection_ = attackDirection_;
-	// 入力方向によって角度をセット
-	float cosTheta = atan2f(aimingDirection_.y, aimingDirection_.x);
-	if (InputDirection() == Nothing) {
-		behaviorRequest_ = Behavior::kRoot;
-	}
-	
-	// 上
-	if (InputDirection() == TOP) {
-		// 座標
-		sword_->SetTranslation({ aimingDirection_.x * 0.6f + 2.0f, aimingDirection_.y * 0.4f , 0.25f });
-		
-		// 角度
-		/*Quaternion q = Quaternion::MakeRotateAxisAngleQuaternion({ 0.0f, 1.0f, 0.0f }, -pi_v<float> * 0.5f);
-		Quaternion q2 = q * Quaternion::MakeRotateAxisAngleQuaternion({ 1.0f, 0.0f, 0.0f }, -pi_v<float> *0.5f);*/
-		//Vector3 newRotate = q2.ToEulerAngles();
-		Vector3 newRotate = { 0.0f, pi_v<float> *0.5f, pi_v<float> *0.5f };
-		sword_->SetRotation(newRotate);
-	}
-	// 下
-	if (InputDirection() == DOWN) {
-		// 座標
-		sword_->SetTranslation({ aimingDirection_.x * 0.6f + 2.0f, -0.50f , 1.5f });
-		
-		// 角度
-		Quaternion q = Quaternion::MakeRotateAxisAngleQuaternion({ 0.0f, 0.0f, 1.0f }, pi_v<float> * 0.5f);
-		sword_->SetRotation(q.ToEulerAngles());
-	}
-	// 左右
-	if (InputDirection() == LEFT || InputDirection() == RIGHT) {
-		// 座標
-		sword_->SetTranslation({ aimingDirection_.x * 0.25f, aimingDirection_.y * 0.25f , 0.0f });
-
-		// 角度
-		sword_->SetRotation({ 0.0f, 0.0f, 0.0f });
-	}
-
-	// 
-	XINPUT_STATE joyState;
-	Input::GetInstance()->GetJoystickState(0, joyState);
-	// 防御解除の処理
-	if (Input::GetInstance()->GetJoystickState(0, joyState) && !(joyState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER)) {
-		behaviorRequest_ = Behavior::kRoot;
-	}
-}
-
-// 勝利(喜ぶ)動作の初期化
-void Player::BehaviorCelebrateInitialize()
-{
-	sword_->SetRotationX(0.0f);
-}
-
-// 勝利(喜ぶ)動作更新
-void Player::BehaviorCelebrateUpdate()
-{
-	// 腕を振る動作 (sin波を使って上下)
-	float wave = std::sin(timeManager_->GetCurrentTime() * 10.0f) * 0.5f; // -0.5 〜 0.5 の範囲
-	sword_->SetRotationX(wave);
-}
-
-// 調整項目の適用
-void Player::ApplyGlobalVariables() {
-	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
-	const char* groupName = "Player";
-	kAcceleration_ = globalVariables->GetFloatValue(groupName, "kAcceleration");
-	kAttenuation_ = globalVariables->GetFloatValue(groupName, "kAttenuation");
-	kLimitRunSpeed_ = globalVariables->GetFloatValue(groupName, "kLimitRunSpeed");
-	//attackVelocity_ = globalVariables->GetVector3Value(groupName, "attackVelocity_");
-	size_ = globalVariables->GetFloatValue(groupName, "size");
-	kHp_ = globalVariables->GetIntValue(groupName, "kHp_");
-	//attackPower_ = globalVariables->GetFloatValue(groupName, "attackPower_");
-	//powerMagnification_ = globalVariables->GetFloatValue(groupName, "powerMagnification_");
-}
 
 // 移動処理
 void Player::Move() {
 	Matrix4x4 rotateMatrix;
 	Vector3 move{};
-	
+
 	// ゲームパッド入力処理
 	XINPUT_STATE joyState;
 	if (Input::GetInstance()->GetJoystickState(0, joyState)) {
@@ -630,116 +298,6 @@ int Player::InputDirection()
 	return Nothing;
 }
 
-// 振り下ろし(上入力攻撃)の初期化
-void Player::AttackTypeDownSwingInitialize()
-{
-	// 座標セット
-	attack_.swordStartTransform = sword_->GetTranslation();
-	attack_.swordEndTransform = { sword_->GetTranslation().x + aimingDirection_.x, sword_->GetTranslation().y - aimingDirection_.y, sword_->GetTranslation().z + aimingDirection_.y };
-
-	attack_.time = 0.0f;
-}
-
-// 振り下ろし(上入力攻撃)の更新
-void Player::AttackTypeDownSwingUpdate()
-{
-	// 座標の計算
-	Vector3 newPos = 0.0f;
-	float theta = float(pi_v<float> * 0.5f * (attack_.time / attack_.kLimitTime));
-
-	newPos = { Lerp(attack_.swordStartTransform.x, attack_.swordEndTransform.x, attack_.time / attack_.kLimitTime), attack_.swordStartTransform.y * cosf(theta) - attack_.swordStartTransform.z * sinf(theta), attack_.swordStartTransform.y * sinf(theta) + attack_.swordStartTransform.z * cosf(theta)};
-
-	sword_->SetTranslation(newPos);
-
-	// 角度の計算
-	Quaternion q1 = Quaternion::MakeRotateAxisAngleQuaternion({ 1.0f, 0.0f, 0.0f }, pi_v<float> * 0.6f);
-	Quaternion q2 = Quaternion::Sleap(Quaternion{ 0.0f, 0.0f, 0.0f, 1.0f }, q1, attack_.time / attack_.kLimitTime);
-	sword_->SetRotation(q2.ToEulerAngles());
-}
-
-// 突き(下入力攻撃)の初期化
-void Player::AttackTypeThrustInitialize()
-{
-	attack_.swordStartTransform = sword_->GetTranslation();
-	attack_.swordEndTransform = { sword_->GetTranslation().x - (aimingDirection_.x * 0.2f * 6.0f), sword_->GetTranslation().y, -aimingDirection_.y * 0.2f * 6.0f };
-	attack_.time = 0.0f;
-}
-
-// 突き(下入力攻撃)の更新
-void Player::AttackTypeThrustUpdate()
-{
-	// 座標の計算
-	Vector3 newPos = EaseInOutExpo(attack_.swordStartTransform, attack_.swordEndTransform, attack_.time, attack_.kLimitTime);
-
-	sword_->SetTranslation(newPos);
-}
-
-// 右振り抜き(左入力攻撃)の初期化
-void Player::AttackTypeLeftSwingInitialize()
-{
-	// 座標セット
-	attack_.swordStartTransform = sword_->GetTranslation();
-	attack_.swordEndTransform = { -aimingDirection_.x, sword_->GetTranslation().y, sword_->GetTranslation().z };
-	
-	attack_.time = 0.0f;
-}
-
-// 右振り抜き(左入力攻撃)の更新
-void Player::AttackTypeLeftSwingUpdate()
-{
-	// 座標の計算
-	Vector3 newPos = 0.0f;
-	float theta = float(pi_v<float> * (attack_.time / attack_.kLimitTime));
-	
-	newPos = { attack_.swordStartTransform.x * cosf(-theta) - attack_.swordStartTransform.z * sinf(-theta), attack_.swordStartTransform.y, attack_.swordStartTransform.x * sinf(-theta) + attack_.swordStartTransform.z * cosf(-theta) };
-
-	sword_->SetTranslation(newPos);
-
-	// 角度の計算
-	Quaternion q1 = Quaternion::MakeRotateAxisAngleQuaternion({ 0.0f, 0.0f, 1.0f }, pi_v<float> * 0.5f);
-	Quaternion q2 = Quaternion::MakeRotateAxisAngleQuaternion({ 1.0f, 0.0f, 0.0f }, 0.0f);
-	Quaternion q3 = Quaternion::MakeRotateAxisAngleQuaternion({ 1.0f, 0.0f, 0.0f }, -pi_v<float>);
-	Quaternion q4 = Quaternion::Sleap(q1 * q2, q1 * q3, attack_.time / attack_.kLimitTime);
-	sword_->SetRotation(q4.ToEulerAngles());
-}
-
-// 左振り抜き(右入力攻撃)の初期化
-void Player::AttackTypeRightSwingInitialize()
-{
-	// 座標セット
-	attack_.swordStartTransform = sword_->GetTranslation();
-	attack_.swordEndTransform = { -aimingDirection_.x, sword_->GetTranslation().y, sword_->GetTranslation().z };
-	
-	attack_.time = 0.0f;
-}
-
-// 左振り抜き(右入力攻撃)の更新
-void Player::AttackTypeRightSwingUpdate()
-{
-	// 座標の計算
-	Vector3 newPos = 0.0f;
-	float theta = float(pi_v<float> * (attack_.time / attack_.kLimitTime));
-
-	newPos = { attack_.swordStartTransform.x * cosf(theta) - attack_.swordStartTransform.z * sinf(theta), attack_.swordStartTransform.y, attack_.swordStartTransform.x * sinf(theta) + attack_.swordStartTransform.z * cosf(theta) };
-
-	sword_->SetTranslation(newPos);
-
-	// 角度の計算
-	Quaternion q1 = Quaternion::MakeRotateAxisAngleQuaternion({ 0.0f, 0.0f, 1.0f }, pi_v<float> * 0.5f);
-	Quaternion q2 = Quaternion::MakeRotateAxisAngleQuaternion({ 1.0f, 0.0f, 0.0f }, -pi_v<float>);
-	Quaternion q3 = Quaternion::MakeRotateAxisAngleQuaternion({ 1.0f, 0.0f, 0.0f }, 0.0f);
-	Quaternion q4 = Quaternion::Sleap(q1 * q2, q1 * q3, attack_.time / attack_.kLimitTime);
-	sword_->SetRotation(q4.ToEulerAngles());
-}
-
-// 未入力
-void Player::AttackTypeNullInitialize()
-{
-}
-void Player::AttackTypeNullUpdate()
-{
-}
-
 // 入力方向の設定
 void Player::SetInputDirection()
 {
@@ -795,7 +353,131 @@ void Player::SetInputDirection()
 #endif // _DEBUG
 
 	attackDirection_ *= 5.0f;
+
+	SetAimingDirection(attackDirection_);
 }
+
+// ステートチェンジ
+void Player::ChangeState(std::unique_ptr<PlayerBaseState> state)
+{
+	state_ = std::move(state);
+	state_->Initialize();
+}
+
+// ダッシュ入力
+bool Player::IsDashInput()
+{
+	XINPUT_STATE joyState;
+	if (Input::GetInstance()->GetJoystickState(0, joyState)) {
+		if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_X) {
+			return true;
+		}
+	}
+	return false;
+}
+
+// 予備動作入力
+bool Player::IsPreliminaryInput()
+{
+	SetInputDirection();
+
+	XINPUT_STATE joyState;
+	if (Input::GetInstance()->GetJoystickState(0, joyState) && IsAttackDirectionInput()) {
+		return true;
+	}
+	return false;
+}
+
+// 攻撃入力
+bool Player::IsAttackInput()
+{
+	XINPUT_STATE joyState;
+	if ((Input::GetInstance()->GetJoystickState(0, joyState) && joyState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) &&
+		!attack_.isAttack) {
+		return true;
+	}
+	return false;
+}
+
+// 防御入力
+bool Player::IsGuard()
+{
+	XINPUT_STATE joyState;
+	if (Input::GetInstance()->GetJoystickState(0, joyState) && joyState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) {
+		return true;
+	}
+	return false;
+}
+
+// 浮遊動作(無入力)の初期化
+void Player::InitializeFloatingGimmick() {
+	root_.floatingParameter = 0.0f;
+}
+
+// 浮遊動作(無入力)の更新
+void Player::UpdateFloatingGimmick() {
+	// 1フレームでのパラメータ加算値
+	const float step = 2.0f * std::numbers::pi_v<float> / root_.period;
+	//パラメータを1ステップ分加算
+	root_.floatingParameter += step;
+	//2πを超えたら0に戻す
+	root_.floatingParameter = std::fmod(root_.floatingParameter, 2.0f * std::numbers::pi_v<float>);
+
+	//浮遊を座標に反映
+	transform_.translation_.y = std::sin(root_.floatingParameter) * root_.floatingAmplitude;
+}
+
+/// -------------getter-------------
+
+// 中心座標を取得
+Vector3 Player::GetCenterPosition() const {
+	//ローカル座標でのオフセット
+	const Vector3 offset = { 0.0f, 0.0f, 0.0f };
+	//ワールド座標に変換
+	Vector3 worldPos = Transformation(offset, transform_.matWorld_);
+	return worldPos;
+}
+
+// 中心回転を取得
+Vector3 Player::GetCenterRotation() const {
+	return transform_.rotation_;
+}
+
+// ワールド座標を取得
+Vector3 Player::GetWorldPosition()
+{
+	return Vector3();
+}
+
+// 方向を取得
+Vector2 Player::InputDirectionGampad()
+{
+	XINPUT_STATE joyState;
+	Vector3 input{};
+	if (Input::GetInstance()->IsAnyJoystickConnected())
+	{
+		Input::GetInstance()->GetJoystickState(0, joyState);
+		input = { (float)joyState.Gamepad.sThumbRX / SHRT_MAX, (float)joyState.Gamepad.sThumbRY / SHRT_MAX, 0.0f };
+		input = input.Normalize();
+	}
+	return { input.x, input.y };
+}
+
+/// -------------getter-------------
+
+/// -------------setter-------------
+
+// 向きをセット
+void Player::VectorRotation(const Vector3& direction) {
+	Vector3 move = direction;
+	transform_.rotation_.y = std::atan2f(move.x, move.z);
+	Vector3 velocityZ = Transformation(move, MakeRotateYMatrix(-transform_.rotation_.y));
+	transform_.rotation_.x = std::atan2f(-velocityZ.y, velocityZ.z);
+}
+
+/// -------------setter-------------
+
+/// -----------メンバ関数-----------
 
 // 攻撃方向入力されたか
 bool Player::IsAttackDirectionInput()
@@ -822,122 +504,13 @@ void Player::Dead() {
 	}
 }
 
-// 向きをセット
-void Player::VectorRotation(const Vector3& direction) {
-	Vector3 move = direction;
-	transform_.rotation_.y = std::atan2f(move.x, move.z);
-	Vector3 velocityZ = Transformation(move, MakeRotateYMatrix(-transform_.rotation_.y));
-	transform_.rotation_.x = std::atan2f(-velocityZ.y, velocityZ.z);
+// 調整項目の適用
+void Player::ApplyGlobalVariables() {
+	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
+	const char* groupName = "Player";
+	kAcceleration_ = globalVariables->GetFloatValue(groupName, "kAcceleration");
+	kAttenuation_ = globalVariables->GetFloatValue(groupName, "kAttenuation");
+	kLimitRunSpeed_ = globalVariables->GetFloatValue(groupName, "kLimitRunSpeed");
+	size_ = globalVariables->GetFloatValue(groupName, "size");
+	kHp_ = globalVariables->GetIntValue(groupName, "kHp_");
 }
-
-// 方向を取得
-Vector2 Player::InputDirectionGampad()
-{
-	XINPUT_STATE joyState;
-	Vector3 input{};
-	if (Input::GetInstance()->IsAnyJoystickConnected())
-	{
-		Input::GetInstance()->GetJoystickState(0, joyState);
-		input = { (float)joyState.Gamepad.sThumbRX / SHRT_MAX, (float)joyState.Gamepad.sThumbRY / SHRT_MAX, 0.0f };
-		input = input.Normalize();
-	}
-	return { input.x, input.y };
-}
-
-void Player::ImGui()
-{
-	if (ImGui::Begin("Player Coordinates")) {
-		ImGui::PushID(id_);
-		// 座標情報を表示し、DragFloat3で編集可能にする
-		ImGui::Text("Position:");
-		ImGui::DragFloat3("Translation", &transform_.translation_.x, 0.1f);
-
-		ImGui::Text("velocity_:");
-		ImGui::DragFloat3("velocity_", &velocity_.x, 0.1f);
-
-		//ImGui::Text("Scale:");
-		//ImGui::DragFloat3("Scale", &transform_.scale_.x, 0.1f);
-
-		//ImGui::Text("velocityLength:");
-		//velocityLength = velocity_.Length();
-		//ImGui::DragFloat("velocityLength", &velocityLength);
-
-		//ImGui::Text("velocityLengthW:");
-		//velocityLengthW = (attackPower_ + velocity_.Length() * powerMagnification_);
-		//ImGui::DragFloat("velocityLengthW", &velocityLengthW);
-
-		ImGui::Text("HP:");
-		ImGui::DragInt("HP", &hp_);
-		XINPUT_STATE joyState;
-		if (/*Input::GetInstance()->GetJoystickState(0, joyState) && joyState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER*/
-			Input::GetInstance()->GetJoystickState(0, joyState) && joyState.Gamepad.bRightTrigger/* & XINPUT_GAMEPAD_RIGHT_SHOULDER*/) {
-			ImGui::Text("RB:true");
-			ImGui::Text("RStick:(%4.2f, %4.2f)", aimingDirection_.x, aimingDirection_.y);
-			float cosTheta = atan2f(aimingDirection_.y, aimingDirection_.x);
-			ImGui::Text("cosTheta:(%4.2f)", cosTheta);
-		}
-		else {
-			ImGui::Text("RB:false");
-		}
-		ImGui::PopID();
-		ImGui::End();
-	}
-
-	sword_->ImGui();
-}
-
-Vector3 Player::GetWorldPosition()
-{
-	return Vector3();
-}
-
-void Player::SetBehavior(Behavior newBehavior)
-{
-	if (behavior_ != newBehavior) {
-		behavior_ = newBehavior;
-		(this->*BehaviorInitFuncTable[static_cast<size_t>(behavior_)])();
-	}
-}
-
-Vector3 Player::GetCenterPosition() const {
-	//ローカル座標でのオフセット
-	const Vector3 offset = { 0.0f, 0.0f, 0.0f };
-	//ワールド座標に変換
-	Vector3 worldPos = Transformation(offset, transform_.matWorld_);
-	return worldPos;
-}
-
-Vector3 Player::GetCenterRotation() const {
-	return transform_.rotation_;
-}
-void(Player::* Player::BehaviorInitFuncTable[])() = {
-	&Player::BehaviorRootInitialize,
-	&Player::BehaviorDashInitialize,
-	&Player::BehaviorPostureAttackInitialize,
-	&Player::BehaviorAttackInitialize,
-	&Player::BehaviorProtectionInitialize,
-	&Player::BehaviorCelebrateInitialize,
-};
-void(Player::* Player::BehaviorUpdateFuncTable[])() = {
-	&Player::BehaviorRootUpdate,
-	&Player::BehaviorDashUpdate,
-	&Player::BehaviorPostureAttackUpdate,
-	&Player::BehaviorAttackUpdate,
-	&Player::BehaviorProtectionUpdate,
-	&Player::BehaviorCelebrateUpdate,
-};
-
-void(Player::* Player::AttackTypeInitFuncTable[])() = {
-	&Player::AttackTypeDownSwingInitialize,
-	&Player::AttackTypeThrustInitialize,
-	&Player::AttackTypeLeftSwingInitialize,
-	&Player::AttackTypeRightSwingInitialize,
-	&Player::AttackTypeNullInitialize,
-};
-void(Player::* Player::AttackTypeUpdateFuncTable[])() = {
-	&Player::AttackTypeDownSwingUpdate,
-	&Player::AttackTypeThrustUpdate,
-	&Player::AttackTypeLeftSwingUpdate,
-	&Player::AttackTypeRightSwingUpdate,
-	&Player::AttackTypeNullUpdate,
-};
