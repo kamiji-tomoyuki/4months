@@ -93,10 +93,8 @@ public:
 	/// <param name="other"></param>
 	void OnCollisionOut([[maybe_unused]] Collider* other) override;
 
-#ifdef _DEBUG
 	// ImGui
 	void ImGui();
-#endif // _DEBUG
 
 	// 移動
 	void Move();

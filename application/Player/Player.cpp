@@ -193,10 +193,10 @@ void Player::OnCollisionOut([[maybe_unused]] Collider* other) {
 
 }
 
-#ifdef _DEBUG
 // ImGui
 void Player::ImGui()
 {
+#ifdef _DEBUG
 	if (ImGui::Begin("Player Coordinates")) {
 		ImGui::PushID(id_);
 		// 座標情報を表示し、DragFloat3で編集可能にする
@@ -213,8 +213,8 @@ void Player::ImGui()
 	}
 
 	sword_->ImGui();
-}
 #endif // _DEBUG
+}
 
 // 移動処理
 void Player::Move() {
